@@ -13,7 +13,7 @@ import hashlib
 
 logger = logging.getLogger('MedAI.DICOM')
 
-class DICOMProcessor:
+class DicomProcessor:
     """
     Classe para processamento de imagens DICOM médicas
     Suporta leitura, conversão, anonimização e pré-processamento

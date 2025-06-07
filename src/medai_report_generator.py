@@ -24,7 +24,7 @@ import base64
 
 logger = logging.getLogger('MedAI.Reports')
 
-class MedicalReportGenerator:
+class ReportGenerator:
     """
     Gerador de relatórios médicos profissionais
     Cria documentos PDF estruturados com resultados de análise
