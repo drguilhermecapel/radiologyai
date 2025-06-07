@@ -1,12 +1,20 @@
 # Instalação do MedAI Radiologia
 
+## Sobre o Sistema
+
+O MedAI Radiologia utiliza **inteligência artificial de última geração** para análise de imagens médicas, incluindo:
+- **EfficientNetV2L**: Arquitetura mais avançada para máxima precisão
+- **Vision Transformer (ViT)**: Modelo baseado em atenção para análise detalhada
+- **ConvNeXt XLarge**: CNN moderna que compete com Transformers
+- **Modelos Híbridos**: Combinação de múltiplas arquiteturas para confiabilidade máxima
+
 ## Requisitos do Sistema
 
 ### Windows
 - Windows 10 ou superior (64-bit)
-- 8 GB RAM mínimo (16 GB recomendado)
-- 5 GB espaço livre em disco
-- Placa gráfica compatível com DirectX 11 (GPU opcional para aceleração)
+- 8 GB RAM mínimo (16 GB recomendado para modelos avançados)
+- 8 GB espaço livre em disco (modelos de IA requerem mais espaço)
+- Placa gráfica compatível com DirectX 11 (GPU recomendada para aceleração dos modelos SOTA)
 
 ### Para Desenvolvimento
 - Python 3.8 ou superior

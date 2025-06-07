@@ -40,25 +40,28 @@ class Config:
     APP_NAME = "MedAI Radiologia"
     APP_VERSION = "1.0.0"
     
-    # Configurações de modelos
+    # Configurações de modelos - Estado da Arte para máxima precisão
     MODEL_CONFIG = {
         'chest_xray': {
-            'model_path': MODELS_DIR / 'chest_xray_model.h5',
-            'input_size': (224, 224),
-            'classes': ['Normal', 'Pneumonia', 'COVID-19', 'Tuberculose', 'Cardiomegalia'],
-            'threshold': 0.7
+            'model_path': MODELS_DIR / 'chest_xray_efficientnetv2_model.h5',
+            'input_size': (384, 384),  # Resolução aumentada para melhor precisão
+            'classes': ['Normal', 'Pneumonia', 'COVID-19', 'Tuberculose', 'Cardiomegalia', 'Derrame Pleural'],
+            'threshold': 0.85,  # Threshold mais alto para maior confiabilidade
+            'architecture': 'efficientnetv2'  # Modelo de última geração
         },
         'brain_ct': {
-            'model_path': MODELS_DIR / 'brain_ct_model.h5',
-            'input_size': (256, 256),
-            'classes': ['Normal', 'Hemorragia', 'Isquemia', 'Tumor', 'Edema'],
-            'threshold': 0.75
+            'model_path': MODELS_DIR / 'brain_ct_vision_transformer_model.h5',
+            'input_size': (384, 384),  # Resolução aumentada
+            'classes': ['Normal', 'Hemorragia', 'Isquemia', 'Tumor', 'Edema', 'Hidrocefalia'],
+            'threshold': 0.90,  # Threshold alto para diagnósticos críticos
+            'architecture': 'vision_transformer'  # ViT para máxima precisão
         },
         'bone_fracture': {
-            'model_path': MODELS_DIR / 'bone_fracture_model.h5',
-            'input_size': (224, 224),
-            'classes': ['Normal', 'Fratura', 'Luxação', 'Osteoporose'],
-            'threshold': 0.8
+            'model_path': MODELS_DIR / 'bone_fracture_convnext_model.h5',
+            'input_size': (384, 384),  # Resolução aumentada
+            'classes': ['Normal', 'Fratura', 'Luxação', 'Osteoporose', 'Artrite', 'Osteomielite'],
+            'threshold': 0.82,  # Threshold otimizado para detecção óssea
+            'architecture': 'convnext'  # ConvNeXt para análise óssea
         }
     }
     

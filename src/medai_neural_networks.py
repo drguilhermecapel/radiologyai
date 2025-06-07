@@ -3,7 +3,8 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models, regularizers
 from tensorflow.keras.applications import (
-    ResNet50, DenseNet121, EfficientNetB4, InceptionV3
+    ResNet50, DenseNet121, EfficientNetB4, InceptionV3,
+    EfficientNetV2L, ConvNeXtXLarge, RegNetY128GF
 )
 import numpy as np
 from typing import Tuple, List, Optional, Dict
@@ -34,6 +35,14 @@ class MedicalImageNetwork:
             self.model = self._build_resnet()
         elif self.model_name == 'efficientnet':
             self.model = self._build_efficientnet()
+        elif self.model_name == 'efficientnetv2':
+            self.model = self._build_efficientnetv2()
+        elif self.model_name == 'convnext':
+            self.model = self._build_convnext()
+        elif self.model_name == 'regnet':
+            self.model = self._build_regnet()
+        elif self.model_name == 'vision_transformer':
+            self.model = self._build_vision_transformer()
         elif self.model_name == 'custom_cnn':
             self.model = self._build_custom_cnn()
         elif self.model_name == 'attention_unet':
@@ -312,6 +321,185 @@ class MedicalImageNetwork:
         att_x = layers.multiply([x, rate])
         
         return att_x
+    
+    def _build_efficientnetv2(self) -> tf.keras.Model:
+        """
+        EfficientNetV2-L - Estado da arte em eficiência e precisão
+        Arquitetura mais avançada que EfficientNetB4
+        """
+        base_model = EfficientNetV2L(
+            input_shape=self.input_shape,
+            weights='imagenet' if self.input_shape[-1] == 3 else None,
+            include_top=False,
+            pooling='avg'
+        )
+        
+        # Fine-tuning progressivo
+        for layer in base_model.layers[:-50]:
+            layer.trainable = False
+        
+        inputs = layers.Input(shape=self.input_shape)
+        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        
+        # Augmentação avançada
+        x = layers.RandomFlip("horizontal")(x)
+        x = layers.RandomRotation(0.15)(x)
+        x = layers.RandomZoom(0.15)(x)
+        x = layers.RandomContrast(0.1)(x)
+        
+        x = base_model(x, training=True)
+        
+        x = layers.Dropout(0.4)(x)
+        x = layers.Dense(1024, activation='swish')(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.3)(x)
+        x = layers.Dense(512, activation='swish')(x)
+        x = layers.BatchNormalization()(x)
+        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        
+        model = models.Model(inputs, outputs)
+        return model
+    
+    def _build_convnext(self) -> tf.keras.Model:
+        """
+        ConvNeXt XLarge - Arquitetura moderna baseada em convoluções
+        Combina eficiência de CNNs com performance de Transformers
+        """
+        base_model = ConvNeXtXLarge(
+            input_shape=self.input_shape,
+            weights='imagenet' if self.input_shape[-1] == 3 else None,
+            include_top=False,
+            pooling='avg'
+        )
+        
+        # Descongelar últimas camadas
+        for layer in base_model.layers[-80:]:
+            layer.trainable = True
+        
+        inputs = layers.Input(shape=self.input_shape)
+        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        
+        # Augmentação específica para imagens médicas
+        x = layers.RandomFlip("horizontal")(x)
+        x = layers.RandomRotation(0.1)(x)
+        x = layers.RandomBrightness(0.1)(x)
+        
+        x = base_model(x, training=True)
+        
+        x = layers.Dropout(0.5)(x)
+        x = layers.Dense(768, activation='gelu')(x)
+        x = layers.LayerNormalization()(x)
+        x = layers.Dropout(0.4)(x)
+        x = layers.Dense(384, activation='gelu')(x)
+        x = layers.LayerNormalization()(x)
+        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        
+        model = models.Model(inputs, outputs)
+        return model
+    
+    def _build_regnet(self) -> tf.keras.Model:
+        """
+        RegNet Y-128GF - Arquitetura otimizada para eficiência
+        Excelente relação precisão/velocidade
+        """
+        base_model = RegNetY128GF(
+            input_shape=self.input_shape,
+            weights='imagenet' if self.input_shape[-1] == 3 else None,
+            include_top=False,
+            pooling='avg'
+        )
+        
+        # Fine-tuning seletivo
+        for layer in base_model.layers[:-60]:
+            layer.trainable = False
+        
+        inputs = layers.Input(shape=self.input_shape)
+        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        
+        # Augmentação conservadora para imagens médicas
+        x = layers.RandomFlip("horizontal")(x)
+        x = layers.RandomRotation(0.05)(x)
+        
+        x = base_model(x, training=True)
+        
+        x = layers.Dropout(0.4)(x)
+        x = layers.Dense(512, activation='relu')(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.3)(x)
+        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        
+        model = models.Model(inputs, outputs)
+        return model
+    
+    def _build_vision_transformer(self) -> tf.keras.Model:
+        """
+        Vision Transformer (ViT) - Estado da arte em análise de imagens
+        Baseado em mecanismo de atenção, excelente para detalhes médicos
+        """
+        inputs = layers.Input(shape=self.input_shape)
+        
+        # Pré-processamento
+        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        
+        patch_size = 16
+        num_patches = (self.input_shape[0] // patch_size) * (self.input_shape[1] // patch_size)
+        projection_dim = 768
+        
+        patches = self._extract_patches(x, patch_size)
+        
+        encoded_patches = layers.Dense(projection_dim)(patches)
+        
+        positions = tf.range(start=0, limit=num_patches, delta=1)
+        position_embedding = layers.Embedding(
+            input_dim=num_patches, output_dim=projection_dim
+        )(positions)
+        encoded_patches += position_embedding
+        
+        # Transformer blocks
+        for _ in range(12):  # 12 camadas como ViT-Base
+            x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+            
+            attention_output = layers.MultiHeadAttention(
+                num_heads=12, key_dim=projection_dim // 12, dropout=0.1
+            )(x1, x1)
+            
+            x2 = layers.Add()([attention_output, encoded_patches])
+            
+            x3 = layers.LayerNormalization(epsilon=1e-6)(x2)
+            
+            x3 = layers.Dense(projection_dim * 4, activation="gelu")(x3)
+            x3 = layers.Dropout(0.1)(x3)
+            x3 = layers.Dense(projection_dim)(x3)
+            x3 = layers.Dropout(0.1)(x3)
+            
+            encoded_patches = layers.Add()([x3, x2])
+        
+        representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+        
+        representation = layers.GlobalAveragePooling1D()(representation)
+        
+        # Cabeça de classificação
+        representation = layers.Dropout(0.5)(representation)
+        features = layers.Dense(512, activation="gelu")(representation)
+        features = layers.Dropout(0.3)(features)
+        outputs = layers.Dense(self.num_classes, activation="softmax")(features)
+        
+        model = models.Model(inputs, outputs)
+        return model
+    
+    def _extract_patches(self, images, patch_size):
+        """Extrai patches das imagens para Vision Transformer"""
+        batch_size = tf.shape(images)[0]
+        patches = tf.image.extract_patches(
+            images=images,
+            sizes=[1, patch_size, patch_size, 1],
+            strides=[1, patch_size, patch_size, 1],
+            rates=[1, 1, 1, 1],
+            padding="VALID",
+        )
+        patch_dims = patches.shape[-1]
+        patches = tf.reshape(patches, [batch_size, -1, patch_dims])
+        return patches
     
     def compile_model(self, learning_rate: float = 0.001):
         """Compila o modelo com otimizador e métricas apropriadas"""

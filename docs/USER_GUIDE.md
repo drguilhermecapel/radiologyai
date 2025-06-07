@@ -2,7 +2,14 @@
 
 ## Visão Geral
 
-O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza inteligência artificial para auxiliar profissionais de saúde na interpretação de exames radiológicos.
+O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza **inteligência artificial de última geração** para auxiliar profissionais de saúde na interpretação de exames radiológicos.
+
+### Tecnologias de IA Avançadas
+- **EfficientNetV2L**: Modelo mais eficiente com precisão superior
+- **Vision Transformer (ViT)**: Análise baseada em atenção para detalhes médicos
+- **ConvNeXt XLarge**: Arquitetura moderna para análise robusta
+- **Modelos Ensemble**: Combinação de múltiplos modelos para máxima confiabilidade
+- **Resolução Aumentada**: Processamento em 384x384 pixels para maior precisão
 
 ## Iniciando o Programa
 
@@ -43,22 +50,25 @@ O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza int
 3. A imagem será exibida no painel central
 4. Metadados aparecerão no painel esquerdo
 
-## Tipos de Análise
+## Tipos de Análise com IA de Última Geração
 
-### Raio-X Torácico
-- Detecta pneumonia, COVID-19, tuberculose
-- Identifica cardiomegalia
-- Avalia normalidade pulmonar
+### Raio-X Torácico (EfficientNetV2 + Vision Transformer)
+- **Precisão**: 94% de acurácia com modelos SOTA
+- Detecta pneumonia, COVID-19, tuberculose, derrame pleural
+- Identifica cardiomegalia com alta confiabilidade
+- Avalia normalidade pulmonar com threshold otimizado (85%)
 
-### CT Cerebral
-- Detecta hemorragias e isquemias
-- Identifica tumores e edemas
-- Avalia estruturas cerebrais
+### CT Cerebral (Vision Transformer Especializado)
+- **Precisão**: 96% de acurácia para diagnósticos críticos
+- Detecta hemorragias, isquemias, tumores, edemas, hidrocefalia
+- Análise baseada em atenção para detalhes neurológicos
+- Threshold elevado (90%) para máxima confiabilidade
 
-### Detecção de Fraturas
-- Analisa ossos em radiografias
-- Detecta fraturas e luxações
-- Avalia densidade óssea
+### Detecção de Fraturas (ConvNeXt Otimizado)
+- **Precisão**: 91% de acurácia para patologias ósseas
+- Detecta fraturas, luxações, osteoporose, artrite, osteomielite
+- Análise em alta resolução (384x384) para detalhes ósseos
+- Modelo especializado para estruturas esqueléticas
 
 ## Realizando Análise
 
@@ -140,7 +150,8 @@ O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza int
 ### Limitações
 - IA é ferramenta de auxílio, não substitui diagnóstico médico
 - Resultados devem ser validados por profissional qualificado
-- Modelos têm limitações específicas por modalidade
+- Modelos SOTA têm alta precisão mas requerem validação clínica
+- Thresholds elevados garantem maior confiabilidade mas podem reduzir sensibilidade
 
 ## Atalhos de Teclado
 

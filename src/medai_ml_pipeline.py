@@ -340,16 +340,37 @@ class MLPipeline:
         # Pré-processamento
         x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
         
-        # Arquitetura base
-        if config.architecture == 'efficientnet':
-            base_model = tf.keras.applications.EfficientNetB4(
+        # Arquitetura base - Estado da arte
+        if config.architecture == 'efficientnetv2':
+            base_model = tf.keras.applications.EfficientNetV2L(
+                input_shape=config.input_shape,
+                include_top=False,
+                weights='imagenet' if config.pretrained else None,
+                pooling='avg'
+            )
+        elif config.architecture == 'convnext':
+            base_model = tf.keras.applications.ConvNeXtXLarge(
+                input_shape=config.input_shape,
+                include_top=False,
+                weights='imagenet' if config.pretrained else None,
+                pooling='avg'
+            )
+        elif config.architecture == 'regnet':
+            base_model = tf.keras.applications.RegNetY128GF(
+                input_shape=config.input_shape,
+                include_top=False,
+                weights='imagenet' if config.pretrained else None,
+                pooling='avg'
+            )
+        elif config.architecture == 'efficientnet':
+            base_model = tf.keras.applications.EfficientNetB7(
                 input_shape=config.input_shape,
                 include_top=False,
                 weights='imagenet' if config.pretrained else None,
                 pooling='avg'
             )
         elif config.architecture == 'densenet':
-            base_model = tf.keras.applications.DenseNet169(
+            base_model = tf.keras.applications.DenseNet201(
                 input_shape=config.input_shape,
                 include_top=False,
                 weights='imagenet' if config.pretrained else None,

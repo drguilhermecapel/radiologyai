@@ -38,6 +38,7 @@ class MedAIIntegrationManager:
             from medai_advanced_visualization import VisualizationEngine
             from medai_pacs_integration import PACSIntegration
             from medai_export_system import ExportSystem
+            from medai_sota_models import StateOfTheArtModels
             
             self.dicom_processor = DicomProcessor()
             self.inference_engine = InferenceEngine()
@@ -49,7 +50,13 @@ class MedAIIntegrationManager:
             self.pacs_integration = PACSIntegration()
             self.export_system = ExportSystem()
             
+            self.sota_models = StateOfTheArtModels(
+                input_shape=(384, 384, 3),  # Resolução maior para melhor precisão
+                num_classes=10  # Expandido para mais classes diagnósticas
+            )
+            
             logger.info("Todos os componentes inicializados com sucesso")
+            logger.info("Sistema configurado com modelos de IA de última geração para máxima precisão diagnóstica")
             
         except ImportError as e:
             logger.error(f"Erro ao importar componentes: {e}")
