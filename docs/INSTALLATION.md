@@ -22,26 +22,31 @@ O MedAI Radiologia utiliza **inteligência artificial de última geração** par
 
 ## Instalação Rápida (Usuário Final)
 
-### Opção 1: Instalador User-Friendly (Recomendado para Usuários Finais)
-1. **Download**: Baixe `MedAI_Radiologia_Installer.exe` da seção de releases
-2. **Instalação**: 
-   - Duplo clique no arquivo baixado
-   - Aceite as permissões de administrador quando solicitado
-   - Siga o assistente de instalação (interface gráfica)
-   - Aguarde a conclusão automática
-3. **Uso**: 
-   - Duplo clique no atalho da área de trabalho "MedAI Radiologia"
-   - Ou acesse pelo Menu Iniciar → MedAI Radiologia
-4. **Desinstalação**: 
-   - Painel de Controle → Programas e Recursos → MedAI Radiologia → Desinstalar
+### 🎯 Instalador Autônomo (RECOMENDADO - Sem Dependências Externas)
+**✨ Novo! Instalador que NÃO requer NSIS ou outros programas**
 
-**✅ Vantagens do Instalador:**
-- ✅ Não requer conhecimento técnico
-- ✅ Não precisa usar CMD ou Docker
-- ✅ Instalação com 1 clique
-- ✅ Atalhos automáticos criados
-- ✅ Associação automática de arquivos DICOM
-- ✅ Desinstalação fácil pelo Windows
+1. **Download**: Baixe `MedAI_Radiologia_Installer.exe` da seção de releases
+2. **Instalação Ultra-Simples**: 
+   - ✅ **Duplo clique** no arquivo baixado
+   - ✅ **Interface gráfica** guia todo o processo
+   - ✅ **Sem programas externos** necessários
+   - ✅ **Sem linha de comando** - tudo automático
+   - ✅ **Aceite permissões** quando solicitado
+   - ✅ **Aguarde conclusão** (1-2 minutos)
+3. **Uso Imediato**: 
+   - 🖱️ Duplo clique no atalho da área de trabalho "MedAI Radiologia"
+   - 📋 Ou acesse pelo Menu Iniciar → MedAI Radiologia
+   - 📁 Arquivos .dcm abrem automaticamente no programa
+4. **Desinstalação**: 
+   - 🗑️ Painel de Controle → Programas e Recursos → MedAI Radiologia → Desinstalar
+
+**🎉 Características do Instalador Autônomo:**
+- 🚀 **Zero dependências**: Não precisa de NSIS, Visual Studio, ou outros programas
+- 🖱️ **1 clique**: Instalação completamente automática
+- 👥 **Para não-técnicos**: Interface amigável para qualquer usuário
+- 📦 **Tudo incluído**: Python, bibliotecas e IA embarcados
+- 🔧 **Auto-configuração**: Sistema pronto para uso imediato
+- 🏥 **Uso profissional**: Pronto para ambiente hospitalar
 
 ### Opção 2: Executável Standalone (Para Usuários Técnicos)
 1. Baixe o arquivo `MedAI_Radiologia.exe` da seção Releases
