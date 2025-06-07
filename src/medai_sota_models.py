@@ -11,6 +11,51 @@ import logging
 
 logger = logging.getLogger('MedAI.SOTA')
 
+class SOTAModelManager:
+    """
+    Gerenciador de modelos de última geração
+    Facilita carregamento e uso dos modelos SOTA
+    """
+    
+    def __init__(self):
+        self.available_models = {
+            'medical_vit': 'Vision Transformer para imagens médicas',
+            'hybrid_cnn_transformer': 'Modelo híbrido CNN + Transformer',
+            'ensemble_model': 'Modelo ensemble de múltiplas arquiteturas'
+        }
+        self.loaded_models = {}
+    
+    def get_available_models(self):
+        """Retorna lista de modelos disponíveis"""
+        return list(self.available_models.keys())
+    
+    def load_model(self, model_name: str, input_shape=(512, 512, 3), num_classes=2):
+        """Carrega um modelo específico"""
+        if model_name not in self.available_models:
+            raise ValueError(f"Modelo {model_name} não disponível")
+        
+        sota_models = StateOfTheArtModels(input_shape, num_classes)
+        
+        if model_name == 'medical_vit':
+            model = sota_models.build_medical_vision_transformer()
+        elif model_name == 'hybrid_cnn_transformer':
+            model = sota_models.build_hybrid_cnn_transformer()
+        elif model_name == 'ensemble_model':
+            model = sota_models.build_ensemble_model()
+        
+        model = sota_models.compile_sota_model(model)
+        self.loaded_models[model_name] = model
+        
+        logger.info(f"Modelo {model_name} carregado com sucesso")
+        return model
+    
+    def get_model(self, model_name: str):
+        """Retorna modelo carregado"""
+        if model_name not in self.loaded_models:
+            logger.warning(f"Modelo {model_name} não está carregado")
+            return None
+        return self.loaded_models[model_name]
+
 class StateOfTheArtModels:
     """
     Implementa modelos de última geração para análise radiológica

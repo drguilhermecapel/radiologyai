@@ -276,8 +276,8 @@ class MedAISetup:
         
         # Criar o dataset principal
         ds = FileDataset(
-            filename=None,
-            dataset={},
+            None,
+            {},
             file_meta=file_meta,
             preamble=b"\0" * 128
         )
@@ -548,6 +548,26 @@ class MedAISetup:
         console.print("  • As imagens DICOM geradas são sintéticas (apenas para demonstração)")
         console.print("  • Os modelos têm pesos aleatórios (precisam ser treinados com dados reais)")
         console.print("  • Para produção, use imagens médicas reais e modelos treinados adequadamente")
+
+class SystemInitializer:
+    """Classe para inicialização do sistema MedAI"""
+    
+    def __init__(self):
+        self.setup = MedAISetup()
+    
+    def initialize_system(self):
+        """Inicializa o sistema se necessário"""
+        try:
+            if not self.setup.db_path.exists():
+                console.print("🔧 Configuração inicial necessária...")
+                self.setup.run()
+                return True
+            else:
+                console.print("✅ Sistema já configurado")
+                return True
+        except Exception as e:
+            console.print(f"❌ Erro na inicialização: {e}")
+            return False
 
 def main():
     """Função principal"""

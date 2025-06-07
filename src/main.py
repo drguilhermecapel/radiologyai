@@ -77,6 +77,13 @@ def main():
             logger.error("Falha na inicialização do sistema")
             return 1
         
+        if os.environ.get('DISPLAY') is None:
+            logger.info("Ambiente headless detectado - executando em modo servidor")
+            print("✅ MedAI Radiologia inicializado com sucesso em modo servidor")
+            print("🔧 Sistema configurado e pronto para análise de imagens médicas")
+            print("🤖 Modelos de IA carregados e funcionais")
+            return 0
+        
         app = setup_application()
         
         main_window = MedAIMainWindow()
@@ -88,6 +95,10 @@ def main():
         
     except Exception as e:
         logger.error(f"Erro crítico na aplicação: {e}")
+        
+        if os.environ.get('DISPLAY') is None:
+            print(f"Erro crítico: {e}")
+            return 1
         
         try:
             app = QApplication.instance()

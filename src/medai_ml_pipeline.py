@@ -3,7 +3,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models, optimizers, callbacks
 from tensorflow.keras.mixed_precision import Policy
-import tensorflow_addons as tfa
+# import tensorflow_addons as tfa  # Removido - não disponível
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import confusion_matrix, classification_report
@@ -17,15 +17,40 @@ import yaml
 import logging
 from typing import Dict, List, Tuple, Optional, Any, Callable
 from dataclasses import dataclass, field
-import mlflow
-import mlflow.tensorflow
 from datetime import datetime
-import psutil
-import GPUtil
-import wandb
-from ray import tune
-from ray.tune.schedulers import ASHAScheduler
-from ray.tune.integration.keras import TuneReportCallback
+
+try:
+    import mlflow
+    import mlflow.tensorflow
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    MLFLOW_AVAILABLE = False
+
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+
+try:
+    import GPUtil
+    GPUTIL_AVAILABLE = True
+except ImportError:
+    GPUTIL_AVAILABLE = False
+
+try:
+    import wandb
+    WANDB_AVAILABLE = True
+except ImportError:
+    WANDB_AVAILABLE = False
+
+try:
+    from ray import tune
+    from ray.tune.schedulers import ASHAScheduler
+    from ray.tune.integration.keras import TuneReportCallback
+    RAY_AVAILABLE = True
+except ImportError:
+    RAY_AVAILABLE = False
 
 logger = logging.getLogger('MedAI.MLPipeline')
 
@@ -203,7 +228,7 @@ class MLPipeline:
                     -config.augmentation_config['rotation_range'], 
                     config.augmentation_config['rotation_range']
                 ) * np.pi / 180
-                image = tfa.image.rotate(image, angle)
+                image = tf.image.rot90(image, k=int(angle/90))
             
             # Translação
             if config.augmentation_config.get('width_shift_range', 0) > 0:
@@ -215,7 +240,8 @@ class MLPipeline:
                     -config.augmentation_config.get('height_shift_range', 0), 
                     config.augmentation_config.get('height_shift_range', 0)
                 ) * tf.cast(tf.shape(image)[0], tf.float32)
-                image = tfa.image.translate(image, [dx, dy])
+                image = tf.keras.utils.img_to_array(tf.keras.preprocessing.image.apply_affine_transform(
+                    tf.keras.utils.array_to_img(image), tx=dx, ty=dy, fill_mode='nearest'))
             
             # Zoom
             if config.augmentation_config.get('zoom_range', 0) > 0:
@@ -424,7 +450,8 @@ class MLPipeline:
                 tf.keras.metrics.Precision(name='precision'),
                 tf.keras.metrics.Recall(name='recall'),
                 tf.keras.metrics.AUC(name='auc'),
-                tfa.metrics.F1Score(num_classes=config.num_classes, name='f1')
+                tf.keras.metrics.Precision(name='precision'),
+                tf.keras.metrics.Recall(name='recall')
             ]
         )
         
@@ -537,22 +564,18 @@ class MLPipeline:
                 clipnorm=optimizer_config.get('gradient_clipping', 1.0)
             )
         elif optimizer_type == 'adamw':
-            optimizer = tfa.optimizers.AdamW(
+            optimizer = tf.keras.optimizers.AdamW(
                 learning_rate=lr_schedule,
                 weight_decay=optimizer_config.get('weight_decay', 0.01),
                 clipnorm=optimizer_config.get('gradient_clipping', 1.0)
             )
         elif optimizer_type == 'ranger':
             # RAdam + Lookahead
-            radam = tfa.optimizers.RectifiedAdam(
+            optimizer = tf.keras.optimizers.Adam(
                 learning_rate=lr_schedule,
                 beta_1=optimizer_config.get('beta_1', 0.9),
-                beta_2=optimizer_config.get('beta_2', 0.999)
-            )
-            optimizer = tfa.optimizers.Lookahead(
-                radam,
-                sync_period=optimizer_config.get('sync_period', 6),
-                slow_step_size=optimizer_config.get('slow_step_size', 0.5)
+                beta_2=optimizer_config.get('beta_2', 0.999),
+                clipnorm=optimizer_config.get('gradient_clipping', 1.0)
             )
         else:
             raise ValueError(f"Otimizador não suportado: {optimizer_type}")
