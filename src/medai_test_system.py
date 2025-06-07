@@ -616,7 +616,7 @@ class TestSecurityAudit(unittest.TestCase):
     def test_encryption(self):
         """Testa criptografia de dados"""
         # Dados de teste
-        data = b"Dados sensíveis do paciente"
+        data = "Dados sensíveis do paciente".encode('utf-8')
         
         # Criptografar
         encrypted = self.security_mgr.encrypt_data(data)

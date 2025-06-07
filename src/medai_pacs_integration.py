@@ -745,8 +745,8 @@ class PACSIntegration:
         """
         # Criar documento CDA
         root = ET.Element("ClinicalDocument", 
-                         xmlns="urn:hl7-org:v3",
-                         {"xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"})
+                         {"xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"},
+                         xmlns="urn:hl7-org:v3")
         
         # Header
         type_id = ET.SubElement(root, "typeId")

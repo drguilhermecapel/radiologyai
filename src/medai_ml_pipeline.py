@@ -178,7 +178,7 @@ class MLPipeline:
             image = tf.io.read_file(filepath)
             
             # Decodificar baseado na extensão
-            if tf.strings.regex_full_match(filepath, ".*\.dcm"):
+            if tf.strings.regex_full_match(filepath, r".*\.dcm"):
                 # DICOM precisa de processamento especial
                 image = self._parse_dicom_tf(filepath)
             else:
