@@ -22,6 +22,28 @@ O MedAI Radiologia utiliza **inteligência artificial de última geração** par
 
 ## Instalação Rápida (Usuário Final)
 
+### Opção 1: Instalador User-Friendly (Recomendado para Usuários Finais)
+1. **Download**: Baixe `MedAI_Radiologia_Installer.exe` da seção de releases
+2. **Instalação**: 
+   - Duplo clique no arquivo baixado
+   - Aceite as permissões de administrador quando solicitado
+   - Siga o assistente de instalação (interface gráfica)
+   - Aguarde a conclusão automática
+3. **Uso**: 
+   - Duplo clique no atalho da área de trabalho "MedAI Radiologia"
+   - Ou acesse pelo Menu Iniciar → MedAI Radiologia
+4. **Desinstalação**: 
+   - Painel de Controle → Programas e Recursos → MedAI Radiologia → Desinstalar
+
+**✅ Vantagens do Instalador:**
+- ✅ Não requer conhecimento técnico
+- ✅ Não precisa usar CMD ou Docker
+- ✅ Instalação com 1 clique
+- ✅ Atalhos automáticos criados
+- ✅ Associação automática de arquivos DICOM
+- ✅ Desinstalação fácil pelo Windows
+
+### Opção 2: Executável Standalone (Para Usuários Técnicos)
 1. Baixe o arquivo `MedAI_Radiologia.exe` da seção Releases
 2. Execute o arquivo baixado
 3. O programa iniciará automaticamente
