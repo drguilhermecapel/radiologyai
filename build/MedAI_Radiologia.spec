@@ -28,6 +28,8 @@ a = Analysis(
         'cryptography',
         'pyqtgraph',
         'vtk',
+        'transformers',
+        'timm',
         'click',
         'jinja2',
     ],

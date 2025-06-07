@@ -34,10 +34,11 @@ git clone https://github.com/drguilhermecapel/radiologyai.git
 cd radiologyai
 ```
 
-### 2. Instale Dependências
+### 2. Instale Dependências (OBRIGATÓRIO)
 ```bash
 pip install -r requirements.txt
 ```
+**IMPORTANTE**: Este passo é obrigatório antes de executar o programa ou construir o executável. O arquivo requirements.txt contém todas as dependências necessárias, incluindo os modelos de IA de última geração (TensorFlow, transformers, timm).
 
 ### 3. Execute o Programa
 ```bash
@@ -51,6 +52,7 @@ python src/main.py
 cd build
 build.bat
 ```
+**Nota**: O script build.bat automaticamente instala todas as dependências via `pip install -r requirements.txt` antes de construir o executável.
 
 ### Linux/macOS
 ```bash
