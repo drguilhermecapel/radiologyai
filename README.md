@@ -11,6 +11,7 @@ Este repositório contém um programa Windows standalone para interpretação de
 - Análise de imagens radiológicas usando modelos de IA
 - Suporte para múltiplos formatos de imagem (DICOM, PNG, JPEG, etc.)
 - Interface gráfica intuitiva
+- Tema futurista inspirado em radiologia e inteligência artificial
 - Geração de relatórios
 - Processamento em lote
 - Visualização avançada com mapas de calor
