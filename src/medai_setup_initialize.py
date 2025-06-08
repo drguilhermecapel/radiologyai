@@ -3,13 +3,28 @@ MedAI Setup & Initialize - Script de Configuração Inicial
 Cria estrutura de diretórios, usuários padrão e modelos de exemplo
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import json
 import shutil
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
+try:
+    import tensorflow as tf  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    tf = None  # type: ignore
+
+
+class DummyModel:
+    """Modelo de placeholder utilizado quando TensorFlow não está disponível."""
+
+    def save(self, *args, **kwargs):
+        pass
+
+    def save_weights(self, *args, **kwargs):
+        pass
 from datetime import datetime
 import sqlite3
 import bcrypt
@@ -334,6 +349,10 @@ class MedAISetup:
         """Cria modelos de exemplo pré-treinados"""
         # Para demonstração, criamos modelos pequenos com pesos aleatórios
         # Em produção, estes seriam modelos realmente treinados
+
+        if tf is None:
+            console.print("⚠️  TensorFlow não disponível - modelos de exemplo não serão criados")
+            return
         
         models_to_create = [
             ('densenet', self._create_densenet_model),
@@ -363,6 +382,8 @@ class MedAISetup:
     
     def _create_densenet_model(self):
         """Cria modelo DenseNet simplificado"""
+        if tf is None:
+            return DummyModel()
         base_model = tf.keras.applications.DenseNet121(
             weights=None,  # Sem pesos pré-treinados para demo
             include_top=False,
@@ -387,6 +408,8 @@ class MedAISetup:
     
     def _create_resnet_model(self):
         """Cria modelo ResNet simplificado"""
+        if tf is None:
+            return DummyModel()
         base_model = tf.keras.applications.ResNet50(
             weights=None,
             include_top=False,
@@ -412,6 +435,8 @@ class MedAISetup:
     def _create_efficientnet_model(self):
         """Cria modelo EfficientNet simplificado"""
         # Modelo customizado simples (EfficientNet requer instalação adicional)
+        if tf is None:
+            return DummyModel()
         model = tf.keras.Sequential([
             tf.keras.layers.Conv2D(32, 3, padding='same', activation='relu', input_shape=(224, 224, 3)),
             tf.keras.layers.BatchNormalization(),
@@ -437,6 +462,8 @@ class MedAISetup:
     
     def _create_custom_cnn_model(self):
         """Cria modelo CNN customizado"""
+        if tf is None:
+            return DummyModel()
         model = tf.keras.Sequential([
             tf.keras.layers.Conv2D(32, 3, padding='same', activation='relu', input_shape=(224, 224, 3)),
             tf.keras.layers.MaxPooling2D(),
@@ -461,6 +488,8 @@ class MedAISetup:
     def _create_attention_unet_model(self):
         """Cria modelo U-Net com atenção simplificado"""
         # Para segmentação - modelo simplificado
+        if tf is None:
+            return DummyModel()
         inputs = tf.keras.layers.Input(shape=(256, 256, 1))
         
         # Encoder

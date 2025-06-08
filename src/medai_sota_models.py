@@ -3,11 +3,31 @@ Modelos de última geração para análise radiológica
 Implementa as arquiteturas mais avançadas disponíveis
 """
 
-import tensorflow as tf
-from tensorflow.keras import layers, models
+from __future__ import annotations
+
+try:
+    import tensorflow as tf  # type: ignore
+    from tensorflow.keras import layers, models  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    tf = None  # type: ignore
+    layers = None  # type: ignore
+    models = None  # type: ignore
 import numpy as np
 from typing import Tuple, Dict, Any
 import logging
+
+
+class DummyModel:
+    """Modelo de placeholder usado quando TensorFlow não está disponível"""
+
+    def predict(self, *args, **kwargs):
+        return np.zeros((1,))
+
+    def save(self, *args, **kwargs):
+        pass
+
+    def save_weights(self, *args, **kwargs):
+        pass
 
 logger = logging.getLogger('MedAI.SOTA')
 
@@ -33,7 +53,13 @@ class SOTAModelManager:
         """Carrega um modelo específico"""
         if model_name not in self.available_models:
             raise ValueError(f"Modelo {model_name} não disponível")
-        
+
+        if tf is None or layers is None or models is None:
+            logger.warning("TensorFlow não disponível - usando modelo dummy")
+            model = DummyModel()
+            self.loaded_models[model_name] = model
+            return model
+
         try:
             model = tf.keras.Sequential([
                 tf.keras.layers.Input(shape=input_shape),
@@ -48,17 +74,18 @@ class SOTAModelManager:
                 tf.keras.layers.Dropout(0.5),
                 tf.keras.layers.Dense(num_classes, activation='softmax')
             ])
-            
+
             model.compile(
                 optimizer='adam',
                 loss='sparse_categorical_crossentropy',
                 metrics=['accuracy']
             )
-            
+
             self.loaded_models[model_name] = model
-            logger.info(f"Modelo {model_name} carregado com sucesso (versão simplificada)")
+            logger.info(
+                f"Modelo {model_name} carregado com sucesso (versão simplificada)")
             return model
-            
+
         except Exception as e:
             logger.error(f"Erro ao carregar modelo {model_name}: {e}")
             raise
@@ -79,12 +106,17 @@ class StateOfTheArtModels:
     def __init__(self, input_shape: Tuple[int, int, int], num_classes: int):
         self.input_shape = input_shape
         self.num_classes = num_classes
+        self._tf_available = tf is not None and layers is not None and models is not None
     
     def build_medical_vision_transformer(self) -> tf.keras.Model:
         """
         Vision Transformer otimizado para imagens médicas
         Baseado em ViT-Large com adaptações para radiologia
         """
+        if not self._tf_available:
+            logger.warning("TensorFlow não disponível - retornando DummyModel")
+            return DummyModel()
+
         inputs = layers.Input(shape=self.input_shape)
         
         x = layers.Rescaling(1./255)(inputs)
@@ -133,6 +165,10 @@ class StateOfTheArtModels:
         Modelo híbrido CNN + Transformer
         Combina extração local (CNN) com atenção global (Transformer)
         """
+        if not self._tf_available:
+            logger.warning("TensorFlow não disponível - retornando DummyModel")
+            return DummyModel()
+
         inputs = layers.Input(shape=self.input_shape)
         
         x = layers.Rescaling(1./255)(inputs)
@@ -196,6 +232,10 @@ class StateOfTheArtModels:
         Modelo ensemble de múltiplas arquiteturas
         Combina predições de diferentes modelos para máxima precisão
         """
+        if not self._tf_available:
+            logger.warning("TensorFlow não disponível - retornando DummyModel")
+            return DummyModel()
+
         inputs = layers.Input(shape=self.input_shape)
         
         efficientnet = tf.keras.applications.EfficientNetV2L(
@@ -296,6 +336,9 @@ class StateOfTheArtModels:
         """
         Compila modelo com configurações otimizadas para máxima precisão
         """
+        if not self._tf_available:
+            logger.warning("TensorFlow não disponível - modelo não compilado")
+            return model
         optimizer = tf.keras.optimizers.AdamW(
             learning_rate=learning_rate,
             weight_decay=0.01,
