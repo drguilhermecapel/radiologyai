@@ -46,8 +46,8 @@ def collect_program_files():
             files_to_include["requirements.txt"] = f.read()
         print("✅ requirements.txt")
     else:
-        basic_requirements = """tensorflow>=2.13.0
-numpy>=1.21.0
+        basic_requirements = """tensorflow>=2.16.2
+numpy>=1.26.4
 Pillow>=8.0.0
 opencv-python>=4.5.0
 scikit-learn>=1.0.0

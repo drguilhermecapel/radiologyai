@@ -86,8 +86,8 @@ class Config:
 
 # requirements.txt
 """
-numpy==1.24.3
-tensorflow==2.13.0
+numpy==1.26.4
+tensorflow==2.16.2
 pydicom==2.4.3
 opencv-python==4.8.1
 Pillow==10.1.0
