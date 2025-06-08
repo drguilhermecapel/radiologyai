@@ -152,3 +152,4 @@ Thumbs.db
 *.exe
 *.msi
 *.lnk
+dist/
