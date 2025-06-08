@@ -20,7 +20,7 @@ pip install pyinstaller
 REM Construir executável
 echo.
 echo Construindo instalador executável...
-pyinstaller MedAI_Installer.spec
+pyinstaller build\MedAI_Radiologia.spec
 
 if %ERRORLEVEL% EQU 0 (
     echo.
