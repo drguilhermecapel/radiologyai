@@ -19,7 +19,10 @@ a = Analysis(
     ['MedAI_Radiologia_Installer.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('models', 'models'),
+        ('data', 'data'),
+    ],
     hiddenimports=[
         'tkinter',
         'tkinter.ttk', 
@@ -39,7 +42,13 @@ a = Analysis(
         'matplotlib',
         'scipy',
         'pandas',
-        'opencv-python'
+        'opencv-python',
+        'vtk',
+        'SimpleITK',
+        'nibabel',
+        'scikit-image',
+        'transformers',
+        'timm'
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

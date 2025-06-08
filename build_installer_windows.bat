@@ -17,19 +17,6 @@ REM Instalar PyInstaller
 echo Instalando PyInstaller...
 pip install pyinstaller
 
-REM Gerar arquivo spec primeiro
-echo.
-echo Gerando arquivo de configuração...
-python build_final_installer.py
-
-REM Verificar se arquivo spec foi criado
-if not exist "MedAI_Installer.spec" (
-    echo ERRO: Arquivo MedAI_Installer.spec não foi criado!
-    echo Tentando build direto...
-    pyinstaller --onefile --windowed --name="MedAI_Radiologia_Installer" MedAI_Radiologia_Installer.py
-    goto :end
-)
-
 REM Construir executável
 echo.
 echo Construindo instalador executável...
@@ -57,6 +44,5 @@ if %ERRORLEVEL% EQU 0 (
     echo Verifique os erros acima
 )
 
-:end
 echo.
 pause

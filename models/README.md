@@ -1,1 +1,1 @@
-# Models directory for AI model files
+# Models directory for AI models

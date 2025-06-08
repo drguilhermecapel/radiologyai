@@ -1,0 +1,8 @@
+# Minimal requirements for the installer only
+# Heavy AI libraries are excluded to keep installer lightweight
+tkinter
+pyinstaller==5.13.2
+click==8.1.7
+jinja2==3.1.2
+cryptography==41.0.4
+reportlab==4.0.4
