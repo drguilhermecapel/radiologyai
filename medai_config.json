@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "paths": {
+    "data_dir": "/home/ubuntu/repos/radiologyai/data",
+    "models_dir": "/home/ubuntu/repos/radiologyai/models",
+    "logs_dir": "/home/ubuntu/repos/radiologyai/logs",
+    "reports_dir": "/home/ubuntu/repos/radiologyai/reports"
+  },
+  "models": {
+    "default": "densenet",
+    "available": [
+      "densenet",
+      "resnet",
+      "efficientnet",
+      "custom_cnn",
+      "attention_unet"
+    ]
+  },
+  "pacs": {
+    "ae_title": "MEDAI_SCU",
+    "host": "localhost",
+    "port": 11112,
+    "timeout": 30
+  },
+  "security": {
+    "jwt_secret": "your-secret-key-here-change-in-production",
+    "jwt_expiration_hours": 24,
+    "encryption_key": "your-encryption-key-here-change-in-production"
+  }
+}
