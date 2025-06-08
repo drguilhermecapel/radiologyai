@@ -16,7 +16,6 @@ import tempfile
 
 if os.name != 'nt':
     print("❌ Este instalador é específico para Windows")
-    input("Pressione Enter para sair...")
     sys.exit(1)
 
 try:
