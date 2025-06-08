@@ -10,6 +10,27 @@ from pathlib import Path
 import numpy as np
 from datetime import datetime
 
+
+class DummySecurityManager:
+    """Fallback simples quando SecurityManager real não está disponível."""
+
+    def authenticate(self, username: str, password: str) -> bool:
+        return True
+
+    def get_user_permissions(self, username: str) -> List[str]:
+        return [
+            "read_images",
+            "analyze_images",
+            "generate_reports",
+            "batch_processing",
+            "compare_images",
+        ]
+
+    def log_activity(self, username: str, action: str, details: str = "") -> None:
+        logging.getLogger("MedAI.Security").info(
+            "%s -> %s %s", username, action, details
+        )
+
 logger = logging.getLogger('MedAI.IntegrationManager')
 
 class MedAIIntegrationManager:
@@ -31,7 +52,11 @@ class MedAIIntegrationManager:
         try:
             from medai_dicom_processor import DicomProcessor
             from medai_inference_system import InferenceEngine
-            # from medai_security_audit import SecurityManager  # Temporarily disabled due to jwt dependency
+            try:
+                from medai_security_audit import SecurityManager
+                self.security_manager = SecurityManager()
+            except Exception:  # pragma: no cover - fallback when dependencies are missing
+                self.security_manager = DummySecurityManager()
             # from medai_report_generator import ReportGenerator  # Temporarily disabled
             # from medai_batch_processor import BatchProcessor  # Temporarily disabled
             # from medai_comparison_system import ComparisonSystem  # Temporarily disabled
