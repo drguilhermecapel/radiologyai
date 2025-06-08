@@ -17,11 +17,6 @@ REM Instalar PyInstaller
 echo Instalando PyInstaller...
 pip install pyinstaller
 
-REM Gerar arquivo spec primeiro
-echo.
-echo Gerando arquivo de configuração...
-python build_final_installer.py
-
 REM Construir executável
 echo.
 echo Construindo instalador executável...
