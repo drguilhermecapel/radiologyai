@@ -219,7 +219,7 @@ Clique em "Instalar" para continuar."""
             else:
                 if dest == "requirements.txt":
                     with open(dest_path, 'w') as f:
-                        f.write("tensorflow>=2.13.0\nnumpy>=1.21.0\nPillow>=8.0.0\n")
+                        f.write("tensorflow>=2.16.2\nnumpy>=1.26.4\nPillow>=8.0.0\n")
                         
     def install_python_dependencies(self):
         """Instala dependências Python necessárias"""
