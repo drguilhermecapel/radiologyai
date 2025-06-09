@@ -6,7 +6,9 @@ a = Analysis(
     ['MedAI_CLI_Installer.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('models', 'models'),
+    ],
     hiddenimports=[
         'threading',
         'json',
@@ -21,23 +23,16 @@ a = Analysis(
         'pathlib',
         'os',
         'sys',
-        'time'
+        'time',
+        'tensorflow',
+        'cv2',
+        'pydicom',
+        'PIL'
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[
-        'matplotlib',
-        'scipy',
-        'pandas',
-        'opencv-python',
-        'vtk',
-        'SimpleITK',
-        'nibabel',
-        'scikit-image',
-        'transformers',
-        'timm'
-    ],
+    excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
