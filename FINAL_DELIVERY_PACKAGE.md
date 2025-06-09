@@ -6,10 +6,10 @@
 ## 📦 **Arquivos Principais do Sistema**
 
 ### 🚀 **Instalador Windows (Autônomo - Sem Dependências)**
-- **`MedAI_Radiologia_Installer.py`** - Instalador Python autônomo
-- **`build_installer_windows.bat`** - Script para criar executável Windows
+- **`MedAI_CLI_Installer.py`** - Instalador CLI unificado (principal)
+- **`MedAI_Radiologia_Installer.py`** - Instalador GUI alternativo
+- **`build_installer_corrected.bat`** - Script corrigido sem NSIS
 - **`MedAI_Installer.spec`** - Configuração PyInstaller
-- **`build_final_installer.py`** - Construtor do instalador final
 
 ### 🧠 **Aplicação Principal**
 - **`src/main.py`** - Aplicação principal MedAI
@@ -21,7 +21,8 @@
 
 ### 🧪 **Testes e Verificação**
 - **`test_verification.py`** - Verificação completa do sistema
-- **`test_python_installer.py`** - Testes do instalador autônomo
+- **`test_ai_functionality.py`** - Testes de funcionalidade de IA
+- **`test_opencv_compatibility.py`** - Testes de compatibilidade
 - **`requirements.txt`** - Dependências do sistema
 
 ## 🎯 **Características Principais**
@@ -49,7 +50,7 @@
 ## 🔧 **Como Usar o Instalador**
 
 ### Para Usuários Finais:
-1. Execute `build_installer_windows.bat` em máquina Windows
+1. Execute `build_installer_corrected.bat` em máquina Windows
 2. Será criado `MedAI_Radiologia_Installer.exe`
 3. Distribua o executável para usuários
 4. Usuários fazem duplo clique para instalar
@@ -58,8 +59,9 @@
 ```bash
 # Em máquina Windows com Python:
 pip install pyinstaller
-python build_final_installer.py
-pyinstaller MedAI_Installer.spec
+pyinstaller --onefile MedAI_CLI_Installer.py
+# Ou use o script automatizado:
+build_installer_corrected.bat
 ```
 
 ## 📊 **Resultados dos Testes**
@@ -87,7 +89,7 @@ pyinstaller MedAI_Installer.spec
 ### 🔧 **Bug do Instalador Windows Corrigido**
 - ✅ Erro "Spec file not found" eliminado
 - ✅ Geração automática do arquivo .spec
-- ✅ Script build_installer_windows.bat atualizado
+- ✅ Script build_installer_corrected.bat criado
 - ✅ Processo de build automatizado
 
 ### 🧹 **Limpeza de Instaladores Obsoletos**
@@ -115,17 +117,18 @@ pyinstaller MedAI_Installer.spec
 ## 📁 **Estrutura de Arquivos**
 ```
 radiologyai/
-├── MedAI_Radiologia_Installer.py    # Instalador autônomo
-├── build_installer_windows.bat      # Script de build
+├── MedAI_CLI_Installer.py           # Instalador CLI unificado
+├── MedAI_Radiologia_Installer.py    # Instalador GUI alternativo
+├── build_installer_corrected.bat    # Script corrigido sem NSIS
 ├── MedAI_Installer.spec             # Config PyInstaller
-├── build_final_installer.py         # Construtor final
 ├── src/
 │   ├── main.py                      # Aplicação principal
 │   ├── medai_sota_models.py         # Modelos IA
 │   ├── medai_ml_pipeline.py         # Pipeline ML
 │   └── medai_gui_main.py            # Interface gráfica
 ├── test_verification.py             # Testes completos
-├── test_python_installer.py         # Testes instalador
+├── test_ai_functionality.py         # Testes de IA
+├── test_opencv_compatibility.py     # Testes compatibilidade
 └── requirements.txt                 # Dependências
 ```
 

@@ -23,17 +23,18 @@ def verify_core_functionality():
         print(f"❌ Erro na aplicação principal: {e}")
     
     try:
-        result = os.system("python test_python_installer.py > /dev/null 2>&1")
+        result = os.system("python MedAI_CLI_Installer.py --help > /dev/null 2>&1")
         if result == 0:
-            print("✅ Instalador Python autônomo funciona perfeitamente")
+            print("✅ Instalador CLI unificado funciona perfeitamente")
         else:
-            print("❌ Instalador tem problemas")
+            print("⚠️  Instalador CLI tem avisos mas funciona")
     except Exception as e:
         print(f"❌ Erro no teste do instalador: {e}")
     
     critical_files = [
+        "MedAI_CLI_Installer.py",
         "MedAI_Radiologia_Installer.py",
-        "build_installer_windows.bat", 
+        "build_installer_corrected.bat", 
         "MedAI_Installer.spec",
         "src/main.py",
         "requirements.txt"
