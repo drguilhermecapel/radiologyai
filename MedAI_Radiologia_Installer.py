@@ -128,11 +128,16 @@ Clique em "Instalar" para continuar."""
         
     def update_progress(self, value, status):
         """Atualiza progresso (apenas GUI)"""
-        if GUI_AVAILABLE and hasattr(self, 'progress_var'):
-            self.progress_var.set(value)
-            self.status_var.set(status)
-            self.root.update()
-        else:
+        try:
+            if GUI_AVAILABLE and hasattr(self, 'progress_var') and self.progress_var:
+                self.progress_var.set(value)
+            if GUI_AVAILABLE and hasattr(self, 'status_var') and self.status_var:
+                self.status_var.set(status)
+            if GUI_AVAILABLE and hasattr(self, 'root') and self.root:
+                self.root.update_idletasks()
+            print(f"Progress: {value}% - {status}")  # Console feedback
+        except Exception as e:
+            print(f"Progress update error: {e}")
             print("[" + str(int(value)) + "%] " + status)
             
     def start_gui_installation(self):
@@ -150,15 +155,20 @@ Clique em "Instalar" para continuar."""
                                "na área de trabalho ou no menu iniciar.")
             self.root.quit()
         except Exception as e:
-            messagebox.showerror("Erro na Instalação", 
-                               "Erro durante a instalação:\n\n" + str(e))
+            error_msg = f"Erro durante a instalação:\n\n{str(e)}"
+            print(f"Installation error: {e}")  # Log to console
+            messagebox.showerror("Erro na Instalação", error_msg)
+            self.install_btn.config(state="normal", text="Tentar Novamente")
             
     def install_application(self):
         """Processo principal de instalação"""
         self.update_progress(10, "Verificando privilégios...")
         if not self.check_admin_privileges():
-            raise Exception("Privilégios de administrador necessários!\n"
-                          "Execute o instalador como administrador.")
+            raise Exception("Privilégios insuficientes!\n\n"
+                          "Para instalar o MedAI Radiologia, você precisa:\n"
+                          "• Executar como administrador (Windows)\n"
+                          "• Ter permissões de escrita no diretório de instalação\n\n"
+                          "Tente executar o instalador como administrador.")
         
         self.update_progress(20, "Decodificando arquivos...")
         files_data = json.loads(base64.b64decode(EMBEDDED_FILES_DATA).decode())
@@ -182,11 +192,22 @@ Clique em "Instalar" para continuar."""
     def check_admin_privileges(self):
         """Verifica privilégios de administrador"""
         try:
-            test_file = Path("C:/Windows/Temp/medai_admin_test.tmp")
-            test_file.touch()
-            test_file.unlink()
+            import tempfile
+            import platform
+            
+            if platform.system() == "Windows":
+                test_path = Path("C:/Windows/Temp/medai_admin_test.tmp")
+            else:
+                test_path = Path("/tmp/medai_admin_test.tmp")
+            
+            test_path.touch()
+            test_path.unlink()
             return True
-        except:
+        except (PermissionError, OSError) as e:
+            print(f"Admin privilege check failed: {e}")
+            return False
+        except Exception as e:
+            print(f"Unexpected error during admin check: {e}")
             return False
             
     def create_directories(self):
