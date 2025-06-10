@@ -1,0 +1,59 @@
+{
+  "models": {
+    "chest_xray": {
+      "model_path": "models/chest_xray_efficientnetv2_model.h5",
+      "input_size": [384, 384],
+      "classes": ["Normal", "Pneumonia", "COVID-19", "Tuberculose", "Cardiomegalia", "Derrame Pleural"],
+      "threshold": 0.75,
+      "pathology_thresholds": {
+        "pneumonia": 0.70,
+        "pleural_effusion": 0.60,
+        "normal": 0.50
+      },
+      "architecture": "EfficientNetV2",
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "bilinear",
+        "augmentation": ["rotation", "brightness", "contrast"],
+        "contrast_enhancement": "clahe",
+        "lung_segmentation": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "high",
+        "false_positive_tolerance": "medium",
+        "pathology_focus": ["pneumonia", "pleural_effusion"]
+      }
+    },
+    "brain_ct": {
+      "model_path": "models/brain_ct_densenet_model.h5", 
+      "input_size": [512, 512],
+      "classes": ["Normal", "Tumor", "AVC", "Hemorragia", "Edema"],
+      "threshold": 0.90,
+      "architecture": "DenseNet",
+      "preprocessing": {
+        "normalize": true,
+        "windowing": {"level": 40, "width": 80},
+        "slice_selection": "auto"
+      }
+    },
+    "bone_xray": {
+      "model_path": "models/bone_xray_resnet_model.h5",
+      "input_size": [256, 256], 
+      "classes": ["Normal", "Fratura", "Artrite", "Osteoporose"],
+      "threshold": 0.88,
+      "architecture": "ResNet",
+      "preprocessing": {
+        "normalize": true,
+        "bone_enhancement": true,
+        "contrast_adjustment": "adaptive"
+      }
+    }
+  },
+  "version": "2.0.0",
+  "last_updated": "2024-06-09",
+  "download_urls": {
+    "chest_xray": "https://models.medai.com/chest_xray_v2.h5",
+    "brain_ct": "https://models.medai.com/brain_ct_v2.h5",
+    "bone_xray": "https://models.medai.com/bone_xray_v2.h5"
+  }
+}
