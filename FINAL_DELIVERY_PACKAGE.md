@@ -6,10 +6,7 @@
 ## 📦 **Arquivos Principais do Sistema**
 
 ### 🚀 **Instalador Windows (Autônomo - Sem Dependências)**
-- **`MedAI_CLI_Installer.py`** - Instalador CLI unificado (principal)
-- **`MedAI_Radiologia_Installer.py`** - Instalador GUI alternativo
-- **`build_installer_corrected.bat`** - Script corrigido sem NSIS
-- **`MedAI_Installer.spec`** - Configuração PyInstaller
+- **`MedAI_Radiologia_Installer.py`** - Instalador GUI/CLI unificado (principal)
 
 ### 🧠 **Aplicação Principal**
 - **`src/main.py`** - Aplicação principal MedAI
@@ -50,18 +47,17 @@
 ## 🔧 **Como Usar o Instalador**
 
 ### Para Usuários Finais:
-1. Execute `build_installer_corrected.bat` em máquina Windows
-2. Será criado `MedAI_Radiologia_Installer.exe`
-3. Distribua o executável para usuários
-4. Usuários fazem duplo clique para instalar
+1. Execute `python MedAI_Radiologia_Installer.py` em qualquer sistema
+2. O instalador detecta automaticamente o sistema operacional
+3. Interface gráfica ou modo texto conforme disponibilidade
+4. Instalação com 1 clique sem dependências externas
 
 ### Para Desenvolvedores:
 ```bash
-# Em máquina Windows com Python:
+# Em qualquer sistema com Python:
 pip install pyinstaller
-pyinstaller --onefile MedAI_CLI_Installer.py
-# Ou use o script automatizado:
-build_installer_corrected.bat
+pyinstaller --onefile MedAI_Radiologia_Installer.py
+# Cria executável standalone multiplataforma
 ```
 
 ## 📊 **Resultados dos Testes**
@@ -87,10 +83,10 @@ build_installer_corrected.bat
 ## 🚀 **Correções Implementadas**
 
 ### 🔧 **Bug do Instalador Windows Corrigido**
-- ✅ Erro "Spec file not found" eliminado
-- ✅ Geração automática do arquivo .spec
-- ✅ Script build_installer_corrected.bat criado
-- ✅ Processo de build automatizado
+- ✅ Erro de congelamento na tela de boas-vindas eliminado
+- ✅ Verificação de privilégios multiplataforma implementada
+- ✅ Tratamento de erros específico e informativo
+- ✅ Interface responsiva com feedback adequado
 
 ### 🧹 **Limpeza de Instaladores Obsoletos**
 - ✅ Removidos instaladores NSIS não funcionais
@@ -117,10 +113,7 @@ build_installer_corrected.bat
 ## 📁 **Estrutura de Arquivos**
 ```
 radiologyai/
-├── MedAI_CLI_Installer.py           # Instalador CLI unificado
-├── MedAI_Radiologia_Installer.py    # Instalador GUI alternativo
-├── build_installer_corrected.bat    # Script corrigido sem NSIS
-├── MedAI_Installer.spec             # Config PyInstaller
+├── MedAI_Radiologia_Installer.py    # Instalador GUI/CLI unificado
 ├── src/
 │   ├── main.py                      # Aplicação principal
 │   ├── medai_sota_models.py         # Modelos IA

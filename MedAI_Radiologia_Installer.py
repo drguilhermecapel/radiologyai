@@ -14,10 +14,6 @@ import base64
 from pathlib import Path
 import tempfile
 
-if os.name != 'nt':
-    print("❌ Este instalador é específico para Windows")
-    input("Pressione Enter para sair...")
-    sys.exit(1)
 
 try:
     import tkinter as tk
@@ -265,7 +261,13 @@ Clique em "Instalar" para continuar."""
             json.dump(config, f, indent=2, ensure_ascii=False)
             
     def create_shortcuts(self):
-        """Cria atalhos do Windows"""
+        """Cria atalhos (quando aplicável ao sistema operacional)"""
+        import platform
+        
+        if platform.system() != "Windows":
+            print("Criação de atalhos ignorada - não disponível em sistemas não-Windows")
+            return
+            
         try:
             import win32com.client
             shell = win32com.client.Dispatch("WScript.Shell")
@@ -287,7 +289,13 @@ Clique em "Instalar" para continuar."""
                 f.write('pause\n')
                 
     def register_application(self):
-        """Registra aplicação no Windows"""
+        """Registra aplicação no Windows (quando aplicável)"""
+        import platform
+        
+        if platform.system() != "Windows":
+            print("Registro de aplicação ignorado - não disponível em sistemas não-Windows")
+            return
+            
         try:
             import winreg
             
@@ -311,8 +319,19 @@ Clique em "Instalar" para continuar."""
             
     def run(self):
         """Executa instalador"""
+        import platform
+        
         print("🏥 MedAI Radiologia - Instalador Autônomo")
         print("Instalador Python puro - Não requer NSIS")
+        
+        current_platform = platform.system()
+        if current_platform != "Windows":
+            print("⚠️ Aviso: Algumas funcionalidades específicas do Windows não estarão disponíveis:")
+            print("  • Criação de atalhos no Menu Iniciar")
+            print("  • Registro de aplicativo no Windows")
+            print("  • Associação de arquivos DICOM")
+            print("A instalação básica funcionará normalmente.")
+        
         print()
         
         if GUI_AVAILABLE:
