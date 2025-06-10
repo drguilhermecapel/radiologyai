@@ -36,9 +36,8 @@ class SOTAModelManager:
         
         try:
             model = tf.keras.Sequential([
-                tf.keras.layers.Input(shape=input_shape),
+                tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=input_shape),
                 tf.keras.layers.Rescaling(1./255),
-                tf.keras.layers.Conv2D(32, 3, activation='relu'),
                 tf.keras.layers.MaxPooling2D(),
                 tf.keras.layers.Conv2D(64, 3, activation='relu'),
                 tf.keras.layers.MaxPooling2D(),
@@ -90,26 +89,41 @@ class StateOfTheArtModels:
         x = layers.Rescaling(1./255)(inputs)
         x = self._medical_preprocessing(x)
         
+        # Vision Transformer parameters
         patch_size = 16
-        projection_dim = 1024
-        num_heads = 16
-        transformer_layers = 24
-        mlp_head_units = [2048, 1024]
+        projection_dim = 768
+        num_heads = 12
+        transformer_layers = 12
         
-        patches = self._extract_patches(x, patch_size)
-        encoded_patches = self._encode_patches(patches, projection_dim)
+        num_patches = (self.input_shape[0] // patch_size) * (self.input_shape[1] // patch_size)
+        patches = layers.Conv2D(
+            projection_dim, 
+            kernel_size=patch_size, 
+            strides=patch_size, 
+            padding="valid"
+        )(x)
+        patches = layers.Reshape((num_patches, projection_dim))(patches)
+        
+        positions = tf.range(start=0, limit=num_patches, delta=1)
+        position_embedding = layers.Embedding(
+            input_dim=num_patches, 
+            output_dim=projection_dim
+        )(positions)
+        encoded_patches = patches + position_embedding
         
         for i in range(transformer_layers):
             x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+            
             attention_output = layers.MultiHeadAttention(
                 num_heads=num_heads, 
                 key_dim=projection_dim // num_heads,
-                dropout=0.1 if i < 12 else 0.05  # Menos dropout nas camadas finais
+                dropout=0.1
             )(x1, x1)
             
             x2 = layers.Add()([attention_output, encoded_patches])
             
             x3 = layers.LayerNormalization(epsilon=1e-6)(x2)
+            
             x3 = self._mlp_block(x3, projection_dim * 4, 0.1)
             
             encoded_patches = layers.Add()([x3, x2])
@@ -117,11 +131,13 @@ class StateOfTheArtModels:
         representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
         representation = layers.GlobalAveragePooling1D()(representation)
         
-        features = representation
-        for units in mlp_head_units:
-            features = layers.Dense(units, activation="gelu")(features)
-            features = layers.LayerNormalization()(features)
-            features = layers.Dropout(0.3)(features)
+        features = layers.Dense(2048, activation="gelu")(representation)
+        features = layers.LayerNormalization()(features)
+        features = layers.Dropout(0.3)(features)
+        
+        features = layers.Dense(1024, activation="gelu")(features)
+        features = layers.LayerNormalization()(features)
+        features = layers.Dropout(0.3)(features)
         
         outputs = layers.Dense(self.num_classes, activation="softmax")(features)
         
@@ -130,7 +146,7 @@ class StateOfTheArtModels:
     
     def build_hybrid_cnn_transformer(self) -> tf.keras.Model:
         """
-        Modelo híbrido CNN + Transformer
+        Modelo híbrido EfficientNetV2 + Transformer
         Combina extração local (CNN) com atenção global (Transformer)
         """
         inputs = layers.Input(shape=self.input_shape)
@@ -138,14 +154,16 @@ class StateOfTheArtModels:
         x = layers.Rescaling(1./255)(inputs)
         x = self._medical_preprocessing(x)
         
-        backbone = tf.keras.applications.EfficientNetV2L(
+        backbone = tf.keras.applications.EfficientNetV2B3(
             input_shape=self.input_shape,
             include_top=False,
             weights='imagenet'
         )
+        backbone.trainable = False  # Freeze backbone initially
         
         cnn_features = backbone(x)
         
+        # Reshape for transformer
         batch_size = tf.shape(cnn_features)[0]
         feature_height = tf.shape(cnn_features)[1]
         feature_width = tf.shape(cnn_features)[2]
@@ -156,7 +174,7 @@ class StateOfTheArtModels:
             [batch_size, feature_height * feature_width, feature_dim]
         )
         
-        projection_dim = 768
+        projection_dim = 512
         projected_features = layers.Dense(projection_dim)(sequence_features)
         
         seq_length = feature_height * feature_width
@@ -164,17 +182,21 @@ class StateOfTheArtModels:
         position_embedding = layers.Embedding(
             input_dim=seq_length, output_dim=projection_dim
         )(positions)
-        projected_features += position_embedding
+        projected_features = projected_features + position_embedding
         
-        for _ in range(8):  # Menos camadas que ViT puro
+        for _ in range(6):
             x1 = layers.LayerNormalization(epsilon=1e-6)(projected_features)
+            
             attention_output = layers.MultiHeadAttention(
-                num_heads=12, key_dim=projection_dim // 12, dropout=0.1
+                num_heads=8, key_dim=projection_dim // 8, dropout=0.1
             )(x1, x1)
+            
             x2 = layers.Add()([attention_output, projected_features])
             
             x3 = layers.LayerNormalization(epsilon=1e-6)(x2)
-            x3 = self._mlp_block(x3, projection_dim * 4, 0.1)
+            
+            x3 = self._mlp_block(x3, projection_dim * 2, 0.1)
+            
             projected_features = layers.Add()([x3, x2])
         
         representation = layers.LayerNormalization(epsilon=1e-6)(projected_features)
@@ -188,65 +210,72 @@ class StateOfTheArtModels:
         x = layers.LayerNormalization()(x)
         outputs = layers.Dense(self.num_classes, activation="softmax")(x)
         
-        model = models.Model(inputs, outputs, name="HybridCNNTransformer")
+        model = models.Model(inputs, outputs, name="HybridEfficientNetV2Transformer")
         return model
     
     def build_ensemble_model(self) -> tf.keras.Model:
         """
-        Modelo ensemble de múltiplas arquiteturas
+        Modelo ensemble ConvNeXt + EfficientNetV2 + RegNet
         Combina predições de diferentes modelos para máxima precisão
         """
         inputs = layers.Input(shape=self.input_shape)
         
-        efficientnet = tf.keras.applications.EfficientNetV2L(
+        x = layers.Rescaling(1./255)(inputs)
+        x = self._medical_preprocessing(x)
+        
+        efficientnet = tf.keras.applications.EfficientNetV2B3(
             input_shape=self.input_shape,
             include_top=False,
             weights='imagenet',
             pooling='avg'
         )
-        eff_features = efficientnet(inputs)
+        efficientnet.trainable = False
+        eff_features = efficientnet(x)
         eff_out = layers.Dense(512, activation='gelu')(eff_features)
         eff_out = layers.Dropout(0.3)(eff_out)
         eff_predictions = layers.Dense(self.num_classes, activation='softmax', name='efficientnet_pred')(eff_out)
         
-        convnext = tf.keras.applications.ConvNeXtXLarge(
+        convnext = tf.keras.applications.ConvNeXtBase(
             input_shape=self.input_shape,
             include_top=False,
             weights='imagenet',
             pooling='avg'
         )
-        conv_features = convnext(inputs)
+        convnext.trainable = False
+        conv_features = convnext(x)
         conv_out = layers.Dense(512, activation='gelu')(conv_features)
         conv_out = layers.Dropout(0.3)(conv_out)
         conv_predictions = layers.Dense(self.num_classes, activation='softmax', name='convnext_pred')(conv_out)
         
-        regnet = tf.keras.applications.RegNetY128GF(
+        regnet = tf.keras.applications.RegNetY040(
             input_shape=self.input_shape,
             include_top=False,
             weights='imagenet',
             pooling='avg'
         )
-        reg_features = regnet(inputs)
+        regnet.trainable = False
+        reg_features = regnet(x)
         reg_out = layers.Dense(512, activation='gelu')(reg_features)
         reg_out = layers.Dropout(0.3)(reg_out)
         reg_predictions = layers.Dense(self.num_classes, activation='softmax', name='regnet_pred')(reg_out)
         
         combined_features = layers.concatenate([eff_features, conv_features, reg_features])
         
-        attention_weights = layers.Dense(3, activation='softmax', name='model_attention')(
-            layers.Dense(256, activation='gelu')(combined_features)
-        )
+        attention_weights = layers.Dense(256, activation='gelu')(combined_features)
+        attention_weights = layers.Dropout(0.2)(attention_weights)
+        attention_weights = layers.Dense(3, activation='softmax', name='model_attention')(attention_weights)
         
         weighted_predictions = layers.Lambda(lambda x: 
             x[0] * tf.expand_dims(x[3][:, 0], 1) + 
             x[1] * tf.expand_dims(x[3][:, 1], 1) + 
-            x[2] * tf.expand_dims(x[3][:, 2], 1)
+            x[2] * tf.expand_dims(x[3][:, 2], 1),
+            name='weighted_ensemble'
         )([eff_predictions, conv_predictions, reg_predictions, attention_weights])
         
         model = models.Model(
             inputs=inputs, 
             outputs=weighted_predictions,
-            name="EnsembleModel"
+            name="EnsembleConvNeXtEfficientNetRegNet"
         )
         
         return model

@@ -61,7 +61,7 @@ class MedAIIntegrationManager:
             )
             
             self.feature_extractor = AdvancedFeatureExtractor()
-            self.detection_system = RadiologyYOLO(num_classes=15)
+            self.detection_system = RadiologyYOLO()
             import tensorflow as tf
             dummy_model = tf.keras.Sequential([tf.keras.layers.Dense(1)])
             self.model_trainer = MedicalModelTrainer(
@@ -69,32 +69,15 @@ class MedAIIntegrationManager:
                 model_name="test_model", 
                 output_dir="./models"
             )
-            cnn_model = tf.keras.Sequential([
-                tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3), name='conv2d_1'),
-                tf.keras.layers.Conv2D(64, 3, activation='relu', name='conv2d_2'),
-                tf.keras.layers.GlobalAveragePooling2D(name='global_avg_pool'),
-                tf.keras.layers.Dense(10, activation='softmax', name='dense_output')
-            ])
-            cnn_model.build(input_shape=(None, 224, 224, 3))
-            dummy_input = tf.random.normal((1, 224, 224, 3))
-            _ = cnn_model(dummy_input)
-            self.explainability_engine = GradCAMExplainer(cnn_model)
+            self.explainability_engine = GradCAMExplainer(None)
             try:
                 self.pacs_integration = PACSIntegration()
             except Exception as e:
                 print(f"PACS integration não disponível: {e}")
                 self.pacs_integration = None
-            self.clinical_evaluator = ClinicalPerformanceEvaluator(
-                class_names=['Normal', 'Pneumonia', 'Tumor', 'Fracture', 'Atelectasis', 'Cardiomegaly', 'Effusion', 'Infiltration', 'Nodule']
-            )
-            self.ethics_framework = EthicalAIFramework(
-                model_name="MedAI_Radiologia",
-                version="v2.0"
-            )
-            self.regulatory_manager = EthicalAIFramework(
-                model_name="MedAI_Radiologia_Regulatory",
-                version="v2.0"
-            )
+            self.clinical_evaluator = ClinicalPerformanceEvaluator()
+            self.ethics_framework = EthicalAIFramework()
+            self.regulatory_manager = EthicalAIFramework()
             
             # self.security_manager = SecurityManager()  # Temporarily disabled
             # self.report_generator = ReportGenerator()  # Temporarily disabled
@@ -110,7 +93,7 @@ class MedAIIntegrationManager:
             
             self.enhanced_models = {
                 'medical_vit': self.sota_models.build_medical_vision_transformer(),
-                'medical_gnn': self.sota_models.build_graph_neural_network(),
+                # 'medical_gnn': self.sota_models.build_graph_neural_network(),  # Method not implemented
                 'enhanced_ensemble': self.sota_models.build_ensemble_model()
             }
             

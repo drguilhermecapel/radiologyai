@@ -1,59 +1,208 @@
 {
   "models": {
-    "chest_xray": {
+    "chest_xray_efficientnetv2": {
       "model_path": "models/chest_xray_efficientnetv2_model.h5",
-      "input_size": [384, 384],
-      "classes": ["Normal", "Pneumonia", "COVID-19", "Tuberculose", "Cardiomegalia", "Derrame Pleural"],
+      "input_size": [384, 384, 3],
+      "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.75,
       "pathology_thresholds": {
         "pneumonia": 0.70,
         "pleural_effusion": 0.60,
+        "fracture": 0.65,
+        "tumor": 0.80,
         "normal": 0.50
       },
       "architecture": "EfficientNetV2",
       "preprocessing": {
         "normalize": true,
         "resize_method": "bilinear",
-        "augmentation": ["rotation", "brightness", "contrast"],
+        "augmentation": ["rotation", "brightness", "contrast", "horizontal_flip"],
         "contrast_enhancement": "clahe",
-        "lung_segmentation": true
+        "lung_segmentation": true,
+        "medical_windowing": true
       },
       "clinical_settings": {
         "sensitivity_mode": "high",
         "false_positive_tolerance": "medium",
-        "pathology_focus": ["pneumonia", "pleural_effusion"]
+        "pathology_focus": ["pneumonia", "pleural_effusion", "fracture", "tumor"]
+      },
+      "training_config": {
+        "batch_size": 16,
+        "learning_rate": 1e-4,
+        "epochs": 50,
+        "early_stopping": true,
+        "patience": 10
       }
     },
-    "brain_ct": {
+    "chest_xray_vision_transformer": {
+      "model_path": "models/chest_xray_vision_transformer_model.h5",
+      "input_size": [224, 224, 3],
+      "patch_size": 16,
+      "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
+      "threshold": 0.75,
+      "pathology_thresholds": {
+        "pneumonia": 0.72,
+        "pleural_effusion": 0.68,
+        "fracture": 0.70,
+        "tumor": 0.82,
+        "normal": 0.55
+      },
+      "architecture": "VisionTransformer",
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "bilinear",
+        "augmentation": ["rotation", "brightness", "contrast", "cutmix", "mixup"],
+        "contrast_enhancement": "clahe",
+        "patch_extraction": true,
+        "attention_preprocessing": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "high",
+        "false_positive_tolerance": "low",
+        "pathology_focus": ["pneumonia", "pleural_effusion", "fracture", "tumor"],
+        "attention_visualization": true
+      },
+      "training_config": {
+        "batch_size": 12,
+        "learning_rate": 5e-5,
+        "epochs": 60,
+        "early_stopping": true,
+        "patience": 15,
+        "warmup_epochs": 5
+      }
+    },
+    "chest_xray_convnext": {
+      "model_path": "models/chest_xray_convnext_model.h5",
+      "input_size": [256, 256, 3],
+      "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
+      "threshold": 0.78,
+      "pathology_thresholds": {
+        "pneumonia": 0.73,
+        "pleural_effusion": 0.65,
+        "fracture": 0.68,
+        "tumor": 0.85,
+        "normal": 0.52
+      },
+      "architecture": "ConvNeXt",
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "bicubic",
+        "augmentation": ["rotation", "brightness", "contrast", "elastic_transform"],
+        "contrast_enhancement": "clahe",
+        "advanced_augmentation": true,
+        "layer_scale": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "balanced",
+        "false_positive_tolerance": "medium",
+        "pathology_focus": ["pneumonia", "pleural_effusion", "fracture", "tumor"],
+        "hierarchical_classification": true
+      },
+      "training_config": {
+        "batch_size": 14,
+        "learning_rate": 2e-4,
+        "epochs": 45,
+        "early_stopping": true,
+        "patience": 12,
+        "cosine_annealing": true
+      }
+    },
+    "ensemble_model": {
+      "model_path": "models/ensemble_model.h5",
+      "input_size": [384, 384, 3],
+      "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
+      "threshold": 0.80,
+      "pathology_thresholds": {
+        "pneumonia": 0.75,
+        "pleural_effusion": 0.70,
+        "fracture": 0.72,
+        "tumor": 0.88,
+        "normal": 0.60
+      },
+      "architecture": "Ensemble",
+      "component_models": [
+        "chest_xray_efficientnetv2",
+        "chest_xray_vision_transformer", 
+        "chest_xray_convnext"
+      ],
+      "ensemble_method": "weighted_average",
+      "model_weights": {
+        "chest_xray_efficientnetv2": 0.35,
+        "chest_xray_vision_transformer": 0.35,
+        "chest_xray_convnext": 0.30
+      },
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "adaptive",
+        "augmentation": ["rotation", "brightness", "contrast"],
+        "contrast_enhancement": "clahe",
+        "multi_scale_processing": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "maximum",
+        "false_positive_tolerance": "low",
+        "pathology_focus": ["pneumonia", "pleural_effusion", "fracture", "tumor"],
+        "confidence_calibration": true,
+        "uncertainty_quantification": true
+      }
+    },
+    "brain_ct_densenet": {
       "model_path": "models/brain_ct_densenet_model.h5", 
-      "input_size": [512, 512],
-      "classes": ["Normal", "Tumor", "AVC", "Hemorragia", "Edema"],
+      "input_size": [512, 512, 3],
+      "classes": ["normal", "tumor", "stroke", "hemorrhage", "edema"],
       "threshold": 0.90,
       "architecture": "DenseNet",
       "preprocessing": {
         "normalize": true,
         "windowing": {"level": 40, "width": 80},
-        "slice_selection": "auto"
+        "slice_selection": "auto",
+        "brain_extraction": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "maximum",
+        "false_positive_tolerance": "very_low"
       }
     },
-    "bone_xray": {
+    "bone_xray_resnet": {
       "model_path": "models/bone_xray_resnet_model.h5",
-      "input_size": [256, 256], 
-      "classes": ["Normal", "Fratura", "Artrite", "Osteoporose"],
+      "input_size": [256, 256, 3], 
+      "classes": ["normal", "fracture", "arthritis", "osteoporosis"],
       "threshold": 0.88,
       "architecture": "ResNet",
       "preprocessing": {
         "normalize": true,
         "bone_enhancement": true,
-        "contrast_adjustment": "adaptive"
+        "contrast_adjustment": "adaptive",
+        "edge_enhancement": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "high",
+        "false_positive_tolerance": "medium"
       }
     }
   },
-  "version": "2.0.0",
-  "last_updated": "2024-06-09",
+  "version": "3.0.0",
+  "last_updated": "2025-06-10",
+  "sota_architectures": ["EfficientNetV2", "VisionTransformer", "ConvNeXt", "Ensemble"],
+  "default_model": "ensemble_model",
+  "training_datasets": {
+    "chest_xray": "data/samples/",
+    "validation_split": 0.2,
+    "test_split": 0.1,
+    "augmentation_factor": 3
+  },
+  "performance_metrics": {
+    "target_accuracy": 0.92,
+    "target_sensitivity": 0.90,
+    "target_specificity": 0.88,
+    "target_auc": 0.95
+  },
   "download_urls": {
-    "chest_xray": "https://models.medai.com/chest_xray_v2.h5",
-    "brain_ct": "https://models.medai.com/brain_ct_v2.h5",
-    "bone_xray": "https://models.medai.com/bone_xray_v2.h5"
+    "chest_xray_efficientnetv2": "https://models.medai.com/chest_xray_efficientnetv2_v3.h5",
+    "chest_xray_vision_transformer": "https://models.medai.com/chest_xray_vit_v3.h5",
+    "chest_xray_convnext": "https://models.medai.com/chest_xray_convnext_v3.h5",
+    "ensemble_model": "https://models.medai.com/ensemble_model_v3.h5",
+    "brain_ct_densenet": "https://models.medai.com/brain_ct_v2.h5",
+    "bone_xray_resnet": "https://models.medai.com/bone_xray_v2.h5"
   }
 }
