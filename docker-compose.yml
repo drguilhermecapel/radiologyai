@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  medai-app:
+    build: .
+    ports:
+      - "8000:8000"  # FastAPI server
+      - "8080:8080"  # Legacy Flask server (backward compatibility)
+      - "8084:8084"  # Clinical monitoring dashboard
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config:/app/config
+      - medai-logs:/var/log/medai
+    environment:
+      - PYTHONPATH=/app
+      - MEDAI_ENV=production
+      - DB_HOST=medai-db
+      - DB_USERNAME=medai_user
+      - DB_PASSWORD=medai_secure_password
+      - JWT_SECRET=your-jwt-secret-key-here
+      - CLINICAL_ALERT_EMAIL=admin@hospital.com
+      - SLACK_WEBHOOK=https://hooks.slack.com/your-webhook
+      - ADMIN_EMAIL=admin@hospital.com
+    depends_on:
+      - medai-db
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  medai-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=medai_production
+      - POSTGRES_USER=medai_user
+      - POSTGRES_PASSWORD=medai_secure_password
+    volumes:
+      - medai-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medai_user -d medai_production"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - medai-redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - medai-app
+    restart: unless-stopped
+
+volumes:
+  medai-db-data:
+  medai-redis-data:
+  medai-logs:

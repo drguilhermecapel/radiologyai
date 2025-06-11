@@ -247,7 +247,7 @@ class StateOfTheArtModels:
         conv_out = layers.Dropout(0.3)(conv_out)
         conv_predictions = layers.Dense(self.num_classes, activation='softmax', name='convnext_pred')(conv_out)
         
-        regnet = tf.keras.applications.RegNetY040(
+        regnet = tf.keras.applications.ResNet152V2(
             input_shape=self.input_shape,
             include_top=False,
             weights='imagenet',
@@ -275,14 +275,14 @@ class StateOfTheArtModels:
         model = models.Model(
             inputs=inputs, 
             outputs=weighted_predictions,
-            name="EnsembleConvNeXtEfficientNetRegNet"
+            name="EnsembleConvNeXtEfficientNetResNet"
         )
         
         return model
     
     def _medical_preprocessing(self, x):
         """Pré-processamento específico para imagens médicas"""
-        x = tf.image.adjust_contrast(x, 1.2)
+        x = layers.Lambda(lambda img: tf.image.adjust_contrast(img, 1.2))(x)
         return x
     
     def _extract_patches(self, images, patch_size):
@@ -315,9 +315,10 @@ class StateOfTheArtModels:
     
     def _mlp_block(self, x, hidden_units, dropout_rate):
         """Bloco MLP com GELU activation"""
+        original_dim = x.shape[-1]
         x = layers.Dense(hidden_units, activation="gelu")(x)
         x = layers.Dropout(dropout_rate)(x)
-        x = layers.Dense(x.shape[-1])(x)
+        x = layers.Dense(original_dim)(x)
         x = layers.Dropout(dropout_rate)(x)
         return x
     
@@ -352,6 +353,13 @@ class StateOfTheArtModels:
             loss=loss,
             metrics=metrics
         )
+        
+        try:
+            dummy_input = tf.random.normal((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
+            _ = model(dummy_input, training=False)
+            logger.info("Modelo inicializado com sucesso")
+        except Exception as e:
+            logger.warning(f"Erro na inicialização do modelo: {e}")
         
         logger.info(f"Modelo SOTA compilado com {model.count_params():,} parâmetros")
         return model

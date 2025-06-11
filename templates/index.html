@@ -313,7 +313,7 @@
                         <p>
                             <strong>Modelo:</strong> <span id="model-used">-</span><br>
                             <strong>Tempo:</strong> <span id="processing-time">-</span>s<br>
-                            <strong>Versão:</strong> MedAI v2.0
+                            <strong>Versão:</strong> MedAI v4.0 (FastAPI)
                         </p>
                     </div>
                 </div>
@@ -372,7 +372,7 @@
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const response = await fetch('/api/analyze', {
+                const response = await fetch('/api/v1/analyze', {
                     method: 'POST',
                     body: formData
                 });
@@ -448,7 +448,7 @@
         }
 
         // API Status check
-        fetch('/api/status')
+        fetch('/api/v1/status')
             .then(response => response.json())
             .then(data => {
                 console.log('API Status:', data);

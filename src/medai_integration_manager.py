@@ -190,10 +190,51 @@ class MedAIIntegrationManager:
             else:
                 image_array = image_data
             
-            # Use predict_single method which exists in MedicalInferenceEngine
-            result = self.inference_engine.predict_single(
-                image_array,
-                return_attention=generate_attention_map
+            if model_name in ['ensemble', 'enhanced_ensemble']:
+                model = self.enhanced_models.get('enhanced_ensemble')
+            elif model_name in ['vision_transformer', 'medical_vit']:
+                model = self.enhanced_models.get('medical_vit')
+            else:
+                model = self.enhanced_models.get('enhanced_ensemble')  # Default fallback
+            
+            if model is None:
+                raise Exception("Modelo SOTA não está disponível")
+            
+            if len(image_array.shape) == 2:
+                image_array = np.stack([image_array] * 3, axis=-1)
+            elif len(image_array.shape) == 3 and image_array.shape[-1] == 1:
+                image_array = np.repeat(image_array, 3, axis=-1)
+            
+            import cv2
+            image_resized = cv2.resize(image_array, (512, 512))
+            image_batch = np.expand_dims(image_resized, axis=0)
+            image_batch = image_batch.astype(np.float32) / 255.0
+            
+            import time
+            start_time = time.time()
+            predictions = model.predict(image_batch, verbose=0)
+            processing_time = time.time() - start_time
+            
+            predicted_class_idx = np.argmax(predictions[0])
+            confidence = float(predictions[0][predicted_class_idx])
+            
+            class_names = ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
+            predicted_class = class_names[predicted_class_idx] if predicted_class_idx < len(class_names) else 'unknown'
+            
+            class PredictionResult:
+                def __init__(self, predicted_class, confidence, processing_time, predictions, metadata):
+                    self.predicted_class = predicted_class
+                    self.confidence = confidence
+                    self.processing_time = processing_time
+                    self.predictions = predictions
+                    self.metadata = metadata
+            
+            result = PredictionResult(
+                predicted_class=predicted_class,
+                confidence=confidence,
+                processing_time=processing_time,
+                predictions=predictions[0].tolist(),
+                metadata={'model_used': model_name, 'input_shape': image_batch.shape}
             )
             
             results = {
