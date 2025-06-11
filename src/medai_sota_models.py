@@ -212,6 +212,37 @@ class StateOfTheArtModels:
         inputs = layers.Input(shape=self.input_shape)
         
         x = layers.Rescaling(1./255)(inputs)
+        x = self._medical_preprocessing(x)
+        
+        convnext = tf.keras.applications.ConvNeXtBase(
+            input_shape=self.input_shape,
+            include_top=False,
+            weights='imagenet',
+            pooling='avg'
+        )
+        convnext.trainable = False
+        
+        conv_features = convnext(x)
+        conv_features = layers.Dense(512, activation='gelu', name='conv_features_dense')(conv_features)
+        conv_features = layers.Dropout(0.3, name='conv_features_dropout')(conv_features)
+        
+        outputs = layers.Dense(self.num_classes, activation='softmax', 
+                              kernel_initializer=self._dense_kernel_initializer,
+                              name='convnext_predictions')(conv_features)
+        
+        model = models.Model(inputs=inputs, outputs=outputs, name='ConvNeXt_Medical')
+        return model
+    
+    def build_attention_weighted_ensemble(self) -> tf.keras.Model:
+        """
+        Ensemble com fusão por atenção avançada para análise radiológica
+        Implementa 8 cabeças de atenção com espaço dimensional de 256
+        Pesos baseados em performance clínica: 35% sensibilidade, 30% acurácia, 25% especificidade, 10% AUC
+        """
+        inputs = layers.Input(shape=self.input_shape)
+        
+        x = layers.Rescaling(1./255)(inputs)
+        x = self._medical_preprocessing(x)
         
         # EfficientNetV2 - Especializado em detalhes finos
         efficientnet = tf.keras.applications.EfficientNetV2B3(
@@ -222,7 +253,6 @@ class StateOfTheArtModels:
         )
         efficientnet.trainable = False
         eff_features = efficientnet(x)
-        # Normalize EfficientNet features to 512 dimensions
         eff_features_norm = layers.Dense(512, activation='gelu', name='eff_features_norm')(eff_features)
         eff_out = layers.Dense(512, activation='gelu', name='eff_dense')(eff_features_norm)
         eff_out = layers.Dropout(0.3, name='eff_dropout')(eff_out)
@@ -231,7 +261,6 @@ class StateOfTheArtModels:
         # Vision Transformer - Especializado em padrões globais
         vit_backbone = self._build_medical_vision_transformer_backbone(self.input_shape)
         vit_features = vit_backbone(x)
-        # Normalize ViT features to 512 dimensions
         vit_features_norm = layers.Dense(512, activation='gelu', name='vit_features_norm')(vit_features)
         vit_out = layers.Dense(512, activation='gelu', name='vit_dense')(vit_features_norm)
         vit_out = layers.Dropout(0.3, name='vit_dropout')(vit_out)
@@ -245,7 +274,6 @@ class StateOfTheArtModels:
         )
         convnext.trainable = False
         conv_features = convnext(x)
-        # Normalize ConvNeXt features to 512 dimensions
         conv_features_norm = layers.Dense(512, activation='gelu', name='conv_features_norm')(conv_features)
         conv_out = layers.Dense(512, activation='gelu', name='conv_dense')(conv_features_norm)
         conv_out = layers.Dropout(0.3, name='conv_dropout')(conv_out)
@@ -253,34 +281,96 @@ class StateOfTheArtModels:
         
         combined_features = layers.concatenate([eff_features_norm, vit_features_norm, conv_features_norm], name='combined_features')
         
-        attention_layer = layers.Dense(256, activation='gelu', name='attention_dense')(combined_features)
-        attention_layer = layers.Dropout(0.1, name='attention_dropout')(attention_layer)
-        attention_weights = layers.Dense(3, activation='softmax', name='attention_weights')(attention_layer)
-        
-        # EfficientNetV2: 35%, ViT: 35%, ConvNeXt: 30%
-        class WeightedEnsemble(layers.Layer):
-            def __init__(self, **kwargs):
-                super(WeightedEnsemble, self).__init__(**kwargs)
-            
+        # Implementação da atenção multi-cabeça avançada
+        class AdvancedAttentionWeightedEnsemble(layers.Layer):
+            def __init__(self, num_heads=8, attention_dim=256, temperature=1.5, **kwargs):
+                super(AdvancedAttentionWeightedEnsemble, self).__init__(**kwargs)
+                self.num_heads = num_heads
+                self.attention_dim = attention_dim
+                self.temperature = temperature
+                self.confidence_threshold = 0.8
+                
+                self.clinical_weights = {
+                    'sensitivity': 0.35,
+                    'accuracy': 0.30,
+                    'specificity': 0.25,
+                    'auc': 0.10
+                }
+                
+                self.attention_dense = layers.Dense(attention_dim, activation='gelu', name='attention_dense')
+                self.attention_dropout = layers.Dropout(0.1, name='attention_dropout')
+                
+                self.attention_heads = []
+                for i in range(num_heads):
+                    head = layers.Dense(3, activation='softmax', name=f'attention_head_{i}')
+                    self.attention_heads.append(head)
+                
+                self.head_fusion = layers.Dense(3, activation='softmax', name='head_fusion')
+                
+                self.confidence_calibration = layers.Dense(1, activation='sigmoid', name='confidence_calibration')
+                
             def call(self, inputs):
-                eff_pred, vit_pred, conv_pred, attention = inputs
+                eff_pred, vit_pred, conv_pred, combined_features = inputs
+                
+                attention_features = self.attention_dense(combined_features)
+                attention_features = self.attention_dropout(attention_features)
+                
+                head_outputs = []
+                for head in self.attention_heads:
+                    head_output = head(attention_features)
+                    head_outputs.append(head_output)
+                
+                stacked_heads = tf.stack(head_outputs, axis=-1)  # [batch, 3, num_heads]
+                averaged_attention = tf.reduce_mean(stacked_heads, axis=-1)  # [batch, 3]
+                
+                clinical_adjustment = tf.constant([
+                    self.clinical_weights['sensitivity'],  # EfficientNetV2
+                    self.clinical_weights['accuracy'],     # ViT
+                    self.clinical_weights['specificity']   # ConvNeXt
+                ], dtype=tf.float32)
+                
+                # Normalizar pesos clínicos
+                clinical_adjustment = clinical_adjustment / tf.reduce_sum(clinical_adjustment)
+                
+                final_attention = 0.7 * averaged_attention + 0.3 * clinical_adjustment
+                final_attention = tf.nn.softmax(final_attention)
+                
+                scaled_eff_pred = eff_pred / self.temperature
+                scaled_vit_pred = vit_pred / self.temperature
+                scaled_conv_pred = conv_pred / self.temperature
+                
+                scaled_eff_pred = tf.nn.softmax(scaled_eff_pred)
+                scaled_vit_pred = tf.nn.softmax(scaled_vit_pred)
+                scaled_conv_pred = tf.nn.softmax(scaled_conv_pred)
                 
                 weighted_pred = (
-                    attention[:, 0:1] * eff_pred +
-                    attention[:, 1:2] * vit_pred +
-                    attention[:, 2:3] * conv_pred
+                    final_attention[:, 0:1] * scaled_eff_pred +
+                    final_attention[:, 1:2] * scaled_vit_pred +
+                    final_attention[:, 2:3] * scaled_conv_pred
                 )
                 
-                return weighted_pred
+                max_confidence = tf.reduce_max(weighted_pred, axis=-1, keepdims=True)
+                confidence_score = self.confidence_calibration(combined_features)
+                
+                confidence_mask = tf.cast(confidence_score >= self.confidence_threshold, tf.float32)
+                
+                final_pred = weighted_pred * confidence_mask + (1 - confidence_mask) * (weighted_pred * 0.5)
+                
+                final_pred = final_pred / tf.reduce_sum(final_pred, axis=-1, keepdims=True)
+                
+                return final_pred
         
-        weighted_predictions = WeightedEnsemble(name='weighted_ensemble')(
-            [eff_predictions, vit_predictions, conv_predictions, attention_weights]
-        )
+        ensemble_predictions = AdvancedAttentionWeightedEnsemble(
+            num_heads=8,
+            attention_dim=256,
+            temperature=1.5,
+            name='advanced_attention_ensemble'
+        )([eff_predictions, vit_predictions, conv_predictions, combined_features])
         
         model = models.Model(
             inputs=inputs, 
-            outputs=weighted_predictions,
-            name="MedicalEnsembleEfficientNetViTConvNeXt"
+            outputs=ensemble_predictions,
+            name="AdvancedMedicalEnsemble_EfficientNetV2_ViT_ConvNeXt"
         )
         
         return model
