@@ -72,6 +72,27 @@ class MedicalInferenceEngine:
     def _load_model(self):
         """Carrega modelo treinado com suporte a arquiteturas SOTA"""
         try:
+            if self.model_path.exists() and self.model_path.suffix == '.h5':
+                try:
+                    self.model = tf.keras.models.load_model(
+                        str(self.model_path),
+                        compile=False  # Compilar manualmente para controle
+                    )
+                    
+                    # Recompilar com métricas de inferência
+                    self.model.compile(
+                        optimizer='adam',
+                        loss='categorical_crossentropy',
+                        metrics=['accuracy']
+                    )
+                    
+                    logger.info(f"Modelo treinado carregado com sucesso: {self.model_path}")
+                    self._is_dummy_model = False
+                    return
+                    
+                except Exception as load_error:
+                    logger.warning(f"Erro ao carregar modelo H5: {load_error}")
+            
             try:
                 with open(self.model_path, 'r') as f:
                     content = f.read()
@@ -83,26 +104,9 @@ class MedicalInferenceEngine:
             except:
                 pass
             
-            try:
-                self.model = tf.keras.models.load_model(
-                    self.model_path,
-                    compile=False  # Compilar manualmente para controle
-                )
-                
-                # Recompilar com métricas de inferência
-                self.model.compile(
-                    optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy']
-                )
-                
-                logger.info(f"Modelo carregado: {self.model_path}")
-                self._is_dummy_model = False
-                
-            except Exception as load_error:
-                logger.warning(f"Erro ao carregar modelo salvo: {load_error}. Criando modelo SOTA.")
-                self.model = self._create_sota_model()
-                self._is_dummy_model = False
+            logger.warning(f"Modelo não encontrado em {self.model_path}. Criando modelo SOTA.")
+            self.model = self._create_sota_model()
+            self._is_dummy_model = False
             
         except Exception as e:
             logger.error(f"Erro ao carregar modelo: {str(e)}")
@@ -391,9 +395,14 @@ class MedicalInferenceEngine:
         """
         target_size = self.model_config['input_size']
         
+        if len(target_size) == 3:
+            resize_dims = target_size[:2]  # [height, width]
+        else:
+            resize_dims = target_size
+        
         # Redimensionar
-        if image.shape[:2] != target_size:
-            image = cv2.resize(image, target_size[::-1], 
+        if image.shape[:2] != tuple(resize_dims):
+            image = cv2.resize(image, (resize_dims[1], resize_dims[0]), 
                              interpolation=cv2.INTER_LANCZOS4)
         
         # Normalizar
@@ -421,9 +430,21 @@ class MedicalInferenceEngine:
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
         
-        # Garantir 3 canais se necessário
-        if self.model is not None and self.model.input_shape[-1] == 3 and image.shape[-1] == 1:
-            image = np.repeat(image, 3, axis=-1)
+        # Garantir compatibilidade de canais com o modelo
+        if self.model is not None:
+            expected_channels = self.model.input_shape[-1]
+            current_channels = image.shape[-1] if len(image.shape) == 3 else 1
+            
+            if expected_channels == 3 and current_channels == 1:
+                if len(image.shape) == 2:
+                    image = np.expand_dims(image, axis=-1)
+                image = np.repeat(image, 3, axis=-1)
+            elif expected_channels == 1 and current_channels == 3:
+                if len(image.shape) == 3 and image.shape[-1] == 3:
+                    image = np.mean(image, axis=-1, keepdims=True)
+            elif expected_channels == 1 and len(image.shape) == 2:
+                # Adicionar dimensão de canal para grayscale
+                image = np.expand_dims(image, axis=-1)
         elif self.model is None and len(image.shape) == 3 and image.shape[-1] == 1:
             image = np.repeat(image, 3, axis=-1)
         
@@ -480,7 +501,12 @@ class MedicalInferenceEngine:
         heatmap = heatmap.numpy()
         
         # Redimensionar para tamanho original
-        heatmap = cv2.resize(heatmap, self.model_config['input_size'][::-1])
+        input_size = self.model_config['input_size']
+        if len(input_size) == 3:
+            resize_dims = (input_size[1], input_size[0])  # (width, height)
+        else:
+            resize_dims = (input_size[1], input_size[0])
+        heatmap = cv2.resize(heatmap, resize_dims)
         
         return heatmap
     
@@ -832,24 +858,22 @@ class MedicalInferenceEngine:
             return self._analyze_image_fallback(image, {})
     
     def _preprocess_for_model(self, image: np.ndarray) -> np.ndarray:
-        """Preprocess image for SOTA model input"""
+        """Preprocess image for SOTA model input with proper channel handling"""
         try:
             target_size = (224, 224)
             
-            if len(image.shape) == 2:
+            if len(image.shape) == 3 and image.shape[-1] == 3:
                 import cv2
-                resized = cv2.resize(image, target_size)
-                processed = np.stack([resized, resized, resized], axis=-1)
-            elif len(image.shape) == 3:
-                if image.shape[-1] == 1:
-                    import cv2
-                    resized = cv2.resize(image[:, :, 0], target_size)
-                    processed = np.stack([resized, resized, resized], axis=-1)
-                else:
-                    import cv2
-                    processed = cv2.resize(image, target_size)
+                gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            elif len(image.shape) == 3 and image.shape[-1] == 1:
+                gray = image[:, :, 0]
             else:
-                raise ValueError(f"Unsupported image shape: {image.shape}")
+                gray = image
+            
+            import cv2
+            resized = cv2.resize(gray, target_size)
+            
+            processed = np.expand_dims(resized, axis=-1)
             
             # Normalize to [0, 1] range
             if processed.max() > 1.0:
@@ -859,12 +883,20 @@ class MedicalInferenceEngine:
             
         except Exception as e:
             logger.error(f"Error in image preprocessing: {e}")
-            return np.zeros((224, 224, 3), dtype=np.float32)
+            return np.zeros((224, 224, 1), dtype=np.float32)
     
     def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> PredictionResult:
         """Fallback image analysis when trained models are not available"""
         start_time = time.time()
         
+        try:
+            if hasattr(self, 'model') and self.model is not None and not self._is_dummy_model:
+                logger.info("Using trained model for prediction instead of fallback")
+                return self._predict_with_trained_model(image, metadata or {})
+        except Exception as e:
+            logger.warning(f"Trained model prediction failed, using fallback: {e}")
+        
+        logger.info("Using fallback detection as last resort - no trained models available")
         try:
             import cv2
             from scipy import ndimage
@@ -966,38 +998,38 @@ class MedicalInferenceEngine:
         }
     
     def _detect_pneumonia_patterns(self, image: np.ndarray) -> float:
-        """Detect pneumonia patterns in chest X-ray"""
+        """Detect pneumonia patterns in chest X-ray with balanced scoring"""
         
         mean_intensity = np.mean(image)
         std_intensity = np.std(image)
         
-        high_density_mask = image > (mean_intensity + 0.8 * std_intensity)
+        high_density_mask = image > (mean_intensity + 1.2 * std_intensity)
         consolidation_ratio = np.sum(high_density_mask) / image.size
         
         print(f"DEBUG Pneumonia - mean: {mean_intensity:.2f}, std: {std_intensity:.2f}, consolidation_ratio: {consolidation_ratio:.4f}")
         
         try:
             import cv2
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
             consolidated_regions = cv2.morphologyEx(high_density_mask.astype(np.uint8), cv2.MORPH_CLOSE, kernel)
             
             num_labels, labels = cv2.connectedComponents(consolidated_regions)
             region_sizes = [np.sum(labels == i) for i in range(1, num_labels)]
             
-            medium_regions = [size for size in region_sizes if 50 < size < 8000]
-            region_score = min(0.5, len(medium_regions) * 0.15)
+            medium_regions = [size for size in region_sizes if 100 < size < 5000]
+            region_score = min(0.3, len(medium_regions) * 0.08)
             
             print(f"DEBUG Pneumonia - regions: {len(medium_regions)}, region_score: {region_score:.4f}")
             
         except ImportError:
-            region_score = 0.15 if consolidation_ratio > 0.05 else 0
+            region_score = 0.08 if consolidation_ratio > 0.08 else 0
         
-        if consolidation_ratio > 0.08:
-            base_score = min(0.9, consolidation_ratio * 6)
+        if consolidation_ratio > 0.12:
+            base_score = min(0.5, consolidation_ratio * 2.8)
         else:
-            base_score = consolidation_ratio * 4
+            base_score = consolidation_ratio * 2.0
         
-        final_score = min(0.95, base_score + region_score)
+        final_score = min(0.6, base_score + region_score)
         
         print(f"DEBUG Pneumonia - base_score: {base_score:.4f}, final_score: {final_score:.4f}")
         

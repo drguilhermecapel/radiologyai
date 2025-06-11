@@ -128,48 +128,59 @@ def train_model(architecture, data_dir, output_dir, epochs, batch_size, learning
         model_config = get_model_config(architecture, (224, 224, 3), 5, learning_rate)
         
         dataset_config = DatasetConfig(
+            name=f"{architecture}_dataset",
+            data_dir=Path(data_dir),
             image_size=model_config['input_shape'][:2],
-            batch_size=model_config['batch_size'],
-            validation_split=0.2,
-            test_split=0.1,
+            num_classes=5,
+            augmentation_config={},
+            preprocessing_config={},
+            validation_split=0.3,
+            test_split=0.25,
             class_names=['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
         )
         
         model_config_obj = ModelConfig(
             architecture=architecture,
-            input_shape=model_config['input_shape'],
-            num_classes=len(dataset_config.class_names),
-            learning_rate=model_config['learning_rate']
+            input_shape=(384, 384, 1),  # Use grayscale for medical images
+            num_classes=len(dataset_config.class_names)
         )
         
         training_config = TrainingConfig(
+            batch_size=model_config['batch_size'],
             epochs=epochs,
-            early_stopping=True,
-            patience=10,
-            reduce_lr=True,
-            save_best_only=True
+            learning_rate=model_config['learning_rate'],
+            early_stopping_patience=10,
+            reduce_lr_patience=5,
+            mixed_precision=False,
+            gradient_clipping=1.0,
+            label_smoothing=0.1,
+            use_class_weights=True
         )
         
-        pipeline = MLPipeline(model_config_obj, dataset_config, training_config)
+        pipeline = MLPipeline(
+            project_name="MedAI_Radiologia",
+            experiment_name=f"{architecture}_training"
+        )
         
         logger.info("Preparando dados...")
-        train_ds, val_ds, test_ds = pipeline.prepare_data(data_dir, dataset_config)
+        train_ds, val_ds, test_ds = pipeline.prepare_data(str(data_dir), dataset_config)
         
         if train_ds is None:
             logger.error(f"Falha ao preparar dados para {architecture}")
             return None, None
         
         logger.info("Construindo modelo...")
-        model = pipeline.build_model()
+        model = pipeline.build_model(model_config_obj)
         
         if model is None:
             logger.error(f"Falha ao construir modelo {architecture}")
             return None, None
         
         logger.info("Iniciando treinamento...")
-        history = pipeline.train(train_ds, val_ds)
+        history = pipeline.train(model, train_ds, val_ds, training_config, f"{architecture}_training")
         
         logger.info("Avaliando modelo...")
+        pipeline.model = model  # Store model reference for evaluation
         metrics = pipeline.evaluate(test_ds)
         logger.info(f"Métricas de avaliação para {architecture}: {metrics}")
         

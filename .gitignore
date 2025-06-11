@@ -153,3 +153,4 @@ Thumbs.db
 *.msi
 *.lnk
 dist/
+*.h5

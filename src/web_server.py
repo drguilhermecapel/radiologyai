@@ -127,10 +127,31 @@ def api_analyze():
         
         image_data = file.read()
         
-        image = Image.open(io.BytesIO(image_data))
-        image_array = np.array(image)
+        if file.filename.lower().endswith('.dcm'):
+            try:
+                import pydicom
+                from io import BytesIO
+                
+                dicom_data = pydicom.dcmread(BytesIO(image_data), force=True)
+                image_array = dicom_data.pixel_array
+                
+                if image_array.max() > 255:
+                    image_array = ((image_array - image_array.min()) / 
+                                 (image_array.max() - image_array.min()) * 255).astype(np.uint8)
+                
+                if len(image_array.shape) == 2:
+                    image_array = np.stack([image_array] * 3, axis=-1)
+                    
+            except Exception as e:
+                return jsonify({'error': f'Erro ao processar arquivo DICOM: {str(e)}'}), 400
+        else:
+            try:
+                image = Image.open(io.BytesIO(image_data))
+                image_array = np.array(image)
+            except Exception as e:
+                return jsonify({'error': f'Erro ao processar imagem: {str(e)}'}), 400
         
-        analysis_result = medai_system.analyze_image(image_array, 'chest_xray')
+        analysis_result = medai_system.analyze_image(image_array, 'chest_xray', generate_attention_map=False)
         
         predicted_class = analysis_result.get('predicted_class', 'Normal')
         confidence = analysis_result.get('confidence', 0.0)
@@ -603,7 +624,7 @@ def main():
         print("🌐 Sistema pronto para acesso via navegador")
         print("🤖 Modelos de IA carregados e funcionais")
         
-        port = int(os.environ.get('PORT', 8080))
+        port = int(os.environ.get('PORT', 49571))
         host = os.environ.get('HOST', '0.0.0.0')
         
         print(f"🚀 Iniciando servidor em {host}:{port}")

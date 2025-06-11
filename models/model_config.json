@@ -35,7 +35,7 @@
       }
     },
     "chest_xray_vision_transformer": {
-      "model_path": "models/chest_xray_vision_transformer_model.h5",
+      "model_path": "models/chest_xray_visiontransformer_model.h5",
       "input_size": [224, 224, 3],
       "patch_size": 16,
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],

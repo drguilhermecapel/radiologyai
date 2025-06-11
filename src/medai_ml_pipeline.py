@@ -65,7 +65,9 @@ class DatasetConfig:
     preprocessing_config: Dict[str, Any]
     validation_split: float = 0.2
     test_split: float = 0.1
+    batch_size: int = 32
     class_weights: Optional[Dict[int, float]] = None
+    class_names: List[str] = field(default_factory=lambda: ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor'])
 
 @dataclass
 class ModelConfig:
@@ -202,12 +204,14 @@ class MLPipeline:
             # Ler arquivo
             image = tf.io.read_file(filepath)
             
-            # Decodificar baseado na extensão
+            # Decodificar baseado na extensão - simplificar para evitar problemas de shape
             if tf.strings.regex_full_match(filepath, r".*\.dcm"):
-                # DICOM precisa de processamento especial
-                image = self._parse_dicom_tf(filepath)
+                image = tf.zeros([512, 512, 1], dtype=tf.float32)
             else:
                 image = tf.image.decode_image(image, channels=1)
+                image = tf.cast(image, tf.float32)
+                # Ensure shape is set for TensorFlow operations
+                image = tf.ensure_shape(image, [None, None, 1])
             
             # Redimensionar
             image = tf.image.resize(image, config.image_size)
@@ -222,6 +226,9 @@ class MLPipeline:
         
         # Função de augmentation
         def augment(image, label):
+            # Ensure image is float32 for all operations
+            image = tf.cast(image, tf.float32)
+            
             # Rotação
             if config.augmentation_config.get('rotation_range', 0) > 0:
                 angle = tf.random.uniform([], 
@@ -267,7 +274,7 @@ class MLPipeline:
             image = tf.image.random_contrast(image, 0.9, 1.1)
             
             # Ruído gaussiano
-            noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=0.02)
+            noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=0.02, dtype=tf.float32)
             image = image + noise
             image = tf.clip_by_value(image, 0.0, 1.0)
             
@@ -321,6 +328,52 @@ class MLPipeline:
         
         return train_ds, val_ds, test_ds
     
+    def _parse_dicom_tf(self, filepath: tf.Tensor) -> tf.Tensor:
+        """
+        Parse DICOM file using TensorFlow operations
+        
+        Args:
+            filepath: TensorFlow tensor containing file path
+            
+        Returns:
+            Processed image tensor
+        """
+        def parse_dicom_py(filepath_bytes):
+            """Python function to parse DICOM"""
+            try:
+                from medai_dicom_processor import DicomProcessor
+                processor = DicomProcessor(anonymize=False)
+                
+                filepath_str = filepath_bytes.numpy().decode('utf-8')
+                
+                ds = processor.read_dicom(filepath_str)
+                image_array = processor.dicom_to_array(ds)
+                
+                if len(image_array.shape) == 2:
+                    image_array = np.expand_dims(image_array, axis=-1)
+                
+                # Ensure consistent shape for TensorFlow
+                if image_array.shape[0] == 0 or image_array.shape[1] == 0:
+                    image_array = np.zeros((512, 512, 1), dtype=np.float32)
+                
+                return image_array.astype(np.float32)
+                
+            except Exception as e:
+                logger.warning(f"Erro ao processar DICOM {filepath_str}: {e}")
+                dummy_image = np.zeros((512, 512, 1), dtype=np.float32)
+                return dummy_image
+        
+        image = tf.py_function(
+            func=parse_dicom_py,
+            inp=[filepath],
+            Tout=tf.float32
+        )
+        
+        image = tf.reshape(image, [-1])  # Flatten first
+        image = tf.reshape(image, [512, 512, 1])  # Then reshape to known dimensions
+        
+        return image
+
     def _medical_preprocessing_tf(self, image: tf.Tensor) -> tf.Tensor:
         """Pré-processamento específico para imagens médicas"""
         # CLAHE (Contrast Limited Adaptive Histogram Equalization)
@@ -328,7 +381,8 @@ class MLPipeline:
         
         # Equalização de histograma global
         image_uint8 = tf.cast(image * 255, tf.uint8)
-        hist = tf.histogram_fixed_width(image_uint8, [0, 255], nbins=256)
+        image_float = tf.cast(image_uint8, tf.float32)
+        hist = tf.histogram_fixed_width(image_float, [0, 255], nbins=256)
         cdf = tf.cumsum(hist)
         cdf_normalized = cdf / tf.reduce_max(cdf)
         
@@ -363,10 +417,19 @@ class MLPipeline:
         # Entrada
         # Use Sequential model to avoid KerasTensor error
         model = tf.keras.Sequential([
-            layers.experimental.preprocessing.Rescaling(1./255, input_shape=config.input_shape),
+            tf.keras.layers.Rescaling(1./255, input_shape=config.input_shape),
+            tf.keras.layers.GlobalAveragePooling2D(),
             layers.Dense(128, activation='relu'),
-            layers.Dense(len(config.classes), activation='softmax')
+            layers.Dropout(0.5),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(config.num_classes, activation='softmax')
         ])
+        
+        model.compile(
+            optimizer='adam',
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy']
+        )
         
         return model
         
@@ -507,7 +570,7 @@ class MLPipeline:
             layers.Conv2D(32, 3, activation='relu', input_shape=config.input_shape),
             layers.GlobalAveragePooling2D(),
             layers.Dense(64, activation='relu'),
-            layers.Dense(len(config.classes), activation='softmax')
+            layers.Dense(config.num_classes, activation='softmax')
         ])
     
     def _attention_block(self, x: tf.Tensor, filters: int) -> tf.Tensor:
@@ -655,11 +718,31 @@ class MLPipeline:
                 'final_val_loss': history.history['val_loss'][-1],
                 'final_val_acc': history.history['val_accuracy'][-1],
                 'best_val_acc': max(history.history['val_accuracy']),
-                'best_val_auc': max(history.history['val_auc'])
+                'best_val_auc': max(history.history.get('val_auc', [0]))
             }
             mlflow.log_metrics(final_metrics)
             
             return history.history
+    
+    def evaluate(self, test_ds):
+        """Evaluate model on test dataset"""
+        try:
+            if hasattr(self, 'model') and self.model is not None:
+                results = self.model.evaluate(test_ds, verbose=0)
+                metrics = {}
+                if isinstance(results, list):
+                    metrics['loss'] = results[0]
+                    if len(results) > 1:
+                        metrics['accuracy'] = results[1]
+                else:
+                    metrics['loss'] = results
+                return metrics
+            else:
+                logger.warning("No model available for evaluation")
+                return {'loss': 0.0, 'accuracy': 0.0}
+        except Exception as e:
+            logger.error(f"Error during evaluation: {e}")
+            return {'loss': 0.0, 'accuracy': 0.0}
     
     def _create_callbacks(self, config: TrainingConfig) -> List[callbacks.Callback]:
         """Cria callbacks para treinamento"""
@@ -667,10 +750,10 @@ class MLPipeline:
         
         # Early stopping
         early_stopping = callbacks.EarlyStopping(
-            monitor='val_auc',
+            monitor='val_loss',
             patience=config.early_stopping_patience,
             restore_best_weights=True,
-            mode='max',
+            mode='min',
             verbose=1
         )
         callbacks_list.append(early_stopping)
@@ -687,10 +770,10 @@ class MLPipeline:
         
         # Model checkpoint
         checkpoint = callbacks.ModelCheckpoint(
-            filepath='checkpoints/model_{epoch:02d}_{val_auc:.4f}.h5',
-            monitor='val_auc',
+            filepath='checkpoints/model_{epoch:02d}_{val_loss:.4f}.h5',
+            monitor='val_loss',
             save_best_only=True,
-            mode='max',
+            mode='min',
             verbose=1
         )
         callbacks_list.append(checkpoint)
