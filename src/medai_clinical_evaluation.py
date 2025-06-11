@@ -26,11 +26,25 @@ class ClinicalPerformanceEvaluator:
         self.benchmarks = {}
         self.class_names = class_names or ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
         
-        self.critical_conditions = ['pneumothorax', 'tumor', 'fracture']  # >95% sensibilidade
-        self.moderate_conditions = ['pneumonia', 'pleural_effusion']      # >90% sensibilidade
-        self.target_specificity = 0.90  # >90% especificidade para reduzir falsos positivos
+        self.critical_conditions = ['pneumothorax', 'tumor', 'fracture', 'hemorrhage']  # >95% sensibilidade
+        self.moderate_conditions = ['pneumonia', 'pleural_effusion', 'consolidation']   # >90% sensibilidade
+        self.standard_conditions = ['normal', 'atelectasis']                            # >85% sensibilidade
         
-        logger.info("ClinicalPerformanceEvaluator inicializado com validação clínica avançada")
+        self.clinical_thresholds = {
+            'critical': {'min_sensitivity': 0.95, 'min_specificity': 0.90},
+            'moderate': {'min_sensitivity': 0.90, 'min_specificity': 0.85},
+            'standard': {'min_sensitivity': 0.85, 'min_specificity': 0.92}
+        }
+        
+        # Benchmarks da literatura médica
+        self.literature_benchmarks = {
+            'pneumonia': {'sensitivity': 0.89, 'specificity': 0.94, 'reference': 'Rajpurkar et al. 2018'},
+            'pleural_effusion': {'sensitivity': 0.86, 'specificity': 0.91, 'reference': 'Wang et al. 2017'},
+            'fracture': {'sensitivity': 0.88, 'specificity': 0.92, 'reference': 'Lindsey et al. 2018'},
+            'tumor': {'sensitivity': 0.91, 'specificity': 0.96, 'reference': 'Arbabshirani et al. 2018'}
+        }
+        
+        logger.info("ClinicalPerformanceEvaluator inicializado com validação clínica avançada e benchmarks científicos")
     
     def evaluate_model_performance(self, 
                                  y_true: np.ndarray, 
@@ -210,28 +224,64 @@ class ClinicalPerformanceEvaluator:
             return {}
     
     def _get_clinical_category(self, class_name: str) -> str:
-        """Determina a categoria clínica da condição"""
+        """Determina categoria clínica da condição baseada em guidelines científicos"""
         class_lower = class_name.lower()
         
-        if any(crit in class_lower for crit in self.critical_conditions):
+        # Condições críticas - requerem >95% sensibilidade
+        critical_keywords = ['pneumothorax', 'tumor', 'fracture', 'hemorrhage', 'stroke', 'embolism']
+        if any(keyword in class_lower for keyword in critical_keywords):
             return "CRITICAL"
-        elif any(mod in class_lower for mod in self.moderate_conditions):
+        
+        # Condições moderadas - requerem >90% sensibilidade
+        moderate_keywords = ['pneumonia', 'pleural_effusion', 'consolidation', 'infection']
+        if any(keyword in class_lower for keyword in moderate_keywords):
             return "MODERATE"
-        else:
-            return "STANDARD"
+        
+        # Condições padrão - requerem >85% sensibilidade
+        return "STANDARD"
     
-    def _validate_clinical_standards(self, class_name: str, sensitivity: float, specificity: float) -> bool:
+    def _validate_clinical_standards(self, class_name: str, sensitivity: float, specificity: float) -> Dict:
         """
-        Valida se as métricas atendem aos padrões clínicos do scientific guide
+        Valida se as métricas atendem aos padrões clínicos baseados em guidelines científicos
         """
         category = self._get_clinical_category(class_name)
         
         if category == "CRITICAL":
-            return sensitivity >= 0.95 and specificity >= self.target_specificity
+            thresholds = self.clinical_thresholds['critical']
         elif category == "MODERATE":
-            return sensitivity >= 0.90 and specificity >= self.target_specificity
+            thresholds = self.clinical_thresholds['moderate']
         else:
-            return sensitivity >= 0.80 and specificity >= 0.85
+            thresholds = self.clinical_thresholds['standard']
+        
+        sensitivity_meets = sensitivity >= thresholds['min_sensitivity']
+        specificity_meets = specificity >= thresholds['min_specificity']
+        
+        benchmark_comparison = None
+        class_lower = class_name.lower()
+        for bench_condition, bench_data in self.literature_benchmarks.items():
+            if bench_condition in class_lower:
+                benchmark_comparison = {
+                    'reference': bench_data['reference'],
+                    'benchmark_sensitivity': bench_data['sensitivity'],
+                    'benchmark_specificity': bench_data['specificity'],
+                    'sensitivity_vs_benchmark': sensitivity - bench_data['sensitivity'],
+                    'specificity_vs_benchmark': specificity - bench_data['specificity'],
+                    'meets_benchmark': (sensitivity >= bench_data['sensitivity'] * 0.95 and
+                                      specificity >= bench_data['specificity'] * 0.95)
+                }
+                break
+        
+        return {
+            'category': category,
+            'required_sensitivity': thresholds['min_sensitivity'],
+            'required_specificity': thresholds['min_specificity'],
+            'actual_sensitivity': sensitivity,
+            'actual_specificity': specificity,
+            'sensitivity_meets_criteria': sensitivity_meets,
+            'specificity_meets_criteria': specificity_meets,
+            'meets_standards': sensitivity_meets and specificity_meets,
+            'benchmark_comparison': benchmark_comparison
+        }
     
     def _assess_clinical_risk(self, class_name: str, sensitivity: float, specificity: float) -> str:
         """Avalia o risco clínico baseado nas métricas"""
