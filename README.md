@@ -8,6 +8,7 @@ Este repositório contém um sistema completo de análise radiológica que combi
 
 ## Arquiteturas de IA Implementadas
 
+
 ### 🧠 **Ensemble Model com Fusão por Atenção**
 - **EfficientNetV2**: Detecção de detalhes finos (nódulos pequenos, lesões sutis)
 - **Vision Transformer (ViT)**: Reconhecimento de padrões globais (cardiomegalia, consolidações)
@@ -43,6 +44,14 @@ Este repositório contém um sistema completo de análise radiológica que combi
 - Visualização Grad-CAM para explicabilidade
 - Métricas clínicas em tempo real
 - Relatórios detalhados com recomendações
+=======
+- Análise de imagens radiológicas usando modelos de IA
+- Suporte para múltiplos formatos de imagem (DICOM, PNG, JPEG, etc.)
+- Interface gráfica intuitiva
+- Tema futurista inspirado em radiologia e inteligência artificial
+- Geração de relatórios
+- Processamento em lote
+- Visualização avançada com mapas de calor
 
 ## Estrutura do Projeto
 
