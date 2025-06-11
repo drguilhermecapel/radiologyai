@@ -241,7 +241,11 @@ class MedicalInferenceEngine:
         # Expandir dimensões para batch
         batch_image = np.expand_dims(processed_image, axis=0)
         
-        # Predição
+        # Predição - verificar se modelo está carregado
+        if self.model is None:
+            logger.warning("Modelo não carregado, usando análise de fallback")
+            return self._analyze_image_fallback(image, metadata)
+        
         predictions = self.model.predict(batch_image, verbose=0)[0]
         
         # Processar resultados
@@ -778,7 +782,7 @@ class MedicalInferenceEngine:
             if hasattr(self, 'model') and self.model is not None and not getattr(self, '_is_dummy_model', True):
                 return self._predict_with_trained_model(image)
             else:
-                return self._analyze_image_fallback(image)
+                return self._analyze_image_fallback(image, {})
                 
         except Exception as e:
             logger.error(f"Error in pathology detection: {e}")
@@ -825,7 +829,7 @@ class MedicalInferenceEngine:
             
         except Exception as e:
             logger.error(f"Error in trained model prediction: {e}")
-            return self._analyze_image_fallback(image)
+            return self._analyze_image_fallback(image, {})
     
     def _preprocess_for_model(self, image: np.ndarray) -> np.ndarray:
         """Preprocess image for SOTA model input"""
@@ -857,7 +861,7 @@ class MedicalInferenceEngine:
             logger.error(f"Error in image preprocessing: {e}")
             return np.zeros((224, 224, 3), dtype=np.float32)
     
-    def _analyze_image_fallback(self, image: np.ndarray) -> Dict[str, float]:
+    def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> Dict[str, float]:
         """Fallback image analysis when trained models are not available"""
         try:
             import cv2
