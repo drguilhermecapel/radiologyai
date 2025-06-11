@@ -43,25 +43,40 @@ def setup_application():
 
 def check_system_requirements():
     """Verifica requisitos do sistema"""
+    missing = []
     try:
-        import tensorflow as tf
-        import numpy as np
-        import pydicom
-        import cv2
-        import PIL
-        
-        logger.info("Todos os módulos necessários estão disponíveis")
-        
+        import numpy  # noqa: F401
+    except ImportError:
+        missing.append('numpy')
+
+    try:
+        import pydicom  # noqa: F401
+    except ImportError:
+        missing.append('pydicom')
+
+    try:
+        import cv2  # noqa: F401
+    except ImportError:
+        missing.append('opencv-python')
+
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        missing.append('Pillow')
+
+    try:
+        import tensorflow as tf  # noqa: F401
         if tf.config.list_physical_devices('GPU'):
             logger.info("GPU detectada e disponível para TensorFlow")
-        else:
-            logger.info("Executando em modo CPU")
-            
-        return True
-        
-    except ImportError as e:
-        logger.error(f"Módulo necessário não encontrado: {e}")
+    except ImportError:
+        logger.warning("TensorFlow não disponível - funcionalidades de IA limitadas")
+
+    if missing:
+        logger.error(f"Módulos ausentes: {', '.join(missing)}")
         return False
+
+    logger.info("Todos os módulos essenciais disponíveis")
+    return True
 
 def main():
     """Função principal"""
