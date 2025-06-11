@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAI Radiologia - Sistema de Análise por IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-section:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        .upload-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #007bff;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .file-input-label:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .analyze-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid #dee2e6;
+            display: none;
+        }
+        
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .result-header h2 {
+            color: #2c3e50;
+            margin-right: 15px;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .status-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-abnormal {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .result-card p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.8s ease;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 MedAI Radiologia</h1>
+            <p>Sistema Inteligente de Análise de Imagens Médicas</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📤 Enviar Imagem para Análise</h2>
+                <p style="margin-bottom: 20px; color: #6c757d;">
+                    Suporte para imagens DICOM (.dcm), JPEG, PNG e outros formatos médicos
+                </p>
+                
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="image-input" name="image" accept="image/*,.dcm" class="file-input">
+                        <label for="image-input" class="file-input-label">
+                            📁 Escolher Arquivo
+                        </label>
+                    </div>
+                    <button type="submit" class="analyze-btn" id="analyze-btn" disabled>
+                        🔍 Analisar Imagem
+                    </button>
+                </form>
+                
+                <div id="file-info" class="file-info" style="display: none;"></div>
+            </div>
+            
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processando imagem com IA médica...</p>
+            </div>
+            
+            <div id="result-section" class="result-section">
+                <div class="result-header">
+                    <h2>📊 Resultado da Análise</h2>
+                    <span id="status-badge" class="status-badge"></span>
+                </div>
+                
+                <div class="result-grid">
+                    <div class="result-card">
+                        <h3>🎯 Diagnóstico Principal</h3>
+                        <p id="predicted-class">-</p>
+                        <div class="confidence-bar">
+                            <div id="confidence-fill" class="confidence-fill" style="width: 0%"></div>
+                        </div>
+                        <p style="margin-top: 5px; font-size: 0.9em;">
+                            Confiança: <span id="confidence-text">0%</span>
+                        </p>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>🔍 Achados Clínicos</h3>
+                        <p id="findings">-</p>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>💡 Recomendações</h3>
+                        <p id="recommendations">-</p>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>⚙️ Informações Técnicas</h3>
+                        <p>
+                            <strong>Modelo:</strong> <span id="model-used">-</span><br>
+                            <strong>Tempo:</strong> <span id="processing-time">-</span>s<br>
+                            <strong>Versão:</strong> MedAI v2.0
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="error-section" class="error-message" style="display: none;">
+                <strong>❌ Erro no Processamento</strong>
+                <p id="error-message">Ocorreu um erro ao processar a imagem.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('upload-form');
+        const imageInput = document.getElementById('image-input');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const fileInfo = document.getElementById('file-info');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('result-section');
+        const errorSection = document.getElementById('error-section');
+
+        // Handle file selection
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                analyzeBtn.disabled = false;
+                fileInfo.style.display = 'block';
+                fileInfo.innerHTML = `
+                    <strong>Arquivo selecionado:</strong> ${file.name}<br>
+                    <strong>Tamanho:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                    <strong>Tipo:</strong> ${file.type || 'Desconhecido'}
+                `;
+            } else {
+                analyzeBtn.disabled = true;
+                fileInfo.style.display = 'none';
+            }
+        });
+
+        // Handle form submission
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const file = imageInput.files[0];
+            if (!file) {
+                showError('Por favor, selecione uma imagem.');
+                return;
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.classList.remove('show');
+            errorSection.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                displayResult(result);
+
+            } catch (error) {
+                console.error('Erro:', error);
+                showError(`Erro ao processar imagem: ${error.message}`);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function displayResult(result) {
+            const analysis = result.analysis || {};
+            
+            // Update result elements
+            document.getElementById('predicted-class').textContent = 
+                analysis.predicted_class || 'Não determinado';
+            
+            const confidence = (analysis.confidence || 0) * 100;
+            document.getElementById('confidence-text').textContent = `${confidence.toFixed(1)}%`;
+            document.getElementById('confidence-fill').style.width = `${confidence}%`;
+            
+            document.getElementById('findings').textContent = 
+                (analysis.findings && analysis.findings.length > 0) 
+                    ? analysis.findings.join(', ') 
+                    : 'Nenhum achado específico';
+            
+            document.getElementById('recommendations').textContent = 
+                (analysis.recommendations && analysis.recommendations.length > 0) 
+                    ? analysis.recommendations.join(', ') 
+                    : 'Acompanhamento de rotina';
+            
+            document.getElementById('model-used').textContent = 
+                result.model_used || 'MedAI Neural Network';
+            
+            document.getElementById('processing-time').textContent = 
+                (result.processing_time || 0).toFixed(2);
+
+            // Update status badge
+            const statusBadge = document.getElementById('status-badge');
+            const predictedClass = (analysis.predicted_class || '').toLowerCase();
+            
+            if (predictedClass.includes('normal') || predictedClass.includes('sem alterações')) {
+                statusBadge.textContent = '✅ Normal';
+                statusBadge.className = 'status-badge status-normal';
+            } else {
+                statusBadge.textContent = '⚠️ Requer Atenção';
+                statusBadge.className = 'status-badge status-abnormal';
+            }
+
+            // Show result section
+            resultSection.classList.add('show');
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            errorSection.style.display = 'block';
+            resultSection.classList.remove('show');
+        }
+
+        // API Status check
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Status:', data);
+            })
+            .catch(error => {
+                console.warn('API Status check failed:', error);
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "training_completed_at": "2025-06-11T04:26:16.354242",
+  "arguments": {
+    "data_dir": "data/samples",
+    "output_dir": "models",
+    "architectures": [
+      "EfficientNetV2",
+      "VisionTransformer",
+      "ConvNeXt"
+    ],
+    "epochs": 30,
+    "batch_size": 16,
+    "learning_rate": 0.0001,
+    "ensemble": true,
+    "validate_only": false,
+    "resume": null
+  },
+  "trained_models": [
+    "EfficientNetV2",
+    "VisionTransformer",
+    "ConvNeXt"
+  ],
+  "failed_models": [],
+  "metrics": {
+    "EfficientNetV2": {
+      "loss": 1.5274854898452759,
+      "accuracy": 0.3333333432674408
+    },
+    "VisionTransformer": {
+      "loss": 1.5585041046142578,
+      "accuracy": 0.3333333432674408
+    },
+    "ConvNeXt": {
+      "loss": 1.5375834703445435,
+      "accuracy": 0.3333333432674408
+    }
+  },
+  "total_models_trained": 3,
+  "success_rate": 1.0
+}

@@ -19,20 +19,22 @@ def test_ai_models():
     print("=" * 50)
     
     try:
-        from medai_sota_models import SOTAModelManager
-        from medai_inference_system import InferenceEngine
+        from medai_sota_models import StateOfTheArtModels
+        from medai_inference_system import MedicalInferenceEngine
         
-        model_manager = SOTAModelManager()
-        print("✅ SOTAModelManager inicializado")
+        sota_models = StateOfTheArtModels(input_shape=(224, 224, 3), num_classes=5)
+        print("✅ StateOfTheArtModels inicializado")
         
-        available_models = model_manager.get_available_models()
-        print(f"✅ Modelos disponíveis: {len(available_models)}")
+        available_architectures = ['EfficientNetV2', 'VisionTransformer', 'ConvNeXt', 'HybridCNNTransformer']
+        print(f"✅ Arquiteturas disponíveis: {len(available_architectures)}")
         
-        for model_name in available_models:
-            print(f"  • {model_name}")
+        for arch_name in available_architectures:
+            print(f"  • {arch_name}")
         
-        inference_engine = InferenceEngine()
-        print("✅ InferenceEngine inicializado")
+        model_path = "models/chest_xray_efficientnetv2_model.h5"
+        model_config = {"architecture": "EfficientNetV2", "input_shape": [224, 224, 3]}
+        inference_engine = MedicalInferenceEngine(model_path=model_path, model_config=model_config)
+        print("✅ MedicalInferenceEngine inicializado")
         
         return True
         

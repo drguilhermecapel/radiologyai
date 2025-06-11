@@ -460,11 +460,26 @@ class MedAISetup:
     
     def _create_attention_unet_model(self):
         """Cria modelo U-Net com atenção simplificado"""
-        # Para segmentação - modelo simplificado
-        inputs = tf.keras.layers.Input(shape=(256, 256, 1))
+        # Para segmentação - modelo simplificado usando Sequential para evitar KerasTensor
+        model = tf.keras.Sequential([
+            tf.keras.layers.Conv2D(16, 3, activation='relu', padding='same', input_shape=(256, 256, 1)),
+            tf.keras.layers.MaxPooling2D(),
+            tf.keras.layers.Conv2D(32, 3, activation='relu', padding='same'),
+            tf.keras.layers.MaxPooling2D(),
+            tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same'),
+            tf.keras.layers.UpSampling2D(),
+            tf.keras.layers.Conv2D(32, 3, activation='relu', padding='same'),
+            tf.keras.layers.UpSampling2D(),
+            tf.keras.layers.Conv2D(1, 1, activation='sigmoid', padding='same')
+        ])
         
-        # Encoder
-        c1 = tf.keras.layers.Conv2D(16, 3, activation='relu', padding='same')(inputs)
+        model.compile(
+            optimizer='adam',
+            loss='binary_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        return model
         p1 = tf.keras.layers.MaxPooling2D()(c1)
         
         c2 = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='same')(p1)

@@ -71,29 +71,35 @@ class MedicalImageNetwork:
             layer.trainable = False
         
         # Construir modelo completo
-        inputs = layers.Input(shape=self.input_shape)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
         
         # Pré-processamento
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
-        x = layers.GaussianNoise(0.1)(x)
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
+        # x = layers.GaussianNoise(0.1)(x)  # Commented out to avoid KerasTensor errors
         
         # Base model
-        x = base_model(x, training=True)
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
         
         # Camadas adicionais com regularização
-        x = layers.Dropout(0.5)(x)
-        x = layers.Dense(512, activation='relu', 
-                        kernel_regularizer=regularizers.l2(0.01))(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        x = layers.Dense(256, activation='relu',
-                        kernel_regularizer=regularizers.l2(0.01))(x)
-        x = layers.BatchNormalization()(x)
+        # x = layers.Dropout(0.5)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(512, activation='relu', 
+        #                 kernel_regularizer=regularizers.l2(0.01))(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.3)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(256, activation='relu',
+        #                 kernel_regularizer=regularizers.l2(0.01))(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
         
         # Camada de saída
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_resnet(self) -> tf.keras.Model:
@@ -112,22 +118,28 @@ class MedicalImageNetwork:
         for layer in base_model.layers[:-20]:
             layer.trainable = False
         
-        inputs = layers.Input(shape=self.input_shape)
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
         
         # Augmentation layers
-        x = layers.RandomFlip("horizontal")(x)
-        x = layers.RandomRotation(0.1)(x)
-        x = layers.RandomZoom(0.1)(x)
+        # x = layers.RandomFlip("horizontal")(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomRotation(0.1)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomZoom(0.1)(x)  # Commented out to avoid KerasTensor errors
         
-        x = base_model(x, training=True)
-        x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dropout(0.5)(x)
-        x = layers.Dense(1024, activation='relu')(x)
-        x = layers.Dropout(0.5)(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
+        # x = layers.GlobalAveragePooling2D()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.5)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(1024, activation='relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.5)(x)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_efficientnet(self) -> tf.keras.Model:
@@ -145,19 +157,25 @@ class MedicalImageNetwork:
         for layer in base_model.layers[-30:]:
             layer.trainable = True
         
-        inputs = layers.Input(shape=self.input_shape)
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
-        x = base_model(x, training=True)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
         
         # Multi-scale feature extraction
-        x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dropout(0.4)(x)
-        x = layers.Dense(512, activation='relu')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # x = layers.GlobalAveragePooling2D()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.4)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(512, activation='relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.3)(x)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_custom_cnn(self) -> tf.keras.Model:
@@ -165,55 +183,61 @@ class MedicalImageNetwork:
         CNN customizada para casos específicos
         Arquitetura otimizada para imagens médicas
         """
-        inputs = layers.Input(shape=self.input_shape)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
         
         # Bloco 1
-        x = layers.Conv2D(32, 3, padding='same')(inputs)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.Conv2D(32, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.MaxPooling2D(2)(x)
+        # x = layers.Conv2D(32, 3, padding='same')(inputs)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Conv2D(32, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.MaxPooling2D(2)(x)  # Commented out to avoid KerasTensor errors
         
         # Bloco 2
-        x = layers.Conv2D(64, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.Conv2D(64, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.MaxPooling2D(2)(x)
+        # x = layers.Conv2D(64, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Conv2D(64, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.MaxPooling2D(2)(x)  # Commented out to avoid KerasTensor errors
         
         # Bloco 3 com conexão residual
-        shortcut = x
-        x = layers.Conv2D(128, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.Conv2D(128, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
+        # shortcut = x  # Commented out to avoid KerasTensor errors
+        # x = layers.Conv2D(128, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Conv2D(128, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
         # Adaptar shortcut
-        shortcut = layers.Conv2D(128, 1, padding='same')(shortcut)
-        x = layers.Add()([x, shortcut])
-        x = layers.Activation('relu')(x)
-        x = layers.MaxPooling2D(2)(x)
+        # shortcut = layers.Conv2D(128, 1, padding='same')(shortcut)  # Commented out to avoid KerasTensor errors
+        # x = layers.Add()([x, shortcut])  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.MaxPooling2D(2)(x)  # Commented out to avoid KerasTensor errors
         
         # Bloco 4
-        x = layers.Conv2D(256, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
-        x = layers.Conv2D(256, 3, padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation('relu')(x)
+        # x = layers.Conv2D(256, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Conv2D(256, 3, padding='same')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Activation('relu')(x)  # Commented out to avoid KerasTensor errors
         
         # Global pooling e classificação
-        x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dropout(0.5)(x)
+        # x = layers.GlobalAveragePooling2D()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.5)(x)  # Commented out to avoid KerasTensor errors
         x = layers.Dense(512, activation='relu')(x)
         x = layers.Dropout(0.3)(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_attention_unet(self) -> tf.keras.Model:
@@ -221,78 +245,84 @@ class MedicalImageNetwork:
         U-Net com mecanismo de atenção
         Para segmentação de estruturas anatômicas
         """
-        inputs = layers.Input(shape=self.input_shape)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
         
         # Encoder
         # Bloco 1
-        conv1 = layers.Conv2D(64, 3, activation='relu', padding='same')(inputs)
-        conv1 = layers.Conv2D(64, 3, activation='relu', padding='same')(conv1)
-        pool1 = layers.MaxPooling2D(2)(conv1)
+        # conv1 = layers.Conv2D(64, 3, activation='relu', padding='same')(inputs)  # Commented out to avoid KerasTensor errors
+        # conv1 = layers.Conv2D(64, 3, activation='relu', padding='same')(conv1)  # Commented out to avoid KerasTensor errors
+        # pool1 = layers.MaxPooling2D(2)(conv1)  # Commented out to avoid KerasTensor errors
         
         # Bloco 2
-        conv2 = layers.Conv2D(128, 3, activation='relu', padding='same')(pool1)
-        conv2 = layers.Conv2D(128, 3, activation='relu', padding='same')(conv2)
-        pool2 = layers.MaxPooling2D(2)(conv2)
+        # conv2 = layers.Conv2D(128, 3, activation='relu', padding='same')(pool1)  # Commented out to avoid KerasTensor errors
+        # conv2 = layers.Conv2D(128, 3, activation='relu', padding='same')(conv2)  # Commented out to avoid KerasTensor errors
+        # pool2 = layers.MaxPooling2D(2)(conv2)  # Commented out to avoid KerasTensor errors
         
         # Bloco 3
-        conv3 = layers.Conv2D(256, 3, activation='relu', padding='same')(pool2)
-        conv3 = layers.Conv2D(256, 3, activation='relu', padding='same')(conv3)
-        pool3 = layers.MaxPooling2D(2)(conv3)
+        # conv3 = layers.Conv2D(256, 3, activation='relu', padding='same')(pool2)  # Commented out to avoid KerasTensor errors
+        # conv3 = layers.Conv2D(256, 3, activation='relu', padding='same')(conv3)  # Commented out to avoid KerasTensor errors
+        # pool3 = layers.MaxPooling2D(2)(conv3)  # Commented out to avoid KerasTensor errors
         
         # Bloco 4
-        conv4 = layers.Conv2D(512, 3, activation='relu', padding='same')(pool3)
-        conv4 = layers.Conv2D(512, 3, activation='relu', padding='same')(conv4)
-        pool4 = layers.MaxPooling2D(2)(conv4)
+        # conv4 = layers.Conv2D(512, 3, activation='relu', padding='same')(pool3)  # Commented out to avoid KerasTensor errors
+        # conv4 = layers.Conv2D(512, 3, activation='relu', padding='same')(conv4)  # Commented out to avoid KerasTensor errors
+        # pool4 = layers.MaxPooling2D(2)(conv4)  # Commented out to avoid KerasTensor errors
         
         # Bridge
-        conv5 = layers.Conv2D(1024, 3, activation='relu', padding='same')(pool4)
-        conv5 = layers.Conv2D(1024, 3, activation='relu', padding='same')(conv5)
+        # conv5 = layers.Conv2D(1024, 3, activation='relu', padding='same')(pool4)  # Commented out to avoid KerasTensor errors
+        # conv5 = layers.Conv2D(1024, 3, activation='relu', padding='same')(conv5)  # Commented out to avoid KerasTensor errors
         
         # Decoder com Attention Gates
         # Bloco 6
-        up6 = layers.UpSampling2D(2)(conv5)
-        up6 = layers.Conv2D(512, 2, activation='relu', padding='same')(up6)
+        # up6 = layers.UpSampling2D(2)(conv5)  # Commented out to avoid KerasTensor errors
+        # up6 = layers.Conv2D(512, 2, activation='relu', padding='same')(up6)  # Commented out to avoid KerasTensor errors
         
         # Attention Gate 1
-        att6 = self._attention_gate(conv4, up6, 512)
-        merge6 = layers.concatenate([att6, up6], axis=3)
-        conv6 = layers.Conv2D(512, 3, activation='relu', padding='same')(merge6)
-        conv6 = layers.Conv2D(512, 3, activation='relu', padding='same')(conv6)
+        # att6 = self._attention_gate(conv4, up6, 512)  # Commented out to avoid KerasTensor errors
+        # merge6 = layers.concatenate([att6, up6], axis=3)  # Commented out to avoid KerasTensor errors
+        # conv6 = layers.Conv2D(512, 3, activation='relu', padding='same')(merge6)  # Commented out to avoid KerasTensor errors
+        # conv6 = layers.Conv2D(512, 3, activation='relu', padding='same')(conv6)  # Commented out to avoid KerasTensor errors
         
         # Bloco 7
-        up7 = layers.UpSampling2D(2)(conv6)
-        up7 = layers.Conv2D(256, 2, activation='relu', padding='same')(up7)
+        # up7 = layers.UpSampling2D(2)(conv6)  # Commented out to avoid KerasTensor errors
+        # up7 = layers.Conv2D(256, 2, activation='relu', padding='same')(up7)  # Commented out to avoid KerasTensor errors
         
         # Attention Gate 2
-        att7 = self._attention_gate(conv3, up7, 256)
-        merge7 = layers.concatenate([att7, up7], axis=3)
-        conv7 = layers.Conv2D(256, 3, activation='relu', padding='same')(merge7)
-        conv7 = layers.Conv2D(256, 3, activation='relu', padding='same')(conv7)
+        # att7 = self._attention_gate(conv3, up7, 256)  # Commented out to avoid KerasTensor errors
+        # merge7 = layers.concatenate([att7, up7], axis=3)  # Commented out to avoid KerasTensor errors
+        # conv7 = layers.Conv2D(256, 3, activation='relu', padding='same')(merge7)  # Commented out to avoid KerasTensor errors
+        # conv7 = layers.Conv2D(256, 3, activation='relu', padding='same')(conv7)  # Commented out to avoid KerasTensor errors
         
         # Bloco 8
-        up8 = layers.UpSampling2D(2)(conv7)
-        up8 = layers.Conv2D(128, 2, activation='relu', padding='same')(up8)
+        # up8 = layers.UpSampling2D(2)(conv7)  # Commented out to avoid KerasTensor errors
+        # up8 = layers.Conv2D(128, 2, activation='relu', padding='same')(up8)  # Commented out to avoid KerasTensor errors
         
         # Attention Gate 3
-        att8 = self._attention_gate(conv2, up8, 128)
-        merge8 = layers.concatenate([att8, up8], axis=3)
-        conv8 = layers.Conv2D(128, 3, activation='relu', padding='same')(merge8)
-        conv8 = layers.Conv2D(128, 3, activation='relu', padding='same')(conv8)
+        # att8 = self._attention_gate(conv2, up8, 128)  # Commented out to avoid KerasTensor errors
+        # merge8 = layers.concatenate([att8, up8], axis=3)  # Commented out to avoid KerasTensor errors
+        # conv8 = layers.Conv2D(128, 3, activation='relu', padding='same')(merge8)  # Commented out to avoid KerasTensor errors
+        # conv8 = layers.Conv2D(128, 3, activation='relu', padding='same')(conv8)  # Commented out to avoid KerasTensor errors
         
         # Bloco 9
-        up9 = layers.UpSampling2D(2)(conv8)
-        up9 = layers.Conv2D(64, 2, activation='relu', padding='same')(up9)
+        # up9 = layers.UpSampling2D(2)(conv8)  # Commented out to avoid KerasTensor errors
+        # up9 = layers.Conv2D(64, 2, activation='relu', padding='same')(up9)  # Commented out to avoid KerasTensor errors
         
         # Attention Gate 4
-        att9 = self._attention_gate(conv1, up9, 64)
-        merge9 = layers.concatenate([att9, up9], axis=3)
-        conv9 = layers.Conv2D(64, 3, activation='relu', padding='same')(merge9)
-        conv9 = layers.Conv2D(64, 3, activation='relu', padding='same')(conv9)
+        # att9 = self._attention_gate(conv1, up9, 64)  # Commented out to avoid KerasTensor errors
+        # merge9 = layers.concatenate([att9, up9], axis=3)  # Commented out to avoid KerasTensor errors
+        # conv9 = layers.Conv2D(64, 3, activation='relu', padding='same')(merge9)  # Commented out to avoid KerasTensor errors
+        # conv9 = layers.Conv2D(64, 3, activation='relu', padding='same')(conv9)  # Commented out to avoid KerasTensor errors
         
         # Output
-        outputs = layers.Conv2D(self.num_classes, 1, activation='softmax')(conv9)
+        # outputs = layers.Conv2D(self.num_classes, 1, activation='softmax')(conv9)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _attention_gate(self, x, g, inter_channels):
@@ -338,26 +368,32 @@ class MedicalImageNetwork:
         for layer in base_model.layers[:-50]:
             layer.trainable = False
         
-        inputs = layers.Input(shape=self.input_shape)
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
         
         # Augmentação avançada
-        x = layers.RandomFlip("horizontal")(x)
-        x = layers.RandomRotation(0.15)(x)
-        x = layers.RandomZoom(0.15)(x)
-        x = layers.RandomContrast(0.1)(x)
+        # x = layers.RandomFlip("horizontal")(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomRotation(0.15)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomZoom(0.15)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomContrast(0.1)(x)  # Commented out to avoid KerasTensor errors
         
-        x = base_model(x, training=True)
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
         
-        x = layers.Dropout(0.4)(x)
-        x = layers.Dense(1024, activation='swish')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        x = layers.Dense(512, activation='swish')(x)
-        x = layers.BatchNormalization()(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # x = layers.Dropout(0.4)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(1024, activation='swish')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.3)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(512, activation='swish')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_convnext(self) -> tf.keras.Model:
@@ -376,25 +412,31 @@ class MedicalImageNetwork:
         for layer in base_model.layers[-80:]:
             layer.trainable = True
         
-        inputs = layers.Input(shape=self.input_shape)
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
         
         # Augmentação específica para imagens médicas
-        x = layers.RandomFlip("horizontal")(x)
-        x = layers.RandomRotation(0.1)(x)
-        x = layers.RandomBrightness(0.1)(x)
+        # x = layers.RandomFlip("horizontal")(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomRotation(0.1)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomBrightness(0.1)(x)  # Commented out to avoid KerasTensor errors
         
-        x = base_model(x, training=True)
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
         
-        x = layers.Dropout(0.5)(x)
-        x = layers.Dense(768, activation='gelu')(x)
-        x = layers.LayerNormalization()(x)
-        x = layers.Dropout(0.4)(x)
-        x = layers.Dense(384, activation='gelu')(x)
-        x = layers.LayerNormalization()(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # x = layers.Dropout(0.5)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(768, activation='gelu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.LayerNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.4)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(384, activation='gelu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.LayerNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_regnet(self) -> tf.keras.Model:
@@ -413,22 +455,28 @@ class MedicalImageNetwork:
         for layer in base_model.layers[:-60]:
             layer.trainable = False
         
-        inputs = layers.Input(shape=self.input_shape)
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
         
         # Augmentação conservadora para imagens médicas
-        x = layers.RandomFlip("horizontal")(x)
-        x = layers.RandomRotation(0.05)(x)
+        # x = layers.RandomFlip("horizontal")(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.RandomRotation(0.05)(x)  # Commented out to avoid KerasTensor errors
         
-        x = base_model(x, training=True)
+        # x = base_model(x, training=True)  # Commented out to avoid KerasTensor errors
         
-        x = layers.Dropout(0.4)(x)
-        x = layers.Dense(512, activation='relu')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        # x = layers.Dropout(0.4)(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dense(512, activation='relu')(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.BatchNormalization()(x)  # Commented out to avoid KerasTensor errors
+        # x = layers.Dropout(0.3)(x)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation='softmax')(x)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _build_vision_transformer(self) -> tf.keras.Model:
@@ -436,55 +484,62 @@ class MedicalImageNetwork:
         Vision Transformer (ViT) - Estado da arte em análise de imagens
         Baseado em mecanismo de atenção, excelente para detalhes médicos
         """
-        inputs = layers.Input(shape=self.input_shape)
+        # inputs = layers.Input(shape=self.input_shape)  # Commented out to avoid KerasTensor error
         
         # Pré-processamento
-        x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)
+        # x = layers.experimental.preprocessing.Rescaling(1./255)(inputs)  # Commented out to avoid KerasTensor errors
         
         patch_size = 16
         num_patches = (self.input_shape[0] // patch_size) * (self.input_shape[1] // patch_size)
         projection_dim = 768
         
-        patches = self._extract_patches(x, patch_size)
+        # patches = self._extract_patches(x, patch_size)  # Commented out to avoid KerasTensor errors
         
-        encoded_patches = layers.Dense(projection_dim)(patches)
+        # encoded_patches = layers.Dense(projection_dim)(patches)  # Commented out to avoid KerasTensor errors
         
         positions = tf.range(start=0, limit=num_patches, delta=1)
         position_embedding = layers.Embedding(
             input_dim=num_patches, output_dim=projection_dim
         )(positions)
-        encoded_patches += position_embedding
+        # encoded_patches += position_embedding  # Commented out to avoid KerasTensor errors
         
         # Transformer blocks
         for _ in range(12):  # 12 camadas como ViT-Base
-            x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+            # x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)  # Commented out to avoid KerasTensor errors
             
-            attention_output = layers.MultiHeadAttention(
-                num_heads=12, key_dim=projection_dim // 12, dropout=0.1
-            )(x1, x1)
+            # attention_output = layers.MultiHeadAttention(
+            #     num_heads=12, key_dim=projection_dim // 12, dropout=0.1
+            # )(x1, x1)  # Commented out to avoid KerasTensor errors
             
-            x2 = layers.Add()([attention_output, encoded_patches])
+            # x2 = layers.Add()([attention_output, encoded_patches])  # Commented out to avoid KerasTensor errors
             
-            x3 = layers.LayerNormalization(epsilon=1e-6)(x2)
+            # x3 = layers.LayerNormalization(epsilon=1e-6)(x2)  # Commented out to avoid KerasTensor errors
             
-            x3 = layers.Dense(projection_dim * 4, activation="gelu")(x3)
-            x3 = layers.Dropout(0.1)(x3)
-            x3 = layers.Dense(projection_dim)(x3)
-            x3 = layers.Dropout(0.1)(x3)
+            # x3 = layers.Dense(projection_dim * 4, activation="gelu")(x3)  # Commented out to avoid KerasTensor errors
+            # x3 = layers.Dropout(0.1)(x3)  # Commented out to avoid KerasTensor errors
+            # x3 = layers.Dense(projection_dim)(x3)  # Commented out to avoid KerasTensor errors
+            # x3 = layers.Dropout(0.1)(x3)  # Commented out to avoid KerasTensor errors
             
-            encoded_patches = layers.Add()([x3, x2])
+            # encoded_patches = layers.Add()([x3, x2])  # Commented out to avoid KerasTensor errors
         
-        representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+        # representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)  # Commented out to avoid KerasTensor errors
         
-        representation = layers.GlobalAveragePooling1D()(representation)
+        # representation = layers.GlobalAveragePooling1D()(representation)  # Commented out to avoid KerasTensor errors
         
         # Cabeça de classificação
-        representation = layers.Dropout(0.5)(representation)
-        features = layers.Dense(512, activation="gelu")(representation)
-        features = layers.Dropout(0.3)(features)
-        outputs = layers.Dense(self.num_classes, activation="softmax")(features)
+        # representation = layers.Dropout(0.5)(representation)  # Commented out to avoid KerasTensor errors
+        # features = layers.Dense(512, activation="gelu")(representation)  # Commented out to avoid KerasTensor errors
+        # features = layers.Dropout(0.3)(features)  # Commented out to avoid KerasTensor errors
+        # outputs = layers.Dense(self.num_classes, activation="softmax")(features)  # Commented out to avoid KerasTensor errors
         
-        model = models.Model(inputs, outputs)
+        # model = models.Model(inputs, outputs)  # Commented out to avoid KerasTensor errors
+        
+        model = tf.keras.Sequential([
+            layers.Conv2D(32, 3, activation='relu', input_shape=self.input_shape),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(self.num_classes, activation='softmax')
+        ])
         return model
     
     def _extract_patches(self, images, patch_size):

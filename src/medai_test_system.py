@@ -104,8 +104,7 @@ def sample_model(temp_dir):
     """Cria modelo de exemplo para testes"""
     # Criar modelo simples
     model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(224, 224, 1)),
-        tf.keras.layers.Conv2D(32, 3, activation='relu'),
+        tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 1)),
         tf.keras.layers.MaxPooling2D(),
         tf.keras.layers.Conv2D(64, 3, activation='relu'),
         tf.keras.layers.MaxPooling2D(),

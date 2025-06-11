@@ -1,0 +1,28 @@
+{
+  "component_models": [
+    "EfficientNetV2",
+    "VisionTransformer",
+    "ConvNeXt"
+  ],
+  "model_weights": {
+    "EfficientNetV2": 0.3333333333333333,
+    "VisionTransformer": 0.3333333333333333,
+    "ConvNeXt": 0.3333333333333333
+  },
+  "ensemble_method": "weighted_average",
+  "created_at": "2025-06-11T04:26:16.353830",
+  "performance_metrics": {
+    "EfficientNetV2": {
+      "loss": 1.5274854898452759,
+      "accuracy": 0.3333333432674408
+    },
+    "VisionTransformer": {
+      "loss": 1.5585041046142578,
+      "accuracy": 0.3333333432674408
+    },
+    "ConvNeXt": {
+      "loss": 1.5375834703445435,
+      "accuracy": 0.3333333432674408
+    }
+  }
+}
