@@ -61,6 +61,8 @@ def parse_args():
                        help='Criar modelo ensemble com as arquiteturas treinadas')
     parser.add_argument('--validate_only', action='store_true',
                        help='Apenas validar dados sem treinar')
+    parser.add_argument('--validate_clinical_metrics', action='store_true',
+                       help='Validar métricas clínicas durante treinamento')
     parser.add_argument('--resume', type=str, default=None,
                        help='Retomar treinamento de um checkpoint')
     return parser.parse_args()
@@ -125,12 +127,14 @@ def get_model_config(architecture, input_shape, num_classes, learning_rate):
         'epochs_default': 50
     })
 
-def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_size, learning_rate):
+def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_size, learning_rate, validate_clinical_metrics=False):
     """
     Treina modelo com abordagem progressiva baseada no scientific guide
     Implementa treinamento em fases com learning rates diferenciados
     """
     logger.info(f"Iniciando treinamento progressivo de {architecture}")
+    if validate_clinical_metrics:
+        logger.info("🏥 Validação de métricas clínicas ativada para este modelo")
     
     try:
         model_config = get_model_config(architecture, (224, 224, 3), 5, learning_rate)
@@ -245,10 +249,23 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
             )
             metrics.update(clinical_metrics)
             
+            if validate_clinical_metrics:
+                sensitivity = clinical_metrics.get('sensitivity', 0.0)
+                specificity = clinical_metrics.get('specificity', 0.0)
+                auc = clinical_metrics.get('auc', 0.0)
+                
+                logger.info(f"🏥 Métricas Clínicas - Sensibilidade: {sensitivity:.3f}, Especificidade: {specificity:.3f}, AUC: {auc:.3f}")
+                
+                if sensitivity >= 0.85 and specificity >= 0.90 and auc >= 0.85:
+                    logger.info("✅ Modelo atende critérios clínicos mínimos")
+                    metrics['clinical_ready'] = True
+                else:
+                    logger.warning("⚠️ Modelo não atende critérios clínicos - requer melhorias")
+                    metrics['clinical_ready'] = False
+            
             clinical_report = clinical_evaluator.generate_clinical_report(
-                np.array(test_labels), 
-                np.array(test_predictions),
-                dataset_config.class_names
+                clinical_metrics, 
+                f"{architecture}_model"
             )
             logger.info(f"Relatório clínico para {architecture}:\n{clinical_report}")
         
@@ -272,6 +289,12 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
             try:
                 model.save(model_path)
                 logger.info(f"✅ Modelo {architecture} salvo em {model_path}")
+                
+                if validate_clinical_metrics and metrics.get('clinical_ready', False):
+                    clinical_model_path = model_path.replace('.h5', '_clinical_validated.h5')
+                    model.save(clinical_model_path)
+                    logger.info(f"🏥 Modelo clinicamente validado salvo em {clinical_model_path}")
+                    
             except Exception as save_error:
                 logger.error(f"Erro ao salvar modelo {architecture}: {save_error}")
                 weights_path = model_path.replace('.h5', '_weights.h5')
@@ -592,6 +615,10 @@ def main():
         logger.info("Validação concluída com sucesso. Saindo (--validate_only).")
         return
     
+    clinical_validation_enabled = args.validate_clinical_metrics
+    if clinical_validation_enabled:
+        logger.info("🏥 Validação de métricas clínicas ativada durante treinamento")
+    
     os.makedirs(args.output_dir, exist_ok=True)
     
     try:
@@ -625,7 +652,8 @@ def main():
         with strategy.scope():
             model, model_metrics = train_model_progressive(
                 arch, args.data_dir, args.output_dir, 
-                args.epochs, args.batch_size, args.learning_rate
+                args.epochs, args.batch_size, args.learning_rate,
+                validate_clinical_metrics=clinical_validation_enabled
             )
         
         if model is not None and model_metrics is not None:

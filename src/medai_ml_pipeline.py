@@ -94,6 +94,8 @@ class TrainingConfig:
     gradient_clipping: float = 1.0
     label_smoothing: float = 0.1
     use_class_weights: bool = True
+    progressive_training: bool = False
+    backbone_lr_multiplier: float = 0.1
     
 class MLPipeline:
     """
@@ -206,12 +208,13 @@ class MLPipeline:
             
             # Decodificar baseado na extensão - simplificar para evitar problemas de shape
             if tf.strings.regex_full_match(filepath, r".*\.dcm"):
-                image = tf.zeros([512, 512, 1], dtype=tf.float32)
+                image = tf.zeros([512, 512, 3], dtype=tf.float32)  # 3 channels for RGB
             else:
                 image = tf.image.decode_image(image, channels=1)
                 image = tf.cast(image, tf.float32)
                 # Ensure shape is set for TensorFlow operations
                 image = tf.ensure_shape(image, [None, None, 1])
+                image = tf.repeat(image, 3, axis=-1)
             
             # Redimensionar
             image = tf.image.resize(image, config.image_size)
@@ -292,20 +295,38 @@ class MLPipeline:
                 all_files.extend([str(f) for f in files])
                 all_labels.extend([class_idx] * len(files))
         
-        # Dividir dados
-        X_temp, X_test, y_temp, y_test = train_test_split(
-            all_files, all_labels, 
-            test_size=config.test_split, 
-            stratify=all_labels,
-            random_state=42
-        )
+        # Dividir dados - ajustar para datasets pequenos
+        total_samples = len(all_files)
+        unique_classes = len(set(all_labels))
         
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_temp, y_temp,
-            test_size=config.validation_split / (1 - config.test_split),
-            stratify=y_temp,
-            random_state=42
-        )
+        if total_samples < unique_classes * 3:
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=config.test_split, 
+                stratify=None,
+                random_state=42
+            )
+            
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_temp, y_temp,
+                test_size=config.validation_split / (1 - config.test_split),
+                stratify=None,
+                random_state=42
+            )
+        else:
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=config.test_split, 
+                stratify=all_labels,
+                random_state=42
+            )
+            
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_temp, y_temp,
+                test_size=config.validation_split / (1 - config.test_split),
+                stratify=y_temp,
+                random_state=42
+            )
         
         # Criar datasets
         train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
@@ -379,26 +400,40 @@ class MLPipeline:
         # CLAHE (Contrast Limited Adaptive Histogram Equalization)
         # Implementação simplificada em TensorFlow
         
+        # Ensure image has 3 channels (RGB format)
+        if len(tf.shape(image)) == 3 and tf.shape(image)[-1] == 1:
+            image = tf.repeat(image, 3, axis=-1)
+        elif len(tf.shape(image)) == 2:
+            image = tf.expand_dims(image, axis=-1)
+            image = tf.repeat(image, 3, axis=-1)
+        
         # Equalização de histograma global
         image_uint8 = tf.cast(image * 255, tf.uint8)
         image_float = tf.cast(image_uint8, tf.float32)
-        hist = tf.histogram_fixed_width(image_float, [0, 255], nbins=256)
-        cdf = tf.cumsum(hist)
-        cdf_normalized = cdf / tf.reduce_max(cdf)
         
-        # Aplicar equalização
-        image_equalized = tf.gather(cdf_normalized, tf.cast(image_uint8, tf.int32))
+        processed_channels = []
+        for i in range(3):
+            channel = image_float[:, :, i]
+            hist = tf.histogram_fixed_width(channel, [0, 255], nbins=256)
+            cdf = tf.cumsum(hist)
+            cdf_normalized = cdf / tf.reduce_max(cdf)
+            
+            # Aplicar equalização
+            channel_equalized = tf.gather(cdf_normalized, tf.cast(image_uint8[:, :, i], tf.int32))
+            
+            # Normalização Z-score
+            mean = tf.reduce_mean(channel_equalized)
+            std = tf.math.reduce_std(channel_equalized)
+            channel_normalized = (channel_equalized - mean) / (std + 1e-8)
+            
+            # Clip valores extremos
+            channel_clipped = tf.clip_by_value(channel_normalized, -3, 3)
+            
+            # Re-normalizar para [0, 1]
+            channel_final = (channel_clipped + 3) / 6
+            processed_channels.append(channel_final)
         
-        # Normalização Z-score
-        mean = tf.reduce_mean(image_equalized)
-        std = tf.math.reduce_std(image_equalized)
-        image_normalized = (image_equalized - mean) / (std + 1e-8)
-        
-        # Clip valores extremos
-        image_clipped = tf.clip_by_value(image_normalized, -3, 3)
-        
-        # Re-normalizar para [0, 1]
-        image_final = (image_clipped + 3) / 6
+        image_final = tf.stack(processed_channels, axis=-1)
         
         return image_final
     
@@ -982,16 +1017,27 @@ class MLPipeline:
                 registered_model_name=f"{self.project_name}_model"
             )
             
-            # Log métricas finais
-            final_metrics = {
-                'final_train_loss': history.history['loss'][-1],
-                'final_train_acc': history.history['accuracy'][-1],
-                'final_val_loss': history.history['val_loss'][-1],
-                'final_val_acc': history.history['val_accuracy'][-1],
-                'best_val_acc': max(history.history['val_accuracy']),
-                'best_val_auc': max(history.history.get('val_auc', [0]))
-            }
-            mlflow.log_metrics(final_metrics)
+            # Log métricas finais - verificar se as chaves existem no histórico
+            final_metrics = {}
+            
+            if 'loss' in history.history and len(history.history['loss']) > 0:
+                final_metrics['final_train_loss'] = history.history['loss'][-1]
+            
+            if 'accuracy' in history.history and len(history.history['accuracy']) > 0:
+                final_metrics['final_train_acc'] = history.history['accuracy'][-1]
+            
+            if 'val_loss' in history.history and len(history.history['val_loss']) > 0:
+                final_metrics['final_val_loss'] = history.history['val_loss'][-1]
+            
+            if 'val_accuracy' in history.history and len(history.history['val_accuracy']) > 0:
+                final_metrics['final_val_acc'] = history.history['val_accuracy'][-1]
+                final_metrics['best_val_acc'] = max(history.history['val_accuracy'])
+            
+            if 'val_auc' in history.history and len(history.history['val_auc']) > 0:
+                final_metrics['best_val_auc'] = max(history.history['val_auc'])
+            
+            if final_metrics:
+                mlflow.log_metrics(final_metrics)
             
             return history.history
     

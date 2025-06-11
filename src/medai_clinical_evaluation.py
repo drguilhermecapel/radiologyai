@@ -48,17 +48,60 @@ class ClinicalPerformanceEvaluator:
             Dicionário com métricas de performance
         """
         try:
+            y_true = np.array(y_true).flatten()
+            y_pred = np.array(y_pred).flatten()
+            
             metrics = {}
             
-            metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
-            metrics['precision'] = float(precision_score(y_true, y_pred, average='weighted', zero_division=0))
-            metrics['recall'] = float(recall_score(y_true, y_pred, average='weighted', zero_division=0))
-            metrics['f1_score'] = float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
+            if len(np.unique(y_true)) == 2 and len(np.unique(y_pred)) == 2:
+                tp = np.sum((y_true == 1) & (y_pred == 1))
+                tn = np.sum((y_true == 0) & (y_pred == 0))
+                fp = np.sum((y_true == 0) & (y_pred == 1))
+                fn = np.sum((y_true == 1) & (y_pred == 0))
+                
+                sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+                specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+                ppv = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+                npv = tn / (tn + fn) if (tn + fn) > 0 else 0.0
+                
+                accuracy = (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
+                precision = ppv
+                recall = sensitivity
+                f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+                
+                metrics = {
+                    'accuracy': float(accuracy),
+                    'precision': float(precision),
+                    'recall': float(recall),
+                    'sensitivity': float(sensitivity),
+                    'specificity': float(specificity),
+                    'ppv': float(ppv),
+                    'npv': float(npv),
+                    'f1_score': float(f1),
+                    'tp': int(tp),
+                    'tn': int(tn),
+                    'fp': int(fp),
+                    'fn': int(fn)
+                }
+            else:
+                # Multi-class classification - use sklearn metrics
+                metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
+                metrics['precision'] = float(precision_score(y_true, y_pred, average='weighted', zero_division=0))
+                metrics['recall'] = float(recall_score(y_true, y_pred, average='weighted', zero_division=0))
+                metrics['f1_score'] = float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
+                
+                clinical_metrics = self._calculate_clinical_metrics(y_true, y_pred)
+                metrics.update(clinical_metrics)
+                
+                # Calculate average sensitivity and specificity
+                sensitivity_values = [v for k, v in clinical_metrics.items() if 'sensitivity' in k]
+                specificity_values = [v for k, v in clinical_metrics.items() if 'specificity' in k]
+                
+                metrics['sensitivity'] = float(np.mean(sensitivity_values)) if sensitivity_values else 0.0
+                metrics['specificity'] = float(np.mean(specificity_values)) if specificity_values else 0.0
             
             cm = confusion_matrix(y_true, y_pred)
             metrics['confusion_matrix'] = cm.tolist()
-            
-            metrics.update(self._calculate_clinical_metrics(y_true, y_pred))
             
             if y_prob is not None:
                 try:
@@ -440,6 +483,13 @@ class ClinicalPerformanceEvaluator:
         except Exception as e:
             logger.error(f"Erro na geração de recomendação: {e}")
             return "Erro na geração de recomendação clínica. Consultar especialista."
+    
+    def calculate_metrics(self, y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None) -> Dict:
+        """
+        Método principal para calcular métricas clínicas
+        Compatível com a interface esperada pelo sistema de treinamento
+        """
+        return self.evaluate_model_performance(y_true, y_pred, y_prob)
 
 class RadiologyBenchmark:
     """

@@ -213,54 +213,81 @@ class StateOfTheArtModels:
     
     def build_ensemble_model(self) -> tf.keras.Model:
         """
-        Modelo ensemble ConvNeXt + EfficientNetV2 + Vision Transformer
-        Combina predições de diferentes modelos com attention-based fusion para máxima precisão
-        Implementa compound scaling e mixed precision training
+        Modelo ensemble EfficientNetV2 + Vision Transformer + ConvNeXt
+        Combina predições de diferentes modelos para máxima precisão clínica
         """
         inputs = layers.Input(shape=self.input_shape)
         
         x = layers.Rescaling(1./255)(inputs)
-        x = self._medical_preprocessing(x)
         
-        efficientnet = self._build_compound_scaled_efficientnetv2(self.input_shape, pooling='avg')
+        # EfficientNetV2 - Especializado em detalhes finos
+        efficientnet = tf.keras.applications.EfficientNetV2B3(
+            input_shape=self.input_shape,
+            include_top=False,
+            weights='imagenet',
+            pooling='avg'
+        )
         efficientnet.trainable = False
         eff_features = efficientnet(x)
-        eff_out = layers.Dense(512, activation='gelu')(eff_features)
-        eff_out = layers.Dropout(0.3)(eff_out)
+        # Normalize EfficientNet features to 512 dimensions
+        eff_features_norm = layers.Dense(512, activation='gelu', name='eff_features_norm')(eff_features)
+        eff_out = layers.Dense(512, activation='gelu', name='eff_dense')(eff_features_norm)
+        eff_out = layers.Dropout(0.3, name='eff_dropout')(eff_out)
         eff_predictions = layers.Dense(self.num_classes, activation='softmax', name='efficientnet_pred')(eff_out)
         
-        convnext = self._build_medical_convnext(self.input_shape, pooling='avg')
-        convnext.trainable = False
-        conv_features = convnext(x)
-        conv_out = layers.Dense(512, activation='gelu')(conv_features)
-        conv_out = layers.Dropout(0.3)(conv_out)
-        conv_predictions = layers.Dense(self.num_classes, activation='softmax', name='convnext_pred')(conv_out)
-        
-        # Vision Transformer para padrões globais
+        # Vision Transformer - Especializado em padrões globais
         vit_backbone = self._build_medical_vision_transformer_backbone(self.input_shape)
-        vit_backbone.trainable = False
         vit_features = vit_backbone(x)
-        vit_out = layers.Dense(512, activation='gelu')(vit_features)
-        vit_out = layers.Dropout(0.3)(vit_out)
+        # Normalize ViT features to 512 dimensions
+        vit_features_norm = layers.Dense(512, activation='gelu', name='vit_features_norm')(vit_features)
+        vit_out = layers.Dense(512, activation='gelu', name='vit_dense')(vit_features_norm)
+        vit_out = layers.Dropout(0.3, name='vit_dropout')(vit_out)
         vit_predictions = layers.Dense(self.num_classes, activation='softmax', name='vit_pred')(vit_out)
         
-        combined_features = layers.concatenate([eff_features, conv_features, vit_features])
+        convnext = tf.keras.applications.ConvNeXtBase(
+            input_shape=self.input_shape,
+            include_top=False,
+            weights='imagenet',
+            pooling='avg'
+        )
+        convnext.trainable = False
+        conv_features = convnext(x)
+        # Normalize ConvNeXt features to 512 dimensions
+        conv_features_norm = layers.Dense(512, activation='gelu', name='conv_features_norm')(conv_features)
+        conv_out = layers.Dense(512, activation='gelu', name='conv_dense')(conv_features_norm)
+        conv_out = layers.Dropout(0.3, name='conv_dropout')(conv_out)
+        conv_predictions = layers.Dense(self.num_classes, activation='softmax', name='convnext_pred')(conv_out)
         
-        attention_weights = layers.Dense(256, activation='gelu')(combined_features)
-        attention_weights = layers.Dropout(0.2)(attention_weights)
-        attention_weights = layers.Dense(3, activation='softmax', name='model_attention')(attention_weights)
+        combined_features = layers.concatenate([eff_features_norm, vit_features_norm, conv_features_norm], name='combined_features')
         
-        weighted_predictions = layers.Lambda(lambda x: 
-            x[0] * tf.expand_dims(x[3][:, 0], 1) + 
-            x[1] * tf.expand_dims(x[3][:, 1], 1) + 
-            x[2] * tf.expand_dims(x[3][:, 2], 1),
-            name='weighted_ensemble'
-        )([eff_predictions, conv_predictions, vit_predictions, attention_weights])
+        attention_layer = layers.Dense(256, activation='gelu', name='attention_dense')(combined_features)
+        attention_layer = layers.Dropout(0.1, name='attention_dropout')(attention_layer)
+        attention_weights = layers.Dense(3, activation='softmax', name='attention_weights')(attention_layer)
+        
+        # EfficientNetV2: 35%, ViT: 35%, ConvNeXt: 30%
+        class WeightedEnsemble(layers.Layer):
+            def __init__(self, **kwargs):
+                super(WeightedEnsemble, self).__init__(**kwargs)
+            
+            def call(self, inputs):
+                eff_pred, vit_pred, conv_pred, attention = inputs
+                
+                weighted_pred = (
+                    attention[:, 0:1] * eff_pred +
+                    attention[:, 1:2] * vit_pred +
+                    attention[:, 2:3] * conv_pred
+                )
+                
+                return weighted_pred
+        
+        weighted_predictions = WeightedEnsemble(name='weighted_ensemble')(
+            [eff_predictions, vit_predictions, conv_predictions, attention_weights]
+        )
         
         model = models.Model(
             inputs=inputs, 
             outputs=weighted_predictions,
-            name="EnsembleEfficientNetV2ConvNeXtViT"
+            name="MedicalEnsembleEfficientNetViTConvNeXt"
         )
         
         return model
@@ -409,9 +436,10 @@ class StateOfTheArtModels:
     
     def _mlp_block(self, x, hidden_units, dropout_rate):
         """Bloco MLP com GELU activation"""
+        original_dim = x.shape[-1]
         x = layers.Dense(hidden_units, activation="gelu")(x)
         x = layers.Dropout(dropout_rate)(x)
-        x = layers.Dense(x.shape[-1])(x)
+        x = layers.Dense(original_dim)(x)
         x = layers.Dropout(dropout_rate)(x)
         return x
     
