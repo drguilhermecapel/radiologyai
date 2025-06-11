@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  medai-app:
+    build: .
+    container_name: medai-radiologia
+    ports:
+      - "8080:8080"
+      - "8084:8084"
+      - "11112:11112"
+    environment:
+      - ENVIRONMENT=production
+      - DB_HOST=medai-db
+      - DB_USERNAME=medai_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLINICAL_ALERT_EMAIL=${CLINICAL_ALERT_EMAIL}
+      - CLINICAL_ALERT_WEBHOOK=${CLINICAL_ALERT_WEBHOOK}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - PAGERDUTY_KEY=${PAGERDUTY_KEY}
+    volumes:
+      - medai-data:/app/data
+      - medai-logs:/var/log/medai
+      - medai-models:/app/models
+      - ./config/ssl:/etc/ssl:ro
+    depends_on:
+      - medai-db
+      - redis
+    restart: unless-stopped
+    networks:
+      - medai-network
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  medai-db:
+    image: postgres:13
+    container_name: medai-database
+    environment:
+      - POSTGRES_DB=medai_production
+      - POSTGRES_USER=medai_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - medai-db-data:/var/lib/postgresql/data
+      - ./config/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - medai-network
+
+  redis:
+    image: redis:6-alpine
+    container_name: medai-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - medai-redis-data:/data
+    restart: unless-stopped
+    networks:
+      - medai-network
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+
+  nginx:
+    image: nginx:alpine
+    container_name: medai-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/ssl:/etc/ssl:ro
+      - medai-logs:/var/log/nginx
+    depends_on:
+      - medai-app
+    restart: unless-stopped
+    networks:
+      - medai-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: medai-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - medai-prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - medai-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: medai-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - medai-grafana-data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - medai-network
+
+volumes:
+  medai-data:
+    driver: local
+  medai-logs:
+    driver: local
+  medai-models:
+    driver: local
+  medai-db-data:
+    driver: local
+  medai-redis-data:
+    driver: local
+  medai-prometheus-data:
+    driver: local
+  medai-grafana-data:
+    driver: local
+
+networks:
+  medai-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
