@@ -7,31 +7,43 @@
     "clinical_readiness_rate": 0.0
   },
   "model_performance": {
-    "EfficientNetV2": {
+    "ConvNeXt": {
       "metrics": {
-        "loss": 1.610782504081726,
-        "accuracy": 0.0,
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1_score": 0.0,
+        "loss": 1.8429334163665771,
+        "accuracy": 0.14285714285714285,
+        "precision": 0.02040816326530612,
+        "recall": 0.14285714285714285,
+        "f1_score": 0.03571428571428571,
         "normal_sensitivity": 0.0,
         "normal_specificity": 1.0,
         "normal_ppv": 0.0,
-        "normal_npv": 0.5,
+        "normal_npv": 0.7857142857142857,
         "normal_f1_score": 0.0,
         "normal_balanced_accuracy": 0.5,
-        "pneumonia_sensitivity": 0.0,
+        "pneumonia_sensitivity": 1.0,
         "pneumonia_specificity": 0.0,
-        "pneumonia_ppv": 0.0,
+        "pneumonia_ppv": 0.14285714285714285,
         "pneumonia_npv": 0.0,
-        "pneumonia_f1_score": 0.0,
-        "pneumonia_balanced_accuracy": 0.0,
+        "pneumonia_f1_score": 0.25,
+        "pneumonia_balanced_accuracy": 0.5,
         "pleural_effusion_sensitivity": 0.0,
         "pleural_effusion_specificity": 1.0,
         "pleural_effusion_ppv": 0.0,
-        "pleural_effusion_npv": 0.5,
+        "pleural_effusion_npv": 0.7857142857142857,
         "pleural_effusion_f1_score": 0.0,
         "pleural_effusion_balanced_accuracy": 0.5,
+        "fracture_sensitivity": 0.0,
+        "fracture_specificity": 1.0,
+        "fracture_ppv": 0.0,
+        "fracture_npv": 0.7857142857142857,
+        "fracture_f1_score": 0.0,
+        "fracture_balanced_accuracy": 0.5,
+        "tumor_sensitivity": 0.0,
+        "tumor_specificity": 1.0,
+        "tumor_ppv": 0.0,
+        "tumor_npv": 0.7857142857142857,
+        "tumor_f1_score": 0.0,
+        "tumor_balanced_accuracy": 0.5,
         "clinical_compliance": {
           "normal": {
             "category": "STANDARD",
@@ -42,9 +54,9 @@
           },
           "pneumonia": {
             "category": "MODERATE",
-            "sensitivity": 0.0,
+            "sensitivity": 1.0,
             "specificity": 0.0,
-            "meets_standards": false,
+            "meets_standards": "False",
             "risk_level": "MODERATE_RISK"
           },
           "pleural_effusion": {
@@ -53,25 +65,59 @@
             "specificity": 1.0,
             "meets_standards": "False",
             "risk_level": "MODERATE_RISK"
+          },
+          "fracture": {
+            "category": "CRITICAL",
+            "sensitivity": 0.0,
+            "specificity": 1.0,
+            "meets_standards": "False",
+            "risk_level": "HIGH_RISK"
+          },
+          "tumor": {
+            "category": "CRITICAL",
+            "sensitivity": 0.0,
+            "specificity": 1.0,
+            "meets_standards": "False",
+            "risk_level": "HIGH_RISK"
           }
         },
         "overall_clinical_readiness": false,
-        "sensitivity": 0.0,
-        "specificity": 0.6666666666666666,
+        "sensitivity": 0.2,
+        "specificity": 0.8,
         "confusion_matrix": [
           [
             0,
-            1,
-            0
-          ],
-          [
+            3,
             0,
             0,
             0
           ],
           [
             0,
-            1,
+            2,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0,
+            0,
             0
           ]
         ],
@@ -80,34 +126,47 @@
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 3.0
           },
           "1": {
+            "precision": 0.14285714285714285,
+            "recall": 1.0,
+            "f1-score": 0.25,
+            "support": 2.0
+          },
+          "2": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 0.0
+            "support": 3.0
+          },
+          "3": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1-score": 0.0,
+            "support": 3.0
           },
           "4": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
+            "support": 3.0
           },
-          "accuracy": 0.0,
+          "accuracy": 0.14285714285714285,
           "macro avg": {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1-score": 0.0,
-            "support": 2.0
+            "precision": 0.02857142857142857,
+            "recall": 0.2,
+            "f1-score": 0.05,
+            "support": 14.0
           },
           "weighted avg": {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1-score": 0.0,
-            "support": 2.0
+            "precision": 0.02040816326530612,
+            "recall": 0.14285714285714285,
+            "f1-score": 0.03571428571428571,
+            "support": 14.0
           }
-        }
+        },
+        "clinical_ready": false
       },
       "clinical_ready": false,
       "training_status": "successful"
