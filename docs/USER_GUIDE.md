@@ -52,23 +52,45 @@ O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza **i
 
 ## Tipos de Análise com IA de Última Geração
 
-### Raio-X Torácico (EfficientNetV2 + Vision Transformer)
-- **Precisão**: 94% de acurácia com modelos SOTA
-- Detecta pneumonia, COVID-19, tuberculose, derrame pleural
-- Identifica cardiomegalia com alta confiabilidade
-- Avalia normalidade pulmonar com threshold otimizado (85%)
+### 🏆 **Ensemble Model com Fusão por Atenção**
+- **Arquitetura**: Combinação inteligente de 3 modelos SOTA
+- **EfficientNetV2**: Especializado em detalhes finos (35% peso)
+- **Vision Transformer**: Padrões globais e atenção (35% peso)  
+- **ConvNeXt**: Análise superior de texturas (30% peso)
+- **Fusão Inteligente**: Pesos aprendidos baseados em evidência clínica
 
-### CT Cerebral (Vision Transformer Especializado)
-- **Precisão**: 96% de acurácia para diagnósticos críticos
-- Detecta hemorragias, isquemias, tumores, edemas, hidrocefalia
-- Análise baseada em atenção para detalhes neurológicos
-- Threshold elevado (90%) para máxima confiabilidade
+### 📋 **Validação Clínica Atual**
+- **Status**: Sistema arquitetural validado ✅
+- **Acurácia Atual**: 20% (modelos fallback operacionais)
+- **Teste de Viés**: Sem viés de pneumonia detectado ✅
+- **Pronto para**: Treinamento com datasets médicos reais
 
-### Detecção de Fraturas (ConvNeXt Otimizado)
-- **Precisão**: 91% de acurácia para patologias ósseas
-- Detecta fraturas, luxações, osteoporose, artrite, osteomielite
-- Análise em alta resolução (384x384) para detalhes ósseos
-- Modelo especializado para estruturas esqueléticas
+### 🔬 **Detecção de Patologias Implementada**
+
+#### **Pneumonia**
+- **Método**: Análise de consolidação e regiões de interesse
+- **Threshold**: 65% para alta sensibilidade
+- **Características**: Detecção de infiltrados e opacidades
+
+#### **Derrame Pleural**
+- **Método**: Identificação de linhas horizontais de fluido
+- **Threshold**: 62% para detecção precoce
+- **Características**: Análise de densidade e padrões de fluido
+
+#### **Fraturas**
+- **Método**: Análise óssea especializada em alta resolução
+- **Threshold**: 68% para precisão diagnóstica
+- **Características**: Detecção de descontinuidades ósseas
+
+#### **Tumores/Massas**
+- **Método**: Identificação de nódulos e massas
+- **Threshold**: 75% para alta especificidade
+- **Características**: Análise de forma, densidade e bordas
+
+#### **Normalidade**
+- **Método**: Classificação por exclusão de patologias
+- **Threshold**: 55% para sensibilidade balanceada
+- **Características**: Validação de ausência de achados
 
 ## Realizando Análise
 
@@ -147,11 +169,33 @@ O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza **i
 3. Sempre revise os resultados clinicamente
 4. Mantenha backups dos relatórios importantes
 
-### Limitações
-- IA é ferramenta de auxílio, não substitui diagnóstico médico
-- Resultados devem ser validados por profissional qualificado
-- Modelos SOTA têm alta precisão mas requerem validação clínica
-- Thresholds elevados garantem maior confiabilidade mas podem reduzir sensibilidade
+### 📊 **Métricas Clínicas e Validação**
+
+#### **Métricas Implementadas**
+- **Sensibilidade (Recall)**: Taxa de detecção de casos positivos
+- **Especificidade**: Taxa de identificação correta de casos negativos  
+- **Valor Preditivo Positivo (PPV)**: Probabilidade de doença dado teste positivo
+- **Valor Preditivo Negativo (NPV)**: Probabilidade de ausência dado teste negativo
+- **Área sob a Curva ROC (AUC)**: Medida geral de performance
+
+#### **Thresholds Clínicos Configurados**
+- **Condições Críticas**: Sensibilidade >95%, Especificidade >90%
+- **Condições Moderadas**: Sensibilidade >90%, Especificidade >85%
+- **Condições Padrão**: Sensibilidade >85%, Especificidade >92%
+
+#### **Processamento DICOM Avançado**
+- **CT Pulmonar**: Window Center=-600, Window Width=1500
+- **CT Óssea**: Window Center=300, Window Width=1500
+- **CT Cerebral**: Window Center=40, Window Width=80
+- **Soft Tissue**: Window Center=50, Window Width=350
+
+### ⚠️ **Limitações e Considerações Clínicas**
+- **Status Atual**: Sistema em fase de desenvolvimento com modelos fallback
+- **Acurácia**: 20% atual (requer treinamento com datasets médicos)
+- **Uso Clínico**: Não aprovado para uso diagnóstico - apenas demonstração
+- **Validação**: Requer treinamento adicional para atingir padrões clínicos
+- **Supervisão**: Sempre requer validação por profissional qualificado
+- **Responsabilidade**: IA é ferramenta de auxílio, não substitui diagnóstico médico
 
 ## Atalhos de Teclado
 
