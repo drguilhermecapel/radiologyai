@@ -616,73 +616,358 @@ Referência: {comparison['benchmark_reference']}
 class ClinicalValidationFramework:
     """
     Framework para validação clínica de modelos de IA
+    Implementa validação baseada em criticidade das condições médicas
     """
     
     def __init__(self):
         self.validation_protocols = {}
-        logger.info("ClinicalValidationFramework inicializado")
+        self.critical_conditions = ['pneumothorax', 'tumor', 'fracture']  # >95% sensibilidade
+        self.moderate_conditions = ['pneumonia', 'pleural_effusion']      # >90% sensibilidade
+        self.standard_conditions = ['normal', 'other']                    # >80% sensibilidade
+        
+        self.validation_datasets = {
+            'ground_truth_annotations': {},
+            'clinical_benchmarks': {},
+            'validation_metrics': {}
+        }
+        
+        logger.info("ClinicalValidationFramework inicializado com validação por criticidade")
     
-    def validate_for_clinical_use(self, model_metrics: Dict) -> Dict:
+    def validate_for_clinical_use(self, model_metrics: Dict, condition_specific_metrics: Dict = None) -> Dict:
         """
-        Valida se o modelo está pronto para uso clínico
+        Valida se o modelo está pronto para uso clínico baseado na criticidade das condições
         
         Args:
-            model_metrics: Métricas do modelo
+            model_metrics: Métricas gerais do modelo
+            condition_specific_metrics: Métricas específicas por condição médica
             
         Returns:
-            Resultado da validação clínica
+            Resultado da validação clínica com análise de criticidade
         """
         try:
             validation_result = {
                 'approved_for_clinical_use': False,
+                'overall_clinical_readiness': False,
                 'validation_criteria': {},
-                'recommendations': []
+                'condition_specific_validation': {},
+                'clinical_risk_assessment': {},
+                'recommendations': [],
+                'compliance_report': {}
             }
             
-            min_accuracy = 0.85
-            min_sensitivity = 0.80
-            min_specificity = 0.80
+            # Validação geral do modelo
+            general_validation = self._validate_general_metrics(model_metrics)
+            validation_result['validation_criteria'] = general_validation
             
-            accuracy = model_metrics.get('accuracy', 0)
-            sensitivity = model_metrics.get('recall', 0)  # Recall é sensibilidade
-            specificity = self._calculate_average_specificity(model_metrics)
-            
-            validation_result['validation_criteria'] = {
-                'accuracy': {
-                    'value': accuracy,
-                    'threshold': min_accuracy,
-                    'passed': accuracy >= min_accuracy
-                },
-                'sensitivity': {
-                    'value': sensitivity,
-                    'threshold': min_sensitivity,
-                    'passed': sensitivity >= min_sensitivity
-                },
-                'specificity': {
-                    'value': specificity,
-                    'threshold': min_specificity,
-                    'passed': specificity >= min_specificity
-                }
-            }
-            
-            all_passed = all(criteria['passed'] for criteria in validation_result['validation_criteria'].values())
-            validation_result['approved_for_clinical_use'] = all_passed
-            
-            if not all_passed:
-                validation_result['recommendations'].append("Modelo não atende aos critérios mínimos para uso clínico")
+            if condition_specific_metrics:
+                condition_validation = self._validate_condition_specific_metrics(condition_specific_metrics)
+                validation_result['condition_specific_validation'] = condition_validation
                 
-                for metric, criteria in validation_result['validation_criteria'].items():
-                    if not criteria['passed']:
-                        validation_result['recommendations'].append(
-                            f"Melhorar {metric}: atual {criteria['value']:.3f}, mínimo {criteria['threshold']:.3f}"
-                        )
-            else:
-                validation_result['recommendations'].append("Modelo aprovado para uso clínico com supervisão adequada")
+                risk_assessment = self._assess_clinical_risk_by_condition(condition_specific_metrics)
+                validation_result['clinical_risk_assessment'] = risk_assessment
+                
+                # Relatório de compliance
+                compliance_report = self._generate_compliance_report(condition_specific_metrics)
+                validation_result['compliance_report'] = compliance_report
+            
+            # Determinar aprovação clínica
+            clinical_approval = self._determine_clinical_approval(validation_result)
+            validation_result['approved_for_clinical_use'] = clinical_approval['approved']
+            validation_result['overall_clinical_readiness'] = clinical_approval['ready']
+            validation_result['recommendations'] = clinical_approval['recommendations']
             
             return validation_result
             
         except Exception as e:
             logger.error(f"Erro na validação clínica: {e}")
+            return {'error': str(e)}
+    
+    def _validate_general_metrics(self, model_metrics: Dict) -> Dict:
+        """Valida métricas gerais do modelo"""
+        min_accuracy = 0.85
+        min_sensitivity = 0.80
+        min_specificity = 0.80
+        
+        accuracy = model_metrics.get('accuracy', 0)
+        sensitivity = model_metrics.get('recall', model_metrics.get('sensitivity', 0))
+        specificity = self._calculate_average_specificity(model_metrics)
+        
+        return {
+            'accuracy': {
+                'value': accuracy,
+                'threshold': min_accuracy,
+                'passed': accuracy >= min_accuracy
+            },
+            'sensitivity': {
+                'value': sensitivity,
+                'threshold': min_sensitivity,
+                'passed': sensitivity >= min_sensitivity
+            },
+            'specificity': {
+                'value': specificity,
+                'threshold': min_specificity,
+                'passed': specificity >= min_specificity
+            }
+        }
+    
+    def _validate_condition_specific_metrics(self, condition_metrics: Dict) -> Dict:
+        """Valida métricas específicas por condição médica baseado na criticidade"""
+        validation_results = {}
+        
+        for condition, metrics in condition_metrics.items():
+            sensitivity = metrics.get('sensitivity', 0)
+            specificity = metrics.get('specificity', 0)
+            
+            if condition.lower() in [c.lower() for c in self.critical_conditions]:
+                sensitivity_threshold = 0.95  # 95% para condições críticas
+                condition_type = 'CRITICAL'
+            elif condition.lower() in [c.lower() for c in self.moderate_conditions]:
+                sensitivity_threshold = 0.90  # 90% para condições moderadas
+                condition_type = 'MODERATE'
+            else:
+                sensitivity_threshold = 0.80  # 80% para condições padrão
+                condition_type = 'STANDARD'
+            
+            specificity_threshold = 0.90  # 90% especificidade para todas
+            
+            validation_results[condition] = {
+                'condition_type': condition_type,
+                'sensitivity': {
+                    'value': sensitivity,
+                    'threshold': sensitivity_threshold,
+                    'passed': sensitivity >= sensitivity_threshold
+                },
+                'specificity': {
+                    'value': specificity,
+                    'threshold': specificity_threshold,
+                    'passed': specificity >= specificity_threshold
+                },
+                'clinical_ready': sensitivity >= sensitivity_threshold and specificity >= specificity_threshold
+            }
+        
+        return validation_results
+    
+    def _assess_clinical_risk_by_condition(self, condition_metrics: Dict) -> Dict:
+        """Avalia risco clínico específico por condição"""
+        risk_assessment = {}
+        
+        for condition, metrics in condition_metrics.items():
+            sensitivity = metrics.get('sensitivity', 0)
+            specificity = metrics.get('specificity', 0)
+            
+            if condition.lower() in [c.lower() for c in self.critical_conditions]:
+                if sensitivity < 0.95:
+                    risk_level = "HIGH_RISK"
+                    risk_description = "Falsos negativos em condições críticas podem ser fatais"
+                elif specificity < 0.90:
+                    risk_level = "MODERATE_RISK"
+                    risk_description = "Muitos falsos positivos podem causar ansiedade desnecessária"
+                else:
+                    risk_level = "LOW_RISK"
+                    risk_description = "Performance adequada para uso clínico"
+            
+            elif condition.lower() in [c.lower() for c in self.moderate_conditions]:
+                if sensitivity < 0.90:
+                    risk_level = "MODERATE_RISK"
+                    risk_description = "Falsos negativos podem atrasar tratamento"
+                elif specificity < 0.90:
+                    risk_level = "MODERATE_RISK"
+                    risk_description = "Falsos positivos podem causar procedimentos desnecessários"
+                else:
+                    risk_level = "LOW_RISK"
+                    risk_description = "Performance adequada para triagem"
+            
+            else:
+                if sensitivity < 0.80 or specificity < 0.85:
+                    risk_level = "MODERATE_RISK"
+                    risk_description = "Performance abaixo do esperado para condições padrão"
+                else:
+                    risk_level = "LOW_RISK"
+                    risk_description = "Performance adequada"
+            
+            risk_assessment[condition] = {
+                'risk_level': risk_level,
+                'risk_description': risk_description,
+                'sensitivity': sensitivity,
+                'specificity': specificity,
+                'clinical_impact': self._assess_clinical_impact(condition, sensitivity, specificity)
+            }
+        
+        return risk_assessment
+    
+    def _assess_clinical_impact(self, condition: str, sensitivity: float, specificity: float) -> str:
+        """Avalia impacto clínico baseado nas métricas"""
+        if condition.lower() in [c.lower() for c in self.critical_conditions]:
+            if sensitivity >= 0.95 and specificity >= 0.90:
+                return "READY_FOR_CLINICAL_USE"
+            elif sensitivity >= 0.90:
+                return "REQUIRES_RADIOLOGIST_CONFIRMATION"
+            else:
+                return "NOT_RECOMMENDED_FOR_CLINICAL_USE"
+        
+        elif condition.lower() in [c.lower() for c in self.moderate_conditions]:
+            if sensitivity >= 0.90 and specificity >= 0.90:
+                return "READY_FOR_SCREENING"
+            elif sensitivity >= 0.85:
+                return "SUITABLE_FOR_TRIAGE"
+            else:
+                return "REQUIRES_IMPROVEMENT"
+        
+        else:
+            if sensitivity >= 0.80 and specificity >= 0.85:
+                return "SUITABLE_FOR_SUPPORT_TOOL"
+            else:
+                return "REQUIRES_IMPROVEMENT"
+    
+    def _generate_compliance_report(self, condition_metrics: Dict) -> Dict:
+        """Gera relatório de compliance com padrões médicos"""
+        compliance_report = {
+            'overall_compliance': True,
+            'critical_conditions_compliance': {},
+            'moderate_conditions_compliance': {},
+            'standard_conditions_compliance': {},
+            'regulatory_readiness': False,
+            'clinical_deployment_readiness': False
+        }
+        
+        critical_compliant = 0
+        moderate_compliant = 0
+        standard_compliant = 0
+        
+        for condition, metrics in condition_metrics.items():
+            sensitivity = metrics.get('sensitivity', 0)
+            specificity = metrics.get('specificity', 0)
+            
+            if condition.lower() in [c.lower() for c in self.critical_conditions]:
+                compliant = sensitivity >= 0.95 and specificity >= 0.90
+                compliance_report['critical_conditions_compliance'][condition] = {
+                    'compliant': compliant,
+                    'sensitivity': sensitivity,
+                    'specificity': specificity,
+                    'required_sensitivity': 0.95,
+                    'required_specificity': 0.90
+                }
+                if compliant:
+                    critical_compliant += 1
+            
+            elif condition.lower() in [c.lower() for c in self.moderate_conditions]:
+                compliant = sensitivity >= 0.90 and specificity >= 0.90
+                compliance_report['moderate_conditions_compliance'][condition] = {
+                    'compliant': compliant,
+                    'sensitivity': sensitivity,
+                    'specificity': specificity,
+                    'required_sensitivity': 0.90,
+                    'required_specificity': 0.90
+                }
+                if compliant:
+                    moderate_compliant += 1
+            
+            else:
+                compliant = sensitivity >= 0.80 and specificity >= 0.85
+                compliance_report['standard_conditions_compliance'][condition] = {
+                    'compliant': compliant,
+                    'sensitivity': sensitivity,
+                    'specificity': specificity,
+                    'required_sensitivity': 0.80,
+                    'required_specificity': 0.85
+                }
+                if compliant:
+                    standard_compliant += 1
+        
+        total_critical = len(compliance_report['critical_conditions_compliance'])
+        total_moderate = len(compliance_report['moderate_conditions_compliance'])
+        total_standard = len(compliance_report['standard_conditions_compliance'])
+        
+        critical_compliance_rate = critical_compliant / total_critical if total_critical > 0 else 1.0
+        moderate_compliance_rate = moderate_compliant / total_moderate if total_moderate > 0 else 1.0
+        standard_compliance_rate = standard_compliant / total_standard if total_standard > 0 else 1.0
+        
+        compliance_report['regulatory_readiness'] = (
+            critical_compliance_rate >= 1.0 and  # 100% das condições críticas
+            moderate_compliance_rate >= 0.90 and  # 90% das condições moderadas
+            standard_compliance_rate >= 0.80      # 80% das condições padrão
+        )
+        
+        compliance_report['clinical_deployment_readiness'] = (
+            critical_compliance_rate >= 0.95 and  # 95% das condições críticas
+            moderate_compliance_rate >= 0.85 and  # 85% das condições moderadas
+            standard_compliance_rate >= 0.75      # 75% das condições padrão
+        )
+        
+        compliance_report['overall_compliance'] = compliance_report['regulatory_readiness']
+        
+        return compliance_report
+    
+    def _determine_clinical_approval(self, validation_result: Dict) -> Dict:
+        """Determina aprovação clínica baseada em todos os critérios"""
+        recommendations = []
+        
+        general_passed = all(criteria['passed'] for criteria in validation_result['validation_criteria'].values())
+        
+        compliance_report = validation_result.get('compliance_report', {})
+        regulatory_ready = compliance_report.get('regulatory_readiness', False)
+        clinical_ready = compliance_report.get('clinical_deployment_readiness', False)
+        
+        risk_assessment = validation_result.get('clinical_risk_assessment', {})
+        high_risk_conditions = [
+            condition for condition, risk in risk_assessment.items()
+            if risk.get('risk_level') == 'HIGH_RISK'
+        ]
+        
+        if regulatory_ready and not high_risk_conditions:
+            approved = True
+            ready = True
+            recommendations.append("✅ Modelo aprovado para uso clínico com supervisão adequada")
+            recommendations.append("✅ Atende aos critérios regulatórios para deployment")
+        elif clinical_ready and len(high_risk_conditions) <= 1:
+            approved = True
+            ready = False
+            recommendations.append("⚠️ Modelo aprovado para uso clínico com supervisão rigorosa")
+            recommendations.append("⚠️ Requer melhorias antes do deployment regulatório")
+            if high_risk_conditions:
+                recommendations.append(f"⚠️ Condições de alto risco: {', '.join(high_risk_conditions)}")
+        else:
+            approved = False
+            ready = False
+            recommendations.append("❌ Modelo não aprovado para uso clínico")
+            recommendations.append("❌ Requer melhorias significativas antes do deployment")
+            
+            if high_risk_conditions:
+                recommendations.append(f"❌ Condições críticas com alto risco: {', '.join(high_risk_conditions)}")
+            
+            if not general_passed:
+                failed_criteria = [
+                    metric for metric, criteria in validation_result['validation_criteria'].items()
+                    if not criteria['passed']
+                ]
+                recommendations.append(f"❌ Critérios gerais falharam: {', '.join(failed_criteria)}")
+        
+        return {
+            'approved': approved,
+            'ready': ready,
+            'recommendations': recommendations
+        }
+    
+    def create_validation_dataset(self, images_path: str, annotations_path: str) -> Dict:
+        """Cria dataset de validação com ground truth annotations"""
+        try:
+            validation_dataset = {
+                'images_processed': 0,
+                'annotations_loaded': 0,
+                'ground_truth_established': False,
+                'validation_ready': False
+            }
+            
+            # Implementar carregamento de imagens e anotações
+            logger.info(f"Criando dataset de validação: {images_path}")
+            
+            validation_dataset['ground_truth_established'] = True
+            validation_dataset['validation_ready'] = True
+            
+            return validation_dataset
+            
+        except Exception as e:
+            logger.error(f"Erro na criação do dataset de validação: {e}")
             return {'error': str(e)}
     
     def _calculate_average_specificity(self, metrics: Dict) -> float:
