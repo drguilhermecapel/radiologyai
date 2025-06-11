@@ -1,0 +1,51 @@
+{
+  "original_model_path": "test_model.h5",
+  "original_size": 24480,
+  "original_parameters": 1061,
+  "optimization_types": [
+    "quantization"
+  ],
+  "target_accuracy_retention": 0.9,
+  "optimized_models": {
+    "quantized": {
+      "path": "test_model_quantized.tflite",
+      "size_bytes": 4576,
+      "size_reduction_percent": 81.30718954248366,
+      "accuracy_retention": 0.9565217391304347,
+      "inference_speedup": 16.09261716512675,
+      "clinical_validation": {
+        "meets_clinical_threshold": true,
+        "recommended_for_deployment": false
+      }
+    }
+  },
+  "baseline_metrics": {
+    "accuracy": 0.23,
+    "precision": 0.0529,
+    "recall": 0.23,
+    "inference_time_ms": 75.29463768005371
+  },
+  "summary": {
+    "total_optimizations_applied": 1,
+    "successful_optimizations": 1,
+    "failed_optimizations": 0,
+    "best_optimization": {
+      "type": "quantized",
+      "score": 0.8991418016481955,
+      "details": {
+        "path": "test_model_quantized.tflite",
+        "size_bytes": 4576,
+        "size_reduction_percent": 81.30718954248366,
+        "accuracy_retention": 0.9565217391304347,
+        "inference_speedup": 16.09261716512675,
+        "clinical_validation": {
+          "meets_clinical_threshold": true,
+          "recommended_for_deployment": false
+        }
+      }
+    },
+    "clinical_recommendations": [
+      "\u26a0\ufe0f Quantized optimization suitable for screening applications"
+    ]
+  }
+}

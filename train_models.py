@@ -178,6 +178,7 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
             preprocessing_config={'normalize': True, 'medical_preprocessing': True},
             validation_split=0.2,
             test_split=0.2,
+            batch_size=model_config['batch_size'],  # Usar batch_size consistente
             class_names=['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
         )
         
@@ -260,7 +261,8 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
         
         for batch in test_ds.take(10):  # Avaliar em subset para demonstração
             predictions = model.predict(batch[0], verbose=0)
-            test_predictions.extend(predictions)
+            predicted_classes = np.argmax(predictions, axis=1)
+            test_predictions.extend(predicted_classes)
             test_labels.extend(batch[1].numpy())
         
         if test_predictions and test_labels:

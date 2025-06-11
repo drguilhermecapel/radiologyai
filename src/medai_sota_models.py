@@ -376,9 +376,9 @@ class StateOfTheArtModels:
         return model
     
     def _medical_preprocessing(self, x):
-        """Medical-specific preprocessing with CLAHE and windowing"""
+        """Medical-specific preprocessing simplified for CPU compatibility"""
         x = layers.Rescaling(1./255)(x)
-        x = layers.Lambda(lambda img: tf.image.adjust_contrast(img, 1.2))(x)
+        x = layers.Lambda(lambda img: (img - 0.5) / 0.5)(x)
         return x
     
     def _conv_kernel_initializer(self, shape, dtype=tf.float32):
@@ -622,18 +622,22 @@ class StateOfTheArtModels:
         x = layers.Dropout(dropout_rate)(x)
         return x
     
-    def compile_sota_model(self, model: tf.keras.Model, learning_rate: float = 1e-4, mixed_precision: bool = True):
+    def compile_sota_model(self, model: tf.keras.Model, learning_rate: float = 1e-4, mixed_precision: bool = False):
         """
         Compila modelo com configurações otimizadas para máxima precisão
         Implementa mixed precision training para 4x faster training
         """
-        if mixed_precision and tf.config.list_physical_devices('GPU'):
+        gpu_available = len(tf.config.list_physical_devices('GPU')) > 0
+        use_mixed_precision = mixed_precision and gpu_available
+        
+        if use_mixed_precision:
             try:
                 policy = tf.keras.mixed_precision.Policy('mixed_float16')
                 tf.keras.mixed_precision.set_global_policy(policy)
                 logger.info("Mixed precision training habilitado para aceleração 4x")
             except Exception as e:
                 logger.warning(f"Mixed precision não disponível: {e}")
+                use_mixed_precision = False
         
         optimizer = tf.keras.optimizers.AdamW(
             learning_rate=learning_rate,
@@ -643,22 +647,15 @@ class StateOfTheArtModels:
             epsilon=1e-7
         )
         
-        if mixed_precision:
+        if use_mixed_precision:
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
         
-        loss = tf.keras.losses.CategoricalCrossentropy(
-            label_smoothing=0.1,
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(
             from_logits=False
         )
         
         metrics = [
-            'accuracy',
-            tf.keras.metrics.Precision(name='precision'),
-            tf.keras.metrics.Recall(name='recall'),
-            tf.keras.metrics.AUC(name='auc'),
-            tf.keras.metrics.TopKCategoricalAccuracy(k=2, name='top_2_accuracy'),
-            tf.keras.metrics.TopKCategoricalAccuracy(k=3, name='top_3_accuracy'),
-            tf.keras.metrics.F1Score(name='f1_score', average='weighted')
+            'accuracy'
         ]
         
         model.compile(
@@ -668,8 +665,10 @@ class StateOfTheArtModels:
         )
         
         logger.info(f"Modelo SOTA compilado com {model.count_params():,} parâmetros")
-        if mixed_precision:
+        if use_mixed_precision:
             logger.info("Mixed precision training configurado para máxima eficiência")
+        else:
+            logger.info("Training configurado para CPU (mixed precision desabilitado)")
         
         return model
     

@@ -1,7 +1,7 @@
 {
   "training_summary": {
-    "total_models_attempted": 3,
-    "successful_models": 3,
+    "total_models_attempted": 1,
+    "successful_models": 1,
     "clinical_ready_models": 0,
     "success_rate": 1.0,
     "clinical_readiness_rate": 0.0
@@ -9,30 +9,9 @@
   "model_performance": {
     "EfficientNetV2": {
       "metrics": {
-        "loss": 1.6113920211791992,
+        "loss": 1.610292911529541,
         "accuracy": 0.0,
-        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-        "clinical_ready": false
-      },
-      "clinical_ready": false,
-      "training_status": "successful"
-    },
-    "VisionTransformer": {
-      "metrics": {
-        "loss": 1.6115169525146484,
-        "accuracy": 0.0,
-        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-        "clinical_ready": false
-      },
-      "clinical_ready": false,
-      "training_status": "successful"
-    },
-    "ConvNeXt": {
-      "metrics": {
-        "loss": 1.610722303390503,
-        "accuracy": 0.0,
-        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-        "clinical_ready": false
+        "error": "Found input variables with inconsistent numbers of samples: [2, 10]"
       },
       "clinical_ready": false,
       "training_status": "successful"
@@ -55,7 +34,6 @@
     "ensemble_method": "attention_weighted_fusion"
   },
   "recommendations": [
-    "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros.",
-    "Ensemble recomendado para melhor performance cl\u00ednica."
+    "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros."
   ]
 }

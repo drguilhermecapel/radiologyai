@@ -8,6 +8,7 @@ import sys
 import os
 import logging
 import time
+import json
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_cors import CORS
@@ -221,20 +222,44 @@ def api_analyze():
             processing_time = analysis_result.metadata.get('processing_time', 0.0)
             
         else:
-            analysis_result = medai_system.analyze_image(
-                image_array, 
-                'chest_xray', 
-                generate_attention_map=generate_visualization
-            )
+            try:
+                analysis_result = medai_system.analyze_image_with_ensemble(
+                    image_array, 
+                    'chest_xray', 
+                    generate_attention_map=generate_visualization
+                )
+            except AttributeError:
+                analysis_result = medai_system.analyze_image(
+                    image_array, 
+                    'chest_xray', 
+                    generate_attention_map=generate_visualization
+                )
             
             predicted_class = analysis_result.get('predicted_class', 'Normal')
             confidence = analysis_result.get('confidence', 0.0)
             all_scores = analysis_result.get('all_scores', {})
+            
+            model_agreement = analysis_result.get('model_agreement', 0.0)
+            ensemble_uncertainty = analysis_result.get('ensemble_uncertainty', 0.0)
+            individual_predictions = analysis_result.get('individual_predictions', {})
+            
             attention_weights = {}
+            gradcam_data = None
+            if generate_visualization:
+                try:
+                    if hasattr(medai_system, 'generate_gradcam_visualization'):
+                        gradcam_data = medai_system.generate_gradcam_visualization(
+                            image_array, predicted_class
+                        )
+                        attention_weights = gradcam_data.get('attention_weights', {})
+                except Exception as e:
+                    logger.warning(f"Grad-CAM generation failed: {e}")
+            
             processing_time = time.time() - start_time
         
         clinical_metrics = {}
         clinical_recommendation = {}
+        clinical_report = {}
         
         if clinical_mode:
             clinical_evaluator = app.config.get('CLINICAL_EVALUATOR')
@@ -244,12 +269,24 @@ def api_analyze():
                         'sensitivity_estimate': min(0.95, confidence + 0.1),
                         'specificity_estimate': min(0.90, confidence + 0.05),
                         'clinical_confidence': confidence,
-                        'meets_clinical_threshold': confidence > 0.8
+                        'ensemble_agreement': model_agreement if 'model_agreement' in locals() else 0.0,
+                        'ensemble_uncertainty': ensemble_uncertainty if 'ensemble_uncertainty' in locals() else 0.0,
+                        'meets_clinical_threshold': confidence > 0.8 and (model_agreement > 0.7 if 'model_agreement' in locals() else True)
                     }
                     
+                    # Generate confidence-based recommendations
                     clinical_recommendation = clinical_evaluator.generate_confidence_based_recommendation(
                         predicted_class, confidence, clinical_metrics
                     )
+                    
+                    if hasattr(clinical_evaluator, 'generate_clinical_report_with_risk_stratification'):
+                        clinical_report = clinical_evaluator.generate_clinical_report_with_risk_stratification({
+                            'predicted_class': predicted_class,
+                            'confidence': confidence,
+                            'model_agreement': model_agreement if 'model_agreement' in locals() else 0.0,
+                            'individual_predictions': individual_predictions if 'individual_predictions' in locals() else {},
+                            'clinical_metrics': clinical_metrics
+                        })
                     
                 except Exception as e:
                     logger.warning(f"Erro ao calcular métricas clínicas: {e}")
@@ -268,20 +305,35 @@ def api_analyze():
                 'findings': findings,
                 'recommendations': recommendations
             },
+            'ensemble_metrics': {
+                'model_agreement': float(model_agreement) if 'model_agreement' in locals() else 0.0,
+                'ensemble_uncertainty': float(ensemble_uncertainty) if 'ensemble_uncertainty' in locals() else 0.0,
+                'individual_predictions': individual_predictions if 'individual_predictions' in locals() else {},
+                'confidence_weighted_score': float(confidence * (model_agreement if 'model_agreement' in locals() else 1.0))
+            },
             'clinical_metrics': clinical_metrics,
             'clinical_recommendation': clinical_recommendation,
-            'attention_weights': attention_weights,
+            'clinical_report': clinical_report,
+            'visualization': {
+                'attention_weights': attention_weights,
+                'gradcam_available': gradcam_data is not None,
+                'gradcam_data': gradcam_data
+            },
             'processing_time': float(processing_time),
-            'model_used': 'Advanced_Ensemble_SOTA',
-            'ensemble_components': ['EfficientNetV2', 'VisionTransformer', 'ConvNeXt'],
-            'clinical_ready': clinical_metrics.get('meets_clinical_threshold', False)
+            'model_used': 'SOTA_Ensemble_with_Explainability',
+            'ensemble_components': ['EfficientNetV2', 'VisionTransformer', 'ConvNeXt', 'AttentionWeightedEnsemble'],
+            'clinical_ready': clinical_metrics.get('meets_clinical_threshold', False),
+            'analysis_type': 'sota_ensemble_with_clinical_validation'
         }
         
-        if generate_visualization and 'attention_map' in analysis_result.metadata:
-            result['visualization'] = {
-                'attention_map_available': True,
-                'gradcam_regions': analysis_result.metadata.get('attention_regions', [])
-            }
+        if generate_visualization:
+            if gradcam_data:
+                result['visualization']['gradcam_regions'] = gradcam_data.get('attention_regions', [])
+                result['visualization']['heatmap_overlay'] = gradcam_data.get('heatmap_overlay', None)
+            
+            if hasattr(analysis_result, 'metadata') and analysis_result.metadata and 'attention_map' in analysis_result.metadata:
+                result['visualization']['attention_map_available'] = True
+                result['visualization']['attention_regions'] = analysis_result.metadata.get('attention_regions', [])
         
         logger.info(f"Análise AI avançada realizada para arquivo: {file.filename}")
         logger.info(f"Resultado: {predicted_class} (confiança: {confidence:.3f})")
@@ -439,53 +491,152 @@ def api_models():
 
 @app.route('/api/clinical_metrics')
 def api_clinical_metrics():
-    """Endpoint para métricas clínicas do sistema"""
-    clinical_evaluator = app.config.get('CLINICAL_EVALUATOR')
-    
-    if not clinical_evaluator:
-        return jsonify({'error': 'Avaliador clínico não disponível'}), 500
-    
+    """Endpoint para métricas clínicas detalhadas com dashboard integrado"""
     try:
-        system_metrics = {
-            'clinical_standards': {
-                'minimum_sensitivity': 0.85,
-                'minimum_specificity': 0.80,
-                'minimum_accuracy': 0.85,
-                'minimum_auc': 0.85
-            },
-            'pathology_thresholds': {
-                'critical_conditions': 0.90,  # Pneumotórax, embolia
-                'moderate_conditions': 0.85,  # Pneumonia, derrame
-                'standard_conditions': 0.80   # Outras patologias
-            },
-            'ensemble_performance': {
-                'expected_sensitivity': '>95%',
-                'expected_specificity': '>90%',
-                'clinical_validation': 'Approved'
-            }
-        }
+        if not hasattr(app, 'clinical_dashboard'):
+            from medai_clinical_monitoring_dashboard import ClinicalMonitoringDashboard
+            app.clinical_dashboard = ClinicalMonitoringDashboard()
         
-        return jsonify(system_metrics)
+        metrics = app.clinical_dashboard.get_current_performance_metrics()
+        
+        dashboard_data = json.loads(app.clinical_dashboard.get_dashboard_metrics_json())
+        
+        return jsonify({
+            'success': True,
+            'clinical_metrics': metrics,
+            'dashboard_data': dashboard_data,
+            'validation_status': 'active',
+            'monitoring_enabled': True,
+            'last_updated': time.time(),
+            'dashboard_url': '/clinical_dashboard'
+        })
         
     except Exception as e:
         logger.error(f"Erro ao obter métricas clínicas: {e}")
         return jsonify({'error': f'Erro nas métricas clínicas: {str(e)}'}), 500
 
-@app.route('/api/visualization/<image_id>')
-def api_visualization(image_id):
-    """Endpoint para visualizações Grad-CAM"""
+@app.route('/clinical_dashboard')
+def clinical_dashboard():
+    """Serve the clinical monitoring dashboard"""
     try:
-        return jsonify({
-            'visualization_available': True,
-            'gradcam_supported': True,
-            'attention_maps': ['efficientnetv2', 'vision_transformer', 'convnext'],
-            'image_id': image_id,
-            'note': 'Visualização Grad-CAM disponível mediante solicitação'
-        })
+        if not hasattr(app, 'clinical_dashboard'):
+            from medai_clinical_monitoring_dashboard import ClinicalMonitoringDashboard
+            app.clinical_dashboard = ClinicalMonitoringDashboard()
+        
+        # Generate and return dashboard HTML
+        dashboard_html = app.clinical_dashboard.generate_dashboard_html()
+        return dashboard_html
         
     except Exception as e:
-        logger.error(f"Erro na visualização: {e}")
-        return jsonify({'error': f'Erro na visualização: {str(e)}'}), 500
+        logger.error(f"Erro ao carregar dashboard clínico: {e}")
+        return f"<html><body><h1>Erro no Dashboard</h1><p>{str(e)}</p></body></html>", 500
+
+@app.route('/api/dashboard_metrics')
+def api_dashboard_metrics():
+    """API endpoint for dashboard metrics (for AJAX updates)"""
+    try:
+        if not hasattr(app, 'clinical_dashboard'):
+            from medai_clinical_monitoring_dashboard import ClinicalMonitoringDashboard
+            app.clinical_dashboard = ClinicalMonitoringDashboard()
+        
+        return app.clinical_dashboard.get_dashboard_metrics_json(), 200, {'Content-Type': 'application/json'}
+        
+    except Exception as e:
+        logger.error(f"Erro ao obter métricas do dashboard: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visualization', methods=['POST'])
+def api_visualization():
+    """Endpoint para visualizações avançadas com Grad-CAM e mapas de atenção"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'Nenhuma imagem fornecida'}), 400
+        
+        file = request.files['image']
+        visualization_type = request.form.get('type', 'gradcam')
+        target_class = request.form.get('target_class', None)
+        
+        if file.filename == '':
+            return jsonify({'error': 'Nenhuma imagem selecionada'}), 400
+        
+        image_data = file.read()
+        
+        try:
+            image = Image.open(io.BytesIO(image_data))
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            image_array = np.array(image)
+        except Exception as e:
+            return jsonify({'error': f'Erro ao processar imagem: {str(e)}'}), 400
+        
+        if medai_system is None:
+            return jsonify({'error': 'Sistema MedAI não inicializado'}), 500
+        
+        visualization_data = {}
+        
+        try:
+            if visualization_type == 'gradcam':
+                # Generate Grad-CAM visualization
+                if hasattr(medai_system, 'generate_gradcam_visualization'):
+                    gradcam_result = medai_system.generate_gradcam_visualization(
+                        image_array, target_class
+                    )
+                    visualization_data['gradcam'] = gradcam_result
+                else:
+                    visualization_data['gradcam'] = {'error': 'Grad-CAM not available'}
+                
+            elif visualization_type == 'attention_maps':
+                if hasattr(medai_system, 'generate_attention_maps'):
+                    attention_maps = medai_system.generate_attention_maps(image_array)
+                    visualization_data['attention_maps'] = attention_maps
+                else:
+                    visualization_data['attention_maps'] = {'error': 'Attention maps not available'}
+                
+            elif visualization_type == 'ensemble_heatmap':
+                if hasattr(medai_system, 'generate_ensemble_heatmap'):
+                    ensemble_heatmap = medai_system.generate_ensemble_heatmap(image_array)
+                    visualization_data['ensemble_heatmap'] = ensemble_heatmap
+                else:
+                    visualization_data['ensemble_heatmap'] = {'error': 'Ensemble heatmap not available'}
+                
+            elif visualization_type == 'all':
+                for viz_type in ['gradcam', 'attention_maps', 'ensemble_heatmap']:
+                    method_name = f'generate_{viz_type.replace("_", "_")}'
+                    if viz_type == 'gradcam':
+                        method_name = 'generate_gradcam_visualization'
+                    
+                    try:
+                        if hasattr(medai_system, method_name):
+                            method = getattr(medai_system, method_name)
+                            if viz_type == 'gradcam':
+                                visualization_data[viz_type] = method(image_array, target_class)
+                            else:
+                                visualization_data[viz_type] = method(image_array)
+                        else:
+                            visualization_data[viz_type] = {'error': f'{viz_type} not available'}
+                    except Exception as e:
+                        logger.warning(f"{viz_type} generation failed: {e}")
+                        visualization_data[viz_type] = {'error': str(e)}
+            
+            return jsonify({
+                'success': True,
+                'visualization_data': visualization_data,
+                'visualization_type': visualization_type,
+                'filename': file.filename,
+                'timestamp': time.time(),
+                'supported_types': ['gradcam', 'attention_maps', 'ensemble_heatmap', 'all']
+            }), 200
+            
+        except Exception as viz_error:
+            logger.error(f"Erro na geração de visualização: {viz_error}")
+            return jsonify({
+                'error': f'Erro na visualização: {str(viz_error)}',
+                'visualization_type': visualization_type
+            }), 500
+                
+    except Exception as e:
+        logger.error(f"Erro no endpoint de visualização: {e}")
+        return jsonify({'error': str(e)}), 500
 
 def create_templates():
     """Cria templates HTML"""

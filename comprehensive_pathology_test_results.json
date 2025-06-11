@@ -1,45 +1,45 @@
 {
-  "test_timestamp": "2025-06-11T18:44:00.156181",
+  "test_timestamp": "2025-06-11T20:45:37.265147",
   "pathology_tests": {
     "normal": {
       "predicted_class": "normal",
       "expected_class": "normal",
-      "confidence": 0.37962617619710814,
+      "confidence": 0.4443229713595236,
       "is_correct": true,
       "all_scores": {},
-      "processing_time": 0.06194639205932617
+      "processing_time": 0.06464385986328125
     },
     "pneumonia": {
       "predicted_class": "normal",
       "expected_class": "pneumonia",
-      "confidence": 0.39986211070019617,
+      "confidence": 0.3935850799504972,
       "is_correct": false,
       "all_scores": {},
-      "processing_time": 0.061717987060546875
+      "processing_time": 0.05918264389038086
     },
     "pleural_effusion": {
       "predicted_class": "normal",
       "expected_class": "pleural_effusion",
-      "confidence": 0.40821606849154696,
+      "confidence": 0.4596543161910743,
       "is_correct": false,
       "all_scores": {},
-      "processing_time": 0.04432821273803711
+      "processing_time": 0.04339122772216797
     },
     "fracture": {
-      "predicted_class": "normal",
+      "predicted_class": "pneumonia",
       "expected_class": "fracture",
-      "confidence": 0.3587948350071736,
+      "confidence": 0.36144578313253006,
       "is_correct": false,
       "all_scores": {},
-      "processing_time": 0.06680178642272949
+      "processing_time": 0.06408858299255371
     },
     "tumor": {
       "predicted_class": "normal",
       "expected_class": "tumor",
-      "confidence": 0.4125826106361854,
+      "confidence": 0.4102214631746147,
       "is_correct": false,
       "all_scores": {},
-      "processing_time": 0.06334328651428223
+      "processing_time": 0.0634756088256836
     }
   },
   "clinical_metrics": {
@@ -47,21 +47,21 @@
     "total_tests": 5,
     "correct_predictions": 1,
     "meets_clinical_threshold": "False",
-    "precision": 0.04,
+    "precision": 0.05,
     "recall": 0.2,
-    "f1_score": 0.06666666666666667,
+    "f1_score": 0.08,
     "normal_sensitivity": 1.0,
-    "normal_specificity": 0.0,
-    "normal_ppv": 0.2,
-    "normal_npv": 0.0,
-    "normal_f1_score": 0.33333333333333337,
-    "normal_balanced_accuracy": 0.5,
+    "normal_specificity": 0.25,
+    "normal_ppv": 0.25,
+    "normal_npv": 1.0,
+    "normal_f1_score": 0.4,
+    "normal_balanced_accuracy": 0.625,
     "pneumonia_sensitivity": 0.0,
-    "pneumonia_specificity": 1.0,
+    "pneumonia_specificity": 0.75,
     "pneumonia_ppv": 0.0,
-    "pneumonia_npv": 0.8,
+    "pneumonia_npv": 0.75,
     "pneumonia_f1_score": 0.0,
-    "pneumonia_balanced_accuracy": 0.5,
+    "pneumonia_balanced_accuracy": 0.375,
     "pleural_effusion_sensitivity": 0.0,
     "pleural_effusion_specificity": 1.0,
     "pleural_effusion_ppv": 0.0,
@@ -84,14 +84,14 @@
       "normal": {
         "category": "STANDARD",
         "sensitivity": 1.0,
-        "specificity": 0.0,
+        "specificity": 0.25,
         "meets_standards": "False",
         "risk_level": "MODERATE_RISK"
       },
       "pneumonia": {
         "category": "MODERATE",
         "sensitivity": 0.0,
-        "specificity": 1.0,
+        "specificity": 0.75,
         "meets_standards": "False",
         "risk_level": "MODERATE_RISK"
       },
@@ -143,8 +143,8 @@
         0
       ],
       [
-        1,
         0,
+        1,
         0,
         0,
         0
@@ -159,9 +159,9 @@
     ],
     "classification_report": {
       "0": {
-        "precision": 0.2,
+        "precision": 0.25,
         "recall": 1.0,
-        "f1-score": 0.3333333333333333,
+        "f1-score": 0.4,
         "support": 1.0
       },
       "1": {
@@ -190,15 +190,15 @@
       },
       "accuracy": 0.2,
       "macro avg": {
-        "precision": 0.04,
+        "precision": 0.05,
         "recall": 0.2,
-        "f1-score": 0.06666666666666667,
+        "f1-score": 0.08,
         "support": 5.0
       },
       "weighted avg": {
-        "precision": 0.04,
+        "precision": 0.05,
         "recall": 0.2,
-        "f1-score": 0.06666666666666667,
+        "f1-score": 0.08,
         "support": 5.0
       }
     }
@@ -207,17 +207,18 @@
     "pneumonia_bias": false,
     "bias_score": 0.0,
     "prediction_distribution": {
-      "normal": 5
+      "normal": 4,
+      "pneumonia": 1
     },
     "confidence_analysis": {
-      "normal": 0.37962617619710814,
-      "pneumonia": 0.39986211070019617,
-      "pleural_effusion": 0.40821606849154696,
-      "fracture": 0.3587948350071736,
-      "tumor": 0.4125826106361854
+      "normal": 0.4443229713595236,
+      "pneumonia": 0.3935850799504972,
+      "pleural_effusion": 0.4596543161910743,
+      "fracture": 0.36144578313253006,
+      "tumor": 0.4102214631746147
     },
     "bias_warnings": [
-      "Low confidence in non-pneumonia cases: 0.390"
+      "Low confidence in non-pneumonia cases: 0.419"
     ]
   },
   "overall_assessment": {
@@ -227,7 +228,7 @@
     "clinical_ready": false,
     "pneumonia_bias_detected": false,
     "bias_warnings": [
-      "Low confidence in non-pneumonia cases: 0.390"
+      "Low confidence in non-pneumonia cases: 0.419"
     ],
     "recommendations": [
       "Improve model accuracy through additional training",

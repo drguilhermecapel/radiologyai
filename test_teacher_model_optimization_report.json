@@ -1,0 +1,51 @@
+{
+  "original_model_path": "test_teacher_model.h5",
+  "original_size": 472344,
+  "original_parameters": 109957,
+  "optimization_types": [
+    "distillation"
+  ],
+  "target_accuracy_retention": 0.85,
+  "optimized_models": {
+    "distilled": {
+      "path": "test_teacher_model_distilled.h5",
+      "size_bytes": 284160,
+      "size_reduction_percent": 39.840455261419635,
+      "parameter_reduction": 44.70111043407877,
+      "architecture": "Lightweight CNN",
+      "clinical_validation": {
+        "suitable_for_edge_deployment": true,
+        "recommended_for_screening": false
+      }
+    }
+  },
+  "baseline_metrics": {
+    "accuracy": 0.21,
+    "precision": 0.045463917525773195,
+    "recall": 0.21,
+    "inference_time_ms": 354.0875434875488
+  },
+  "summary": {
+    "total_optimizations_applied": 1,
+    "successful_optimizations": 1,
+    "failed_optimizations": 0,
+    "best_optimization": {
+      "type": "distilled",
+      "score": 0.15936182104567853,
+      "details": {
+        "path": "test_teacher_model_distilled.h5",
+        "size_bytes": 284160,
+        "size_reduction_percent": 39.840455261419635,
+        "parameter_reduction": 44.70111043407877,
+        "architecture": "Lightweight CNN",
+        "clinical_validation": {
+          "suitable_for_edge_deployment": true,
+          "recommended_for_screening": false
+        }
+      }
+    },
+    "clinical_recommendations": [
+      "\u274c Distilled optimization requires further validation"
+    ]
+  }
+}

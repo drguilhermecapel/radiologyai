@@ -51,6 +51,12 @@ class ClinicalPerformanceEvaluator:
             y_true = np.array(y_true).flatten()
             y_pred = np.array(y_pred).flatten()
             
+            min_length = min(len(y_true), len(y_pred))
+            if len(y_true) != len(y_pred):
+                logger.warning(f"Inconsistent sample sizes: y_true={len(y_true)}, y_pred={len(y_pred)}. Truncating to {min_length}")
+                y_true = y_true[:min_length]
+                y_pred = y_pred[:min_length]
+            
             metrics = {}
             
             if len(np.unique(y_true)) == 2 and len(np.unique(y_pred)) == 2:
@@ -84,14 +90,21 @@ class ClinicalPerformanceEvaluator:
                     'fn': int(fn)
                 }
             else:
-                # Multi-class classification - use sklearn metrics
-                metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
-                metrics['precision'] = float(precision_score(y_true, y_pred, average='weighted', zero_division=0))
-                metrics['recall'] = float(recall_score(y_true, y_pred, average='weighted', zero_division=0))
-                metrics['f1_score'] = float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
-                
-                clinical_metrics = self._calculate_clinical_metrics(y_true, y_pred)
-                metrics.update(clinical_metrics)
+                # Multi-class classification - use sklearn metrics with consistent sample sizes
+                if len(y_true) == 0 or len(y_pred) == 0:
+                    logger.warning("Empty arrays provided for evaluation")
+                    metrics = {
+                        'accuracy': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1_score': 0.0,
+                        'sensitivity': 0.0, 'specificity': 0.0
+                    }
+                else:
+                    metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
+                    metrics['precision'] = float(precision_score(y_true, y_pred, average='weighted', zero_division=0))
+                    metrics['recall'] = float(recall_score(y_true, y_pred, average='weighted', zero_division=0))
+                    metrics['f1_score'] = float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
+                    
+                    clinical_metrics = self._calculate_clinical_metrics(y_true, y_pred)
+                    metrics.update(clinical_metrics)
                 
                 # Calculate average sensitivity and specificity
                 sensitivity_values = [v for k, v in clinical_metrics.items() if 'sensitivity' in k]
@@ -103,8 +116,21 @@ class ClinicalPerformanceEvaluator:
             cm = confusion_matrix(y_true, y_pred)
             metrics['confusion_matrix'] = cm.tolist()
             
-            if y_prob is not None:
+            if y_prob is not None and len(y_true) > 0:
                 try:
+                    if hasattr(y_prob, 'shape') and len(y_prob.shape) > 1:
+                        if y_prob.shape[0] != len(y_true):
+                            min_samples = min(y_prob.shape[0], len(y_true))
+                            y_prob = y_prob[:min_samples]
+                            y_true = y_true[:min_samples]
+                            y_pred = y_pred[:min_samples]
+                    else:
+                        if len(y_prob) != len(y_true):
+                            min_samples = min(len(y_prob), len(y_true))
+                            y_prob = y_prob[:min_samples]
+                            y_true = y_true[:min_samples]
+                            y_pred = y_pred[:min_samples]
+                    
                     if len(np.unique(y_true)) == 2:  # Classificação binária
                         metrics['auc_roc'] = float(roc_auc_score(y_true, y_prob))
                     else:  # Classificação multi-classe

@@ -1,56 +1,39 @@
 {
-  "training_completed_at": "2025-06-11T16:27:16.370143",
+  "training_completed_at": "2025-06-11T20:23:50.831956",
   "training_approach": "progressive_with_clinical_validation",
   "arguments": {
-    "data_dir": "data/samples/",
+    "data_dir": "data/samples",
     "output_dir": "models",
     "architectures": [
-      "EfficientNetV2",
-      "VisionTransformer",
-      "ConvNeXt"
+      "EfficientNetV2"
     ],
-    "epochs": 1,
+    "epochs": 2,
     "batch_size": 2,
-    "learning_rate": 0.001,
-    "ensemble": true,
+    "learning_rate": 0.0001,
+    "ensemble": false,
     "validate_only": false,
-    "validate_clinical_metrics": true,
+    "validate_clinical_metrics": false,
     "resume": null
   },
   "trained_models": [
-    "EfficientNetV2",
-    "VisionTransformer",
-    "ConvNeXt"
+    "EfficientNetV2"
   ],
   "failed_models": [],
   "clinical_ready_models": [],
   "metrics": {
     "EfficientNetV2": {
-      "loss": 1.6113920211791992,
+      "loss": 1.610292911529541,
       "accuracy": 0.0,
-      "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-      "clinical_ready": false
-    },
-    "VisionTransformer": {
-      "loss": 1.6115169525146484,
-      "accuracy": 0.0,
-      "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-      "clinical_ready": false
-    },
-    "ConvNeXt": {
-      "loss": 1.610722303390503,
-      "accuracy": 0.0,
-      "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-      "clinical_ready": false
+      "error": "Found input variables with inconsistent numbers of samples: [2, 10]"
     }
   },
-  "total_models_trained": 3,
+  "total_models_trained": 1,
   "success_rate": 1.0,
   "clinical_readiness_rate": 0.0,
   "training_report": {
     "training_summary": {
-      "total_models_attempted": 3,
-      "successful_models": 3,
+      "total_models_attempted": 1,
+      "successful_models": 1,
       "clinical_ready_models": 0,
       "success_rate": 1.0,
       "clinical_readiness_rate": 0.0
@@ -58,30 +41,9 @@
     "model_performance": {
       "EfficientNetV2": {
         "metrics": {
-          "loss": 1.6113920211791992,
+          "loss": 1.610292911529541,
           "accuracy": 0.0,
-          "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-          "clinical_ready": false
-        },
-        "clinical_ready": false,
-        "training_status": "successful"
-      },
-      "VisionTransformer": {
-        "metrics": {
-          "loss": 1.6115169525146484,
-          "accuracy": 0.0,
-          "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-          "clinical_ready": false
-        },
-        "clinical_ready": false,
-        "training_status": "successful"
-      },
-      "ConvNeXt": {
-        "metrics": {
-          "loss": 1.610722303390503,
-          "accuracy": 0.0,
-          "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
-          "clinical_ready": false
+          "error": "Found input variables with inconsistent numbers of samples: [2, 10]"
         },
         "clinical_ready": false,
         "training_status": "successful"
@@ -104,8 +66,7 @@
       "ensemble_method": "attention_weighted_fusion"
     },
     "recommendations": [
-      "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros.",
-      "Ensemble recomendado para melhor performance cl\u00ednica."
+      "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros."
     ]
   }
 }
