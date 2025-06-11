@@ -88,7 +88,7 @@ class MedAIIntegrationManager:
             
             self.sota_models = StateOfTheArtModels(
                 input_shape=(512, 512, 3),  # Resolução aumentada para melhor precisão
-                num_classes=15  # Expandido para mais classes diagnósticas
+                num_classes=5  # Matching the actual dataset classes: normal, pneumonia, pleural_effusion, fracture, tumor
             )
             
             try:

@@ -98,25 +98,43 @@ def validate_data_directory(data_dir):
     return True
 
 def get_model_config(architecture, input_shape, num_classes, learning_rate):
-    """Obter configuração específica do modelo"""
+    """Get SOTA model-specific configuration optimized for medical imaging"""
     configs = {
         'EfficientNetV2': {
             'input_shape': (384, 384, 3),
             'batch_size': 16,
             'learning_rate': learning_rate,
-            'epochs_default': 50
+            'epochs_default': 50,
+            'freeze_layers': -3,  # Freeze all but last 3 layers initially
+            'fine_tuning_lr': learning_rate * 0.1,
+            'preprocessing': 'efficientnet_medical'
         },
         'VisionTransformer': {
             'input_shape': (224, 224, 3),
-            'batch_size': 12,
-            'learning_rate': learning_rate * 0.5,  # ViT geralmente precisa de LR menor
-            'epochs_default': 60
+            'batch_size': 8,  # Reduced for ViT memory requirements
+            'learning_rate': learning_rate * 0.5,  # ViT needs lower LR
+            'epochs_default': 60,
+            'freeze_layers': 'encoder',  # Freeze encoder layers initially
+            'fine_tuning_lr': learning_rate * 0.05,
+            'preprocessing': 'vit_medical'
         },
         'ConvNeXt': {
             'input_shape': (256, 256, 3),
-            'batch_size': 14,
-            'learning_rate': learning_rate * 2,  # ConvNeXt pode usar LR maior
-            'epochs_default': 45
+            'batch_size': 12,  # Optimized for ConvNeXt
+            'learning_rate': learning_rate * 0.8,  # ConvNeXt can use higher LR
+            'epochs_default': 45,
+            'freeze_layers': -4,  # Freeze all but last 4 layers initially
+            'fine_tuning_lr': learning_rate * 0.08,
+            'preprocessing': 'convnext_medical'
+        },
+        'Ensemble': {
+            'input_shape': (384, 384, 3),  # Largest input for ensemble
+            'batch_size': 6,  # Smaller batch for ensemble memory requirements
+            'learning_rate': learning_rate * 0.3,  # Conservative LR for ensemble
+            'epochs_default': 40,
+            'freeze_layers': 'backbone',  # Freeze backbone models initially
+            'fine_tuning_lr': learning_rate * 0.03,
+            'preprocessing': 'ensemble_medical'
         }
     }
     
@@ -124,7 +142,10 @@ def get_model_config(architecture, input_shape, num_classes, learning_rate):
         'input_shape': input_shape,
         'batch_size': 16,
         'learning_rate': learning_rate,
-        'epochs_default': 50
+        'epochs_default': 50,
+        'freeze_layers': None,
+        'fine_tuning_lr': learning_rate * 0.1,
+        'preprocessing': 'standard_medical'
     })
 
 def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_size, learning_rate, validate_clinical_metrics=False):
@@ -157,6 +178,7 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
             preprocessing_config={'normalize': True, 'medical_preprocessing': True},
             validation_split=0.2,
             test_split=0.2,
+            batch_size=model_config['batch_size'],  # Usar batch_size consistente
             class_names=['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
         )
         
@@ -239,7 +261,8 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
         
         for batch in test_ds.take(10):  # Avaliar em subset para demonstração
             predictions = model.predict(batch[0], verbose=0)
-            test_predictions.extend(predictions)
+            predicted_classes = np.argmax(predictions, axis=1)
+            test_predictions.extend(predicted_classes)
             test_labels.extend(batch[1].numpy())
         
         if test_predictions and test_labels:
