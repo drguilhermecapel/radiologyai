@@ -295,24 +295,35 @@ class MLPipeline:
                 all_files.extend([str(f) for f in files])
                 all_labels.extend([class_idx] * len(files))
         
-        # Dividir dados - ajustar para datasets pequenos
+        # Dividir dados - ajustar para datasets pequenos com validação de tamanho mínimo
         total_samples = len(all_files)
         unique_classes = len(set(all_labels))
         
-        if total_samples < unique_classes * 3:
+        min_samples_per_split = max(1, config.batch_size // 2)
+        
+        if total_samples < max(unique_classes * 3, min_samples_per_split * 3):
+            test_size = min(config.test_split, 0.3)  # Limitar test_size para datasets pequenos
+            val_size = min(config.validation_split, 0.3)
+            
             X_temp, X_test, y_temp, y_test = train_test_split(
                 all_files, all_labels, 
-                test_size=config.test_split, 
+                test_size=test_size, 
                 stratify=None,
                 random_state=42
             )
             
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_temp, y_temp,
-                test_size=config.validation_split / (1 - config.test_split),
-                stratify=None,
-                random_state=42
-            )
+            remaining_samples = len(X_temp)
+            adjusted_val_split = min(val_size / (1 - test_size), 0.5)
+            
+            if remaining_samples >= 2:  # Garantir pelo menos 2 amostras para divisão
+                X_train, X_val, y_train, y_val = train_test_split(
+                    X_temp, y_temp,
+                    test_size=adjusted_val_split,
+                    stratify=None,
+                    random_state=42
+                )
+            else:
+                X_train, X_val, y_train, y_val = X_temp, [], y_temp, []
         else:
             X_temp, X_test, y_temp, y_test = train_test_split(
                 all_files, all_labels, 
@@ -328,26 +339,35 @@ class MLPipeline:
                 random_state=42
             )
         
-        y_train = np.array(y_train, dtype=np.int32)
-        y_val = np.array(y_val, dtype=np.int32)
-        y_test = np.array(y_test, dtype=np.int32)
+        y_train = np.array(y_train, dtype=np.int32) if y_train else np.array([], dtype=np.int32)
+        y_val = np.array(y_val, dtype=np.int32) if y_val else np.array([], dtype=np.int32)
+        y_test = np.array(y_test, dtype=np.int32) if y_test else np.array([], dtype=np.int32)
         
-        # Criar datasets
+        # Ajustar batch_size para datasets pequenos
+        effective_batch_size = min(config.batch_size, max(1, len(X_train)))
+        
+        # Criar datasets com drop_remainder=False para evitar problemas com batches pequenos
         train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
         train_ds = train_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
         train_ds = train_ds.map(augment, num_parallel_calls=AUTOTUNE)
-        train_ds = train_ds.batch(config.batch_size)
+        train_ds = train_ds.batch(effective_batch_size, drop_remainder=False)
         train_ds = train_ds.prefetch(AUTOTUNE)
         
-        val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
-        val_ds = val_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
-        val_ds = val_ds.batch(config.batch_size)
-        val_ds = val_ds.prefetch(AUTOTUNE)
+        if len(X_val) > 0:
+            val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
+            val_ds = val_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
+            val_ds = val_ds.batch(min(effective_batch_size, len(X_val)), drop_remainder=False)
+            val_ds = val_ds.prefetch(AUTOTUNE)
+        else:
+            val_ds = train_ds.take(1)
         
-        test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-        test_ds = test_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
-        test_ds = test_ds.batch(config.batch_size)
-        test_ds = test_ds.prefetch(AUTOTUNE)
+        if len(X_test) > 0:
+            test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+            test_ds = test_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
+            test_ds = test_ds.batch(min(effective_batch_size, len(X_test)), drop_remainder=False)
+            test_ds = test_ds.prefetch(AUTOTUNE)
+        else:
+            test_ds = train_ds.take(1)
         
         logger.info(f"Datasets criados - Treino: {len(X_train)}, Val: {len(X_val)}, Teste: {len(X_test)}")
         
