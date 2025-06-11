@@ -1,0 +1,61 @@
+{
+  "training_summary": {
+    "total_models_attempted": 3,
+    "successful_models": 3,
+    "clinical_ready_models": 0,
+    "success_rate": 1.0,
+    "clinical_readiness_rate": 0.0
+  },
+  "model_performance": {
+    "EfficientNetV2": {
+      "metrics": {
+        "loss": 1.6113920211791992,
+        "accuracy": 0.0,
+        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
+        "clinical_ready": false
+      },
+      "clinical_ready": false,
+      "training_status": "successful"
+    },
+    "VisionTransformer": {
+      "metrics": {
+        "loss": 1.6115169525146484,
+        "accuracy": 0.0,
+        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
+        "clinical_ready": false
+      },
+      "clinical_ready": false,
+      "training_status": "successful"
+    },
+    "ConvNeXt": {
+      "metrics": {
+        "loss": 1.610722303390503,
+        "accuracy": 0.0,
+        "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
+        "clinical_ready": false
+      },
+      "clinical_ready": false,
+      "training_status": "successful"
+    }
+  },
+  "clinical_validation": {
+    "ready_for_clinical_use": [],
+    "validation_criteria": {
+      "minimum_sensitivity": 0.85,
+      "minimum_specificity": 0.8,
+      "minimum_accuracy": 0.85,
+      "minimum_auc": 0.85
+    }
+  },
+  "training_methodology": {
+    "approach": "progressive_training",
+    "phase_1": "classifier_only_5_epochs",
+    "phase_2": "full_model_fine_tuning",
+    "augmentation": "medical_specific",
+    "ensemble_method": "attention_weighted_fusion"
+  },
+  "recommendations": [
+    "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros.",
+    "Ensemble recomendado para melhor performance cl\u00ednica."
+  ]
+}

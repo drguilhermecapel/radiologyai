@@ -138,8 +138,16 @@ reports/
 models/*.h5
 models/*.pkl
 data/patient_data/
+data/samples/
 .DS_Store
 Thumbs.db
+
+# Debug and temporary files
+debug_*.py
+web_server.pid
+
+# MLflow tracking
+mlruns/
 
 # IDE
 .vscode/

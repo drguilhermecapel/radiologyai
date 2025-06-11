@@ -1,0 +1,59 @@
+{
+  "ensemble_type": "attention_weighted_fusion",
+  "input_shape": [512, 512, 3],
+  "num_classes": 5,
+  "class_names": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
+  "models": {
+    "EfficientNetV2": {
+      "weight": 0.35,
+      "clinical_score": 0.35,
+      "model_path": "models/chest_xray_efficientnetv2_model.h5",
+      "architecture": "efficientnetv2_s",
+      "specialization": "fine_details_detection"
+    },
+    "VisionTransformer": {
+      "weight": 0.35,
+      "clinical_score": 0.35,
+      "model_path": "models/chest_xray_visiontransformer_model.h5",
+      "architecture": "vit_base_patch16",
+      "specialization": "global_pattern_recognition"
+    },
+    "ConvNeXt": {
+      "weight": 0.30,
+      "clinical_score": 0.35,
+      "model_path": "models/chest_xray_convnext_model.h5",
+      "architecture": "convnext_base",
+      "specialization": "texture_analysis"
+    }
+  },
+  "fusion_strategy": "weighted_average_with_attention",
+  "attention_mechanism": {
+    "type": "learned_attention",
+    "temperature": 1.0,
+    "dropout_rate": 0.1
+  },
+  "clinical_validation": {
+    "minimum_sensitivity": 0.85,
+    "minimum_specificity": 0.8,
+    "minimum_accuracy": 0.85,
+    "minimum_auc": 0.85,
+    "validation_protocol": "cross_validation_5_fold"
+  },
+  "training_config": {
+    "progressive_training": true,
+    "mixed_precision": true,
+    "data_augmentation": "medical_specific",
+    "early_stopping": {
+      "monitor": "val_auc",
+      "patience": 10,
+      "restore_best_weights": true
+    }
+  },
+  "deployment_config": {
+    "confidence_threshold": 0.7,
+    "uncertainty_estimation": true,
+    "explainability": "grad_cam"
+  },
+  "created_at": "2025-06-11T16:27:16.368194",
+  "updated_at": "2025-06-11T16:31:25.000000"
+}

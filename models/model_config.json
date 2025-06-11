@@ -6,11 +6,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.75,
       "pathology_thresholds": {
-        "pneumonia": 0.70,
-        "pleural_effusion": 0.60,
-        "fracture": 0.65,
-        "tumor": 0.80,
-        "normal": 0.50
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "EfficientNetV2",
       "preprocessing": {
@@ -41,11 +41,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.75,
       "pathology_thresholds": {
-        "pneumonia": 0.72,
-        "pleural_effusion": 0.68,
-        "fracture": 0.70,
-        "tumor": 0.82,
-        "normal": 0.55
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "VisionTransformer",
       "preprocessing": {
@@ -77,11 +77,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.78,
       "pathology_thresholds": {
-        "pneumonia": 0.73,
-        "pleural_effusion": 0.65,
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
         "fracture": 0.68,
-        "tumor": 0.85,
-        "normal": 0.52
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "ConvNeXt",
       "preprocessing": {
@@ -113,11 +113,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.80,
       "pathology_thresholds": {
-        "pneumonia": 0.75,
-        "pleural_effusion": 0.70,
-        "fracture": 0.72,
-        "tumor": 0.88,
-        "normal": 0.60
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "Ensemble",
       "component_models": [
@@ -125,11 +125,18 @@
         "chest_xray_vision_transformer", 
         "chest_xray_convnext"
       ],
-      "ensemble_method": "weighted_average",
+      "ensemble_method": "attention_weighted_fusion",
       "model_weights": {
         "chest_xray_efficientnetv2": 0.35,
         "chest_xray_vision_transformer": 0.35,
         "chest_xray_convnext": 0.30
+      },
+      "attention_parameters": {
+        "attention_heads": 8,
+        "attention_dim": 256,
+        "fusion_strategy": "learned_attention",
+        "temperature_scaling": 1.5,
+        "confidence_calibration": true
       },
       "preprocessing": {
         "normalize": true,
@@ -154,7 +161,12 @@
       "architecture": "DenseNet",
       "preprocessing": {
         "normalize": true,
-        "windowing": {"level": 40, "width": 80},
+        "windowing": {
+          "brain": {"level": 40, "width": 80},
+          "bone": {"level": 300, "width": 1500},
+          "lung": {"level": -600, "width": 1500},
+          "soft_tissue": {"level": 50, "width": 350}
+        },
         "slice_selection": "auto",
         "brain_extraction": true
       },
@@ -181,10 +193,19 @@
       }
     }
   },
-  "version": "3.0.0",
-  "last_updated": "2025-06-10",
+  "version": "3.1.0",
+  "last_updated": "2025-06-11",
   "sota_architectures": ["EfficientNetV2", "VisionTransformer", "ConvNeXt", "Ensemble"],
   "default_model": "ensemble_model",
+  "validation_status": {
+    "system_architecture": "validated",
+    "current_accuracy": 0.20,
+    "fallback_models": "operational",
+    "bias_analysis": "no_pneumonia_bias_detected",
+    "clinical_ready": false,
+    "testing_complete": true,
+    "web_server_functional": true
+  },
   "training_datasets": {
     "chest_xray": "data/samples/",
     "validation_split": 0.2,
@@ -195,7 +216,23 @@
     "target_accuracy": 0.92,
     "target_sensitivity": 0.90,
     "target_specificity": 0.88,
-    "target_auc": 0.95
+    "target_auc": 0.95,
+    "clinical_thresholds": {
+      "critical_conditions": {
+        "pneumothorax": {"sensitivity": 0.95, "specificity": 0.90},
+        "massive_hemorrhage": {"sensitivity": 0.98, "specificity": 0.85},
+        "acute_stroke": {"sensitivity": 0.95, "specificity": 0.88}
+      },
+      "moderate_conditions": {
+        "pneumonia": {"sensitivity": 0.90, "specificity": 0.85},
+        "pleural_effusion": {"sensitivity": 0.88, "specificity": 0.87},
+        "fracture": {"sensitivity": 0.92, "specificity": 0.90}
+      },
+      "standard_conditions": {
+        "tumor": {"sensitivity": 0.85, "specificity": 0.92},
+        "normal": {"sensitivity": 0.80, "specificity": 0.95}
+      }
+    }
   },
   "download_urls": {
     "chest_xray_efficientnetv2": "https://models.medai.com/chest_xray_efficientnetv2_v3.h5",
@@ -204,5 +241,36 @@
     "ensemble_model": "https://models.medai.com/ensemble_model_v3.h5",
     "brain_ct_densenet": "https://models.medai.com/brain_ct_v2.h5",
     "bone_xray_resnet": "https://models.medai.com/bone_xray_v2.h5"
+  },
+  "advanced_model_parameters": {
+    "progressive_training": {
+      "phase_1_epochs": 5,
+      "phase_2_epochs": 45,
+      "backbone_lr": 1e-5,
+      "classifier_lr": 1e-4
+    },
+    "cross_validation": {
+      "num_folds": 5,
+      "stratified": true,
+      "random_state": 42
+    },
+    "mixed_precision": {
+      "enabled": true,
+      "loss_scale": "dynamic",
+      "expected_speedup": "4x"
+    },
+    "data_augmentation": {
+      "rotation_range": 10,
+      "brightness_range": 0.1,
+      "contrast_range": 0.1,
+      "gaussian_noise_std": 0.01,
+      "clahe_enabled": true
+    },
+    "clinical_validation": {
+      "sensitivity_threshold": 0.90,
+      "specificity_threshold": 0.85,
+      "auc_threshold": 0.90,
+      "confidence_interval": 0.95
+    }
   }
 }

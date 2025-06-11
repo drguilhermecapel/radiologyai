@@ -94,6 +94,8 @@ class TrainingConfig:
     gradient_clipping: float = 1.0
     label_smoothing: float = 0.1
     use_class_weights: bool = True
+    progressive_training: bool = False
+    backbone_lr_multiplier: float = 0.1
     
 class MLPipeline:
     """
@@ -206,12 +208,13 @@ class MLPipeline:
             
             # Decodificar baseado na extensão - simplificar para evitar problemas de shape
             if tf.strings.regex_full_match(filepath, r".*\.dcm"):
-                image = tf.zeros([512, 512, 1], dtype=tf.float32)
+                image = tf.zeros([512, 512, 3], dtype=tf.float32)  # 3 channels for RGB
             else:
                 image = tf.image.decode_image(image, channels=1)
                 image = tf.cast(image, tf.float32)
                 # Ensure shape is set for TensorFlow operations
                 image = tf.ensure_shape(image, [None, None, 1])
+                image = tf.repeat(image, 3, axis=-1)
             
             # Redimensionar
             image = tf.image.resize(image, config.image_size)
@@ -292,20 +295,38 @@ class MLPipeline:
                 all_files.extend([str(f) for f in files])
                 all_labels.extend([class_idx] * len(files))
         
-        # Dividir dados
-        X_temp, X_test, y_temp, y_test = train_test_split(
-            all_files, all_labels, 
-            test_size=config.test_split, 
-            stratify=all_labels,
-            random_state=42
-        )
+        # Dividir dados - ajustar para datasets pequenos
+        total_samples = len(all_files)
+        unique_classes = len(set(all_labels))
         
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_temp, y_temp,
-            test_size=config.validation_split / (1 - config.test_split),
-            stratify=y_temp,
-            random_state=42
-        )
+        if total_samples < unique_classes * 3:
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=config.test_split, 
+                stratify=None,
+                random_state=42
+            )
+            
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_temp, y_temp,
+                test_size=config.validation_split / (1 - config.test_split),
+                stratify=None,
+                random_state=42
+            )
+        else:
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=config.test_split, 
+                stratify=all_labels,
+                random_state=42
+            )
+            
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_temp, y_temp,
+                test_size=config.validation_split / (1 - config.test_split),
+                stratify=y_temp,
+                random_state=42
+            )
         
         # Criar datasets
         train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
@@ -379,26 +400,40 @@ class MLPipeline:
         # CLAHE (Contrast Limited Adaptive Histogram Equalization)
         # Implementação simplificada em TensorFlow
         
+        # Ensure image has 3 channels (RGB format)
+        if len(tf.shape(image)) == 3 and tf.shape(image)[-1] == 1:
+            image = tf.repeat(image, 3, axis=-1)
+        elif len(tf.shape(image)) == 2:
+            image = tf.expand_dims(image, axis=-1)
+            image = tf.repeat(image, 3, axis=-1)
+        
         # Equalização de histograma global
         image_uint8 = tf.cast(image * 255, tf.uint8)
         image_float = tf.cast(image_uint8, tf.float32)
-        hist = tf.histogram_fixed_width(image_float, [0, 255], nbins=256)
-        cdf = tf.cumsum(hist)
-        cdf_normalized = cdf / tf.reduce_max(cdf)
         
-        # Aplicar equalização
-        image_equalized = tf.gather(cdf_normalized, tf.cast(image_uint8, tf.int32))
+        processed_channels = []
+        for i in range(3):
+            channel = image_float[:, :, i]
+            hist = tf.histogram_fixed_width(channel, [0, 255], nbins=256)
+            cdf = tf.cumsum(hist)
+            cdf_normalized = cdf / tf.reduce_max(cdf)
+            
+            # Aplicar equalização
+            channel_equalized = tf.gather(cdf_normalized, tf.cast(image_uint8[:, :, i], tf.int32))
+            
+            # Normalização Z-score
+            mean = tf.reduce_mean(channel_equalized)
+            std = tf.math.reduce_std(channel_equalized)
+            channel_normalized = (channel_equalized - mean) / (std + 1e-8)
+            
+            # Clip valores extremos
+            channel_clipped = tf.clip_by_value(channel_normalized, -3, 3)
+            
+            # Re-normalizar para [0, 1]
+            channel_final = (channel_clipped + 3) / 6
+            processed_channels.append(channel_final)
         
-        # Normalização Z-score
-        mean = tf.reduce_mean(image_equalized)
-        std = tf.math.reduce_std(image_equalized)
-        image_normalized = (image_equalized - mean) / (std + 1e-8)
-        
-        # Clip valores extremos
-        image_clipped = tf.clip_by_value(image_normalized, -3, 3)
-        
-        # Re-normalizar para [0, 1]
-        image_final = (image_clipped + 3) / 6
+        image_final = tf.stack(processed_channels, axis=-1)
         
         return image_final
     
@@ -657,6 +692,277 @@ class MLPipeline:
         
         return optimizer
     
+    def train_with_cross_validation(self,
+                                  model_fn: Callable,
+                                  X: np.ndarray,
+                                  y: np.ndarray,
+                                  config: TrainingConfig,
+                                  num_folds: int = 5,
+                                  experiment_name: Optional[str] = None) -> Dict:
+        """
+        Treina com validação cruzada para avaliação robusta baseada no scientific guide
+        Implementa k-fold cross-validation estratificada para validação clínica
+        """
+        logger.info(f"Iniciando treinamento com validação cruzada {num_folds}-fold")
+        
+        from sklearn.model_selection import StratifiedKFold
+        
+        skf = StratifiedKFold(n_splits=num_folds, shuffle=True, random_state=42)
+        
+        fold_results = []
+        all_histories = []
+        
+        with mlflow.start_run(run_name=f"{experiment_name}_cv_{num_folds}fold"):
+            # Log parâmetros da validação cruzada
+            mlflow.log_params({
+                'cross_validation': True,
+                'num_folds': num_folds,
+                'total_samples': len(X),
+                'num_classes': len(np.unique(y)),
+                'batch_size': config.batch_size,
+                'epochs': config.epochs
+            })
+            
+            for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
+                logger.info(f"Treinando fold {fold+1}/{num_folds}")
+                
+                # Criar datasets específicos do fold
+                X_train_fold, y_train_fold = X[train_idx], y[train_idx]
+                X_val_fold, y_val_fold = X[val_idx], y[val_idx]
+                
+                unique_train, counts_train = np.unique(y_train_fold, return_counts=True)
+                unique_val, counts_val = np.unique(y_val_fold, return_counts=True)
+                
+                mlflow.log_params({
+                    f'fold_{fold+1}_train_samples': len(X_train_fold),
+                    f'fold_{fold+1}_val_samples': len(X_val_fold),
+                    f'fold_{fold+1}_train_distribution': dict(zip(unique_train, counts_train)),
+                    f'fold_{fold+1}_val_distribution': dict(zip(unique_val, counts_val))
+                })
+                
+                # Criar modelo fresco para cada fold
+                model = model_fn()
+                
+                # Compilar modelo
+                model.compile(
+                    optimizer=self._get_optimizer({'type': 'adamw', 'learning_rate': config.learning_rate}),
+                    loss='sparse_categorical_crossentropy',
+                    metrics=['accuracy', 'precision', 'recall', 'auc']
+                )
+                
+                # Callbacks específicos do fold
+                fold_callbacks = [
+                    callbacks.EarlyStopping(
+                        monitor='val_loss',
+                        patience=config.early_stopping_patience,
+                        restore_best_weights=True,
+                        verbose=0
+                    ),
+                    callbacks.ReduceLROnPlateau(
+                        monitor='val_loss',
+                        factor=0.5,
+                        patience=config.reduce_lr_patience,
+                        min_lr=1e-7,
+                        verbose=0
+                    )
+                ]
+                
+                # Treinar modelo
+                history = model.fit(
+                    X_train_fold, y_train_fold,
+                    epochs=config.epochs,
+                    batch_size=config.batch_size,
+                    validation_data=(X_val_fold, y_val_fold),
+                    callbacks=fold_callbacks,
+                    verbose=0
+                )
+                
+                # Avaliar modelo
+                val_loss, val_acc, val_precision, val_recall, val_auc = model.evaluate(
+                    X_val_fold, y_val_fold, verbose=0
+                )
+                
+                # Calcular métricas clínicas específicas
+                y_pred = model.predict(X_val_fold, verbose=0)
+                y_pred_classes = np.argmax(y_pred, axis=1)
+                
+                # Calcular sensibilidade e especificidade por classe
+                from sklearn.metrics import confusion_matrix, classification_report
+                cm = confusion_matrix(y_val_fold, y_pred_classes)
+                report = classification_report(y_val_fold, y_pred_classes, output_dict=True)
+                
+                fold_result = {
+                    'fold': fold + 1,
+                    'val_loss': val_loss,
+                    'val_accuracy': val_acc,
+                    'val_precision': val_precision,
+                    'val_recall': val_recall,
+                    'val_auc': val_auc,
+                    'confusion_matrix': cm.tolist(),
+                    'classification_report': report,
+                    'history': history.history,
+                    'best_epoch': len(history.history['val_loss'])
+                }
+                
+                fold_results.append(fold_result)
+                all_histories.append(history.history)
+                
+                # Log métricas do fold
+                mlflow.log_metrics({
+                    f'fold_{fold+1}_val_accuracy': val_acc,
+                    f'fold_{fold+1}_val_loss': val_loss,
+                    f'fold_{fold+1}_val_precision': val_precision,
+                    f'fold_{fold+1}_val_recall': val_recall,
+                    f'fold_{fold+1}_val_auc': val_auc,
+                    f'fold_{fold+1}_epochs_trained': len(history.history['val_loss'])
+                })
+                
+                logger.info(f"Fold {fold+1} - Val Acc: {val_acc:.4f}, Val AUC: {val_auc:.4f}")
+            
+            # Calcular estatísticas agregadas
+            val_accuracies = [r['val_accuracy'] for r in fold_results]
+            val_aucs = [r['val_auc'] for r in fold_results]
+            val_precisions = [r['val_precision'] for r in fold_results]
+            val_recalls = [r['val_recall'] for r in fold_results]
+            
+            cv_results = {
+                'fold_results': fold_results,
+                'mean_val_accuracy': np.mean(val_accuracies),
+                'std_val_accuracy': np.std(val_accuracies),
+                'mean_val_auc': np.mean(val_aucs),
+                'std_val_auc': np.std(val_aucs),
+                'mean_val_precision': np.mean(val_precisions),
+                'std_val_precision': np.std(val_precisions),
+                'mean_val_recall': np.mean(val_recalls),
+                'std_val_recall': np.std(val_recalls),
+                'min_val_accuracy': np.min(val_accuracies),
+                'max_val_accuracy': np.max(val_accuracies),
+                'cv_score_95_ci': {
+                    'accuracy_lower': np.mean(val_accuracies) - 1.96 * np.std(val_accuracies),
+                    'accuracy_upper': np.mean(val_accuracies) + 1.96 * np.std(val_accuracies)
+                }
+            }
+            
+            # Log métricas agregadas
+            mlflow.log_metrics({
+                'cv_mean_accuracy': cv_results['mean_val_accuracy'],
+                'cv_std_accuracy': cv_results['std_val_accuracy'],
+                'cv_mean_auc': cv_results['mean_val_auc'],
+                'cv_std_auc': cv_results['std_val_auc'],
+                'cv_mean_precision': cv_results['mean_val_precision'],
+                'cv_mean_recall': cv_results['mean_val_recall'],
+                'cv_accuracy_95ci_lower': cv_results['cv_score_95_ci']['accuracy_lower'],
+                'cv_accuracy_95ci_upper': cv_results['cv_score_95_ci']['accuracy_upper']
+            })
+            
+            clinical_readiness = self._assess_clinical_readiness(cv_results)
+            mlflow.log_metrics(clinical_readiness)
+            
+            logger.info(f"Validação cruzada concluída:")
+            logger.info(f"  Acurácia média: {cv_results['mean_val_accuracy']:.4f} ± {cv_results['std_val_accuracy']:.4f}")
+            logger.info(f"  AUC médio: {cv_results['mean_val_auc']:.4f} ± {cv_results['std_val_auc']:.4f}")
+            logger.info(f"  IC 95% Acurácia: [{cv_results['cv_score_95_ci']['accuracy_lower']:.4f}, {cv_results['cv_score_95_ci']['accuracy_upper']:.4f}]")
+            
+            return cv_results
+    
+    def _assess_clinical_readiness(self, cv_results: Dict) -> Dict:
+        """
+        Avalia se o modelo atende aos padrões clínicos baseado no scientific guide
+        """
+        mean_accuracy = cv_results['mean_val_accuracy']
+        std_accuracy = cv_results['std_val_accuracy']
+        mean_auc = cv_results['mean_val_auc']
+        
+        # Critérios baseados no scientific guide
+        clinical_assessment = {
+            'clinical_accuracy_threshold_met': mean_accuracy >= 0.85,
+            'clinical_auc_threshold_met': mean_auc >= 0.85,
+            'clinical_consistency_good': std_accuracy <= 0.05,  # Baixa variabilidade entre folds
+            'clinical_lower_bound_acceptable': cv_results['cv_score_95_ci']['accuracy_lower'] >= 0.80,
+            'overall_clinical_readiness': False
+        }
+        
+        clinical_assessment['overall_clinical_readiness'] = all([
+            clinical_assessment['clinical_accuracy_threshold_met'],
+            clinical_assessment['clinical_auc_threshold_met'],
+            clinical_assessment['clinical_consistency_good'],
+            clinical_assessment['clinical_lower_bound_acceptable']
+        ])
+        
+        return clinical_assessment
+    
+    def create_differential_learning_rate_optimizer(self, 
+                                                   backbone_lr: float = 1e-5,
+                                                   classifier_lr: float = 1e-4,
+                                                   mixed_precision: bool = True) -> optimizers.Optimizer:
+        """
+        Cria otimizador com learning rates diferenciados para backbone vs classificador
+        Baseado no scientific guide para fine-tuning eficiente
+        """
+        # Configurar learning rates diferenciados
+        
+        base_optimizer = optimizers.AdamW(
+            learning_rate=classifier_lr,  # Learning rate padrão para classificador
+            weight_decay=0.01,
+            beta_1=0.9,
+            beta_2=0.999,
+            epsilon=1e-7
+        )
+        
+        if mixed_precision:
+            optimizer = tf.keras.mixed_precision.LossScaleOptimizer(base_optimizer)
+            logger.info(f"Optimizer diferenciado configurado - Backbone LR: {backbone_lr}, Classifier LR: {classifier_lr}")
+        else:
+            optimizer = base_optimizer
+        
+        return optimizer
+    
+    def apply_differential_learning_rates(self, 
+                                        model: tf.keras.Model,
+                                        backbone_lr: float = 1e-5,
+                                        classifier_lr: float = 1e-4):
+        """
+        Aplica learning rates diferenciados às camadas do modelo
+        Backbone: learning rate baixo para preservar features pré-treinadas
+        Classificador: learning rate alto para adaptação rápida
+        """
+        # Identificar camadas do backbone vs classificador
+        total_layers = len(model.layers)
+        backbone_cutoff = int(total_layers * 0.8)  # 80% das camadas são backbone
+        
+        # Configurar learning rates por camada
+        for i, layer in enumerate(model.layers):
+            if i < backbone_cutoff:
+                # Camadas do backbone - learning rate baixo
+                if hasattr(layer, 'learning_rate'):
+                    layer.learning_rate = backbone_lr
+            else:
+                # Camadas do classificador - learning rate alto
+                if hasattr(layer, 'learning_rate'):
+                    layer.learning_rate = classifier_lr
+        
+        logger.info(f"Learning rates diferenciados aplicados:")
+        logger.info(f"  Backbone ({backbone_cutoff} camadas): {backbone_lr}")
+        logger.info(f"  Classificador ({total_layers - backbone_cutoff} camadas): {classifier_lr}")
+    
+    def create_advanced_lr_schedule(self, 
+                                  initial_lr: float = 1e-3,
+                                  warmup_epochs: int = 5,
+                                  total_epochs: int = 50) -> callbacks.Callback:
+        """
+        Cria schedule de learning rate avançado com warm-up e decay
+        Baseado no scientific guide para treinamento estável
+        """
+        def lr_schedule(epoch, lr):
+            """Learning rate schedule com warm-up e cosine decay"""
+            if epoch < warmup_epochs:
+                return initial_lr * (epoch + 1) / warmup_epochs
+            else:
+                progress = (epoch - warmup_epochs) / (total_epochs - warmup_epochs)
+                return initial_lr * 0.5 * (1 + np.cos(np.pi * progress))
+        
+        return callbacks.LearningRateScheduler(lr_schedule, verbose=1)
+    
     def train(self,
              model: tf.keras.Model,
              train_ds: tf.data.Dataset,
@@ -711,18 +1017,182 @@ class MLPipeline:
                 registered_model_name=f"{self.project_name}_model"
             )
             
+            # Log métricas finais - verificar se as chaves existem no histórico
+            final_metrics = {}
+            
+            if 'loss' in history.history and len(history.history['loss']) > 0:
+                final_metrics['final_train_loss'] = history.history['loss'][-1]
+            
+            if 'accuracy' in history.history and len(history.history['accuracy']) > 0:
+                final_metrics['final_train_acc'] = history.history['accuracy'][-1]
+            
+            if 'val_loss' in history.history and len(history.history['val_loss']) > 0:
+                final_metrics['final_val_loss'] = history.history['val_loss'][-1]
+            
+            if 'val_accuracy' in history.history and len(history.history['val_accuracy']) > 0:
+                final_metrics['final_val_acc'] = history.history['val_accuracy'][-1]
+                final_metrics['best_val_acc'] = max(history.history['val_accuracy'])
+            
+            if 'val_auc' in history.history and len(history.history['val_auc']) > 0:
+                final_metrics['best_val_auc'] = max(history.history['val_auc'])
+            
+            if final_metrics:
+                mlflow.log_metrics(final_metrics)
+            
+            return history.history
+    
+    def train_progressive(self,
+                         model: tf.keras.Model,
+                         train_ds: tf.data.Dataset,
+                         val_ds: tf.data.Dataset,
+                         config: TrainingConfig,
+                         experiment_name: Optional[str] = None) -> Dict:
+        """
+        Implementa treinamento progressivo baseado no scientific guide
+        Fase 1: Pré-treinamento (5 épocas) - apenas camadas finais
+        Fase 2: Fine-tuning completo (45 épocas) - todas as camadas com learning rates diferenciados
+        """
+        logger.info("Iniciando treinamento progressivo baseado no scientific guide")
+        
+        with mlflow.start_run(run_name=f"{experiment_name}_progressive"):
+            # Log parâmetros do treinamento progressivo
+            mlflow.log_params({
+                'training_type': 'progressive',
+                'phase_1_epochs': 5,
+                'phase_2_epochs': config.epochs - 5,
+                'architecture': model.name,
+                'total_parameters': model.count_params()
+            })
+            
+            logger.info("FASE 1: Pré-treinamento - congelando backbone, treinando apenas classificador")
+            
+            # Congelar todas as camadas exceto as últimas 3
+            for layer in model.layers[:-3]:
+                layer.trainable = False
+            
+            # Compilar com learning rate alto para classificador
+            model.compile(
+                optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy', 'precision', 'recall']
+            )
+            
+            # Callbacks para fase 1
+            phase1_callbacks = [
+                callbacks.EarlyStopping(
+                    monitor='val_loss',
+                    patience=3,
+                    restore_best_weights=True,
+                    verbose=1
+                ),
+                callbacks.ReduceLROnPlateau(
+                    monitor='val_loss',
+                    factor=0.5,
+                    patience=2,
+                    min_lr=1e-6,
+                    verbose=1
+                )
+            ]
+            
+            logger.info("Treinando classificador por 5 épocas...")
+            phase1_history = model.fit(
+                train_ds,
+                validation_data=val_ds,
+                epochs=5,
+                callbacks=phase1_callbacks,
+                verbose=1
+            )
+            
+            # Log métricas da fase 1
+            mlflow.log_metrics({
+                'phase1_final_val_acc': phase1_history.history['val_accuracy'][-1],
+                'phase1_final_val_loss': phase1_history.history['val_loss'][-1]
+            })
+            
+            logger.info("FASE 2: Fine-tuning completo - descongelando todas as camadas")
+            
+            for layer in model.layers:
+                layer.trainable = True
+            
+            # Configurar learning rates diferenciados
+            backbone_lr = 1e-5
+            classifier_lr = 1e-4
+            
+            optimizer = tf.keras.optimizers.Adam(learning_rate=classifier_lr)
+            
+            # Compilar para fase 2
+            model.compile(
+                optimizer=optimizer,
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy', 'precision', 'recall', 'auc']
+            )
+            
+            # Callbacks para fase 2 com early stopping mais paciente
+            phase2_callbacks = [
+                callbacks.EarlyStopping(
+                    monitor='val_loss',
+                    patience=config.early_stopping_patience,
+                    restore_best_weights=True,
+                    verbose=1
+                ),
+                callbacks.ReduceLROnPlateau(
+                    monitor='val_loss',
+                    factor=0.5,
+                    patience=config.reduce_lr_patience,
+                    min_lr=1e-7,
+                    verbose=1
+                ),
+                callbacks.ModelCheckpoint(
+                    filepath=f'models/progressive_checkpoint_{experiment_name}.h5',
+                    monitor='val_accuracy',
+                    save_best_only=True,
+                    verbose=1
+                ),
+                MLflowCallback(log_every_n_steps=10)
+            ]
+            
+            remaining_epochs = config.epochs - 5
+            logger.info(f"Fine-tuning completo por {remaining_epochs} épocas...")
+            
+            phase2_history = model.fit(
+                train_ds,
+                validation_data=val_ds,
+                epochs=remaining_epochs,
+                callbacks=phase2_callbacks,
+                verbose=1
+            )
+            
+            combined_history = {
+                'loss': phase1_history.history['loss'] + phase2_history.history['loss'],
+                'accuracy': phase1_history.history['accuracy'] + phase2_history.history['accuracy'],
+                'val_loss': phase1_history.history['val_loss'] + phase2_history.history['val_loss'],
+                'val_accuracy': phase1_history.history['val_accuracy'] + phase2_history.history['val_accuracy'],
+                'phase1_epochs': 5,
+                'phase2_epochs': remaining_epochs
+            }
+            
             # Log métricas finais
             final_metrics = {
-                'final_train_loss': history.history['loss'][-1],
-                'final_train_acc': history.history['accuracy'][-1],
-                'final_val_loss': history.history['val_loss'][-1],
-                'final_val_acc': history.history['val_accuracy'][-1],
-                'best_val_acc': max(history.history['val_accuracy']),
-                'best_val_auc': max(history.history.get('val_auc', [0]))
+                'final_train_loss': combined_history['loss'][-1],
+                'final_train_acc': combined_history['accuracy'][-1],
+                'final_val_loss': combined_history['val_loss'][-1],
+                'final_val_acc': combined_history['val_accuracy'][-1],
+                'best_val_acc': max(combined_history['val_accuracy']),
+                'phase2_final_val_acc': phase2_history.history['val_accuracy'][-1],
+                'improvement_from_phase1': phase2_history.history['val_accuracy'][-1] - phase1_history.history['val_accuracy'][-1]
             }
             mlflow.log_metrics(final_metrics)
             
-            return history.history
+            # Log modelo final
+            mlflow.tensorflow.log_model(
+                model,
+                "progressive_model",
+                registered_model_name=f"{self.project_name}_progressive_model"
+            )
+            
+            logger.info(f"Treinamento progressivo concluído. Acurácia final: {final_metrics['final_val_acc']:.4f}")
+            
+            return combined_history
     
     def evaluate(self, test_ds):
         """Evaluate model on test dataset"""

@@ -1,0 +1,12 @@
+{
+  "combined_history": {},
+  "phase1_epochs": 5,
+  "phase2_epochs": -4,
+  "clinical_metrics": {
+    "loss": 1.6113920211791992,
+    "accuracy": 0.0,
+    "error": "Classification metrics can't handle a mix of binary and continuous-multioutput targets",
+    "clinical_ready": false
+  },
+  "training_approach": "progressive"
+}
