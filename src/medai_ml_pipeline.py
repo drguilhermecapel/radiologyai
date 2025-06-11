@@ -439,34 +439,76 @@ class MLPipeline:
     
     def build_model(self, config: ModelConfig) -> tf.keras.Model:
         """
-        Constrói modelo baseado na configuração
+        Build model based on configuration using real SOTA architectures
         
         Args:
-            config: Configuração do modelo
+            config: Model configuration
             
         Returns:
-            Modelo compilado
+            Compiled model
         """
-        logger.info(f"Construindo modelo: {config.architecture}")
+        logger.info(f"Building SOTA model: {config.architecture}")
         
-        # Entrada
-        # Use Sequential model to avoid KerasTensor error
-        model = tf.keras.Sequential([
-            tf.keras.layers.Rescaling(1./255, input_shape=config.input_shape),
-            tf.keras.layers.GlobalAveragePooling2D(),
-            layers.Dense(128, activation='relu'),
-            layers.Dropout(0.5),
-            layers.Dense(64, activation='relu'),
-            layers.Dense(config.num_classes, activation='softmax')
-        ])
-        
-        model.compile(
-            optimizer='adam',
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        return model
+        try:
+            from medai_sota_models import StateOfTheArtModels
+            
+            sota_builder = StateOfTheArtModels(
+                input_shape=config.input_shape,
+                num_classes=config.num_classes
+            )
+            
+            if config.architecture.lower() in ['efficientnetv2', 'efficientnet']:
+                model = sota_builder.build_real_efficientnetv2()
+                logger.info("✅ Built EfficientNetV2 model for medical imaging")
+                
+            elif config.architecture.lower() in ['visiontransformer', 'vit', 'transformer']:
+                model = sota_builder.build_real_vision_transformer()
+                logger.info("✅ Built Vision Transformer model for medical imaging")
+                
+            elif config.architecture.lower() in ['convnext', 'convnet']:
+                model = sota_builder.build_real_convnext()
+                logger.info("✅ Built ConvNeXt model for medical imaging")
+                
+            elif config.architecture.lower() in ['ensemble', 'ensemble_model']:
+                model = sota_builder.build_attention_weighted_ensemble()
+                logger.info("✅ Built Attention-Weighted Ensemble model")
+                
+            else:
+                logger.warning(f"Architecture {config.architecture} not recognized, using fallback")
+                model = tf.keras.Sequential([
+                    tf.keras.layers.Rescaling(1./255, input_shape=config.input_shape),
+                    tf.keras.layers.GlobalAveragePooling2D(),
+                    layers.Dense(128, activation='relu'),
+                    layers.Dropout(0.5),
+                    layers.Dense(64, activation='relu'),
+                    layers.Dense(config.num_classes, activation='softmax')
+                ])
+            
+            compiled_model = sota_builder.compile_sota_model(model)
+            logger.info(f"✅ Model compiled with {compiled_model.count_params():,} parameters")
+            
+            return compiled_model
+            
+        except Exception as e:
+            logger.error(f"❌ Error building SOTA model: {e}")
+            logger.info("🔄 Falling back to simple model architecture")
+            
+            model = tf.keras.Sequential([
+                tf.keras.layers.Rescaling(1./255, input_shape=config.input_shape),
+                tf.keras.layers.GlobalAveragePooling2D(),
+                layers.Dense(128, activation='relu'),
+                layers.Dropout(0.5),
+                layers.Dense(64, activation='relu'),
+                layers.Dense(config.num_classes, activation='softmax')
+            ])
+            
+            model.compile(
+                optimizer='adam',
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            return model
         
         # Arquitetura base - Estado da arte (commented out to avoid KerasTensor errors)
         if config.architecture == 'efficientnetv2':
