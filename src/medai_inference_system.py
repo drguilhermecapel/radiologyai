@@ -861,61 +861,81 @@ class MedicalInferenceEngine:
             logger.error(f"Error in image preprocessing: {e}")
             return np.zeros((224, 224, 3), dtype=np.float32)
     
-    def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> Dict[str, float]:
+    def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> PredictionResult:
         """Fallback image analysis when trained models are not available"""
+        start_time = time.time()
+        
         try:
             import cv2
             from scipy import ndimage
         except ImportError:
             logger.warning("OpenCV or scipy not available, using basic detection")
-            return self._basic_pathology_detection(image)
-        
-        if len(image.shape) == 3:
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            pathology_scores = self._basic_pathology_detection(image)
         else:
-            gray = image.copy()
+            if len(image.shape) == 3:
+                gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            else:
+                gray = image.copy()
+            
+            if gray.dtype != np.uint8:
+                gray = ((gray - gray.min()) / (gray.max() - gray.min()) * 255).astype(np.uint8)
+            
+            print(f"DEBUG Pathology CLAHE input shape: {gray.shape}, dtype: {gray.dtype}")
+            
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+            enhanced = clahe.apply(gray)
+            
+            pneumonia_score = self._detect_pneumonia_patterns(enhanced)
+            pleural_effusion_score = self._detect_pleural_effusion(enhanced)
+            
+            fracture_score = min(0.3, pneumonia_score * 0.5)  # Simple heuristic
+            tumor_score = min(0.3, pleural_effusion_score * 0.4)  # Simple heuristic
+            
+            max_pathology_score = max(pneumonia_score, pleural_effusion_score, fracture_score, tumor_score)
+            
+            print(f"DEBUG Pathology scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}")
+            
+            if max_pathology_score > 0.5:
+                normal_score = max(0.0, 1.0 - max_pathology_score * 1.5)
+            else:
+                normal_score = 1.0 - max_pathology_score
+            
+            # Normalize all scores
+            total = pneumonia_score + pleural_effusion_score + fracture_score + tumor_score + normal_score
+            if total > 0:
+                pneumonia_score /= total
+                pleural_effusion_score /= total
+                fracture_score /= total
+                tumor_score /= total
+                normal_score /= total
+            
+            print(f"DEBUG Final normalized scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}, normal: {normal_score:.4f}")
+            
+            pathology_scores = {
+                'Pneumonia': pneumonia_score,
+                'Derrame Pleural': pleural_effusion_score,
+                'Fratura': fracture_score,
+                'Tumor': tumor_score,
+                'Normal': normal_score
+            }
         
-        if gray.dtype != np.uint8:
-            gray = ((gray - gray.min()) / (gray.max() - gray.min()) * 255).astype(np.uint8)
+        # Determine predicted class and confidence
+        predicted_class = max(pathology_scores, key=pathology_scores.get)
+        confidence = pathology_scores[predicted_class]
         
-        print(f"DEBUG Pathology CLAHE input shape: {gray.shape}, dtype: {gray.dtype}")
+        result = PredictionResult(
+            image_path="",
+            predictions=pathology_scores,
+            predicted_class=predicted_class,
+            confidence=confidence,
+            processing_time=time.time() - start_time,
+            heatmap=None,
+            attention_map=None,
+            metadata={'fallback_analysis': True, 'raw_scores': pathology_scores}
+        )
         
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        enhanced = clahe.apply(gray)
-        
-        pneumonia_score = self._detect_pneumonia_patterns(enhanced)
-        pleural_effusion_score = self._detect_pleural_effusion(enhanced)
-        
-        fracture_score = min(0.3, pneumonia_score * 0.5)  # Simple heuristic
-        tumor_score = min(0.3, pleural_effusion_score * 0.4)  # Simple heuristic
-        
-        max_pathology_score = max(pneumonia_score, pleural_effusion_score, fracture_score, tumor_score)
-        
-        print(f"DEBUG Pathology scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}")
-        
-        if max_pathology_score > 0.5:
-            normal_score = max(0.0, 1.0 - max_pathology_score * 1.5)
-        else:
-            normal_score = 1.0 - max_pathology_score
-        
-        # Normalize all scores
-        total = pneumonia_score + pleural_effusion_score + fracture_score + tumor_score + normal_score
-        if total > 0:
-            pneumonia_score /= total
-            pleural_effusion_score /= total
-            fracture_score /= total
-            tumor_score /= total
-            normal_score /= total
-        
-        print(f"DEBUG Final normalized scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}, normal: {normal_score:.4f}")
-        
-        return {
-            'pneumonia': pneumonia_score,
-            'pleural_effusion': pleural_effusion_score,
-            'fracture': fracture_score,
-            'tumor': tumor_score,
-            'normal': normal_score
-        }
+        logger.info(f"Fallback analysis: {predicted_class} ({confidence:.2%})")
+        return result
     
     def _basic_pathology_detection(self, image: np.ndarray) -> Dict[str, float]:
         """Basic pathology detection without OpenCV"""
@@ -937,10 +957,12 @@ class MedicalInferenceEngine:
         bottom_density = np.mean(bottom_third) / mean_intensity if mean_intensity > 0 else 0
         pleural_effusion_score = min(0.7, max(0, (bottom_density - 1.0) * 2))
         
+        normal_score = 1.0 - max(pneumonia_score, pleural_effusion_score)
+        
         return {
-            'pneumonia': pneumonia_score,
-            'pleural_effusion': pleural_effusion_score,
-            'normal': 1.0 - max(pneumonia_score, pleural_effusion_score)
+            'Pneumonia': pneumonia_score,
+            'Derrame Pleural': pleural_effusion_score,
+            'Normal': normal_score
         }
     
     def _detect_pneumonia_patterns(self, image: np.ndarray) -> float:
