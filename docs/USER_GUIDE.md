@@ -19,6 +19,9 @@ O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza **i
 
 ## Interface Principal
 
+A interface possui um **tema escuro futurista** com detalhes em azul neon,
+inspirado em imagens radiológicas e inteligência artificial.
+
 ### Painel Esquerdo - Controles
 - **Arquivo**: Carregar imagens individuais ou pastas DICOM
 - **Modelo de IA**: Selecionar tipo de análise

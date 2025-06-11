@@ -37,14 +37,16 @@ class MedAIMainWindow(QMainWindow):
         self.setWindowTitle("MedAI - Sistema de Análise Radiológica por IA")
         self.setGeometry(100, 100, 1400, 900)
         
-        # Estilo moderno
+        # Tema futurista inspirado em radiologia e IA
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #f5f5f5;
+                background-color: #101820;
+                color: #e0e0e0;
+                font-family: 'Segoe UI', sans-serif;
             }
             QGroupBox {
                 font-weight: bold;
-                border: 2px solid #cccccc;
+                border: 1px solid #1e90ff;
                 border-radius: 5px;
                 margin-top: 10px;
                 padding-top: 10px;
@@ -53,41 +55,44 @@ class MedAIMainWindow(QMainWindow):
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 5px 0 5px;
+                color: #1e90ff;
             }
             QPushButton {
-                background-color: #0066cc;
-                color: white;
+                background-color: #1e90ff;
+                color: #ffffff;
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #0052a3;
+                background-color: #00c2ff;
             }
             QPushButton:pressed {
-                background-color: #003d7a;
+                background-color: #0080ff;
             }
             QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
+                background-color: #555555;
+                color: #aaaaaa;
             }
             QLabel {
-                color: #333333;
+                color: #e0e0e0;
             }
             QComboBox {
                 padding: 5px;
-                border: 1px solid #cccccc;
+                border: 1px solid #1e90ff;
                 border-radius: 4px;
-                background-color: white;
+                background-color: #1b1b1b;
+                color: #e0e0e0;
             }
             QProgressBar {
-                border: 1px solid #cccccc;
+                border: 1px solid #1e90ff;
                 border-radius: 4px;
                 text-align: center;
+                color: #e0e0e0;
             }
             QProgressBar::chunk {
-                background-color: #0066cc;
+                background-color: #1e90ff;
                 border-radius: 3px;
             }
         """)
