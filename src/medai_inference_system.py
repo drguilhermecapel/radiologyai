@@ -1216,12 +1216,12 @@ class MedicalInferenceEngine:
             
             print(f"DEBUG Pathology scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}")
             
-            if max_pathology_score > 0.5:
-                normal_score = max(0.0, 1.0 - max_pathology_score * 1.5)
+            if max_pathology_score > 0.4:  # Lower threshold for normal boost
+                normal_score = max(0.3, 1.2 - max_pathology_score * 1.2)  # Higher baseline normal score
             else:
-                normal_score = 1.0 - max_pathology_score
-            
-            # Normalize all scores
+                normal_score = max(0.6, 1.0 - max_pathology_score * 0.8)  # Even higher for low pathology scores
+
+            # Normalize all scores with bias toward normal
             total = pneumonia_score + pleural_effusion_score + fracture_score + tumor_score + normal_score
             if total > 0:
                 pneumonia_score /= total
@@ -1355,12 +1355,12 @@ class MedicalInferenceEngine:
         except ImportError:
             fluid_line_score = strong_horizontal_lines / (width * lower_region.shape[0])
         
-        if density_ratio > 1.05 and strong_horizontal_lines > (width * 0.05):
-            base_score = min(0.85, density_ratio * 0.6 + strong_horizontal_lines / (width * 1.5))
+        if density_ratio > 1.15 and strong_horizontal_lines > (width * 0.08):
+            base_score = min(0.6, density_ratio * 0.4 + strong_horizontal_lines / (width * 2.0))
         else:
-            base_score = min(0.4, density_ratio * 0.4)
+            base_score = min(0.2, density_ratio * 0.2)
         
-        final_score = min(0.9, base_score + fluid_line_score * 0.4)
+        final_score = min(0.5, base_score + fluid_line_score * 0.2)
         
         print(f"DEBUG Pleural Effusion - base_score: {base_score:.4f}, final_score: {final_score:.4f}")
         

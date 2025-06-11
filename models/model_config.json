@@ -7,10 +7,10 @@
       "threshold": 0.75,
       "pathology_thresholds": {
         "pneumonia": 0.65,
-        "pleural_effusion": 0.62,
+        "pleural_effusion": 0.75,
         "fracture": 0.68,
         "tumor": 0.75,
-        "normal": 0.55
+        "normal": 0.45
       },
       "architecture": "EfficientNetV2",
       "preprocessing": {
@@ -41,11 +41,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.75,
       "pathology_thresholds": {
-        "pneumonia": 0.68,
-        "pleural_effusion": 0.65,
-        "fracture": 0.70,
-        "tumor": 0.78,
-        "normal": 0.58
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "VisionTransformer",
       "preprocessing": {
@@ -77,11 +77,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.78,
       "pathology_thresholds": {
-        "pneumonia": 0.70,
-        "pleural_effusion": 0.67,
-        "fracture": 0.72,
-        "tumor": 0.80,
-        "normal": 0.60
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "ConvNeXt",
       "preprocessing": {
@@ -113,11 +113,11 @@
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
       "threshold": 0.80,
       "pathology_thresholds": {
-        "pneumonia": 0.72,
-        "pleural_effusion": 0.68,
-        "fracture": 0.70,
-        "tumor": 0.82,
-        "normal": 0.65
+        "pneumonia": 0.65,
+        "pleural_effusion": 0.75,
+        "fracture": 0.68,
+        "tumor": 0.75,
+        "normal": 0.45
       },
       "architecture": "Ensemble",
       "component_models": [
