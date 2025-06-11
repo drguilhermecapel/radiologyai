@@ -383,16 +383,22 @@ class MedicalInferenceEngine:
             except Exception as e:
                 logger.error(f"Erro no streaming: {str(e)}")
     
-    def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
+    def _preprocess_image(self, image: np.ndarray, image_path: str = None, modality: str = None) -> np.ndarray:
         """
-        Pré-processa imagem para o modelo
+        Pré-processa imagem médica com normalização window/level e técnicas específicas
         
         Args:
             image: Imagem original
+            image_path: Caminho da imagem (para DICOM)
+            modality: Modalidade da imagem (CT, MR, CR, etc.)
             
         Returns:
-            Imagem pré-processada
+            Imagem pré-processada com normalização médica
         """
+        # Aplicar normalização window/level para DICOM
+        if image_path and image_path.endswith('.dcm'):
+            image = self._apply_dicom_windowing(image, image_path, modality)
+        
         target_size = self.model_config['input_size']
         
         if len(target_size) == 3:
@@ -400,7 +406,7 @@ class MedicalInferenceEngine:
         else:
             resize_dims = target_size
         
-        # Redimensionar
+        # Redimensionar com interpolação médica otimizada
         if image.shape[:2] != tuple(resize_dims):
             image = cv2.resize(image, (resize_dims[1], resize_dims[0]), 
                              interpolation=cv2.INTER_LANCZOS4)
@@ -412,7 +418,7 @@ class MedicalInferenceEngine:
         if np.max(image) > 1.0:
             image = image / 255.0
         
-        # Aplicar CLAHE se for escala de cinza
+        # Aplicar CLAHE médico otimizado para escala de cinza
         if len(image.shape) == 2 or image.shape[-1] == 1:
             image_uint8 = (image * 255).astype(np.uint8)
             if len(image.shape) == 3:
@@ -421,9 +427,8 @@ class MedicalInferenceEngine:
             if len(image_uint8.shape) == 3:
                 image_uint8 = image_uint8[:, :, 0]
             
-            print(f"DEBUG _preprocess_image CLAHE input shape: {image_uint8.shape}, dtype: {image_uint8.dtype}")
-            
-            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            # CLAHE otimizado para imagens médicas
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             image_uint8 = clahe.apply(image_uint8)
             
             image = image_uint8.astype(np.float32) / 255.0
@@ -449,6 +454,290 @@ class MedicalInferenceEngine:
             image = np.repeat(image, 3, axis=-1)
         
         return image
+    
+    def apply_medical_augmentation(self, image: np.ndarray, augmentation_config: Dict = None) -> np.ndarray:
+        """
+        Aplica técnicas de augmentação específicas para imagens médicas
+        Baseado no scientific guide para simulação de variações clínicas
+        
+        Args:
+            image: Imagem original
+            augmentation_config: Configuração de augmentação
+            
+        Returns:
+            Imagem com augmentação aplicada
+        """
+        if augmentation_config is None:
+            augmentation_config = {
+                'rotation_enabled': True,
+                'noise_enabled': True,
+                'brightness_enabled': True,
+                'contrast_enabled': True,
+                'clahe_enabled': True
+            }
+        
+        augmented_image = image.copy()
+        
+        if augmentation_config.get('rotation_enabled', True):
+            augmented_image = self._apply_controlled_rotation(augmented_image)
+        
+        if augmentation_config.get('noise_enabled', True):
+            augmented_image = self._apply_gaussian_noise(augmented_image)
+        
+        if augmentation_config.get('brightness_enabled', True):
+            augmented_image = self._apply_brightness_adjustment(augmented_image)
+        
+        if augmentation_config.get('contrast_enabled', True):
+            augmented_image = self._apply_contrast_adjustment(augmented_image)
+        
+        if augmentation_config.get('clahe_enabled', True):
+            augmented_image = self._apply_medical_clahe(augmented_image)
+        
+        return augmented_image
+    
+    def _apply_controlled_rotation(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica rotação controlada (±10°) para simular variações de posicionamento do paciente
+        Baseado no scientific guide para augmentação médica
+        """
+        angle = np.random.uniform(-10.0, 10.0)
+        
+        height, width = image.shape[:2]
+        center = (width // 2, height // 2)
+        
+        rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+        
+        # Aplicar rotação com interpolação bilinear e preenchimento constante
+        rotated = cv2.warpAffine(
+            image, 
+            rotation_matrix, 
+            (width, height),
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=0
+        )
+        
+        return rotated
+    
+    def _apply_gaussian_noise(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ruído Gaussiano controlado para simular variações entre equipamentos
+        Baseado no scientific guide com parâmetros otimizados para imagens médicas
+        """
+        # Parâmetros de ruído controlados para imagens médicas
+        mean = 0
+        # Variância baixa para manter qualidade diagnóstica
+        std_dev = np.random.uniform(0.005, 0.015)  # 0.5% a 1.5% do range da imagem
+        
+        if len(image.shape) == 3:
+            noise = np.random.normal(mean, std_dev, image.shape)
+        else:
+            noise = np.random.normal(mean, std_dev, image.shape)
+        
+        # Aplicar ruído e manter dentro do range válido
+        noisy_image = image + noise
+        noisy_image = np.clip(noisy_image, 0.0, 1.0)
+        
+        return noisy_image.astype(np.float32)
+    
+    def _apply_brightness_adjustment(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ajuste de brilho dentro de faixas médicas aceitáveis
+        Baseado no scientific guide para preservar informação diagnóstica
+        """
+        # Ajuste de brilho limitado para preservar informação médica
+        brightness_factor = np.random.uniform(0.9, 1.1)  # ±10% de variação
+        
+        adjusted = image * brightness_factor
+        adjusted = np.clip(adjusted, 0.0, 1.0)
+        
+        return adjusted.astype(np.float32)
+    
+    def _apply_contrast_adjustment(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ajuste de contraste dentro de faixas médicas aceitáveis
+        Baseado no scientific guide para manter qualidade diagnóstica
+        """
+        # Ajuste de contraste limitado para preservar informação médica
+        contrast_factor = np.random.uniform(0.9, 1.1)  # ±10% de variação
+        
+        # Aplicar ajuste de contraste em relação ao valor médio
+        mean_val = np.mean(image)
+        adjusted = (image - mean_val) * contrast_factor + mean_val
+        adjusted = np.clip(adjusted, 0.0, 1.0)
+        
+        return adjusted.astype(np.float32)
+    
+    def _apply_medical_clahe(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica CLAHE otimizado para imagens médicas
+        Baseado no scientific guide com parâmetros específicos para radiologia
+        """
+        if image.dtype == np.float32:
+            image_uint8 = (image * 255).astype(np.uint8)
+        else:
+            image_uint8 = image.astype(np.uint8)
+        
+        # Aplicar CLAHE com parâmetros otimizados para imagens médicas
+        if len(image_uint8.shape) == 3 and image_uint8.shape[2] == 3:
+            lab = cv2.cvtColor(image_uint8, cv2.COLOR_RGB2LAB)
+            l, a, b = cv2.split(lab)
+            
+            # CLAHE otimizado para imagens médicas
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+            cl = clahe.apply(l)
+            
+            enhanced_lab = cv2.merge((cl, a, b))
+            enhanced_rgb = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2RGB)
+            
+            return enhanced_rgb.astype(np.float32) / 255.0
+        else:
+            # Imagem em escala de cinza
+            if len(image_uint8.shape) == 3:
+                image_uint8 = image_uint8[:, :, 0]
+            
+            # CLAHE para escala de cinza
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+            enhanced = clahe.apply(image_uint8)
+            
+            enhanced_float = enhanced.astype(np.float32) / 255.0
+            
+            if len(image.shape) == 3:
+                enhanced_float = np.expand_dims(enhanced_float, axis=-1)
+            
+            return enhanced_float
+    
+    def create_augmentation_pipeline(self, 
+                                   num_augmentations: int = 3,
+                                   augmentation_strength: str = 'moderate') -> List[Dict]:
+        """
+        Cria pipeline de augmentação baseado no scientific guide
+        
+        Args:
+            num_augmentations: Número de augmentações a aplicar
+            augmentation_strength: Intensidade ('light', 'moderate', 'strong')
+            
+        Returns:
+            Lista de configurações de augmentação
+        """
+        strength_configs = {
+            'light': {
+                'rotation_range': 5.0,
+                'noise_std_range': (0.002, 0.008),
+                'brightness_range': (0.95, 1.05),
+                'contrast_range': (0.95, 1.05)
+            },
+            'moderate': {
+                'rotation_range': 10.0,
+                'noise_std_range': (0.005, 0.015),
+                'brightness_range': (0.9, 1.1),
+                'contrast_range': (0.9, 1.1)
+            },
+            'strong': {
+                'rotation_range': 15.0,
+                'noise_std_range': (0.01, 0.025),
+                'brightness_range': (0.85, 1.15),
+                'contrast_range': (0.85, 1.15)
+            }
+        }
+        
+        config = strength_configs.get(augmentation_strength, strength_configs['moderate'])
+        
+        augmentation_pipeline = []
+        for i in range(num_augmentations):
+            aug_config = {
+                'rotation_enabled': True,
+                'noise_enabled': True,
+                'brightness_enabled': True,
+                'contrast_enabled': True,
+                'clahe_enabled': True,
+                'parameters': config
+            }
+            augmentation_pipeline.append(aug_config)
+        
+        return augmentation_pipeline
+    
+    def _apply_dicom_windowing(self, image: np.ndarray, image_path: str, modality: str = None) -> np.ndarray:
+        """
+        Aplica normalização window/level específica para DICOM baseada na modalidade
+        
+        Args:
+            image: Array da imagem DICOM
+            image_path: Caminho do arquivo DICOM
+            modality: Modalidade da imagem
+            
+        Returns:
+            Imagem com window/level aplicado
+        """
+        try:
+            import pydicom
+            ds = pydicom.dcmread(image_path)
+            
+            window_center = ds.WindowCenter if hasattr(ds, 'WindowCenter') else None
+            window_width = ds.WindowWidth if hasattr(ds, 'WindowWidth') else None
+            
+            if isinstance(window_center, list):
+                window_center = window_center[0]
+            if isinstance(window_width, list):
+                window_width = window_width[0]
+            
+            if window_center is None or window_width is None:
+                modality = ds.Modality if hasattr(ds, 'Modality') else modality
+                window_center, window_width = self._get_default_window_settings(modality)
+            
+            # Aplicar window/level
+            img_min = window_center - window_width // 2
+            img_max = window_center + window_width // 2
+            
+            # Normalizar usando window/level
+            image = np.clip(image, img_min, img_max)
+            image = ((image - img_min) / (img_max - img_min) * 255).astype(np.uint8)
+            
+            logger.info(f"DICOM windowing aplicado: WC={window_center}, WW={window_width}, modalidade={modality}")
+            
+        except Exception as e:
+            logger.warning(f"Erro ao aplicar windowing DICOM: {e}. Usando normalização padrão.")
+            if image.dtype != np.uint8:
+                image = ((image - image.min()) / (image.max() - image.min()) * 255).astype(np.uint8)
+        
+        return image
+    
+    def _get_default_window_settings(self, modality: str) -> Tuple[int, int]:
+        """
+        Retorna configurações padrão de window/level baseadas na modalidade
+        
+        Args:
+            modality: Modalidade da imagem (CT, MR, CR, etc.)
+            
+        Returns:
+            Tupla (window_center, window_width)
+        """
+        # Configurações baseadas em padrões clínicos
+        window_settings = {
+            'CT': {
+                'pulmonar': (-600, 1500),    # CT Pulmonar
+                'ossea': (300, 1500),        # CT Óssea  
+                'cerebral': (40, 80),        # CT Cerebral
+                'abdominal': (60, 400),      # CT Abdominal
+                'default': (-600, 1500)      # Padrão pulmonar
+            },
+            'MR': {
+                'default': (127, 255)        # MR padrão
+            },
+            'CR': {
+                'default': (127, 255)        # Radiografia computadorizada
+            },
+            'DX': {
+                'default': (127, 255)        # Radiografia digital
+            },
+            'default': (127, 255)            # Padrão geral
+        }
+        
+        if modality in window_settings:
+            return window_settings[modality]['default']
+        else:
+            return window_settings['default']
+
     
     def _generate_gradcam_heatmap(self, 
                                  image: np.ndarray,

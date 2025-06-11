@@ -1,0 +1,84 @@
+{
+  "test_timestamp": "2025-06-11T15:46:44.929527",
+  "pathology_tests": {
+    "normal": {
+      "predicted_class": "normal",
+      "expected_class": "normal",
+      "confidence": 0.3435396211223189,
+      "is_correct": true,
+      "all_scores": {},
+      "processing_time": 0.06423640251159668
+    },
+    "pneumonia": {
+      "predicted_class": "normal",
+      "expected_class": "pneumonia",
+      "confidence": 0.30104458662119754,
+      "is_correct": false,
+      "all_scores": {},
+      "processing_time": 0.05983114242553711
+    },
+    "pleural_effusion": {
+      "predicted_class": "derrame pleural",
+      "expected_class": "pleural_effusion",
+      "confidence": 0.4364432397429248,
+      "is_correct": false,
+      "all_scores": {},
+      "processing_time": 0.0433807373046875
+    },
+    "fracture": {
+      "predicted_class": "pneumonia",
+      "expected_class": "fracture",
+      "confidence": 0.38324891254578747,
+      "is_correct": false,
+      "all_scores": {},
+      "processing_time": 0.06261301040649414
+    },
+    "tumor": {
+      "predicted_class": "normal",
+      "expected_class": "tumor",
+      "confidence": 0.31126013883796766,
+      "is_correct": false,
+      "all_scores": {},
+      "processing_time": 0.062445640563964844
+    }
+  },
+  "clinical_metrics": {
+    "accuracy": 0.2,
+    "total_tests": 5,
+    "correct_predictions": 1,
+    "meets_clinical_threshold": "False"
+  },
+  "bias_analysis": {
+    "pneumonia_bias": false,
+    "bias_score": 0.0,
+    "prediction_distribution": {
+      "normal": 3,
+      "derrame pleural": 1,
+      "pneumonia": 1
+    },
+    "confidence_analysis": {
+      "normal": 0.3435396211223189,
+      "pneumonia": 0.30104458662119754,
+      "pleural_effusion": 0.4364432397429248,
+      "fracture": 0.38324891254578747,
+      "tumor": 0.31126013883796766
+    },
+    "bias_warnings": [
+      "Low confidence in non-pneumonia cases: 0.369"
+    ]
+  },
+  "overall_assessment": {
+    "overall_accuracy": 0.2,
+    "total_tests": 5,
+    "correct_predictions": 1,
+    "clinical_ready": false,
+    "pneumonia_bias_detected": false,
+    "bias_warnings": [
+      "Low confidence in non-pneumonia cases: 0.369"
+    ],
+    "recommendations": [
+      "Improve model accuracy through additional training",
+      "Enhance clinical validation and metrics"
+    ]
+  }
+}
