@@ -506,21 +506,22 @@ class MedicalImageNetwork:
         # Transformer blocks
         for _ in range(12):  # 12 camadas como ViT-Base
             # x1 = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)  # Commented out to avoid KerasTensor errors
-            
+
             # attention_output = layers.MultiHeadAttention(
             #     num_heads=12, key_dim=projection_dim // 12, dropout=0.1
             # )(x1, x1)  # Commented out to avoid KerasTensor errors
-            
+
             # x2 = layers.Add()([attention_output, encoded_patches])  # Commented out to avoid KerasTensor errors
-            
+
             # x3 = layers.LayerNormalization(epsilon=1e-6)(x2)  # Commented out to avoid KerasTensor errors
-            
+
             # x3 = layers.Dense(projection_dim * 4, activation="gelu")(x3)  # Commented out to avoid KerasTensor errors
             # x3 = layers.Dropout(0.1)(x3)  # Commented out to avoid KerasTensor errors
             # x3 = layers.Dense(projection_dim)(x3)  # Commented out to avoid KerasTensor errors
             # x3 = layers.Dropout(0.1)(x3)  # Commented out to avoid KerasTensor errors
-            
+
             # encoded_patches = layers.Add()([x3, x2])  # Commented out to avoid KerasTensor errors
+            pass
         
         # representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)  # Commented out to avoid KerasTensor errors
         
