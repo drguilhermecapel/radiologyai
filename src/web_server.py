@@ -20,15 +20,44 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from medai_main_structure import Config, logger
-    from medai_integration_manager import MedAIIntegrationManager
-    from medai_setup_initialize import SystemInitializer
-    from medai_inference_system import MedicalInferenceEngine
-    from medai_sota_models import StateOfTheArtModels
-    from medai_clinical_evaluation import ClinicalPerformanceEvaluator
-except ImportError as e:
-    print(f"Erro ao importar módulos: {e}")
-    sys.exit(1)
+    from .medai_main_structure import Config, logger
+except ImportError:
+    class Config:
+        APP_NAME = "MedAI Radiologia"
+        APP_VERSION = "3.0.0"
+    
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('MedAI')
+
+try:
+    from .medai_integration_manager import MedAIIntegrationManager
+except ImportError:
+    logger.warning("Integration manager não disponível")
+    MedAIIntegrationManager = None
+
+try:
+    from .medai_setup_initialize import SystemInitializer
+except ImportError:
+    logger.warning("System initializer não disponível")
+    SystemInitializer = None
+
+try:
+    from .medai_inference_system import MedicalInferenceEngine
+except ImportError:
+    logger.warning("Inference engine não disponível")
+    MedicalInferenceEngine = None
+
+try:
+    from .medai_sota_models import StateOfTheArtModels
+except ImportError:
+    logger.warning("SOTA models não disponível")
+    StateOfTheArtModels = None
+
+try:
+    from .medai_clinical_evaluation import ClinicalPerformanceEvaluator
+except ImportError:
+    logger.warning("Clinical evaluator não disponível")
+    ClinicalPerformanceEvaluator = None
 
 app = Flask(__name__)
 CORS(app)

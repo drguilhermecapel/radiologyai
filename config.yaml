@@ -1,0 +1,30 @@
+app:
+  name: MedAI Radiologia
+  version: 3.0.0
+  author: Dr. Guilherme Capel
+  
+server:
+  host: 0.0.0.0
+  port: 5000
+  debug: false
+  threaded: true
+  
+models:
+  default: ensemble_model
+  cache_size: 5
+  available:
+    - efficientnetv2
+    - vision_transformer  
+    - convnext
+    - ensemble_model
+    
+analysis:
+  image_size: [512, 512]
+  batch_size: 1
+  confidence_threshold: 0.7
+  
+paths:
+  models: ./models
+  cache: ./cache
+  exports: ./exports
+  logs: ./logs
