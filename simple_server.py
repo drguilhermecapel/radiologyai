@@ -34,8 +34,11 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'false')
     response.headers.add('Cache-Control', 'no-cache, no-store, must-revalidate')
-    if response.content_type and 'json' not in response.content_type:
+    
+    from flask import request
+    if request.path.startswith('/api/') and response.content_type and 'json' not in response.content_type:
         response.headers['Content-Type'] = 'application/json'
+    
     return response
 
 @app.route('/api/analyze', methods=['OPTIONS'])
