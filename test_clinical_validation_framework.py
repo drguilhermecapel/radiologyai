@@ -17,12 +17,12 @@ def test_clinical_validation_imports():
             RadiologyBenchmark
         )
         print('✅ Clinical validation framework imports successful')
-        return True
+        assert True, "Clinical validation framework imports successful"
     except Exception as e:
         print(f'❌ Import error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Clinical validation framework import failed: {e}"
 
 def test_condition_specific_validation():
     """Test condition-specific validation with different thresholds"""
@@ -93,13 +93,13 @@ def test_condition_specific_validation():
         assert tumor_risk['risk_level'] == 'HIGH_RISK'
         print('✅ Risk assessment correct - tumor marked as HIGH_RISK')
         
-        return True
+        assert True, "Condition-specific validation passed"
         
     except Exception as e:
         print(f'❌ Condition-specific validation error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Condition-specific validation failed: {e}"
 
 def test_compliance_reporting():
     """Test clinical compliance reporting"""
@@ -145,13 +145,13 @@ def test_compliance_reporting():
         assert failing_compliance['regulatory_readiness'] == False
         print('✅ Compliance reporting correctly identifies failures')
         
-        return True
+        assert True, "Compliance reporting validation passed"
         
     except Exception as e:
         print(f'❌ Compliance reporting error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Compliance reporting validation failed: {e}"
 
 def test_clinical_impact_assessment():
     """Test clinical impact assessment"""
@@ -176,13 +176,13 @@ def test_clinical_impact_assessment():
             assert impact == expected_impact, f"Expected {expected_impact}, got {impact} for {condition}"
             print(f'✅ Clinical impact correct for {condition}: {impact}')
         
-        return True
+        assert True, "Clinical impact assessment validation passed"
         
     except Exception as e:
         print(f'❌ Clinical impact assessment error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Clinical impact assessment validation failed: {e}"
 
 def main():
     """Run all clinical validation framework tests"""

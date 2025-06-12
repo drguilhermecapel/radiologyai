@@ -124,32 +124,7 @@ class MedAIIntegrationManager:
             # from medai_advanced_visualization import VisualizationEngine  # Temporarily disabled
             # from medai_export_system import ExportSystem  # Temporarily disabled
             
-            self.dicom_processor = DicomProcessor()
-            from medai_main_structure import Config
-            default_model_config = Config.MODEL_CONFIG['chest_xray']
-            self.inference_engine = MedicalInferenceEngine(
-                model_path=default_model_config['model_path'],
-                model_config=default_model_config
-            )
             
-            self.feature_extractor = AdvancedFeatureExtractor()
-            self.detection_system = RadiologyYOLO()
-            import tensorflow as tf
-            dummy_model = tf.keras.Sequential([tf.keras.layers.Dense(1)])
-            self.model_trainer = MedicalModelTrainer(
-                model=dummy_model,
-                model_name="test_model", 
-                output_dir="./models"
-            )
-            self.explainability_engine = GradCAMExplainer(None)
-            try:
-                self.pacs_integration = PACSIntegration()
-            except Exception as e:
-                print(f"PACS integration não disponível: {e}")
-                self.pacs_integration = None
-            self.clinical_evaluator = ClinicalPerformanceEvaluator()
-            self.ethics_framework = EthicalAIFramework()
-            self.regulatory_manager = EthicalAIFramework()
             
             # self.security_manager = SecurityManager()  # Temporarily disabled
             # self.report_generator = ReportGenerator()  # Temporarily disabled
@@ -158,10 +133,6 @@ class MedAIIntegrationManager:
             # self.visualization_engine = VisualizationEngine()  # Temporarily disabled
             # self.export_system = ExportSystem()  # Temporarily disabled
             
-            self.sota_models = StateOfTheArtModels(
-                input_shape=(512, 512, 3),  # Resolução aumentada para melhor precisão
-                num_classes=5  # Matching the actual dataset classes: normal, pneumonia, pleural_effusion, fracture, tumor
-            )
             
             try:
                 self.enhanced_models = {
@@ -258,20 +229,21 @@ class MedAIIntegrationManager:
             logger.error(f"Erro ao carregar imagem {file_path}: {e}")
             raise
     
-    def analyze_image(self, image_data: np.ndarray, model_name: str, 
+    def analyze_image(self, image_data: np.ndarray, model_name: str,
                      generate_attention_map: bool = True) -> Dict[str, Any]:
         """
         Analisa imagem usando modelo de IA especificado
-        
+
         Args:
             image_data: Array numpy da imagem ou dados da imagem carregada
             model_name: Nome do modelo a ser usado
             generate_attention_map: Se deve gerar mapa de atenção
-            
+
         Returns:
             Resultados da análise
         """
         try:
+            import numpy as np
             if not self._check_permission('analyze_images'):
                 raise PermissionError("Usuário não tem permissão para analisar imagens")
             
