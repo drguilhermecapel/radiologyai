@@ -5,21 +5,27 @@ services:
     build: .
     container_name: medai-radiologia
     ports:
-      - "8080:8080"
-      - "8084:8084"
-      - "11112:11112"
+      - "8000:8000"  # FastAPI server (primary)
+      - "8080:8080"  # Legacy Flask server (backward compatibility)
+      - "8084:8084"  # Clinical monitoring dashboard
+      - "11112:11112"  # DICOM server
     environment:
+      - PYTHONPATH=/app
+      - MEDAI_ENV=production
       - ENVIRONMENT=production
       - DB_HOST=medai-db
       - DB_USERNAME=medai_user
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - CLINICAL_ALERT_EMAIL=${CLINICAL_ALERT_EMAIL}
+      - DB_PASSWORD=${DB_PASSWORD:-medai_secure_password}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key-here}
+      - CLINICAL_ALERT_EMAIL=${CLINICAL_ALERT_EMAIL:-admin@hospital.com}
       - CLINICAL_ALERT_WEBHOOK=${CLINICAL_ALERT_WEBHOOK}
-      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
-      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK:-https://hooks.slack.com/your-webhook}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@hospital.com}
       - PAGERDUTY_KEY=${PAGERDUTY_KEY}
     volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config:/app/config
       - medai-data:/app/data
       - medai-logs:/var/log/medai
       - medai-models:/app/models
@@ -38,6 +44,12 @@ services:
         reservations:
           cpus: '2'
           memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   medai-db:
     image: postgres:13
@@ -45,7 +57,7 @@ services:
     environment:
       - POSTGRES_DB=medai_production
       - POSTGRES_USER=medai_user
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-medai_secure_password}
     volumes:
       - medai-db-data:/var/lib/postgresql/data
       - ./config/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -54,9 +66,14 @@ services:
     restart: unless-stopped
     networks:
       - medai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medai_user -d medai_production"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
     container_name: medai-cache
     ports:
       - "6379:6379"
@@ -66,6 +83,11 @@ services:
     networks:
       - medai-network
     command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -74,7 +96,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
       - ./config/ssl:/etc/ssl:ro
       - medai-logs:/var/log/nginx
     depends_on:

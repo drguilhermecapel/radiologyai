@@ -208,44 +208,137 @@ class MedAIIntegrationManager:
             else:
                 image_array = image_data
             
-            if not self.inference_engine:
-                logger.warning("Sistema de inferência não inicializado, usando análise simulada")
-                import numpy as np
-                mean_intensity = np.mean(image_array)
-                
-                if mean_intensity < 100:
-                    predicted_class = "Pneumonia"
-                    confidence = 0.85
-                elif mean_intensity > 150:
-                    predicted_class = "Normal"
-                    confidence = 0.92
+            if hasattr(self, 'enhanced_models') and self.enhanced_models:
+                if model_name in ['ensemble', 'enhanced_ensemble']:
+                    model = self.enhanced_models.get('enhanced_ensemble')
+                elif model_name in ['vision_transformer', 'medical_vit']:
+                    model = self.enhanced_models.get('medical_vit')
                 else:
-                    predicted_class = "Pleural Effusion"
-                    confidence = 0.78
+                    model = self.enhanced_models.get('enhanced_ensemble')  # Default fallback
                 
-                results = {
-                    'predicted_class': predicted_class,
-                    'confidence': confidence,
-                    'processing_time': 0.5,
-                    'predictions': {predicted_class: confidence},
-                    'metadata': {'fallback_mode': True}
-                }
-                
-                return results
+                if model is not None:
+                    if len(image_array.shape) == 2:
+                        image_array = np.stack([image_array] * 3, axis=-1)
+                    elif len(image_array.shape) == 3 and image_array.shape[-1] == 1:
+                        image_array = np.repeat(image_array, 3, axis=-1)
+                    
+                    import cv2
+                    image_resized = cv2.resize(image_array, (512, 512))
+                    image_batch = np.expand_dims(image_resized, axis=0)
+                    image_batch = image_batch.astype(np.float32) / 255.0
+                    
+                    import time
+                    start_time = time.time()
+                    predictions = model.predict(image_batch, verbose=0)
+                    processing_time = time.time() - start_time
+                    
+                    predicted_class_idx = np.argmax(predictions[0])
+                    confidence = float(predictions[0][predicted_class_idx])
+                    
+                    class_names = ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
+                    predicted_class = class_names[predicted_class_idx] if predicted_class_idx < len(class_names) else 'unknown'
+                    
+                    class PredictionResult:
+                        def __init__(self, predicted_class, confidence, processing_time, predictions, metadata):
+                            self.predicted_class = predicted_class
+                            self.confidence = confidence
+                            self.processing_time = processing_time
+                            self.predictions = predictions
+                            self.metadata = metadata
+                    
+                    result = PredictionResult(
+                        predicted_class=predicted_class,
+                        confidence=confidence,
+                        processing_time=processing_time,
+                        predictions=predictions[0].tolist(),
+                        metadata={'model_used': model_name, 'input_shape': image_batch.shape}
+                    )
+                    
+                    results = {
+                        'predicted_class': result.predicted_class,
+                        'confidence': result.confidence,
+                        'processing_time': result.processing_time,
+                        'predictions': result.predictions if result.predictions else {},
+                        'metadata': result.metadata if result.metadata else {}
+                    }
+                else:
+                    if not self.inference_engine:
+                        logger.warning("Sistema de inferência não inicializado, usando análise simulada")
+                        import numpy as np
+                        mean_intensity = np.mean(image_array)
+                        
+                        if mean_intensity < 100:
+                            predicted_class = "Pneumonia"
+                            confidence = 0.85
+                        elif mean_intensity > 150:
+                            predicted_class = "Normal"
+                            confidence = 0.92
+                        else:
+                            predicted_class = "Pleural Effusion"
+                            confidence = 0.78
+                        
+                        results = {
+                            'predicted_class': predicted_class,
+                            'confidence': confidence,
+                            'processing_time': 0.5,
+                            'predictions': {predicted_class: confidence},
+                            'metadata': {'fallback_mode': True}
+                        }
+                        
+                        return results
+                    else:
+                        # Use predict_single method which exists in MedicalInferenceEngine
+                        result = self.inference_engine.predict_single(
+                            image_array,
+                            return_attention=generate_attention_map
+                        )
+                        
+                        results = {
+                            'predicted_class': result.predicted_class,
+                            'confidence': result.confidence,
+                            'processing_time': result.processing_time,
+                            'predictions': result.predictions if result.predictions else {},
+                            'metadata': result.metadata if result.metadata else {}
+                        }
             else:
-                # Use predict_single method which exists in MedicalInferenceEngine
-                result = self.inference_engine.predict_single(
-                    image_array,
-                    return_attention=generate_attention_map
-                )
-                
-                results = {
-                    'predicted_class': result.predicted_class,
-                    'confidence': result.confidence,
-                    'processing_time': result.processing_time,
-                    'predictions': result.predictions if result.predictions else {},
-                    'metadata': result.metadata if result.metadata else {}
-                }
+                if not self.inference_engine:
+                    logger.warning("Sistema de inferência não inicializado, usando análise simulada")
+                    import numpy as np
+                    mean_intensity = np.mean(image_array)
+                    
+                    if mean_intensity < 100:
+                        predicted_class = "Pneumonia"
+                        confidence = 0.85
+                    elif mean_intensity > 150:
+                        predicted_class = "Normal"
+                        confidence = 0.92
+                    else:
+                        predicted_class = "Pleural Effusion"
+                        confidence = 0.78
+                    
+                    results = {
+                        'predicted_class': predicted_class,
+                        'confidence': confidence,
+                        'processing_time': 0.5,
+                        'predictions': {predicted_class: confidence},
+                        'metadata': {'fallback_mode': True}
+                    }
+                    
+                    return results
+                else:
+                    # Use predict_single method which exists in MedicalInferenceEngine
+                    result = self.inference_engine.predict_single(
+                        image_array,
+                        return_attention=generate_attention_map
+                    )
+                    
+                    results = {
+                        'predicted_class': result.predicted_class,
+                        'confidence': result.confidence,
+                        'processing_time': result.processing_time,
+                        'predictions': result.predictions if result.predictions else {},
+                        'metadata': result.metadata if result.metadata else {}
+                    }
             
             analysis_record = {
                 'timestamp': datetime.now(),

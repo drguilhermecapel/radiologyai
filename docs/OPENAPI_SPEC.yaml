@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: MedAI Radiologia API
+  description: |
+    Advanced AI-powered medical image analysis system providing comprehensive diagnostic capabilities
+    with clinical validation and explainability features.
+  version: 4.0.0
+  contact:
+    name: MedAI Support
+    email: support@medai-radiologia.com
+  license:
+    name: Proprietary
+    url: https://medai-radiologia.com/license
+
+servers:
+  - url: https://api.medai-radiologia.com/v1
+    description: Production server
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check system health and availability
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /models:
+    get:
+      summary: List Available Models
+      description: Get information about available AI models
+      tags:
+        - Models
+      responses:
+        '200':
+          description: List of available models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+
+  /analyze:
+    post:
+      summary: Analyze Medical Image
+      description: |
+        Analyze a medical image using AI models. Supports DICOM, JPEG, and PNG formats.
+        Returns diagnostic predictions with clinical validation and explainability.
+      tags:
+        - Analysis
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnalyzeRequest'
+      responses:
+        '200':
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '400':
+          description: Invalid request or image format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Image too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Image quality insufficient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /explain/{analysis_id}:
+    get:
+      summary: Get Analysis Explanation
+      description: Retrieve detailed explanation for a previous analysis
+      tags:
+        - Explainability
+      parameters:
+        - name: analysis_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique analysis identifier
+      responses:
+        '200':
+          description: Explanation retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplanationResponse'
+        '404':
+          description: Analysis not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /metrics:
+    get:
+      summary: Performance Metrics
+      description: Get system performance and clinical validation metrics
+      tags:
+        - Metrics
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        components:
+          type: object
+          properties:
+            ai_models:
+              type: string
+            database:
+              type: string
+            storage:
+              type: string
+        uptime:
+          type: integer
+          description: Uptime in seconds
+
+    ModelsResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+        default_model:
+          type: string
+
+    ModelInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        modalities:
+          type: array
+          items:
+            type: string
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        version:
+          type: string
+
+    AnalyzeRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+          description: Medical image file (DICOM, JPEG, PNG)
+        model:
+          type: string
+          default: ensemble
+          description: AI model to use for analysis
+        include_explanation:
+          type: boolean
+          default: true
+          description: Include explainability analysis
+        clinical_validation:
+          type: boolean
+          default: true
+          description: Include clinical validation metrics
+      required:
+        - image
+
+    AnalysisResponse:
+      type: object
+      properties:
+        analysis:
+          $ref: '#/components/schemas/Analysis'
+        clinical_metrics:
+          $ref: '#/components/schemas/ClinicalMetrics'
+        explanation:
+          $ref: '#/components/schemas/Explanation'
+        metadata:
+          $ref: '#/components/schemas/AnalysisMetadata'
+
+    Analysis:
+      type: object
+      properties:
+        predicted_class:
+          type: string
+          description: Primary diagnostic prediction
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        findings:
+          type: array
+          items:
+            type: string
+          description: Clinical findings identified
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Clinical recommendations
+        severity:
+          type: string
+          enum: [mild, moderate, severe, critical]
+        urgency:
+          type: string
+          enum: [routine, urgent, emergent]
+
+    ClinicalMetrics:
+      type: object
+      properties:
+        sensitivity:
+          type: number
+          format: float
+        specificity:
+          type: number
+          format: float
+        clinical_confidence:
+          type: number
+          format: float
+        approved_for_clinical_use:
+          type: boolean
+        validation_notes:
+          type: string
+
+    Explanation:
+      type: object
+      properties:
+        method:
+          type: string
+          enum: [gradcam, integrated_gradients]
+        heatmap_url:
+          type: string
+          format: uri
+        key_regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyRegion'
+
+    KeyRegion:
+      type: object
+      properties:
+        region:
+          type: string
+        importance:
+          type: number
+          format: float
+        coordinates:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+          description: Bounding box coordinates [x1, y1, x2, y2]
+
+    AnalysisMetadata:
+      type: object
+      properties:
+        model_used:
+          type: string
+        processing_time:
+          type: number
+          format: float
+          description: Processing time in seconds
+        image_info:
+          $ref: '#/components/schemas/ImageInfo'
+        timestamp:
+          type: string
+          format: date-time
+        request_id:
+          type: string
+
+    ImageInfo:
+      type: object
+      properties:
+        modality:
+          type: string
+        dimensions:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        file_size:
+          type: string
+
+    ExplanationResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        explanation:
+          $ref: '#/components/schemas/DetailedExplanation'
+
+    DetailedExplanation:
+      type: object
+      properties:
+        method:
+          type: string
+        heatmap_url:
+          type: string
+          format: uri
+        integrated_gradients:
+          type: object
+          properties:
+            attribution_map_url:
+              type: string
+              format: uri
+            top_features:
+              type: array
+              items:
+                type: object
+                properties:
+                  feature:
+                    type: string
+                  importance:
+                    type: number
+                    format: float
+        clinical_interpretation:
+          type: string
+
+    MetricsResponse:
+      type: object
+      properties:
+        system_metrics:
+          $ref: '#/components/schemas/SystemMetrics'
+        clinical_metrics:
+          $ref: '#/components/schemas/GlobalClinicalMetrics'
+        model_performance:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ModelPerformance'
+
+    SystemMetrics:
+      type: object
+      properties:
+        total_analyses:
+          type: integer
+        average_processing_time:
+          type: number
+          format: float
+        uptime_percentage:
+          type: number
+          format: float
+        error_rate:
+          type: number
+          format: float
+
+    GlobalClinicalMetrics:
+      type: object
+      properties:
+        overall_accuracy:
+          type: number
+          format: float
+        sensitivity:
+          type: number
+          format: float
+        specificity:
+          type: number
+          format: float
+        positive_predictive_value:
+          type: number
+          format: float
+        negative_predictive_value:
+          type: number
+          format: float
+
+    ModelPerformance:
+      type: object
+      properties:
+        accuracy:
+          type: number
+          format: float
+        total_predictions:
+          type: integer
+        clinical_approval_rate:
+          type: number
+          format: float
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            request_id:
+              type: string
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Models
+    description: AI model information and management
+  - name: Analysis
+    description: Medical image analysis endpoints
+  - name: Explainability
+    description: AI decision explanation endpoints
+  - name: Metrics
+    description: Performance and clinical metrics

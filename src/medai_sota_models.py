@@ -664,6 +664,13 @@ class StateOfTheArtModels:
             metrics=metrics
         )
         
+        try:
+            dummy_input = tf.random.normal((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
+            _ = model(dummy_input, training=False)
+            logger.info("Modelo inicializado com sucesso")
+        except Exception as e:
+            logger.warning(f"Erro na inicialização do modelo: {e}")
+        
         logger.info(f"Modelo SOTA compilado com {model.count_params():,} parâmetros")
         if use_mixed_precision:
             logger.info("Mixed precision training configurado para máxima eficiência")

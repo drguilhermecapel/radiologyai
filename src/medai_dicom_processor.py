@@ -17,7 +17,19 @@ class DicomProcessor:
     """
     Classe para processamento de imagens DICOM médicas
     Suporta leitura, conversão, anonimização e pré-processamento
+    Inclui suporte para modalidades: CR, CT, MR, US, MG, DX
     """
+    
+    SUPPORTED_MODALITIES = {
+        'CR': 'Computed Radiography',
+        'CT': 'Computed Tomography', 
+        'MR': 'Magnetic Resonance',
+        'US': 'Ultrasound',
+        'MG': 'Mammography',
+        'DX': 'Digital Radiography',
+        'XA': 'X-Ray Angiography',
+        'RF': 'Radio Fluoroscopy'
+    }
     
     def __init__(self, anonymize: bool = True):
         self.anonymize = anonymize
@@ -224,13 +236,16 @@ class DicomProcessor:
     def preprocess_for_ai(self, 
                          image: np.ndarray, 
                          target_size: Tuple[int, int],
+                         modality: str = 'CR',
                          normalize: bool = True) -> np.ndarray:
         """
         Pré-processa imagem para entrada em modelo de IA
+        Aplica pré-processamento específico por modalidade
         
         Args:
             image: Array da imagem
             target_size: Tamanho alvo (altura, largura)
+            modality: Modalidade médica (CR, CT, MR, US, MG, etc.)
             normalize: Se deve normalizar para [0, 1]
             
         Returns:
@@ -239,10 +254,8 @@ class DicomProcessor:
         # Redimensionar
         image = cv2.resize(image, target_size[::-1], interpolation=cv2.INTER_LANCZOS4)
         
-        # Equalização adaptativa de histograma
-        if len(image.shape) == 2:
-            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-            image = clahe.apply(image)
+        # Pré-processamento específico por modalidade
+        image = self._apply_modality_preprocessing(image, modality)
         
         # Normalizar se necessário
         if normalize:
@@ -254,8 +267,111 @@ class DicomProcessor:
         
         return image
     
+    def _apply_modality_preprocessing(self, image: np.ndarray, modality: str) -> np.ndarray:
+        """
+        Aplica pré-processamento específico por modalidade
+        
+        Args:
+            image: Array da imagem
+            modality: Modalidade médica
+            
+        Returns:
+            Imagem pré-processada
+        """
+        if len(image.shape) == 2:
+            if modality in ['CR', 'DX']:
+                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+                image = clahe.apply(image)
+                
+            elif modality == 'CT':
+                clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(16, 16))
+                image = clahe.apply(image)
+                
+            elif modality == 'MR':
+                clahe = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(12, 12))
+                image = clahe.apply(image)
+                
+            elif modality == 'US':
+                image = cv2.medianBlur(image, 3)
+                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(6, 6))
+                image = clahe.apply(image)
+                
+            elif modality == 'MG':
+                clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(4, 4))
+                image = clahe.apply(image)
+                
+            else:
+                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+                image = clahe.apply(image)
+        
+        return image
+    
     def save_as_png(self, image: np.ndarray, output_path: Union[str, Path]):
         """Salva imagem processada como PNG"""
         output_path = Path(output_path)
         cv2.imwrite(str(output_path), image)
         logger.info(f"Imagem salva: {output_path}")
+    
+    def get_modality_info(self, ds: pydicom.Dataset) -> Dict[str, str]:
+        """
+        Obtém informações específicas da modalidade
+        
+        Args:
+            ds: Dataset DICOM
+            
+        Returns:
+            Dicionário com informações da modalidade
+        """
+        modality = str(ds.get('Modality', 'Unknown'))
+        
+        modality_info = {
+            'modality': modality,
+            'description': self.SUPPORTED_MODALITIES.get(modality, 'Unknown Modality'),
+            'supported': modality in self.SUPPORTED_MODALITIES
+        }
+        
+        if modality == 'US':
+            modality_info.update({
+                'transducer_frequency': str(ds.get('TransducerFrequency', '')),
+                'ultrasound_color_data_present': str(ds.get('UltrasoundColorDataPresent', ''))
+            })
+        elif modality == 'MG':
+            modality_info.update({
+                'view_position': str(ds.get('ViewPosition', '')),
+                'compression_force': str(ds.get('CompressionForce', '')),
+                'breast_implant_present': str(ds.get('BreastImplantPresent', ''))
+            })
+        elif modality == 'CT':
+            modality_info.update({
+                'slice_thickness': str(ds.get('SliceThickness', '')),
+                'reconstruction_diameter': str(ds.get('ReconstructionDiameter', '')),
+                'convolution_kernel': str(ds.get('ConvolutionKernel', ''))
+            })
+        elif modality == 'MR':
+            modality_info.update({
+                'magnetic_field_strength': str(ds.get('MagneticFieldStrength', '')),
+                'sequence_name': str(ds.get('SequenceName', '')),
+                'repetition_time': str(ds.get('RepetitionTime', ''))
+            })
+        
+        return modality_info
+    
+    def validate_modality_support(self, ds: pydicom.Dataset) -> bool:
+        """
+        Valida se a modalidade é suportada pelo sistema
+        
+        Args:
+            ds: Dataset DICOM
+            
+        Returns:
+            True se modalidade é suportada
+        """
+        modality = str(ds.get('Modality', ''))
+        is_supported = modality in self.SUPPORTED_MODALITIES
+        
+        if not is_supported:
+            logger.warning(f"Modalidade não suportada: {modality}")
+        else:
+            logger.info(f"Modalidade suportada: {modality} - {self.SUPPORTED_MODALITIES[modality]}")
+        
+        return is_supported
