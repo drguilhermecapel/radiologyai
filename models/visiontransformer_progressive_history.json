@@ -1,0 +1,166 @@
+{
+  "combined_history": {},
+  "phase1_epochs": 5,
+  "phase2_epochs": 5,
+  "clinical_metrics": {
+    "loss": 1.6835829019546509,
+    "accuracy": 0.16666666666666666,
+    "precision": 0.027777777777777776,
+    "recall": 0.16666666666666666,
+    "f1_score": 0.047619047619047616,
+    "normal_sensitivity": 0.0,
+    "normal_specificity": 1.0,
+    "normal_ppv": 0.0,
+    "normal_npv": 0.75,
+    "normal_f1_score": 0.0,
+    "normal_balanced_accuracy": 0.5,
+    "pneumonia_sensitivity": 0.0,
+    "pneumonia_specificity": 1.0,
+    "pneumonia_ppv": 0.0,
+    "pneumonia_npv": 0.8333333333333334,
+    "pneumonia_f1_score": 0.0,
+    "pneumonia_balanced_accuracy": 0.5,
+    "pleural_effusion_sensitivity": 1.0,
+    "pleural_effusion_specificity": 0.0,
+    "pleural_effusion_ppv": 0.16666666666666666,
+    "pleural_effusion_npv": 0.0,
+    "pleural_effusion_f1_score": 0.2857142857142857,
+    "pleural_effusion_balanced_accuracy": 0.5,
+    "fracture_sensitivity": 0.0,
+    "fracture_specificity": 1.0,
+    "fracture_ppv": 0.0,
+    "fracture_npv": 0.75,
+    "fracture_f1_score": 0.0,
+    "fracture_balanced_accuracy": 0.5,
+    "tumor_sensitivity": 0.0,
+    "tumor_specificity": 1.0,
+    "tumor_ppv": 0.0,
+    "tumor_npv": 0.8333333333333334,
+    "tumor_f1_score": 0.0,
+    "tumor_balanced_accuracy": 0.5,
+    "clinical_compliance": {
+      "normal": {
+        "category": "STANDARD",
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "meets_standards": "False",
+        "risk_level": "MODERATE_RISK"
+      },
+      "pneumonia": {
+        "category": "MODERATE",
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "meets_standards": "False",
+        "risk_level": "MODERATE_RISK"
+      },
+      "pleural_effusion": {
+        "category": "MODERATE",
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "meets_standards": "False",
+        "risk_level": "MODERATE_RISK"
+      },
+      "fracture": {
+        "category": "CRITICAL",
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "meets_standards": "False",
+        "risk_level": "HIGH_RISK"
+      },
+      "tumor": {
+        "category": "CRITICAL",
+        "sensitivity": 0.0,
+        "specificity": 1.0,
+        "meets_standards": "False",
+        "risk_level": "HIGH_RISK"
+      }
+    },
+    "overall_clinical_readiness": false,
+    "sensitivity": 0.2,
+    "specificity": 0.8,
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0
+      ]
+    ],
+    "classification_report": {
+      "0": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 3.0
+      },
+      "1": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      },
+      "2": {
+        "precision": 0.16666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.2857142857142857,
+        "support": 2.0
+      },
+      "3": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 3.0
+      },
+      "4": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      },
+      "accuracy": 0.16666666666666666,
+      "macro avg": {
+        "precision": 0.03333333333333333,
+        "recall": 0.2,
+        "f1-score": 0.05714285714285714,
+        "support": 12.0
+      },
+      "weighted avg": {
+        "precision": 0.027777777777777776,
+        "recall": 0.16666666666666666,
+        "f1-score": 0.047619047619047616,
+        "support": 12.0
+      }
+    },
+    "clinical_ready": false
+  },
+  "training_approach": "progressive"
+}

@@ -49,14 +49,25 @@ class DicomProcessor:
         try:
             filepath = Path(filepath)
             
+            # Verificar se arquivo existe
+            if not filepath.exists():
+                logger.error(f"Arquivo DICOM não encontrado: {filepath}")
+                raise FileNotFoundError(f"Arquivo DICOM não encontrado: {filepath}")
+            
             # Verificar cache
             file_hash = self._get_file_hash(filepath)
             if file_hash in self._cache:
                 logger.info(f"Arquivo {filepath.name} carregado do cache")
                 return self._cache[file_hash]
             
-            # Ler arquivo DICOM
-            ds = pydicom.dcmread(str(filepath))
+            try:
+                ds = pydicom.dcmread(str(filepath))
+            except Exception as e:
+                if "DICM" in str(e) or "File Meta Information" in str(e):
+                    logger.warning(f"Tentando ler DICOM com force=True: {filepath}")
+                    ds = pydicom.dcmread(str(filepath), force=True)
+                else:
+                    raise e
             
             # Anonimizar se necessário
             if self.anonymize:

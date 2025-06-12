@@ -296,8 +296,8 @@ class MedicalModelTrainer:
         checkpoint_path = self.checkpoints_dir / f'{self.model_name}_best.h5'
         model_checkpoint = callbacks.ModelCheckpoint(
             filepath=str(checkpoint_path),
-            monitor='val_auc',
-            mode='max',
+            monitor='val_loss',
+            mode='min',
             save_best_only=True,
             save_weights_only=True,
             verbose=1
@@ -306,8 +306,8 @@ class MedicalModelTrainer:
         
         # EarlyStopping - previne overfitting
         early_stopping = callbacks.EarlyStopping(
-            monitor='val_auc',
-            mode='max',
+            monitor='val_loss',
+            mode='min',
             patience=15,
             restore_best_weights=True,
             verbose=1
@@ -341,8 +341,8 @@ class MedicalModelTrainer:
         if self.use_wandb:
             wandb_callback = wandb.keras.WandbCallback(
                 save_model=False,
-                monitor='val_auc',
-                mode='max'
+                monitor='val_loss',
+                mode='min'
             )
             callback_list.append(wandb_callback)
         

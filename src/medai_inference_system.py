@@ -72,6 +72,27 @@ class MedicalInferenceEngine:
     def _load_model(self):
         """Carrega modelo treinado com suporte a arquiteturas SOTA"""
         try:
+            if self.model_path.exists() and self.model_path.suffix == '.h5':
+                try:
+                    self.model = tf.keras.models.load_model(
+                        str(self.model_path),
+                        compile=False  # Compilar manualmente para controle
+                    )
+                    
+                    # Recompilar com métricas de inferência
+                    self.model.compile(
+                        optimizer='adam',
+                        loss='categorical_crossentropy',
+                        metrics=['accuracy']
+                    )
+                    
+                    logger.info(f"Modelo treinado carregado com sucesso: {self.model_path}")
+                    self._is_dummy_model = False
+                    return
+                    
+                except Exception as load_error:
+                    logger.warning(f"Erro ao carregar modelo H5: {load_error}")
+            
             try:
                 with open(self.model_path, 'r') as f:
                     content = f.read()
@@ -83,26 +104,9 @@ class MedicalInferenceEngine:
             except:
                 pass
             
-            try:
-                self.model = tf.keras.models.load_model(
-                    self.model_path,
-                    compile=False  # Compilar manualmente para controle
-                )
-                
-                # Recompilar com métricas de inferência
-                self.model.compile(
-                    optimizer='adam',
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy']
-                )
-                
-                logger.info(f"Modelo carregado: {self.model_path}")
-                self._is_dummy_model = False
-                
-            except Exception as load_error:
-                logger.warning(f"Erro ao carregar modelo salvo: {load_error}. Criando modelo SOTA.")
-                self.model = self._create_sota_model()
-                self._is_dummy_model = False
+            logger.warning(f"Modelo não encontrado em {self.model_path}. Criando modelo SOTA.")
+            self.model = self._create_sota_model()
+            self._is_dummy_model = False
             
         except Exception as e:
             logger.error(f"Erro ao carregar modelo: {str(e)}")
@@ -245,11 +249,10 @@ class MedicalInferenceEngine:
         # Expandir dimensões para batch
         batch_image = np.expand_dims(processed_image, axis=0)
         
-        # Predição
+        # Predição - verificar se modelo está carregado
         if self.model is None:
-            logger.error("Modelo não está carregado")
-            return None
-            
+            logger.warning("Modelo não carregado, usando análise de fallback")
+            return self._analyze_image_fallback(image, metadata)
         predictions = self.model.predict(batch_image, verbose=0)[0]
         
         # Processar resultados
@@ -383,21 +386,32 @@ class MedicalInferenceEngine:
             except Exception as e:
                 logger.error(f"Erro no streaming: {str(e)}")
     
-    def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
+    def _preprocess_image(self, image: np.ndarray, image_path: str = None, modality: str = None) -> np.ndarray:
         """
-        Pré-processa imagem para o modelo
+        Pré-processa imagem médica com normalização window/level e técnicas específicas
         
         Args:
             image: Imagem original
+            image_path: Caminho da imagem (para DICOM)
+            modality: Modalidade da imagem (CT, MR, CR, etc.)
             
         Returns:
-            Imagem pré-processada
+            Imagem pré-processada com normalização médica
         """
+        # Aplicar normalização window/level para DICOM
+        if image_path and image_path.endswith('.dcm'):
+            image = self._apply_dicom_windowing(image, image_path, modality)
+        
         target_size = self.model_config['input_size']
         
-        # Redimensionar
-        if image.shape[:2] != target_size:
-            image = cv2.resize(image, target_size[::-1], 
+        if len(target_size) == 3:
+            resize_dims = target_size[:2]  # [height, width]
+        else:
+            resize_dims = target_size
+        
+        # Redimensionar com interpolação médica otimizada
+        if image.shape[:2] != tuple(resize_dims):
+            image = cv2.resize(image, (resize_dims[1], resize_dims[0]), 
                              interpolation=cv2.INTER_LANCZOS4)
         
         # Normalizar
@@ -407,7 +421,7 @@ class MedicalInferenceEngine:
         if np.max(image) > 1.0:
             image = image / 255.0
         
-        # Aplicar CLAHE se for escala de cinza
+        # Aplicar CLAHE médico otimizado para escala de cinza
         if len(image.shape) == 2 or image.shape[-1] == 1:
             image_uint8 = (image * 255).astype(np.uint8)
             if len(image.shape) == 3:
@@ -416,22 +430,317 @@ class MedicalInferenceEngine:
             if len(image_uint8.shape) == 3:
                 image_uint8 = image_uint8[:, :, 0]
             
-            print(f"DEBUG _preprocess_image CLAHE input shape: {image_uint8.shape}, dtype: {image_uint8.dtype}")
-            
-            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            # CLAHE otimizado para imagens médicas
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             image_uint8 = clahe.apply(image_uint8)
             
             image = image_uint8.astype(np.float32) / 255.0
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
         
-        # Garantir 3 canais se necessário
-        if self.model is not None and self.model.input_shape[-1] == 3 and image.shape[-1] == 1:
-            image = np.repeat(image, 3, axis=-1)
+        # Garantir compatibilidade de canais com o modelo
+        if self.model is not None:
+            expected_channels = self.model.input_shape[-1]
+            current_channels = image.shape[-1] if len(image.shape) == 3 else 1
+            
+            if expected_channels == 3 and current_channels == 1:
+                if len(image.shape) == 2:
+                    image = np.expand_dims(image, axis=-1)
+                image = np.repeat(image, 3, axis=-1)
+            elif expected_channels == 1 and current_channels == 3:
+                if len(image.shape) == 3 and image.shape[-1] == 3:
+                    image = np.mean(image, axis=-1, keepdims=True)
+            elif expected_channels == 1 and len(image.shape) == 2:
+                # Adicionar dimensão de canal para grayscale
+                image = np.expand_dims(image, axis=-1)
         elif self.model is None and len(image.shape) == 3 and image.shape[-1] == 1:
             image = np.repeat(image, 3, axis=-1)
         
         return image
+    
+    def apply_medical_augmentation(self, image: np.ndarray, augmentation_config: Dict = None) -> np.ndarray:
+        """
+        Aplica técnicas de augmentação específicas para imagens médicas
+        Baseado no scientific guide para simulação de variações clínicas
+        
+        Args:
+            image: Imagem original
+            augmentation_config: Configuração de augmentação
+            
+        Returns:
+            Imagem com augmentação aplicada
+        """
+        if augmentation_config is None:
+            augmentation_config = {
+                'rotation_enabled': True,
+                'noise_enabled': True,
+                'brightness_enabled': True,
+                'contrast_enabled': True,
+                'clahe_enabled': True
+            }
+        
+        augmented_image = image.copy()
+        
+        if augmentation_config.get('rotation_enabled', True):
+            augmented_image = self._apply_controlled_rotation(augmented_image)
+        
+        if augmentation_config.get('noise_enabled', True):
+            augmented_image = self._apply_gaussian_noise(augmented_image)
+        
+        if augmentation_config.get('brightness_enabled', True):
+            augmented_image = self._apply_brightness_adjustment(augmented_image)
+        
+        if augmentation_config.get('contrast_enabled', True):
+            augmented_image = self._apply_contrast_adjustment(augmented_image)
+        
+        if augmentation_config.get('clahe_enabled', True):
+            augmented_image = self._apply_medical_clahe(augmented_image)
+        
+        return augmented_image
+    
+    def _apply_controlled_rotation(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica rotação controlada (±10°) para simular variações de posicionamento do paciente
+        Baseado no scientific guide para augmentação médica
+        """
+        angle = np.random.uniform(-10.0, 10.0)
+        
+        height, width = image.shape[:2]
+        center = (width // 2, height // 2)
+        
+        rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+        
+        # Aplicar rotação com interpolação bilinear e preenchimento constante
+        rotated = cv2.warpAffine(
+            image, 
+            rotation_matrix, 
+            (width, height),
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=0
+        )
+        
+        return rotated
+    
+    def _apply_gaussian_noise(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ruído Gaussiano controlado para simular variações entre equipamentos
+        Baseado no scientific guide com parâmetros otimizados para imagens médicas
+        """
+        # Parâmetros de ruído controlados para imagens médicas
+        mean = 0
+        # Variância baixa para manter qualidade diagnóstica
+        std_dev = np.random.uniform(0.005, 0.015)  # 0.5% a 1.5% do range da imagem
+        
+        if len(image.shape) == 3:
+            noise = np.random.normal(mean, std_dev, image.shape)
+        else:
+            noise = np.random.normal(mean, std_dev, image.shape)
+        
+        # Aplicar ruído e manter dentro do range válido
+        noisy_image = image + noise
+        noisy_image = np.clip(noisy_image, 0.0, 1.0)
+        
+        return noisy_image.astype(np.float32)
+    
+    def _apply_brightness_adjustment(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ajuste de brilho dentro de faixas médicas aceitáveis
+        Baseado no scientific guide para preservar informação diagnóstica
+        """
+        # Ajuste de brilho limitado para preservar informação médica
+        brightness_factor = np.random.uniform(0.9, 1.1)  # ±10% de variação
+        
+        adjusted = image * brightness_factor
+        adjusted = np.clip(adjusted, 0.0, 1.0)
+        
+        return adjusted.astype(np.float32)
+    
+    def _apply_contrast_adjustment(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica ajuste de contraste dentro de faixas médicas aceitáveis
+        Baseado no scientific guide para manter qualidade diagnóstica
+        """
+        # Ajuste de contraste limitado para preservar informação médica
+        contrast_factor = np.random.uniform(0.9, 1.1)  # ±10% de variação
+        
+        # Aplicar ajuste de contraste em relação ao valor médio
+        mean_val = np.mean(image)
+        adjusted = (image - mean_val) * contrast_factor + mean_val
+        adjusted = np.clip(adjusted, 0.0, 1.0)
+        
+        return adjusted.astype(np.float32)
+    
+    def _apply_medical_clahe(self, image: np.ndarray) -> np.ndarray:
+        """
+        Aplica CLAHE otimizado para imagens médicas
+        Baseado no scientific guide com parâmetros específicos para radiologia
+        """
+        if image.dtype == np.float32:
+            image_uint8 = (image * 255).astype(np.uint8)
+        else:
+            image_uint8 = image.astype(np.uint8)
+        
+        # Aplicar CLAHE com parâmetros otimizados para imagens médicas
+        if len(image_uint8.shape) == 3 and image_uint8.shape[2] == 3:
+            lab = cv2.cvtColor(image_uint8, cv2.COLOR_RGB2LAB)
+            l, a, b = cv2.split(lab)
+            
+            # CLAHE otimizado para imagens médicas
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+            cl = clahe.apply(l)
+            
+            enhanced_lab = cv2.merge((cl, a, b))
+            enhanced_rgb = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2RGB)
+            
+            return enhanced_rgb.astype(np.float32) / 255.0
+        else:
+            # Imagem em escala de cinza
+            if len(image_uint8.shape) == 3:
+                image_uint8 = image_uint8[:, :, 0]
+            
+            # CLAHE para escala de cinza
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+            enhanced = clahe.apply(image_uint8)
+            
+            enhanced_float = enhanced.astype(np.float32) / 255.0
+            
+            if len(image.shape) == 3:
+                enhanced_float = np.expand_dims(enhanced_float, axis=-1)
+            
+            return enhanced_float
+    
+    def create_augmentation_pipeline(self, 
+                                   num_augmentations: int = 3,
+                                   augmentation_strength: str = 'moderate') -> List[Dict]:
+        """
+        Cria pipeline de augmentação baseado no scientific guide
+        
+        Args:
+            num_augmentations: Número de augmentações a aplicar
+            augmentation_strength: Intensidade ('light', 'moderate', 'strong')
+            
+        Returns:
+            Lista de configurações de augmentação
+        """
+        strength_configs = {
+            'light': {
+                'rotation_range': 5.0,
+                'noise_std_range': (0.002, 0.008),
+                'brightness_range': (0.95, 1.05),
+                'contrast_range': (0.95, 1.05)
+            },
+            'moderate': {
+                'rotation_range': 10.0,
+                'noise_std_range': (0.005, 0.015),
+                'brightness_range': (0.9, 1.1),
+                'contrast_range': (0.9, 1.1)
+            },
+            'strong': {
+                'rotation_range': 15.0,
+                'noise_std_range': (0.01, 0.025),
+                'brightness_range': (0.85, 1.15),
+                'contrast_range': (0.85, 1.15)
+            }
+        }
+        
+        config = strength_configs.get(augmentation_strength, strength_configs['moderate'])
+        
+        augmentation_pipeline = []
+        for i in range(num_augmentations):
+            aug_config = {
+                'rotation_enabled': True,
+                'noise_enabled': True,
+                'brightness_enabled': True,
+                'contrast_enabled': True,
+                'clahe_enabled': True,
+                'parameters': config
+            }
+            augmentation_pipeline.append(aug_config)
+        
+        return augmentation_pipeline
+    
+    def _apply_dicom_windowing(self, image: np.ndarray, image_path: str, modality: str = None) -> np.ndarray:
+        """
+        Aplica normalização window/level específica para DICOM baseada na modalidade
+        
+        Args:
+            image: Array da imagem DICOM
+            image_path: Caminho do arquivo DICOM
+            modality: Modalidade da imagem
+            
+        Returns:
+            Imagem com window/level aplicado
+        """
+        try:
+            import pydicom
+            ds = pydicom.dcmread(image_path)
+            
+            window_center = ds.WindowCenter if hasattr(ds, 'WindowCenter') else None
+            window_width = ds.WindowWidth if hasattr(ds, 'WindowWidth') else None
+            
+            if isinstance(window_center, list):
+                window_center = window_center[0]
+            if isinstance(window_width, list):
+                window_width = window_width[0]
+            
+            if window_center is None or window_width is None:
+                modality = ds.Modality if hasattr(ds, 'Modality') else modality
+                window_center, window_width = self._get_default_window_settings(modality)
+            
+            # Aplicar window/level
+            img_min = window_center - window_width // 2
+            img_max = window_center + window_width // 2
+            
+            # Normalizar usando window/level
+            image = np.clip(image, img_min, img_max)
+            image = ((image - img_min) / (img_max - img_min) * 255).astype(np.uint8)
+            
+            logger.info(f"DICOM windowing aplicado: WC={window_center}, WW={window_width}, modalidade={modality}")
+            
+        except Exception as e:
+            logger.warning(f"Erro ao aplicar windowing DICOM: {e}. Usando normalização padrão.")
+            if image.dtype != np.uint8:
+                image = ((image - image.min()) / (image.max() - image.min()) * 255).astype(np.uint8)
+        
+        return image
+    
+    def _get_default_window_settings(self, modality: str) -> Tuple[int, int]:
+        """
+        Retorna configurações padrão de window/level baseadas na modalidade
+        
+        Args:
+            modality: Modalidade da imagem (CT, MR, CR, etc.)
+            
+        Returns:
+            Tupla (window_center, window_width)
+        """
+        # Configurações baseadas em padrões clínicos
+        window_settings = {
+            'CT': {
+                'pulmonar': (-600, 1500),    # CT Pulmonar
+                'ossea': (300, 1500),        # CT Óssea  
+                'cerebral': (40, 80),        # CT Cerebral
+                'abdominal': (60, 400),      # CT Abdominal
+                'default': (-600, 1500)      # Padrão pulmonar
+            },
+            'MR': {
+                'default': (127, 255)        # MR padrão
+            },
+            'CR': {
+                'default': (127, 255)        # Radiografia computadorizada
+            },
+            'DX': {
+                'default': (127, 255)        # Radiografia digital
+            },
+            'default': (127, 255)            # Padrão geral
+        }
+        
+        if modality in window_settings:
+            return window_settings[modality]['default']
+        else:
+            return window_settings['default']
+
     
     def _generate_gradcam_heatmap(self, 
                                  image: np.ndarray,
@@ -484,7 +793,12 @@ class MedicalInferenceEngine:
         heatmap = heatmap.numpy()
         
         # Redimensionar para tamanho original
-        heatmap = cv2.resize(heatmap, self.model_config['input_size'][::-1])
+        input_size = self.model_config['input_size']
+        if len(input_size) == 3:
+            resize_dims = (input_size[1], input_size[0])  # (width, height)
+        else:
+            resize_dims = (input_size[1], input_size[0])
+        heatmap = cv2.resize(heatmap, resize_dims)
         
         return heatmap
     
@@ -786,7 +1100,7 @@ class MedicalInferenceEngine:
             if hasattr(self, 'model') and self.model is not None and not getattr(self, '_is_dummy_model', True):
                 return self._predict_with_trained_model(image)
             else:
-                return self._analyze_image_fallback(image)
+                return self._analyze_image_fallback(image, {})
                 
         except Exception as e:
             logger.error(f"Error in pathology detection: {e}")
@@ -833,27 +1147,25 @@ class MedicalInferenceEngine:
             
         except Exception as e:
             logger.error(f"Error in trained model prediction: {e}")
-            return self._analyze_image_fallback(image)
+            return self._analyze_image_fallback(image, {})
     
     def _preprocess_for_model(self, image: np.ndarray) -> np.ndarray:
-        """Preprocess image for SOTA model input"""
+        """Preprocess image for SOTA model input with proper channel handling"""
         try:
             target_size = (224, 224)
             
-            if len(image.shape) == 2:
+            if len(image.shape) == 3 and image.shape[-1] == 3:
                 import cv2
-                resized = cv2.resize(image, target_size)
-                processed = np.stack([resized, resized, resized], axis=-1)
-            elif len(image.shape) == 3:
-                if image.shape[-1] == 1:
-                    import cv2
-                    resized = cv2.resize(image[:, :, 0], target_size)
-                    processed = np.stack([resized, resized, resized], axis=-1)
-                else:
-                    import cv2
-                    processed = cv2.resize(image, target_size)
+                gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            elif len(image.shape) == 3 and image.shape[-1] == 1:
+                gray = image[:, :, 0]
             else:
-                raise ValueError(f"Unsupported image shape: {image.shape}")
+                gray = image
+            
+            import cv2
+            resized = cv2.resize(gray, target_size)
+            
+            processed = np.expand_dims(resized, axis=-1)
             
             # Normalize to [0, 1] range
             if processed.max() > 1.0:
@@ -863,63 +1175,91 @@ class MedicalInferenceEngine:
             
         except Exception as e:
             logger.error(f"Error in image preprocessing: {e}")
-            return np.zeros((224, 224, 3), dtype=np.float32)
+            return np.zeros((224, 224, 1), dtype=np.float32)
     
-    def _analyze_image_fallback(self, image: np.ndarray) -> Dict[str, float]:
+    def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> PredictionResult:
         """Fallback image analysis when trained models are not available"""
+        start_time = time.time()
+        
+        try:
+            if hasattr(self, 'model') and self.model is not None and not self._is_dummy_model:
+                logger.info("Using trained model for prediction instead of fallback")
+                return self._predict_with_trained_model(image, metadata or {})
+        except Exception as e:
+            logger.warning(f"Trained model prediction failed, using fallback: {e}")
+        
+        logger.info("Using fallback detection as last resort - no trained models available")
         try:
             import cv2
             from scipy import ndimage
         except ImportError:
             logger.warning("OpenCV or scipy not available, using basic detection")
-            return self._basic_pathology_detection(image)
-        
-        if len(image.shape) == 3:
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            pathology_scores = self._basic_pathology_detection(image)
         else:
-            gray = image.copy()
+            if len(image.shape) == 3:
+                gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            else:
+                gray = image.copy()
+            
+            if gray.dtype != np.uint8:
+                gray = ((gray - gray.min()) / (gray.max() - gray.min()) * 255).astype(np.uint8)
+            
+            print(f"DEBUG Pathology CLAHE input shape: {gray.shape}, dtype: {gray.dtype}")
+            
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+            enhanced = clahe.apply(gray)
+            
+            pneumonia_score = self._detect_pneumonia_patterns(enhanced)
+            pleural_effusion_score = self._detect_pleural_effusion(enhanced)
+            
+            fracture_score = min(0.3, pneumonia_score * 0.5)  # Simple heuristic
+            tumor_score = min(0.3, pleural_effusion_score * 0.4)  # Simple heuristic
+            
+            max_pathology_score = max(pneumonia_score, pleural_effusion_score, fracture_score, tumor_score)
+            
+            print(f"DEBUG Pathology scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}")
+            
+            if max_pathology_score > 0.4:  # Lower threshold for normal boost
+                normal_score = max(0.3, 1.2 - max_pathology_score * 1.2)  # Higher baseline normal score
+            else:
+                normal_score = max(0.6, 1.0 - max_pathology_score * 0.8)  # Even higher for low pathology scores
+
+            # Normalize all scores with bias toward normal
+            total = pneumonia_score + pleural_effusion_score + fracture_score + tumor_score + normal_score
+            if total > 0:
+                pneumonia_score /= total
+                pleural_effusion_score /= total
+                fracture_score /= total
+                tumor_score /= total
+                normal_score /= total
+            
+            print(f"DEBUG Final normalized scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}, normal: {normal_score:.4f}")
+            
+            pathology_scores = {
+                'Pneumonia': pneumonia_score,
+                'Derrame Pleural': pleural_effusion_score,
+                'Fratura': fracture_score,
+                'Tumor': tumor_score,
+                'Normal': normal_score
+            }
         
-        if gray.dtype != np.uint8:
-            gray = ((gray - gray.min()) / (gray.max() - gray.min()) * 255).astype(np.uint8)
+        # Determine predicted class and confidence
+        predicted_class = max(pathology_scores, key=pathology_scores.get)
+        confidence = pathology_scores[predicted_class]
         
-        print(f"DEBUG Pathology CLAHE input shape: {gray.shape}, dtype: {gray.dtype}")
+        result = PredictionResult(
+            image_path="",
+            predictions=pathology_scores,
+            predicted_class=predicted_class,
+            confidence=confidence,
+            processing_time=time.time() - start_time,
+            heatmap=None,
+            attention_map=None,
+            metadata={'fallback_analysis': True, 'raw_scores': pathology_scores}
+        )
         
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        enhanced = clahe.apply(gray)
-        
-        pneumonia_score = self._detect_pneumonia_patterns(enhanced)
-        pleural_effusion_score = self._detect_pleural_effusion(enhanced)
-        
-        fracture_score = min(0.3, pneumonia_score * 0.5)  # Simple heuristic
-        tumor_score = min(0.3, pleural_effusion_score * 0.4)  # Simple heuristic
-        
-        max_pathology_score = max(pneumonia_score, pleural_effusion_score, fracture_score, tumor_score)
-        
-        print(f"DEBUG Pathology scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}")
-        
-        if max_pathology_score > 0.5:
-            normal_score = max(0.0, 1.0 - max_pathology_score * 1.5)
-        else:
-            normal_score = 1.0 - max_pathology_score
-        
-        # Normalize all scores
-        total = pneumonia_score + pleural_effusion_score + fracture_score + tumor_score + normal_score
-        if total > 0:
-            pneumonia_score /= total
-            pleural_effusion_score /= total
-            fracture_score /= total
-            tumor_score /= total
-            normal_score /= total
-        
-        print(f"DEBUG Final normalized scores - pneumonia: {pneumonia_score:.4f}, pleural_effusion: {pleural_effusion_score:.4f}, fracture: {fracture_score:.4f}, tumor: {tumor_score:.4f}, normal: {normal_score:.4f}")
-        
-        return {
-            'pneumonia': pneumonia_score,
-            'pleural_effusion': pleural_effusion_score,
-            'fracture': fracture_score,
-            'tumor': tumor_score,
-            'normal': normal_score
-        }
+        logger.info(f"Fallback analysis: {predicted_class} ({confidence:.2%})")
+        return result
     
     def _basic_pathology_detection(self, image: np.ndarray) -> Dict[str, float]:
         """Basic pathology detection without OpenCV"""
@@ -941,45 +1281,47 @@ class MedicalInferenceEngine:
         bottom_density = np.mean(bottom_third) / mean_intensity if mean_intensity > 0 else 0
         pleural_effusion_score = min(0.7, max(0, (bottom_density - 1.0) * 2))
         
+        normal_score = 1.0 - max(pneumonia_score, pleural_effusion_score)
+        
         return {
-            'pneumonia': pneumonia_score,
-            'pleural_effusion': pleural_effusion_score,
-            'normal': 1.0 - max(pneumonia_score, pleural_effusion_score)
+            'Pneumonia': pneumonia_score,
+            'Derrame Pleural': pleural_effusion_score,
+            'Normal': normal_score
         }
     
     def _detect_pneumonia_patterns(self, image: np.ndarray) -> float:
-        """Detect pneumonia patterns in chest X-ray"""
+        """Detect pneumonia patterns in chest X-ray with balanced scoring"""
         
         mean_intensity = np.mean(image)
         std_intensity = np.std(image)
         
-        high_density_mask = image > (mean_intensity + 0.8 * std_intensity)
+        high_density_mask = image > (mean_intensity + 1.2 * std_intensity)
         consolidation_ratio = np.sum(high_density_mask) / image.size
         
         print(f"DEBUG Pneumonia - mean: {mean_intensity:.2f}, std: {std_intensity:.2f}, consolidation_ratio: {consolidation_ratio:.4f}")
         
         try:
             import cv2
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
             consolidated_regions = cv2.morphologyEx(high_density_mask.astype(np.uint8), cv2.MORPH_CLOSE, kernel)
             
             num_labels, labels = cv2.connectedComponents(consolidated_regions)
             region_sizes = [np.sum(labels == i) for i in range(1, num_labels)]
             
-            medium_regions = [size for size in region_sizes if 50 < size < 8000]
-            region_score = min(0.5, len(medium_regions) * 0.15)
+            medium_regions = [size for size in region_sizes if 100 < size < 5000]
+            region_score = min(0.3, len(medium_regions) * 0.08)
             
             print(f"DEBUG Pneumonia - regions: {len(medium_regions)}, region_score: {region_score:.4f}")
             
         except ImportError:
-            region_score = 0.15 if consolidation_ratio > 0.05 else 0
+            region_score = 0.08 if consolidation_ratio > 0.08 else 0
         
-        if consolidation_ratio > 0.08:
-            base_score = min(0.9, consolidation_ratio * 6)
+        if consolidation_ratio > 0.12:
+            base_score = min(0.5, consolidation_ratio * 2.8)
         else:
-            base_score = consolidation_ratio * 4
+            base_score = consolidation_ratio * 2.0
         
-        final_score = min(0.95, base_score + region_score)
+        final_score = min(0.6, base_score + region_score)
         
         print(f"DEBUG Pneumonia - base_score: {base_score:.4f}, final_score: {final_score:.4f}")
         
@@ -1016,12 +1358,12 @@ class MedicalInferenceEngine:
         except ImportError:
             fluid_line_score = strong_horizontal_lines / (width * lower_region.shape[0])
         
-        if density_ratio > 1.05 and strong_horizontal_lines > (width * 0.05):
-            base_score = min(0.85, density_ratio * 0.6 + strong_horizontal_lines / (width * 1.5))
+        if density_ratio > 1.15 and strong_horizontal_lines > (width * 0.08):
+            base_score = min(0.6, density_ratio * 0.4 + strong_horizontal_lines / (width * 2.0))
         else:
-            base_score = min(0.4, density_ratio * 0.4)
+            base_score = min(0.2, density_ratio * 0.2)
         
-        final_score = min(0.9, base_score + fluid_line_score * 0.4)
+        final_score = min(0.5, base_score + fluid_line_score * 0.2)
         
         print(f"DEBUG Pleural Effusion - base_score: {base_score:.4f}, final_score: {final_score:.4f}")
         

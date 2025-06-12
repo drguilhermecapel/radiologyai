@@ -1,0 +1,106 @@
+{
+  "results": {
+    "normal": [
+      {
+        "image": "normal_test_003.npy",
+        "correct": true,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "normal_test_001.npy",
+        "correct": true,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "normal_test_002.npy",
+        "correct": true,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      }
+    ],
+    "pneumonia": [
+      {
+        "image": "pneumonia_test_002.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "pneumonia_test_003.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "pneumonia_test_001.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      }
+    ],
+    "pleural_effusion": [
+      {
+        "image": "pleural_effusion_test_003.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "pleural_effusion_test_002.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "pleural_effusion_test_001.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      }
+    ],
+    "fracture": [
+      {
+        "image": "fracture_test_003.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.256103515625
+      },
+      {
+        "image": "fracture_test_001.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.256103515625
+      },
+      {
+        "image": "fracture_test_002.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.256103515625
+      }
+    ],
+    "tumor": [
+      {
+        "image": "tumor_test_001.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "tumor_test_003.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      },
+      {
+        "image": "tumor_test_002.npy",
+        "correct": false,
+        "predicted_class": "normal",
+        "confidence": 0.25634765625
+      }
+    ]
+  },
+  "overall_accuracy": 20.0,
+  "test_timestamp": "2025-06-11T04:34:00Z"
+}
