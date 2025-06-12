@@ -372,32 +372,50 @@
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Servidor retornou resposta inválida. Verifique a configuração da API.');
-                }
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
+                const xhr = new XMLHttpRequest();
                 
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-
-                displayResult(result);
+                xhr.open('POST', '/api/analyze');
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const contentType = xhr.getResponseHeader('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            showError('Servidor retornou resposta inválida. Verifique a configuração da API.');
+                            loading.style.display = 'none';
+                            analyzeBtn.disabled = false;
+                            return;
+                        }
+                        
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            
+                            if (result.error) {
+                                showError(result.error);
+                            } else {
+                                displayResult(result);
+                            }
+                        } catch (parseError) {
+                            showError('Erro ao processar resposta do servidor: ' + parseError.message);
+                        }
+                    } else {
+                        showError(`HTTP ${xhr.status}: ${xhr.statusText}`);
+                    }
+                    
+                    loading.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                };
+                
+                xhr.onerror = function() {
+                    showError('Erro de conexão com o servidor');
+                    loading.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                };
+                
+                xhr.send(formData);
 
             } catch (error) {
                 console.error('Erro:', error);
                 showError(`Erro ao processar imagem: ${error.message}`);
-            } finally {
                 loading.style.display = 'none';
                 analyzeBtn.disabled = false;
             }
@@ -452,21 +470,33 @@
             resultSection.classList.remove('show');
         }
 
-        // API Status check with content-type validation
-        fetch('/api/status')
-            .then(response => {
-                const contentType = response.headers.get('content-type');
+        const statusXhr = new XMLHttpRequest();
+        statusXhr.open('GET', '/api/status');
+        
+        statusXhr.onload = function() {
+            if (statusXhr.status === 200) {
+                const contentType = statusXhr.getResponseHeader('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('API status endpoint returned non-JSON response');
+                    console.warn('API Status check failed: API status endpoint returned non-JSON response');
+                    return;
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('API Status:', data);
-            })
-            .catch(error => {
-                console.warn('API Status check failed:', error.message);
-            });
+                
+                try {
+                    const data = JSON.parse(statusXhr.responseText);
+                    console.log('API Status:', data);
+                } catch (parseError) {
+                    console.warn('API Status check failed: Error parsing JSON response');
+                }
+            } else {
+                console.warn('API Status check failed: HTTP ' + statusXhr.status);
+            }
+        };
+        
+        statusXhr.onerror = function() {
+            console.warn('API Status check failed: Network error');
+        };
+        
+        statusXhr.send();
     </script>
 </body>
 </html>
