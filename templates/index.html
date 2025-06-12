@@ -377,6 +377,11 @@
                     body: formData
                 });
 
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Servidor retornou resposta inválida. Verifique a configuração da API.');
+                }
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -447,14 +452,20 @@
             resultSection.classList.remove('show');
         }
 
-        // API Status check
+        // API Status check with content-type validation
         fetch('/api/status')
-            .then(response => response.json())
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('API status endpoint returned non-JSON response');
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('API Status:', data);
             })
             .catch(error => {
-                console.warn('API Status check failed:', error);
+                console.warn('API Status check failed:', error.message);
             });
     </script>
 </body>
