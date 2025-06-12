@@ -6,8 +6,8 @@
     <title>MedAI Radiologia - Sistema de Análise por IA</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
             box-sizing: border-box;
         }
         
@@ -372,7 +372,7 @@
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const response = await fetch('/api/v1/analyze', {
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
                     body: formData
                 });
@@ -448,7 +448,7 @@
         }
 
         // API Status check
-        fetch('/api/v1/status')
+        fetch('/api/status')
             .then(response => response.json())
             .then(data => {
                 console.log('API Status:', data);
