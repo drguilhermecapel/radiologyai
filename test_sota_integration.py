@@ -13,12 +13,12 @@ def test_sota_imports():
     try:
         from medai_sota_models import SOTAModelManager, StateOfTheArtModels
         print('✅ SOTA models import successful')
-        return True
+        assert True, "SOTA models import successful"
     except Exception as e:
         print(f'❌ Import error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"SOTA models import failed: {e}"
 
 def test_model_manager():
     """Test SOTAModelManager functionality"""
@@ -31,18 +31,16 @@ def test_model_manager():
         
         expected_models = ['efficientnetv2', 'vision_transformer', 'convnext', 'ensemble_model']
         for model in expected_models:
-            if model not in available:
-                print(f'❌ Missing expected model: {model}')
-                return False
+            assert model in available, f'Missing expected model: {model}'
         
         print('✅ All expected models are available')
-        return True
+        assert True, f"Model manager validation passed with {len(expected_models)} models"
         
     except Exception as e:
         print(f'❌ Model manager error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Model manager validation failed: {e}"
 
 def test_model_builder():
     """Test StateOfTheArtModels initialization"""
@@ -65,13 +63,13 @@ def test_model_builder():
         dense_kernel = builder._dense_kernel_initializer(dense_shape)
         print(f'✅ Dense kernel initializer works: {dense_kernel.shape}')
         
-        return True
+        assert True, "Model builder validation passed"
         
     except Exception as e:
         print(f'❌ Model builder error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Model builder validation failed: {e}"
 
 def test_model_architectures():
     """Test individual model architecture building (structure only)"""
@@ -93,13 +91,13 @@ def test_model_architectures():
         convnext_model = builder.build_real_convnext()
         print(f'✅ ConvNeXt model created: {convnext_model.name}, params: {convnext_model.count_params():,}')
         
-        return True
+        assert True, "Model architectures validation passed"
         
     except Exception as e:
         print(f'❌ Model architecture error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Model architectures validation failed: {e}"
 
 def test_model_compilation():
     """Test model compilation with medical settings"""
@@ -118,13 +116,13 @@ def test_model_compilation():
         print(f'✅ Loss function: {compiled_model.loss}')
         print(f'✅ Metrics: {[m.name for m in compiled_model.metrics]}')
         
-        return True
+        assert True, "Model compilation validation passed"
         
     except Exception as e:
         print(f'❌ Model compilation error: {e}')
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Model compilation validation failed: {e}"
 
 def main():
     """Run all SOTA integration tests"""
