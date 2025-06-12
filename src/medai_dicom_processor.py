@@ -11,6 +11,14 @@ from cryptography.fernet import Fernet
 import json
 import hashlib
 
+try:
+    from .medai_modality_normalizer import ModalitySpecificNormalizer
+except ImportError:
+    try:
+        from medai_modality_normalizer import ModalitySpecificNormalizer
+    except ImportError:
+        ModalitySpecificNormalizer = None
+
 logger = logging.getLogger('MedAI.DICOM')
 
 class DicomProcessor:
@@ -35,6 +43,11 @@ class DicomProcessor:
         self.anonymize = anonymize
         self._cache = {}
         self._fernet = Fernet(Fernet.generate_key()) if anonymize else None
+        
+        if ModalitySpecificNormalizer:
+            self.normalizer = ModalitySpecificNormalizer()
+        else:
+            self.normalizer = None
         
     def read_dicom(self, filepath: Union[str, Path]) -> pydicom.Dataset:
         """
@@ -126,14 +139,50 @@ class DicomProcessor:
     
     def dicom_to_array(self, ds: pydicom.Dataset) -> np.ndarray:
         """
-        Converte pixel_array DICOM para array numpy normalizado
+        Converte pixel_array DICOM para array numpy com normalização específica por modalidade
+        Implementa conversão adequada de Hounsfield Units para CT e outras modalidades
         
         Args:
             ds: Dataset DICOM
             
         Returns:
-            Array numpy da imagem
+            Array numpy da imagem normalizada
         """
+        try:
+            # Usar normalização específica por modalidade se disponível
+            if self.normalizer is not None:
+                modality = str(ds.get('Modality', 'CR'))
+                
+                if modality == 'CT':
+                    normalized_array = self.normalizer.normalize_ct(ds, target_organ='soft_tissue')
+                    # Converter para uint8 para compatibilidade
+                    return (normalized_array * 255).astype(np.uint8)
+                    
+                elif modality in ['MR', 'MRI']:
+                    pixel_array = ds.pixel_array.astype(float)
+                    normalized_array = self.normalizer.normalize_mri(pixel_array, sequence_type='T1')
+                    return (normalized_array * 255).astype(np.uint8)
+                    
+                elif modality in ['CR', 'DX']:
+                    pixel_array = ds.pixel_array.astype(float)
+                    normalized_array = self.normalizer.normalize_xray(pixel_array, enhance_contrast=True)
+                    return (normalized_array * 255).astype(np.uint8)
+                    
+                else:
+                    pixel_array = ds.pixel_array.astype(float)
+                    normalized_array = self.normalizer.normalize_by_modality(pixel_array, modality)
+                    return (normalized_array * 255).astype(np.uint8)
+            
+            # Fallback para método tradicional se normalizer não disponível
+            logger.warning("ModalitySpecificNormalizer não disponível, usando método tradicional")
+            return self._legacy_dicom_to_array(ds)
+            
+        except Exception as e:
+            logger.error(f"Erro na conversão DICOM com normalização específica: {e}")
+            return self._legacy_dicom_to_array(ds)
+    
+    def _legacy_dicom_to_array(self, ds: pydicom.Dataset) -> np.ndarray:
+        """Método tradicional de conversão DICOM como fallback"""
         # Obter array de pixels
         pixel_array = ds.pixel_array.astype(float)
         
@@ -150,16 +199,17 @@ class DicomProcessor:
             )
         
         # Normalizar para 0-255
-        pixel_array = self._normalize_array(pixel_array)
+        pixel_array = self._normalize_array_legacy(pixel_array)
         
         return pixel_array.astype(np.uint8)
     
     def _apply_windowing(self, 
                         image: np.ndarray, 
-                        window_center: float, 
-                        window_width: float) -> np.ndarray:
+                        window_center: Union[float, pydicom.multival.MultiValue], 
+                        window_width: Union[float, pydicom.multival.MultiValue]) -> np.ndarray:
         """
         Aplica janelamento DICOM para melhor visualização
+        Corrige problemas de tipo com MultiValue
         
         Args:
             image: Array da imagem
@@ -169,32 +219,63 @@ class DicomProcessor:
         Returns:
             Imagem com janelamento aplicado
         """
-        # Converter para valores únicos se forem listas
-        if isinstance(window_center, pydicom.multival.MultiValue):
-            window_center = float(window_center[0])
-        if isinstance(window_width, pydicom.multival.MultiValue):
-            window_width = float(window_width[0])
-        
-        # Calcular limites da janela
-        window_min = window_center - window_width / 2
-        window_max = window_center + window_width / 2
-        
-        # Aplicar janelamento
-        image = np.clip(image, window_min, window_max)
-        
-        return image
+        try:
+            # Converter para valores únicos se forem MultiValue do pydicom
+            try:
+                window_center = float(window_center)
+            except (TypeError, ValueError):
+                try:
+                    window_center = float(window_center[0])
+                except (TypeError, IndexError):
+                    window_center = 0.0  # Valor padrão seguro
+                
+            try:
+                window_width = float(window_width)
+            except (TypeError, ValueError):
+                try:
+                    window_width = float(window_width[0])
+                except (TypeError, IndexError):
+                    window_width = 1.0  # Valor padrão seguro
+            
+            # Calcular limites da janela
+            window_min = window_center - window_width / 2
+            window_max = window_center + window_width / 2
+            
+            # Aplicar janelamento
+            image = np.clip(image, window_min, window_max)
+            
+            logger.debug(f"Janelamento aplicado: WC={window_center}, WW={window_width}")
+            return image
+            
+        except Exception as e:
+            logger.warning(f"Erro no janelamento DICOM: {e}. Retornando imagem original.")
+            return image
     
-    def _normalize_array(self, array: np.ndarray) -> np.ndarray:
-        """Normaliza array para range 0-255"""
-        array_min = np.min(array)
-        array_max = np.max(array)
-        
-        if array_max > array_min:
-            array = ((array - array_min) / (array_max - array_min)) * 255
-        else:
-            array = np.zeros_like(array)
-        
-        return array
+    def _normalize_array_legacy(self, array: np.ndarray) -> np.ndarray:
+        """
+        Normalização legacy para range 0-255 (usado como fallback)
+        Substituído pela normalização específica por modalidade
+        """
+        try:
+            p1, p99 = np.percentile(array, [1, 99])
+            
+            if p99 > p1:
+                array = np.clip(array, p1, p99)
+                array = ((array - p1) / (p99 - p1)) * 255
+            else:
+                array = np.zeros_like(array)
+            
+            return array
+        except:
+            array_min = np.min(array)
+            array_max = np.max(array)
+            
+            if array_max > array_min:
+                array = ((array - array_min) / (array_max - array_min)) * 255
+            else:
+                array = np.zeros_like(array)
+            
+            return array
     
     def extract_metadata(self, ds: pydicom.Dataset) -> Dict:
         """
@@ -237,35 +318,69 @@ class DicomProcessor:
                          image: np.ndarray, 
                          target_size: Tuple[int, int],
                          modality: str = 'CR',
-                         normalize: bool = True) -> np.ndarray:
+                         normalize: bool = True,
+                         ds: Optional[pydicom.Dataset] = None) -> np.ndarray:
         """
         Pré-processa imagem para entrada em modelo de IA
-        Aplica pré-processamento específico por modalidade
+        Usa normalização específica por modalidade quando disponível
         
         Args:
             image: Array da imagem
             target_size: Tamanho alvo (altura, largura)
             modality: Modalidade médica (CR, CT, MR, US, MG, etc.)
             normalize: Se deve normalizar para [0, 1]
+            ds: Dataset DICOM opcional para normalização avançada
             
         Returns:
-            Imagem pré-processada
+            Imagem pré-processada com normalização médica otimizada
         """
-        # Redimensionar
-        image = cv2.resize(image, target_size[::-1], interpolation=cv2.INTER_LANCZOS4)
-        
-        # Pré-processamento específico por modalidade
-        image = self._apply_modality_preprocessing(image, modality)
-        
-        # Normalizar se necessário
-        if normalize:
-            image = image.astype(np.float32) / 255.0
-        
-        # Adicionar dimensão de canal se necessário
-        if len(image.shape) == 2:
-            image = np.expand_dims(image, axis=-1)
-        
-        return image
+        try:
+            if ds is not None and self.normalizer is not None:
+                if modality == 'CT':
+                    normalized_image = self.normalizer.normalize_ct(ds, target_organ='soft_tissue')
+                elif modality in ['MR', 'MRI']:
+                    normalized_image = self.normalizer.normalize_mri(image, sequence_type='T1')
+                elif modality in ['CR', 'DX']:
+                    normalized_image = self.normalizer.normalize_xray(image, enhance_contrast=True)
+                else:
+                    normalized_image = self.normalizer.normalize_by_modality(image, modality)
+                
+                # Redimensionar imagem normalizada
+                if normalized_image.dtype != np.uint8:
+                    normalized_image = (normalized_image * 255).astype(np.uint8)
+                
+                image = cv2.resize(normalized_image, target_size[::-1], interpolation=cv2.INTER_LANCZOS4)
+                
+                # Converter de volta para float se necessário
+                if normalize:
+                    image = image.astype(np.float32) / 255.0
+                    
+            else:
+                image = cv2.resize(image, target_size[::-1], interpolation=cv2.INTER_LANCZOS4)
+                image = self._apply_modality_preprocessing(image, modality)
+                
+                if normalize:
+                    image = image.astype(np.float32) / 255.0
+            
+            # Adicionar dimensão de canal se necessário
+            if len(image.shape) == 2:
+                image = np.expand_dims(image, axis=-1)
+            
+            logger.info(f"Pré-processamento AI aplicado para modalidade {modality}")
+            return image
+            
+        except Exception as e:
+            logger.error(f"Erro no pré-processamento AI: {e}. Usando método tradicional.")
+            image = cv2.resize(image, target_size[::-1], interpolation=cv2.INTER_LANCZOS4)
+            image = self._apply_modality_preprocessing(image, modality)
+            
+            if normalize:
+                image = image.astype(np.float32) / 255.0
+            
+            if len(image.shape) == 2:
+                image = np.expand_dims(image, axis=-1)
+            
+            return image
     
     def _apply_modality_preprocessing(self, image: np.ndarray, modality: str) -> np.ndarray:
         """

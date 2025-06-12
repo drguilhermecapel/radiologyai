@@ -235,45 +235,76 @@ class StateOfTheArtModels:
     
     def build_attention_weighted_ensemble(self) -> tf.keras.Model:
         """
-        Ensemble com fusão por atenção avançada para análise radiológica
-        Implementa 8 cabeças de atenção com espaço dimensional de 256
+        Ensemble com fusão por atenção avançada para análise radiológica 3D
+        Implementa processamento 3D com atenção multi-cabeça e preservação de contexto inter-slice
         Pesos baseados em performance clínica: 35% sensibilidade, 30% acurácia, 25% especificidade, 10% AUC
         """
-        inputs = layers.Input(shape=self.input_shape)
+        if len(self.input_shape) == 3:  # 2D input (H, W, C)
+            inputs = layers.Input(shape=self.input_shape)
+            is_3d = False
+        else:  # 3D input (D, H, W, C)
+            inputs = layers.Input(shape=self.input_shape)
+            is_3d = True
         
         x = layers.Rescaling(1./255)(inputs)
         x = self._medical_preprocessing(x)
         
-        # EfficientNetV2 - Especializado em detalhes finos
-        efficientnet = tf.keras.applications.EfficientNetV2B3(
-            input_shape=self.input_shape,
-            include_top=False,
-            weights='imagenet',
-            pooling='avg'
-        )
-        efficientnet.trainable = False
-        eff_features = efficientnet(x)
+        # EfficientNetV2 - Especializado em detalhes finos com processamento 3D
+        if is_3d:
+            eff_features_list = []
+            for i in range(tf.shape(x)[1]):  # Iterate through depth dimension
+                slice_2d = x[:, i, :, :, :]  # Extract slice
+                efficientnet = tf.keras.applications.EfficientNetV2B3(
+                    input_shape=self.input_shape[-3:],  # Last 3 dimensions (H, W, C)
+                    include_top=False,
+                    weights='imagenet',
+                    pooling='avg'
+                )
+                efficientnet.trainable = False
+                slice_features = efficientnet(slice_2d)
+                eff_features_list.append(slice_features)
+            
+            eff_features_3d = tf.stack(eff_features_list, axis=1)  # [batch, depth, features]
+            eff_features = self._apply_3d_attention_pooling(eff_features_3d, name='eff_3d_attention')
+        else:
+            efficientnet = tf.keras.applications.EfficientNetV2B3(
+                input_shape=self.input_shape,
+                include_top=False,
+                weights='imagenet',
+                pooling='avg'
+            )
+            efficientnet.trainable = False
+            eff_features = efficientnet(x)
+        
         eff_features_norm = layers.Dense(512, activation='gelu', name='eff_features_norm')(eff_features)
         eff_out = layers.Dense(512, activation='gelu', name='eff_dense')(eff_features_norm)
         eff_out = layers.Dropout(0.3, name='eff_dropout')(eff_out)
         eff_predictions = layers.Dense(self.num_classes, activation='softmax', name='efficientnet_pred')(eff_out)
         
-        # Vision Transformer - Especializado em padrões globais
-        vit_backbone = self._build_medical_vision_transformer_backbone(self.input_shape)
-        vit_features = vit_backbone(x)
+        # Vision Transformer - Especializado em padrões globais com processamento 3D
+        if is_3d:
+            vit_features = self._build_3d_vision_transformer(x)
+        else:
+            vit_backbone = self._build_medical_vision_transformer_backbone(self.input_shape)
+            vit_features = vit_backbone(x)
+        
         vit_features_norm = layers.Dense(512, activation='gelu', name='vit_features_norm')(vit_features)
         vit_out = layers.Dense(512, activation='gelu', name='vit_dense')(vit_features_norm)
         vit_out = layers.Dropout(0.3, name='vit_dropout')(vit_out)
         vit_predictions = layers.Dense(self.num_classes, activation='softmax', name='vit_pred')(vit_out)
         
-        convnext = tf.keras.applications.ConvNeXtBase(
-            input_shape=self.input_shape,
-            include_top=False,
-            weights='imagenet',
-            pooling='avg'
-        )
-        convnext.trainable = False
-        conv_features = convnext(x)
+        if is_3d:
+            conv_features = self._build_3d_convnext(x)
+        else:
+            convnext = tf.keras.applications.ConvNeXtBase(
+                input_shape=self.input_shape,
+                include_top=False,
+                weights='imagenet',
+                pooling='avg'
+            )
+            convnext.trainable = False
+            conv_features = convnext(x)
+        
         conv_features_norm = layers.Dense(512, activation='gelu', name='conv_features_norm')(conv_features)
         conv_out = layers.Dense(512, activation='gelu', name='conv_dense')(conv_features_norm)
         conv_out = layers.Dropout(0.3, name='conv_dropout')(conv_out)
@@ -709,3 +740,160 @@ class StateOfTheArtModels:
         }
         
         return scaling_params.get(base_model_size, scaling_params['B3'])
+    
+    def _apply_3d_attention_pooling(self, features_3d: tf.Tensor, name: str) -> tf.Tensor:
+        """
+        Aplica pooling com atenção 3D para agregar características inter-slice
+        Preserva informação contextual entre fatias adjacentes
+        """
+        # features_3d shape: [batch, depth, features]
+        batch_size = tf.shape(features_3d)[0]
+        depth = tf.shape(features_3d)[1]
+        feature_dim = tf.shape(features_3d)[2]
+        
+        # Self-attention across depth dimension
+        query = layers.Dense(feature_dim, name=f'{name}_query')(features_3d)
+        key = layers.Dense(feature_dim, name=f'{name}_key')(features_3d)
+        value = layers.Dense(feature_dim, name=f'{name}_value')(features_3d)
+        
+        attention_scores = tf.matmul(query, key, transpose_b=True)
+        attention_scores = attention_scores / tf.sqrt(tf.cast(feature_dim, tf.float32))
+        attention_weights = tf.nn.softmax(attention_scores, axis=-1)
+        
+        attended_features = tf.matmul(attention_weights, value)
+        
+        pooled_features = tf.reduce_mean(attended_features, axis=1)  # [batch, features]
+        
+        return pooled_features
+    
+    def _build_3d_vision_transformer(self, inputs: tf.Tensor) -> tf.Tensor:
+        """
+        Constrói Vision Transformer 3D para processamento volumétrico
+        Implementa atenção espacial e temporal para contexto inter-slice
+        """
+        batch_size = tf.shape(inputs)[0]
+        depth = tf.shape(inputs)[1]
+        height = tf.shape(inputs)[2]
+        width = tf.shape(inputs)[3]
+        channels = tf.shape(inputs)[4]
+        
+        patch_size = 16
+        num_patches_per_slice = (height // patch_size) * (width // patch_size)
+        total_patches = depth * num_patches_per_slice
+        
+        patches = self._extract_3d_patches(inputs, patch_size)
+        
+        embed_dim = 768
+        patch_embeddings = layers.Dense(embed_dim, name='3d_patch_embedding')(patches)
+        
+        position_embeddings = self._get_3d_positional_encoding(total_patches, embed_dim)
+        embedded_patches = patch_embeddings + position_embeddings
+        
+        x = embedded_patches
+        for i in range(6):  # 6 transformer blocks
+            x = self._3d_transformer_block(x, embed_dim, num_heads=12, name=f'3d_transformer_{i}')
+        
+        features = tf.reduce_mean(x, axis=1)  # [batch, embed_dim]
+        
+        return features
+    
+    def _build_3d_convnext(self, inputs: tf.Tensor) -> tf.Tensor:
+        """
+        Constrói ConvNeXt 3D para processamento volumétrico
+        Implementa convoluções 3D com atenção inter-slice
+        """
+        x = inputs
+        
+        x = layers.Conv3D(96, kernel_size=7, strides=2, padding='same', name='3d_conv_stem')(x)
+        x = layers.LayerNormalization(name='3d_norm_stem')(x)
+        
+        stage_dims = [96, 192, 384, 768]
+        for stage, dim in enumerate(stage_dims):
+            if stage > 0:
+                x = layers.Conv3D(dim, kernel_size=2, strides=2, padding='same', 
+                                name=f'3d_downsample_{stage}')(x)
+                x = layers.LayerNormalization(name=f'3d_norm_downsample_{stage}')(x)
+            
+            for block in range(2):
+                x = self._3d_convnext_block(x, dim, name=f'3d_convnext_stage{stage}_block{block}')
+        
+        x = layers.GlobalAveragePooling3D(name='3d_global_pool')(x)
+        
+        return x
+    
+    def _extract_3d_patches(self, images: tf.Tensor, patch_size: int) -> tf.Tensor:
+        """Extrai patches 3D de volumes médicos"""
+        batch_size = tf.shape(images)[0]
+        depth = tf.shape(images)[1]
+        height = tf.shape(images)[2]
+        width = tf.shape(images)[3]
+        channels = tf.shape(images)[4]
+        
+        patches_per_slice = []
+        for d in range(depth):
+            slice_2d = images[:, d, :, :, :]  # [batch, height, width, channels]
+            patches = tf.image.extract_patches(
+                slice_2d,
+                sizes=[1, patch_size, patch_size, 1],
+                strides=[1, patch_size, patch_size, 1],
+                rates=[1, 1, 1, 1],
+                padding='VALID'
+            )
+            patch_dim = patch_size * patch_size * channels
+            num_patches_h = height // patch_size
+            num_patches_w = width // patch_size
+            patches = tf.reshape(patches, [batch_size, num_patches_h * num_patches_w, patch_dim])
+            patches_per_slice.append(patches)
+        
+        all_patches = tf.concat(patches_per_slice, axis=1)  # [batch, total_patches, patch_dim]
+        
+        return all_patches
+    
+    def _get_3d_positional_encoding(self, num_patches: int, embed_dim: int) -> tf.Tensor:
+        """Gera codificação posicional 3D para patches volumétricos"""
+        position = tf.range(num_patches, dtype=tf.float32)[:, tf.newaxis]
+        div_term = tf.exp(tf.range(0, embed_dim, 2, dtype=tf.float32) * 
+                         -(tf.math.log(10000.0) / embed_dim))
+        
+        pos_encoding = tf.zeros((num_patches, embed_dim))
+        pos_encoding = tf.tensor_scatter_nd_update(
+            pos_encoding,
+            tf.stack([tf.range(num_patches), tf.zeros(num_patches, dtype=tf.int32)], axis=1),
+            tf.sin(position * div_term[0])
+        )
+        
+        return pos_encoding[tf.newaxis, :, :]  # [1, num_patches, embed_dim]
+    
+    def _3d_transformer_block(self, x: tf.Tensor, embed_dim: int, num_heads: int, name: str) -> tf.Tensor:
+        """Bloco transformer 3D com atenção multi-cabeça"""
+        attention_output = layers.MultiHeadAttention(
+            num_heads=num_heads,
+            key_dim=embed_dim // num_heads,
+            name=f'{name}_attention'
+        )(x, x)
+        
+        x = layers.Add(name=f'{name}_add1')([x, attention_output])
+        x = layers.LayerNormalization(name=f'{name}_norm1')(x)
+        
+        mlp_output = layers.Dense(embed_dim * 4, activation='gelu', name=f'{name}_mlp1')(x)
+        mlp_output = layers.Dense(embed_dim, name=f'{name}_mlp2')(mlp_output)
+        
+        x = layers.Add(name=f'{name}_add2')([x, mlp_output])
+        x = layers.LayerNormalization(name=f'{name}_norm2')(x)
+        
+        return x
+    
+    def _3d_convnext_block(self, x: tf.Tensor, dim: int, name: str) -> tf.Tensor:
+        """Bloco ConvNeXt 3D com atenção espacial"""
+        residual = x
+        
+        x = layers.Conv3D(dim, kernel_size=7, padding='same', groups=dim, name=f'{name}_dwconv')(x)
+        x = layers.LayerNormalization(name=f'{name}_norm')(x)
+        
+        x = layers.Conv3D(4 * dim, kernel_size=1, name=f'{name}_pwconv1')(x)
+        x = layers.Activation('gelu', name=f'{name}_gelu')(x)
+        x = layers.Conv3D(dim, kernel_size=1, name=f'{name}_pwconv2')(x)
+        
+        x = layers.Add(name=f'{name}_add')([residual, x])
+        
+        return x

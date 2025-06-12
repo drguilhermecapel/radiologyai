@@ -9,6 +9,14 @@ import tensorflow as tf
 from typing import Dict, List, Optional, Any, Tuple
 import logging
 
+try:
+    from .medai_modality_normalizer import ModalitySpecificNormalizer
+except ImportError:
+    try:
+        from medai_modality_normalizer import ModalitySpecificNormalizer
+    except ImportError:
+        ModalitySpecificNormalizer = None
+
 logger = logging.getLogger('MedAI.Explainability')
 
 class GradCAMExplainer:
@@ -20,9 +28,15 @@ class GradCAMExplainer:
     def __init__(self, model=None):
         self.model = model
         self.last_conv_layer = None
+        
+        if ModalitySpecificNormalizer:
+            self.normalizer = ModalitySpecificNormalizer()
+        else:
+            self.normalizer = None
+            
         logger.info("GradCAMExplainer inicializado")
     
-    def generate_heatmap(self, image: np.ndarray, class_idx: int = None) -> np.ndarray:
+    def generate_heatmap(self, image: np.ndarray, class_idx: Optional[int] = None, modality: str = 'CR') -> np.ndarray:
         """
         Gera mapa de calor GradCAM para explicar predições
         
@@ -43,9 +57,16 @@ class GradCAMExplainer:
             
             heatmap = cv2.resize(heatmap, (w, h))
             
-            heatmap = (heatmap - np.min(heatmap)) / (np.max(heatmap) - np.min(heatmap) + 1e-8)
+            if self.normalizer is not None:
+                try:
+                    heatmap_normalized = self.normalizer.normalize_by_modality(heatmap, modality)
+                except Exception as e:
+                    logger.warning(f"Erro na normalização específica por modalidade: {e}. Usando normalização robusta.")
+                    heatmap_normalized = self._robust_normalize(heatmap)
+            else:
+                heatmap_normalized = self._robust_normalize(heatmap)
             
-            return heatmap
+            return heatmap_normalized
             
         except Exception as e:
             logger.error(f"Erro na geração do GradCAM: {e}")
@@ -71,6 +92,32 @@ class GradCAMExplainer:
         except Exception as e:
             logger.warning(f"Erro na simulação do mapa de atenção: {e}")
             return np.random.rand(224, 224).astype(np.float32)
+    
+    def _robust_normalize(self, array: np.ndarray) -> np.ndarray:
+        """
+        Normalização robusta usando percentis para evitar outliers
+        Substitui a normalização genérica min-max
+        """
+        try:
+            p1, p99 = np.percentile(array, [1, 99])
+            
+            if p99 > p1:
+                normalized = np.clip(array, p1, p99)
+                normalized = (normalized - p1) / (p99 - p1)
+            else:
+                normalized = np.zeros_like(array, dtype=np.float32)
+            
+            return normalized.astype(np.float32)
+        except:
+            array_min = np.min(array)
+            array_max = np.max(array)
+            
+            if array_max > array_min:
+                normalized = (array - array_min) / (array_max - array_min)
+            else:
+                normalized = np.zeros_like(array, dtype=np.float32)
+            
+            return normalized
     
     def overlay_heatmap(self, image: np.ndarray, heatmap: np.ndarray, alpha: float = 0.4) -> np.ndarray:
         """
@@ -115,9 +162,15 @@ class IntegratedGradientsExplainer:
     def __init__(self, model=None):
         self.model = model
         self.baseline = None
+        
+        if ModalitySpecificNormalizer:
+            self.normalizer = ModalitySpecificNormalizer()
+        else:
+            self.normalizer = None
+            
         logger.info("IntegratedGradientsExplainer inicializado")
     
-    def explain_prediction(self, image: np.ndarray, target_class: int = None, steps: int = 50) -> np.ndarray:
+    def explain_prediction(self, image: np.ndarray, target_class: Optional[int] = None, steps: int = 50, modality: str = 'CR') -> np.ndarray:
         """
         Gera explicação usando Integrated Gradients
         
@@ -130,7 +183,7 @@ class IntegratedGradientsExplainer:
             Mapa de atribuição como array numpy
         """
         try:
-            attribution_map = self._simulate_integrated_gradients(image, steps)
+            attribution_map = self._simulate_integrated_gradients(image, steps, modality)
             
             return attribution_map
             
@@ -138,7 +191,7 @@ class IntegratedGradientsExplainer:
             logger.error(f"Erro no Integrated Gradients: {e}")
             return np.zeros_like(image, dtype=np.float32)
     
-    def _simulate_integrated_gradients(self, image: np.ndarray, steps: int) -> np.ndarray:
+    def _simulate_integrated_gradients(self, image: np.ndarray, steps: int, modality: str = 'CR') -> np.ndarray:
         """Simula cálculo de Integrated Gradients"""
         try:
             baseline = np.zeros_like(image)
@@ -167,7 +220,7 @@ class IntegratedGradientsExplainer:
             
         except Exception as e:
             logger.warning(f"Erro na simulação do Integrated Gradients: {e}")
-            return np.random.rand(*image.shape[:2]).astype(np.float32)
+            return np.random.random(image.shape[:2]).astype(np.float32)
     
     def visualize_attribution(self, image: np.ndarray, attribution: np.ndarray) -> np.ndarray:
         """
@@ -181,7 +234,14 @@ class IntegratedGradientsExplainer:
             Visualização da atribuição
         """
         try:
-            attr_norm = (attribution - np.min(attribution)) / (np.max(attribution) - np.min(attribution) + 1e-8)
+            if self.normalizer is not None:
+                try:
+                    attr_norm = self.normalizer.normalize_by_modality(attribution, 'CR')  # Default to CR for attribution maps
+                except Exception as e:
+                    logger.warning(f"Erro na normalização específica da atribuição: {e}. Usando normalização robusta.")
+                    attr_norm = self._robust_normalize(attribution)
+            else:
+                attr_norm = self._robust_normalize(attribution)
             
             attr_colored = cv2.applyColorMap(
                 (attr_norm * 255).astype(np.uint8),
@@ -193,6 +253,32 @@ class IntegratedGradientsExplainer:
         except Exception as e:
             logger.error(f"Erro na visualização da atribuição: {e}")
             return image
+    
+    def _robust_normalize(self, array: np.ndarray) -> np.ndarray:
+        """
+        Normalização robusta usando percentis para evitar outliers
+        Substitui a normalização genérica min-max
+        """
+        try:
+            p1, p99 = np.percentile(array, [1, 99])
+            
+            if p99 > p1:
+                normalized = np.clip(array, p1, p99)
+                normalized = (normalized - p1) / (p99 - p1)
+            else:
+                normalized = np.zeros_like(array, dtype=np.float32)
+            
+            return normalized.astype(np.float32)
+        except:
+            array_min = np.min(array)
+            array_max = np.max(array)
+            
+            if array_max > array_min:
+                normalized = (array - array_min) / (array_max - array_min)
+            else:
+                normalized = np.zeros_like(array, dtype=np.float32)
+            
+            return normalized
 
 class ExplainabilityManager:
     """
@@ -202,9 +288,15 @@ class ExplainabilityManager:
     def __init__(self):
         self.gradcam = GradCAMExplainer()
         self.integrated_gradients = IntegratedGradientsExplainer()
+        
+        if ModalitySpecificNormalizer:
+            self.normalizer = ModalitySpecificNormalizer()
+        else:
+            self.normalizer = None
+            
         logger.info("ExplainabilityManager inicializado")
     
-    def explain_prediction(self, image: np.ndarray, prediction: Dict, method: str = 'gradcam') -> Dict:
+    def explain_prediction(self, image: np.ndarray, prediction: Dict, method: str = 'gradcam', modality: str = 'CR') -> Dict:
         """
         Gera explicação para uma predição
         
@@ -224,7 +316,7 @@ class ExplainabilityManager:
             }
             
             if method == 'gradcam':
-                heatmap = self.gradcam.generate_heatmap(image)
+                heatmap = self.gradcam.generate_heatmap(image, modality=modality)
                 overlay = self.gradcam.overlay_heatmap(image, heatmap)
                 
                 explanation['visual_explanations'] = {
@@ -234,7 +326,7 @@ class ExplainabilityManager:
                 }
                 
             elif method == 'integrated_gradients':
-                attribution = self.integrated_gradients.explain_prediction(image)
+                attribution = self.integrated_gradients.explain_prediction(image, modality=modality)
                 visualization = self.integrated_gradients.visualize_attribution(image, attribution)
                 
                 explanation['visual_explanations'] = {
