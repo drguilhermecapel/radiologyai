@@ -177,11 +177,12 @@ def api_status():
 
 @app.route('/api/analyze', methods=['POST'])
 def api_analyze():
-    """Análise avançada de imagem médica com ensemble e métricas clínicas"""
-    global medai_system
-    
-    if not medai_system:
-        return jsonify({'error': 'Sistema não inicializado'}), 500
+    """Análise avançada de imagem médica com TorchXRayVision AI real"""
+    try:
+        from torchxray_integration import TorchXRayInference
+        torchxray_model = TorchXRayInference()
+    except Exception as e:
+        return jsonify({'error': f'Erro ao carregar modelo TorchXRayVision: {str(e)}'}), 500
     
     try:
         if 'image' not in request.files:

@@ -235,6 +235,76 @@ class MedicalInferenceEngine:
             )
             
             logger.info(f"Predição por detecção de patologia: {predicted_class} ({confidence:.2%})")
+    
+    def _process_torchxray_predictions(self, torchxray_result: Dict, patient_info: Optional[Dict] = None) -> Dict:
+        """
+        Process TorchXRayVision predictions into MedAI format
+        
+        Args:
+            torchxray_result: Result from TorchXRayVision model
+            patient_info: Optional patient information
+            
+        Returns:
+            Processed analysis result in MedAI format
+        """
+        try:
+            # Extract primary diagnosis and confidence
+            primary_diagnosis = torchxray_result.get('primary_diagnosis', 'normal')
+            confidence = torchxray_result.get('confidence', 0.0)
+            
+            diagnosis_mapping = {
+                'pneumonia': 'Pneumonia',
+                'pleural_effusion': 'Derrame pleural',
+                'fracture': 'Fratura óssea',
+                'tumor': 'Massa/Nódulo suspeito',
+                'normal': 'Normal'
+            }
+            
+            mapped_diagnosis = diagnosis_mapping.get(primary_diagnosis, primary_diagnosis.title())
+            
+            # Get clinical findings and recommendations
+            findings = torchxray_result.get('clinical_findings', [])
+            recommendations = torchxray_result.get('recommendations', [])
+            
+            if patient_info:
+                age = patient_info.get('age')
+                if age and age < 18:
+                    recommendations.append("Considerar características pediátricas na avaliação")
+            
+            pathology_scores = torchxray_result.get('pathology_scores', {})
+            category_scores = torchxray_result.get('category_scores', {})
+            
+            return {
+                'diagnosis': mapped_diagnosis,
+                'confidence': confidence,
+                'findings': findings,
+                'recommendations': recommendations,
+                'pathology_details': {
+                    'individual_pathologies': pathology_scores,
+                    'category_scores': category_scores,
+                    'primary_category': primary_diagnosis
+                },
+                'model_info': {
+                    'model_type': 'torchxrayvision',
+                    'model_name': torchxray_result.get('model_info', {}).get('model_name', 'densenet121'),
+                    'pathologies_detected': torchxray_result.get('model_info', {}).get('pathologies_detected', 0),
+                    'total_pathologies': torchxray_result.get('model_info', {}).get('total_pathologies', 18)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing TorchXRayVision predictions: {str(e)}")
+            return {
+                'diagnosis': 'Erro na análise',
+                'confidence': 0.0,
+                'findings': [f'Erro no processamento: {str(e)}'],
+                'recommendations': ['Repetir análise ou consultar especialista'],
+                'model_info': {
+                    'model_type': 'torchxrayvision_error',
+                    'error': str(e)
+                }
+            }
+
             return result
         
         # Verificar cache
