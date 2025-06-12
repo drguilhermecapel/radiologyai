@@ -249,10 +249,22 @@ def train_model_progressive(architecture, data_dir, output_dir, epochs, batch_si
                     list(history_phase1.history[key]) + 
                     list(history_phase2.history.get(key, []))
                 )
+        elif isinstance(history_phase1, dict) and isinstance(history_phase2, dict):
+            for key in history_phase1.keys():
+                combined_history[key] = (
+                    list(history_phase1.get(key, [])) + 
+                    list(history_phase2.get(key, []))
+                )
         
         logger.info("Avaliando modelo com métricas clínicas...")
-        pipeline.model = model
-        metrics = pipeline.evaluate(test_ds)
+        results = model.evaluate(test_ds, verbose=0)
+        metrics = {}
+        if isinstance(results, list):
+            metrics['loss'] = results[0]
+            if len(results) > 1:
+                metrics['accuracy'] = results[1]
+        else:
+            metrics['loss'] = results
         
         clinical_evaluator = ClinicalPerformanceEvaluator()
         
@@ -426,13 +438,13 @@ def create_advanced_ensemble(trained_models, model_metrics, output_dir):
         
         # Criar modelo ensemble físico usando StateOfTheArtModels
         try:
-            sota_models = StateOfTheArtModels()
+            sota_models = StateOfTheArtModels(input_shape=(384, 384, 3), num_classes=5)
             
-            ensemble_model = sota_models.create_ensemble_model(
-                input_shape=(384, 384, 3),
-                num_classes=5,
-                model_weights=weights
-            )
+            efficientnet_model = sota_models.build_real_efficientnetv2()
+            vit_model = sota_models.build_real_vision_transformer()
+            convnext_model = sota_models.build_real_convnext()
+            
+            ensemble_model = sota_models.build_attention_weighted_ensemble()
             
             if ensemble_model:
                 ensemble_model_path = os.path.join(output_dir, "advanced_ensemble_model.h5")

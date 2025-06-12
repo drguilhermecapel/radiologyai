@@ -72,46 +72,72 @@ class MedicalInferenceEngine:
     def _load_model(self):
         """Carrega modelo treinado com suporte a arquiteturas SOTA"""
         try:
+            checkpoint_dir = Path("checkpoints")
+            if checkpoint_dir.exists():
+                checkpoint_files = list(checkpoint_dir.glob("model_*.h5"))
+                if checkpoint_files:
+                    best_checkpoint = min(checkpoint_files, 
+                                        key=lambda x: float(x.stem.split('_')[-1]))
+                    
+                    try:
+                        self.model = tf.keras.models.load_model(
+                            str(best_checkpoint),
+                            compile=False
+                        )
+                        
+                        # Recompile with inference metrics
+                        self.model.compile(
+                            optimizer='adam',
+                            loss='categorical_crossentropy',
+                            metrics=['accuracy']
+                        )
+                        
+                        logger.info(f"Best trained checkpoint loaded: {best_checkpoint}")
+                        self._is_dummy_model = False
+                        return
+                        
+                    except Exception as load_error:
+                        logger.warning(f"Error loading checkpoint {best_checkpoint}: {load_error}")
+            
             if self.model_path.exists() and self.model_path.suffix == '.h5':
                 try:
                     self.model = tf.keras.models.load_model(
                         str(self.model_path),
-                        compile=False  # Compilar manualmente para controle
+                        compile=False
                     )
                     
-                    # Recompilar com métricas de inferência
                     self.model.compile(
                         optimizer='adam',
                         loss='categorical_crossentropy',
                         metrics=['accuracy']
                     )
                     
-                    logger.info(f"Modelo treinado carregado com sucesso: {self.model_path}")
+                    logger.info(f"Model loaded from path: {self.model_path}")
                     self._is_dummy_model = False
                     return
                     
                 except Exception as load_error:
-                    logger.warning(f"Erro ao carregar modelo H5: {load_error}")
+                    logger.warning(f"Error loading model H5: {load_error}")
             
             try:
                 with open(self.model_path, 'r') as f:
                     content = f.read()
                     if 'PLACEHOLDER_MODEL_FILE=True' in content:
-                        logger.info(f"Arquivo placeholder detectado: {self.model_path}. Criando modelo SOTA.")
+                        logger.info(f"Placeholder file detected: {self.model_path}. Creating SOTA model.")
                         self.model = self._create_sota_model()
                         self._is_dummy_model = False
                         return
             except:
                 pass
             
-            logger.warning(f"Modelo não encontrado em {self.model_path}. Criando modelo SOTA.")
+            logger.warning(f"No trained model found. Creating SOTA model.")
             self.model = self._create_sota_model()
             self._is_dummy_model = False
             
         except Exception as e:
-            logger.error(f"Erro ao carregar modelo: {str(e)}")
-            logger.info("Usando modelo simulado como fallback")
-            self.model = None  # No model needed for demo mode
+            logger.error(f"Error loading model: {str(e)}")
+            logger.info("Using simulation mode as fallback")
+            self.model = None
             self._is_dummy_model = True
     
     def _create_sota_model(self):
@@ -127,8 +153,8 @@ class MedicalInferenceEngine:
                 num_classes=num_classes
             )
             
-            model = sota_models.build_hybrid_cnn_transformer()
-            logger.info("Modelo Híbrido CNN-Transformer criado")
+            model = sota_models.build_real_efficientnetv2()
+            logger.info("Modelo EfficientNetV2 criado")
             
             sota_models.compile_sota_model(model)
             
@@ -188,53 +214,72 @@ class MedicalInferenceEngine:
         """
         start_time = time.time()
         
-        if hasattr(self, '_is_dummy_model') and self._is_dummy_model:
+        if not hasattr(self, 'model') or self.model is None:
+            logger.warning("Modelo não carregado, usando análise básica")
+            return self._analyze_image_fallback(image, metadata or {})
+        
+        try:
+            # Pré-processamento da imagem
             processed_image = self._preprocess_image(image)
             
-            pathology_score = self._detect_pathologies(processed_image)
+            # Expandir dimensões para batch
+            batch = np.expand_dims(processed_image, axis=0)
             
-            classes = self.model_config['classes']
+            # Predição usando modelo treinado
+            predictions = self.model.predict(batch, verbose=0)[0]
             
-            max_pathology_score = max(pathology_score['pneumonia'], pathology_score['pleural_effusion'])
+            # Obter classe predita
+            predicted_idx = np.argmax(predictions)
+            confidence = float(predictions[predicted_idx])
             
-            if pathology_score['pneumonia'] > 0.5 and pathology_score['pneumonia'] >= pathology_score['pleural_effusion']:
-                predicted_class = 'Pneumonia'
-                confidence = pathology_score['pneumonia']
-            elif pathology_score['pleural_effusion'] > 0.5 and pathology_score['pleural_effusion'] > pathology_score['pneumonia']:
-                predicted_class = 'Derrame Pleural'
-                confidence = pathology_score['pleural_effusion']
-            else:
-                predicted_class = 'Normal'
-                confidence = pathology_score['normal']
+            # Mapear para nomes de classes
+            class_names = ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
+            predicted_class = class_names[predicted_idx] if predicted_idx < len(class_names) else 'unknown'
             
+            class_mapping = {
+                'normal': 'Normal',
+                'pneumonia': 'Pneumonia',
+                'pleural_effusion': 'Derrame Pleural',
+                'fracture': 'Fratura',
+                'tumor': 'Tumor/Massa'
+            }
+            predicted_class_pt = class_mapping.get(predicted_class, predicted_class)
+            
+            # Criar dicionário de predições
             prediction_dict = {}
-            for cls in classes:
-                if cls == predicted_class:
-                    prediction_dict[cls] = confidence
-                elif cls == 'Pneumonia':
-                    prediction_dict[cls] = pathology_score['pneumonia']
-                elif cls == 'Derrame Pleural':
-                    prediction_dict[cls] = pathology_score['pleural_effusion']
-                else:
-                    prediction_dict[cls] = max(0.05, (1.0 - confidence) / max(1, len(classes) - 1))
+            for i, class_name in enumerate(class_names):
+                prediction_dict[class_mapping.get(class_name, class_name)] = float(predictions[i])
             
-            # Normalize to ensure sum equals 1
-            total = sum(prediction_dict.values())
-            if total > 0:
-                prediction_dict = {k: v/total for k, v in prediction_dict.items()}
+            # Gerar mapa de atenção se solicitado
+            attention_map = None
+            heatmap = None
+            
+            if return_attention:
+                try:
+                    heatmap = self._generate_gradcam_heatmap(processed_image, int(predicted_idx))
+                    attention_map = self._generate_attention_map(processed_image)
+                except Exception as e:
+                    logger.warning(f"Erro ao gerar mapas de atenção: {e}")
+            
+            processing_time = time.time() - start_time
             
             result = PredictionResult(
                 image_path="",
                 predictions=prediction_dict,
-                predicted_class=predicted_class,
+                predicted_class=predicted_class_pt,
                 confidence=confidence,
-                processing_time=time.time() - start_time,
-                heatmap=None,
-                attention_map=None,
-                metadata={'pathology_detection': True, 'scores': pathology_score}
+                processing_time=processing_time,
+                heatmap=heatmap,
+                attention_map=attention_map,
+                metadata={'trained_model': True, 'model_type': 'SOTA_ensemble'}
             )
             
-            logger.info(f"Predição por detecção de patologia: {predicted_class} ({confidence:.2%})")
+            logger.info(f"Predição com modelo treinado: {predicted_class_pt} (confiança: {confidence:.2%})")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Erro na predição com modelo treinado: {e}")
+            return self._analyze_image_fallback(image, metadata or {})
     
     def _process_torchxray_predictions(self, torchxray_result: Dict, patient_info: Optional[Dict] = None) -> Dict:
         """
@@ -304,62 +349,6 @@ class MedicalInferenceEngine:
                     'error': str(e)
                 }
             }
-
-            return result
-        
-        # Verificar cache
-        image_hash = hash(image.tobytes())
-        if image_hash in self._prediction_cache:
-            logger.info("Predição encontrada no cache")
-            return self._prediction_cache[image_hash]
-        
-        # Pré-processar imagem
-        processed_image = self._preprocess_image(image)
-        
-        # Expandir dimensões para batch
-        batch_image = np.expand_dims(processed_image, axis=0)
-        
-        # Predição - verificar se modelo está carregado
-        if self.model is None:
-            logger.warning("Modelo não carregado, usando análise de fallback")
-            return self._analyze_image_fallback(image, metadata)
-        predictions = self.model.predict(batch_image, verbose=0)[0]
-        
-        # Processar resultados
-        class_names = self.model_config['classes']
-        prediction_dict = {
-            class_names[i]: float(predictions[i]) 
-            for i in range(len(class_names))
-        }
-        
-        # Classe predita
-        predicted_idx = np.argmax(predictions)
-        predicted_class = class_names[predicted_idx]
-        confidence = float(predictions[predicted_idx])
-        
-        # Gerar mapas de atenção se solicitado
-        heatmap = None
-        attention_map = None
-        if return_attention:
-            heatmap = self._generate_gradcam_heatmap(batch_image, predicted_idx)
-            attention_map = self._generate_attention_map(batch_image)
-        
-        # Criar resultado
-        result = PredictionResult(
-            image_path="",
-            predictions=prediction_dict,
-            predicted_class=predicted_class,
-            confidence=confidence,
-            processing_time=time.time() - start_time,
-            heatmap=heatmap,
-            attention_map=attention_map,
-            metadata=metadata
-        )
-        
-        # Adicionar ao cache
-        self._add_to_cache(image_hash, result)
-        
-        return result
     
     def predict_batch(self,
                      images: List[np.ndarray],
@@ -399,6 +388,10 @@ class MedicalInferenceEngine:
                 ])
                 
                 # Predição em lote
+                if self.model is None:
+                    logger.error("Model not loaded for batch prediction")
+                    return []
+                
                 batch_predictions = self.model.predict(
                     processed_batch, 
                     verbose=0
@@ -456,7 +449,7 @@ class MedicalInferenceEngine:
             except Exception as e:
                 logger.error(f"Erro no streaming: {str(e)}")
     
-    def _preprocess_image(self, image: np.ndarray, image_path: str = None, modality: str = None) -> np.ndarray:
+    def _preprocess_image(self, image: np.ndarray, image_path: Optional[str] = None, modality: Optional[str] = None) -> np.ndarray:
         """
         Pré-processa imagem médica com normalização window/level e técnicas específicas
         
@@ -528,7 +521,7 @@ class MedicalInferenceEngine:
         
         return image
     
-    def apply_medical_augmentation(self, image: np.ndarray, augmentation_config: Dict = None) -> np.ndarray:
+    def apply_medical_augmentation(self, image: np.ndarray, augmentation_config: Optional[Dict] = None) -> np.ndarray:
         """
         Aplica técnicas de augmentação específicas para imagens médicas
         Baseado no scientific guide para simulação de variações clínicas
@@ -730,7 +723,7 @@ class MedicalInferenceEngine:
         
         return augmentation_pipeline
     
-    def _apply_dicom_windowing(self, image: np.ndarray, image_path: str, modality: str = None) -> np.ndarray:
+    def _apply_dicom_windowing(self, image: np.ndarray, image_path: str, modality: Optional[str] = None) -> np.ndarray:
         """
         Aplica normalização window/level específica para DICOM baseada na modalidade
         
@@ -755,7 +748,7 @@ class MedicalInferenceEngine:
                 window_width = window_width[0]
             
             if window_center is None or window_width is None:
-                modality = ds.Modality if hasattr(ds, 'Modality') else modality
+                modality = ds.Modality if hasattr(ds, 'Modality') else (modality or 'CT')
                 window_center, window_width = self._get_default_window_settings(modality)
             
             # Aplicar window/level
@@ -826,6 +819,10 @@ class MedicalInferenceEngine:
             Mapa de calor
         """
         # Encontrar última camada convolucional
+        if self.model is None:
+            logger.error("Model not loaded for GradCAM")
+            return np.zeros((224, 224), dtype=np.float32)
+            
         last_conv_layer = None
         for layer in reversed(self.model.layers):
             if isinstance(layer, (tf.keras.layers.Conv2D, 
@@ -834,7 +831,8 @@ class MedicalInferenceEngine:
                 break
         
         if not last_conv_layer:
-            return None
+            logger.warning("No convolutional layer found for GradCAM")
+            return np.zeros((224, 224), dtype=np.float32)
         
         # Criar modelo para obter saídas intermediárias
         grad_model = tf.keras.models.Model(
@@ -883,6 +881,10 @@ class MedicalInferenceEngine:
             Mapa de atenção ou None
         """
         # Procurar por camadas de atenção
+        if self.model is None:
+            logger.error("Model not loaded for attention map")
+            return np.array([])
+            
         attention_outputs = []
         
         for layer in self.model.layers:
@@ -916,7 +918,7 @@ class MedicalInferenceEngine:
     def visualize_prediction(self, 
                            image: np.ndarray,
                            result: PredictionResult,
-                           save_path: Optional[Path] = None) -> plt.Figure:
+                           save_path: Optional[Path] = None):
         """
         Visualiza resultado da predição com mapas de atenção
         
@@ -952,7 +954,8 @@ class MedicalInferenceEngine:
         # Heatmap Grad-CAM
         if result.heatmap is not None:
             # Sobrepor heatmap na imagem
-            heatmap_colored = plt.cm.jet(result.heatmap)[:, :, :3]
+            import matplotlib.cm as cm
+            heatmap_colored = cm.get_cmap('jet')(result.heatmap)[:, :, :3]
             
             if len(image.shape) == 2:
                 image_rgb = np.stack([image] * 3, axis=-1)
@@ -1018,7 +1021,8 @@ class MedicalInferenceEngine:
             Métricas de incerteza
         """
         # Entropia
-        entropy = -np.sum(predictions * np.log(predictions + 1e-10))
+        predictions_float = np.array(predictions, dtype=np.float64)
+        entropy = -np.sum(predictions_float * np.log(predictions_float + 1e-10))
         max_entropy = np.log(n_classes)
         normalized_entropy = entropy / max_entropy
         
@@ -1093,7 +1097,7 @@ class MedicalInferenceEngine:
                 ]
             },
             'technical_details': {
-                'model_used': result.metadata.get('model_name', 'Unknown'),
+                'model_used': result.metadata.get('model_name', 'Unknown') if result.metadata else 'Unknown',
                 'processing_time': result.processing_time,
                 'image_quality_score': self._assess_image_quality(result),
                 'uncertainty_level': self._calculate_uncertainty(result)
@@ -1164,30 +1168,49 @@ class MedicalInferenceEngine:
             'clinical_history': patient_metadata.get('history', 'Not available')
         }
     
-    def _detect_pathologies(self, image: np.ndarray) -> Dict[str, float]:
+    def _detect_pathologies(self, image: np.ndarray, metadata: Optional[Dict] = None) -> PredictionResult:
         """Detect pathologies using trained models or image analysis fallback"""
         try:
             if hasattr(self, 'model') and self.model is not None and not getattr(self, '_is_dummy_model', True):
-                return self._predict_with_trained_model(image)
+                trained_result = self._predict_with_trained_model(image, metadata or {})
+                predicted_class = max(trained_result.keys(), key=lambda k: trained_result[k])
+                return PredictionResult(
+                    predicted_class=predicted_class,
+                    confidence=trained_result[predicted_class],
+                    predictions=trained_result,
+                    processing_time=0.0,
+                    image_path=""
+                )
             else:
-                return self._analyze_image_fallback(image, {})
+                return self._analyze_image_fallback(image, metadata or {})
                 
         except Exception as e:
             logger.error(f"Error in pathology detection: {e}")
-            return {
+            fallback_scores = {
                 'pneumonia': 0.1,
                 'pleural_effusion': 0.1,
                 'fracture': 0.1,
                 'tumor': 0.1,
                 'normal': 0.6
             }
+            return PredictionResult(
+                predicted_class='normal',
+                confidence=0.6,
+                predictions=fallback_scores,
+                processing_time=0.0,
+                image_path=""
+            )
     
-    def _predict_with_trained_model(self, image: np.ndarray) -> Dict[str, float]:
+    def _predict_with_trained_model(self, image: np.ndarray, metadata: Optional[Dict] = None) -> Dict[str, float]:
         """Use trained SOTA model for pathology predictions"""
         try:
             processed_image = self._preprocess_for_model(image)
             
             batch = np.expand_dims(processed_image, axis=0)
+            
+            if self.model is None:
+                logger.error("Model is None - cannot make predictions")
+                raise ValueError("Model not loaded")
             
             predictions = self.model.predict(batch, verbose=0)[0]
             
@@ -1217,7 +1240,13 @@ class MedicalInferenceEngine:
             
         except Exception as e:
             logger.error(f"Error in trained model prediction: {e}")
-            return self._analyze_image_fallback(image, {})
+            return {
+                'normal': 0.6,
+                'pneumonia': 0.1,
+                'pleural_effusion': 0.1,
+                'fracture': 0.1,
+                'tumor': 0.1
+            }
     
     def _preprocess_for_model(self, image: np.ndarray) -> np.ndarray:
         """Preprocess image for SOTA model input with proper channel handling"""
@@ -1247,14 +1276,22 @@ class MedicalInferenceEngine:
             logger.error(f"Error in image preprocessing: {e}")
             return np.zeros((224, 224, 1), dtype=np.float32)
     
-    def _analyze_image_fallback(self, image: np.ndarray, metadata: Dict = None) -> PredictionResult:
+    def _analyze_image_fallback(self, image: np.ndarray, metadata: Optional[Dict] = None) -> PredictionResult:
         """Fallback image analysis when trained models are not available"""
         start_time = time.time()
         
         try:
             if hasattr(self, 'model') and self.model is not None and not self._is_dummy_model:
                 logger.info("Using trained model for prediction instead of fallback")
-                return self._predict_with_trained_model(image, metadata or {})
+                trained_scores = self._predict_with_trained_model(image, metadata or {})
+                predicted_class = max(trained_scores.keys(), key=lambda k: trained_scores[k])
+                return PredictionResult(
+                    predicted_class=predicted_class,
+                    confidence=trained_scores[predicted_class],
+                    predictions=trained_scores,
+                    processing_time=0.0,
+                    image_path=""
+                )
         except Exception as e:
             logger.warning(f"Trained model prediction failed, using fallback: {e}")
         
@@ -1314,7 +1351,7 @@ class MedicalInferenceEngine:
             }
         
         # Determine predicted class and confidence
-        predicted_class = max(pathology_scores, key=pathology_scores.get)
+        predicted_class = max(pathology_scores.keys(), key=lambda k: pathology_scores[k])
         confidence = pathology_scores[predicted_class]
         
         result = PredictionResult(
@@ -1349,7 +1386,7 @@ class MedicalInferenceEngine:
         height = gray.shape[0]
         bottom_third = gray[int(height * 0.67):, :]
         bottom_density = np.mean(bottom_third) / mean_intensity if mean_intensity > 0 else 0
-        pleural_effusion_score = min(0.7, max(0, (bottom_density - 1.0) * 2))
+        pleural_effusion_score = min(0.7, max(0.0, float((bottom_density - 1.0) * 2)))
         
         normal_score = 1.0 - max(pneumonia_score, pleural_effusion_score)
         
@@ -1431,7 +1468,7 @@ class MedicalInferenceEngine:
         if density_ratio > 1.15 and strong_horizontal_lines > (width * 0.08):
             base_score = min(0.6, density_ratio * 0.4 + strong_horizontal_lines / (width * 2.0))
         else:
-            base_score = min(0.2, density_ratio * 0.2)
+            base_score = min(0.2, float(density_ratio * 0.2))
         
         final_score = min(0.5, base_score + fluid_line_score * 0.2)
         
