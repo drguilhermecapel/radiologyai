@@ -244,6 +244,46 @@
             font-size: 0.9em;
             color: #1565c0;
         }
+        
+        .diagnosis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .diagnosis-item:last-child {
+            border-bottom: none;
+        }
+        
+        .diagnosis-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .diagnosis-confidence {
+            font-size: 0.9em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .diagnosis-confidence.high {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .diagnosis-confidence.moderate {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .diagnosis-confidence.low {
+            background: #ffebee;
+            color: #c62828;
+        }
     </style>
 </head>
 <body>
@@ -288,14 +328,8 @@
                 
                 <div class="result-grid">
                     <div class="result-card">
-                        <h3>🎯 Diagnóstico Principal</h3>
-                        <p id="predicted-class">-</p>
-                        <div class="confidence-bar">
-                            <div id="confidence-fill" class="confidence-fill" style="width: 0%"></div>
-                        </div>
-                        <p style="margin-top: 5px; font-size: 0.9em;">
-                            Confiança: <span id="confidence-text">0%</span>
-                        </p>
+                        <h3>🎯 Todos os Diagnósticos Possíveis</h3>
+                        <div id="all-diagnoses-list">-</div>
                     </div>
                     
                     <div class="result-card">
@@ -424,17 +458,39 @@
         function displayResult(result) {
             const analysis = result.analysis || {};
             
-            // Update result elements
-            document.getElementById('predicted-class').textContent = 
-                analysis.predicted_class || 'Não determinado';
+            // Display all diagnoses instead of just primary
+            const allDiagnoses = analysis.all_diagnoses || [];
+            const diagnosesListElement = document.getElementById('all-diagnoses-list');
             
-            const confidence = (analysis.confidence || 0) * 100;
-            document.getElementById('confidence-text').textContent = `${confidence.toFixed(1)}%`;
-            document.getElementById('confidence-fill').style.width = `${confidence}%`;
+            if (allDiagnoses.length > 0) {
+                let diagnosesHTML = '';
+                allDiagnoses.forEach((diagnosis, index) => {
+                    const confidence = (diagnosis.confidence * 100).toFixed(1);
+                    const significanceClass = diagnosis.clinical_significance || 'moderate';
+                    
+                    diagnosesHTML += `
+                        <div class="diagnosis-item">
+                            <span class="diagnosis-name">${diagnosis.diagnosis}</span>
+                            <span class="diagnosis-confidence ${significanceClass}">${confidence}%</span>
+                        </div>
+                    `;
+                });
+                diagnosesListElement.innerHTML = diagnosesHTML;
+            } else {
+                // Fallback to single diagnosis display
+                const predictedClass = analysis.predicted_class || 'Não determinado';
+                const confidence = ((analysis.confidence || 0) * 100).toFixed(1);
+                diagnosesListElement.innerHTML = `
+                    <div class="diagnosis-item">
+                        <span class="diagnosis-name">${predictedClass}</span>
+                        <span class="diagnosis-confidence moderate">${confidence}%</span>
+                    </div>
+                `;
+            }
             
             document.getElementById('findings').textContent = 
-                (analysis.findings && analysis.findings.length > 0) 
-                    ? analysis.findings.join(', ') 
+                (analysis.clinical_findings && analysis.clinical_findings.length > 0) 
+                    ? analysis.clinical_findings.join(', ') 
                     : 'Nenhum achado específico';
             
             document.getElementById('recommendations').textContent = 
@@ -443,18 +499,24 @@
                     : 'Acompanhamento de rotina';
             
             document.getElementById('model-used').textContent = 
-                result.model_used || 'MedAI Neural Network';
+                (analysis.model_info && analysis.model_info.model_name) || 'TorchXRayVision';
             
             document.getElementById('processing-time').textContent = 
-                (result.processing_time || 0).toFixed(2);
+                (analysis.processing_time || 0).toFixed(2);
 
-            // Update status badge
+            // Update status badge based on highest confidence diagnosis
             const statusBadge = document.getElementById('status-badge');
-            const predictedClass = (analysis.predicted_class || '').toLowerCase();
+            const primaryDiagnosis = allDiagnoses.length > 0 ? allDiagnoses[0] : null;
             
-            if (predictedClass.includes('normal') || predictedClass.includes('sem alterações')) {
-                statusBadge.textContent = '✅ Normal';
-                statusBadge.className = 'status-badge status-normal';
+            if (primaryDiagnosis) {
+                const diagnosisName = primaryDiagnosis.diagnosis.toLowerCase();
+                if (diagnosisName.includes('normal') || diagnosisName.includes('sem alterações')) {
+                    statusBadge.textContent = '✅ Normal';
+                    statusBadge.className = 'status-badge status-normal';
+                } else {
+                    statusBadge.textContent = '⚠️ Requer Atenção';
+                    statusBadge.className = 'status-badge status-abnormal';
+                }
             } else {
                 statusBadge.textContent = '⚠️ Requer Atenção';
                 statusBadge.className = 'status-badge status-abnormal';

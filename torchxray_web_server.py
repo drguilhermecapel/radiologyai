@@ -143,6 +143,9 @@ def api_analyze():
                         'error': f'TorchXRayVision analysis error: {torchxray_result["error"]}'
                     }), 500
                 
+                all_diagnoses = torchxray_result.get('all_diagnoses', [])
+                primary_diagnosis = torchxray_result.get('primary_diagnosis', 'normal')
+                
                 diagnosis_mapping = {
                     'pneumonia': 'Pneumonia',
                     'pleural_effusion': 'Derrame pleural', 
@@ -151,7 +154,6 @@ def api_analyze():
                     'normal': 'Normal'
                 }
                 
-                primary_diagnosis = torchxray_result.get('primary_diagnosis', 'normal')
                 predicted_class = diagnosis_mapping.get(primary_diagnosis, primary_diagnosis.title())
                 confidence = torchxray_result.get('confidence', 0.0)
                 pathology_scores = torchxray_result.get('pathology_scores', {})
@@ -165,6 +167,7 @@ def api_analyze():
                     'analysis': {
                         'predicted_class': predicted_class,
                         'confidence': float(confidence),
+                        'all_diagnoses': all_diagnoses,  # New: all significant diagnoses
                         'pathology_scores': pathology_scores,
                         'clinical_findings': clinical_findings,
                         'recommendations': recommendations,
@@ -174,7 +177,7 @@ def api_analyze():
                             'model_name': torchxray_result.get('model_info', {}).get('model_name', 'densenet121'),
                             'pathologies_detected': torchxray_result.get('model_info', {}).get('pathologies_detected', 0),
                             'total_pathologies': torchxray_result.get('model_info', {}).get('total_pathologies', 18),
-                            'ai_version': '3.0-torchxray-real'
+                            'ai_version': '3.0-torchxray-multi-diagnosis'
                         }
                     },
                     'metadata': {
@@ -182,7 +185,8 @@ def api_analyze():
                         'file_size': os.path.getsize(filepath),
                         'timestamp': time.time(),
                         'image_shape': image.shape,
-                        'primary_category': primary_diagnosis
+                        'primary_category': primary_diagnosis,
+                        'total_diagnoses': len(all_diagnoses)
                     }
                 }
                 

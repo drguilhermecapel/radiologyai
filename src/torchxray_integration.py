@@ -177,6 +177,8 @@ class TorchXRayInference:
             primary_diagnosis = self._determine_primary_diagnosis(final_scores)
             confidence = final_scores.get(primary_diagnosis, 0.0)
             
+            all_diagnoses = self._get_all_significant_diagnoses(final_scores, pathology_scores)
+            
             findings = self._generate_clinical_findings(pathology_scores, final_scores)
             recommendations = self._generate_recommendations(primary_diagnosis, confidence)
             
@@ -185,6 +187,7 @@ class TorchXRayInference:
             result = {
                 'primary_diagnosis': primary_diagnosis,
                 'confidence': confidence,
+                'all_diagnoses': all_diagnoses,  # New: all significant diagnoses
                 'pathology_scores': pathology_scores,
                 'category_scores': final_scores,
                 'clinical_findings': findings,
@@ -227,6 +230,54 @@ class TorchXRayInference:
             return max(category_scores.items(), key=lambda x: x[1])[0]
         
         return 'normal'
+    
+    def _get_all_significant_diagnoses(self, category_scores: Dict[str, float], pathology_scores: Dict[str, float]) -> List[Dict]:
+        """
+        Get all significant diagnoses with their confidence scores
+        """
+        significant_diagnoses = []
+        
+        for category, score in category_scores.items():
+            threshold = self.clinical_thresholds.get(category, 0.15)
+            if score >= threshold:
+                diagnosis_mapping = {
+                    'pneumonia': 'Pneumonia',
+                    'pleural_effusion': 'Derrame pleural', 
+                    'fracture': 'Fratura óssea',
+                    'tumor': 'Massa/Nódulo suspeito',
+                    'normal': 'Normal'
+                }
+                
+                significant_diagnoses.append({
+                    'diagnosis': diagnosis_mapping.get(category, category.title()),
+                    'confidence': score,
+                    'category': category,
+                    'clinical_significance': 'high' if score > 0.5 else 'moderate' if score > 0.3 else 'low'
+                })
+        
+        pathology_threshold = 0.2
+        for pathology, score in pathology_scores.items():
+            if score >= pathology_threshold:
+                category = self.pathology_mapping.get(pathology, 'other')
+                if not any(d['category'] == category for d in significant_diagnoses):
+                    significant_diagnoses.append({
+                        'diagnosis': pathology,
+                        'confidence': score,
+                        'category': 'pathology_specific',
+                        'clinical_significance': 'high' if score > 0.5 else 'moderate' if score > 0.3 else 'low'
+                    })
+        
+        significant_diagnoses.sort(key=lambda x: x['confidence'], reverse=True)
+        
+        if not significant_diagnoses:
+            significant_diagnoses.append({
+                'diagnosis': 'Normal',
+                'confidence': category_scores.get('normal', 0.5),
+                'category': 'normal',
+                'clinical_significance': 'moderate'
+            })
+        
+        return significant_diagnoses
     
     def _generate_clinical_findings(self, pathology_scores: Dict[str, float], category_scores: Dict[str, float]) -> List[str]:
         """Generate clinical findings based on pathology scores"""
