@@ -4,13 +4,24 @@
       "model_path": "models/chest_xray_efficientnetv2_model.h5",
       "input_size": [384, 384, 3],
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
-      "threshold": 0.75,
-      "pathology_thresholds": {
-        "pneumonia": 0.65,
-        "pleural_effusion": 0.75,
-        "fracture": 0.68,
-        "tumor": 0.75,
-        "normal": 0.45
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.75,
+        "clinical_requirements": {
+          "pneumonia": {"sensitivity": 0.90, "specificity": 0.85},
+          "pleural_effusion": {"sensitivity": 0.88, "specificity": 0.87},
+          "fracture": {"sensitivity": 0.92, "specificity": 0.90},
+          "tumor": {"sensitivity": 0.85, "specificity": 0.92},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "pneumonia": 0.65,
+          "pleural_effusion": 0.75,
+          "fracture": 0.68,
+          "tumor": 0.75,
+          "normal": 0.45
+        }
       },
       "architecture": "EfficientNetV2",
       "preprocessing": {
@@ -39,13 +50,24 @@
       "input_size": [224, 224, 3],
       "patch_size": 16,
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
-      "threshold": 0.75,
-      "pathology_thresholds": {
-        "pneumonia": 0.65,
-        "pleural_effusion": 0.75,
-        "fracture": 0.68,
-        "tumor": 0.75,
-        "normal": 0.45
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.75,
+        "clinical_requirements": {
+          "pneumonia": {"sensitivity": 0.90, "specificity": 0.85},
+          "pleural_effusion": {"sensitivity": 0.88, "specificity": 0.87},
+          "fracture": {"sensitivity": 0.92, "specificity": 0.90},
+          "tumor": {"sensitivity": 0.85, "specificity": 0.92},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "pneumonia": 0.65,
+          "pleural_effusion": 0.75,
+          "fracture": 0.68,
+          "tumor": 0.75,
+          "normal": 0.45
+        }
       },
       "architecture": "VisionTransformer",
       "preprocessing": {
@@ -75,13 +97,24 @@
       "model_path": "models/chest_xray_convnext_model.h5",
       "input_size": [256, 256, 3],
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
-      "threshold": 0.78,
-      "pathology_thresholds": {
-        "pneumonia": 0.65,
-        "pleural_effusion": 0.75,
-        "fracture": 0.68,
-        "tumor": 0.75,
-        "normal": 0.45
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.78,
+        "clinical_requirements": {
+          "pneumonia": {"sensitivity": 0.90, "specificity": 0.85},
+          "pleural_effusion": {"sensitivity": 0.88, "specificity": 0.87},
+          "fracture": {"sensitivity": 0.92, "specificity": 0.90},
+          "tumor": {"sensitivity": 0.85, "specificity": 0.92},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "pneumonia": 0.65,
+          "pleural_effusion": 0.75,
+          "fracture": 0.68,
+          "tumor": 0.75,
+          "normal": 0.45
+        }
       },
       "architecture": "ConvNeXt",
       "preprocessing": {
@@ -111,13 +144,24 @@
       "model_path": "models/ensemble_model.h5",
       "input_size": [384, 384, 3],
       "classes": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
-      "threshold": 0.80,
-      "pathology_thresholds": {
-        "pneumonia": 0.65,
-        "pleural_effusion": 0.75,
-        "fracture": 0.68,
-        "tumor": 0.75,
-        "normal": 0.45
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.80,
+        "clinical_requirements": {
+          "pneumonia": {"sensitivity": 0.90, "specificity": 0.85},
+          "pleural_effusion": {"sensitivity": 0.88, "specificity": 0.87},
+          "fracture": {"sensitivity": 0.92, "specificity": 0.90},
+          "tumor": {"sensitivity": 0.85, "specificity": 0.92},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "pneumonia": 0.65,
+          "pleural_effusion": 0.75,
+          "fracture": 0.68,
+          "tumor": 0.75,
+          "normal": 0.45
+        }
       },
       "architecture": "Ensemble",
       "component_models": [
@@ -157,7 +201,25 @@
       "model_path": "models/brain_ct_densenet_model.h5", 
       "input_size": [512, 512, 3],
       "classes": ["normal", "tumor", "stroke", "hemorrhage", "edema"],
-      "threshold": 0.90,
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.90,
+        "clinical_requirements": {
+          "tumor": {"sensitivity": 0.95, "specificity": 0.88},
+          "stroke": {"sensitivity": 0.95, "specificity": 0.88},
+          "hemorrhage": {"sensitivity": 0.98, "specificity": 0.85},
+          "edema": {"sensitivity": 0.85, "specificity": 0.90},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "tumor": 0.85,
+          "stroke": 0.88,
+          "hemorrhage": 0.92,
+          "edema": 0.75,
+          "normal": 0.45
+        }
+      },
       "architecture": "DenseNet",
       "preprocessing": {
         "normalize": true,
@@ -179,7 +241,23 @@
       "model_path": "models/bone_xray_resnet_model.h5",
       "input_size": [256, 256, 3], 
       "classes": ["normal", "fracture", "arthritis", "osteoporosis"],
-      "threshold": 0.88,
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.88,
+        "clinical_requirements": {
+          "fracture": {"sensitivity": 0.92, "specificity": 0.90},
+          "arthritis": {"sensitivity": 0.85, "specificity": 0.88},
+          "osteoporosis": {"sensitivity": 0.80, "specificity": 0.90},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "fracture": 0.80,
+          "arthritis": 0.75,
+          "osteoporosis": 0.70,
+          "normal": 0.45
+        }
+      },
       "architecture": "ResNet",
       "preprocessing": {
         "normalize": true,
@@ -246,6 +324,29 @@
     "ensemble_model": "https://models.medai.com/ensemble_model_v3.h5",
     "brain_ct_densenet": "https://models.medai.com/brain_ct_v2.h5",
     "bone_xray_resnet": "https://models.medai.com/bone_xray_v2.h5"
+  },
+  "modality_specific_normalization": {
+    "enabled": true,
+    "ct_windowing": {
+      "lung": {"center": -600, "width": 1500},
+      "mediastinum": {"center": 50, "width": 450},
+      "bone": {"center": 400, "width": 1800},
+      "brain": {"center": 40, "width": 80},
+      "liver": {"center": 50, "width": 400},
+      "soft_tissue": {"center": 50, "width": 450}
+    },
+    "mri_sequences": {
+      "T1": {"percentile_range": [1, 99], "bias_correction": true},
+      "T2": {"percentile_range": [1, 99], "bias_correction": true},
+      "FLAIR": {"percentile_range": [2, 98], "bias_correction": true},
+      "DWI": {"percentile_range": [5, 95], "bias_correction": true}
+    },
+    "xray_enhancement": {
+      "clahe_enabled": true,
+      "clip_limit": 2.0,
+      "tile_grid_size": [8, 8],
+      "percentile_normalization": [1, 99]
+    }
   },
   "advanced_model_parameters": {
     "progressive_training": {

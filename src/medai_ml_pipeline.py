@@ -20,6 +20,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 try:
+    from .medai_modality_normalizer import ModalitySpecificNormalizer
+except ImportError:
+    ModalitySpecificNormalizer = None
+
+try:
     import mlflow
     import mlflow.tensorflow
     MLFLOW_AVAILABLE = True
@@ -122,6 +127,11 @@ class MLPipeline:
         
         # Verificar recursos
         self._check_resources()
+        
+        if ModalitySpecificNormalizer:
+            self.normalizer = ModalitySpecificNormalizer()
+        else:
+            self.normalizer = None
         
     def _load_config(self, config_path: Optional[str]) -> Dict:
         """Carrega configuração do pipeline"""
@@ -469,17 +479,17 @@ class MLPipeline:
     def _medical_preprocessing_tf(self, image: tf.Tensor, modality: str = 'CR', architecture: str = 'EfficientNetV2') -> tf.Tensor:
         """
         Pré-processamento avançado específico para imagens médicas
-        Implementa CLAHE avançado, windowing DICOM, segmentação pulmonar e otimizações por arquitetura
+        Implementa normalização específica por modalidade, CLAHE avançado e otimizações por arquitetura
         """
         # Ensure image has proper format
         if len(tf.shape(image)) == 2:
             image = tf.expand_dims(image, axis=-1)
         
-        image = self._apply_dicom_windowing_tf(image, modality)
-        
-        image = self._apply_advanced_clahe_tf(image)
+        # Apply modality-specific normalization using TensorFlow operations
+        image = self._apply_modality_specific_normalization_tf(image, modality)
         
         if modality in ['CR', 'DX', 'CXR']:
+            image = self._apply_advanced_clahe_tf(image)
             image = self._apply_lung_segmentation_tf(image)
         
         image = self._apply_architecture_specific_preprocessing_tf(image, architecture)
@@ -492,25 +502,66 @@ class MLPipeline:
         
         return image
     
-    def _apply_dicom_windowing_tf(self, image: tf.Tensor, modality: str) -> tf.Tensor:
-        """Aplicar windowing específico por modalidade DICOM"""
+    def _apply_modality_specific_normalization_tf(self, image: tf.Tensor, modality: str) -> tf.Tensor:
+        """
+        Aplicar normalização específica por modalidade usando operações TensorFlow
+        Implementa windowing CT com HU, correção de bias field para MRI e CLAHE para X-ray
+        """
         if modality == 'CT':
-            window_center, window_width = 40.0, 400.0  # Soft tissue window
-        elif modality in ['CR', 'DX', 'CXR']:  # X-ray
-            window_center, window_width = 2048.0, 4096.0
-        elif modality == 'MR':
-            window_center, window_width = 600.0, 1200.0
+            window_center, window_width = 40.0, 400.0
+            lower_bound = window_center - window_width / 2.0
+            upper_bound = window_center + window_width / 2.0
+            
+            windowed_image = tf.clip_by_value(image, lower_bound, upper_bound)
+            normalized_image = (windowed_image - lower_bound) / window_width
+            
+        elif modality in ['MR', 'MRI']:
+            threshold = tf.reduce_mean(image) * 0.1  # Background threshold
+            mask = tf.cast(image > threshold, tf.float32)
+            
+            # Calculate mean and std excluding background
+            masked_image = image * mask
+            valid_pixels = tf.reduce_sum(mask)
+            
+            mean_val = tf.cond(
+                valid_pixels > 0,
+                lambda: tf.reduce_sum(masked_image) / valid_pixels,
+                lambda: tf.reduce_mean(image)
+            )
+            
+            variance = tf.cond(
+                valid_pixels > 0,
+                lambda: tf.reduce_sum(tf.square(masked_image - mean_val) * mask) / valid_pixels,
+                lambda: tf.math.reduce_variance(image)
+            )
+            
+            std_val = tf.sqrt(variance + 1e-8)
+            
+            normalized_image = (image - mean_val) / std_val
+            normalized_image = tf.clip_by_value(normalized_image, -3.0, 3.0)
+            normalized_image = (normalized_image + 3.0) / 6.0
+            
+        elif modality in ['CR', 'DX', 'CXR']:
+            # Calculate percentiles for robust normalization
+            flat_image = tf.reshape(image, [-1])
+            sorted_values = tf.sort(flat_image)
+            n_pixels = tf.shape(sorted_values)[0]
+            
+            p1_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.01, tf.int32)
+            p99_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.99, tf.int32)
+            
+            p1_val = sorted_values[p1_idx]
+            p99_val = sorted_values[p99_idx]
+            
+            clipped_image = tf.clip_by_value(image, p1_val, p99_val)
+            normalized_image = (clipped_image - p1_val) / (p99_val - p1_val + 1e-8)
+            
         else:
-            window_center = tf.reduce_mean(image)
-            window_width = tf.reduce_max(image) - tf.reduce_min(image)
+            p1_val = tf.reduce_min(image)
+            p99_val = tf.reduce_max(image)
+            normalized_image = (image - p1_val) / (p99_val - p1_val + 1e-8)
         
-        lower_bound = window_center - window_width / 2.0
-        upper_bound = window_center + window_width / 2.0
-        
-        windowed_image = tf.clip_by_value(image, lower_bound, upper_bound)
-        windowed_image = (windowed_image - lower_bound) / window_width
-        
-        return windowed_image
+        return tf.cast(normalized_image, tf.float32)
     
     def _apply_advanced_clahe_tf(self, image: tf.Tensor, clip_limit: float = 2.0, tile_size: int = 8) -> tf.Tensor:
         """
@@ -631,9 +682,8 @@ class MLPipeline:
         return image
     
     def _efficientnet_preprocessing_tf(self, image: tf.Tensor) -> tf.Tensor:
-        """Pré-processamento simplificado para EfficientNetV2 (compatível com CPU)"""
-        # Simple normalization without problematic operations
-        image = tf.cast(image, tf.float32) / 255.0
+        """Pré-processamento para EfficientNetV2 preservando informação médica"""
+        image = tf.cast(image, tf.float32)
         
         image = (image - 0.5) / 0.5
         
