@@ -30,11 +30,23 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 def after_request(response):
     """Add headers to prevent credential conflicts in public deployments"""
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Accept')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Accept,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'false')
+    response.headers.add('Cache-Control', 'no-cache, no-store, must-revalidate')
     if response.content_type and 'json' not in response.content_type:
         response.headers['Content-Type'] = 'application/json'
     return response
+
+@app.route('/api/analyze', methods=['OPTIONS'])
+def api_analyze_options():
+    """Handle preflight requests for analyze endpoint"""
+    return '', 200
+
+@app.route('/api/status', methods=['OPTIONS'])
+def api_status_options():
+    """Handle preflight requests for status endpoint"""
+    return '', 200
 
 @app.route('/')
 def index():
