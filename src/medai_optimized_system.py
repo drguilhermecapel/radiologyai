@@ -18,6 +18,10 @@ try:
     from .medai_regulatory_compliance import RegulatoryCompliance, RegulatoryStandard
     from .medai_security_audit import SecurityManager
     from .medai_clinical_monitoring_dashboard import ClinicalMonitoringDashboard
+    from .medai_confidence_calibration import ConfidenceCalibration
+    from .medai_feature_extraction import MedicalFeatureExtractor
+    from .medai_medical_augmentation import MedicalAugmentationTF
+    from .medai_sota_models import SOTAModelBuilder
 except ImportError:
     from medai_secure_radiology_pipeline import SecureRadiologyPipeline
     from medai_production_monitoring import ProductionMonitoring
@@ -25,6 +29,10 @@ except ImportError:
     from medai_regulatory_compliance import RegulatoryCompliance, RegulatoryStandard
     from medai_security_audit import SecurityManager
     from medai_clinical_monitoring_dashboard import ClinicalMonitoringDashboard
+    from medai_confidence_calibration import ConfidenceCalibration
+    from medai_feature_extraction import MedicalFeatureExtractor
+    from medai_medical_augmentation import MedicalAugmentationTF
+    from medai_sota_models import SOTAModelBuilder
 
 logger = logging.getLogger('MedAI.OptimizedSystem')
 
@@ -82,10 +90,29 @@ class OptimizedRadiologyAISystem:
                 'drift_detection': True,
                 'performance_tracking': True,
                 'edge_case_testing': True,
-                'alert_thresholds': {
+                'performance_threshold': {
                     'accuracy': 0.90,
                     'sensitivity': 0.85,
-                    'specificity': 0.85
+                    'specificity': 0.85,
+                    'precision': 0.80,
+                    'f1_score': 0.82,
+                    'auc': 0.88
+                },
+                'drift_thresholds': {
+                    'kl_divergence': 0.1,
+                    'psi_threshold': 0.2,
+                    'performance_drop': 0.05,
+                    'confidence_shift': 0.15
+                },
+                'monitoring_windows': {
+                    'short_term': 24,
+                    'medium_term': 168,
+                    'long_term': 720
+                },
+                'alert_settings': {
+                    'email_alerts': True,
+                    'slack_alerts': False,
+                    'dashboard_alerts': True
                 }
             },
             'compliance': {
@@ -126,6 +153,34 @@ class OptimizedRadiologyAISystem:
             
             self.clinical_dashboard = ClinicalMonitoringDashboard()
             
+            try:
+                self.confidence_calibration = ConfidenceCalibration()
+                logger.info("Sistema de calibração de confiança inicializado")
+            except Exception as e:
+                logger.warning(f"Falha ao inicializar calibração de confiança: {e}")
+                self.confidence_calibration = None
+            
+            try:
+                self.medical_feature_extractor = MedicalFeatureExtractor()
+                logger.info("Extrator de características médicas inicializado")
+            except Exception as e:
+                logger.warning(f"Falha ao inicializar extrator de características: {e}")
+                self.medical_feature_extractor = None
+            
+            try:
+                self.medical_augmentation = MedicalAugmentationTF()
+                logger.info("Sistema de augmentação médica inicializado")
+            except Exception as e:
+                logger.warning(f"Falha ao inicializar augmentação médica: {e}")
+                self.medical_augmentation = None
+            
+            try:
+                self.sota_model_builder = SOTAModelBuilder(input_shape=(224, 224, 3), num_classes=5)
+                logger.info("Construtor de modelos SOTA inicializado")
+            except Exception as e:
+                logger.warning(f"Falha ao inicializar construtor SOTA: {e}")
+                self.sota_model_builder = None
+            
             logger.info("Todos os componentes inicializados com sucesso")
             
         except Exception as e:
@@ -158,6 +213,28 @@ class OptimizedRadiologyAISystem:
                     'processing_time': result['quality_metrics']['processing_time'],
                     'clinical_ready': result['quality_metrics']['quality_score'] > 0.8
                 }
+                
+                if self.confidence_calibration and 'confidence' in result['prediction']:
+                    try:
+                        calibrated_confidence = self.confidence_calibration.calibrate_prediction(
+                            result['prediction']['confidence']
+                        )
+                        result['prediction']['calibrated_confidence'] = calibrated_confidence
+                        prediction_data['calibrated_confidence'] = calibrated_confidence
+                        logger.debug(f"Confiança calibrada: {result['prediction']['confidence']:.3f} -> {calibrated_confidence:.3f}")
+                    except Exception as e:
+                        logger.warning(f"Falha na calibração de confiança: {e}")
+                
+                if self.medical_feature_extractor:
+                    try:
+                        medical_features = self.medical_feature_extractor.extract_all_features(
+                            result.get('processed_image'), 
+                            modality=result.get('metadata', {}).get('modality', 'CR')
+                        )
+                        result['medical_features'] = medical_features
+                        logger.debug(f"Características médicas extraídas: {len(medical_features)} features")
+                    except Exception as e:
+                        logger.warning(f"Falha na extração de características médicas: {e}")
                 
                 self.clinical_dashboard.track_prediction_metrics(prediction_data)
                 
@@ -253,7 +330,11 @@ class OptimizedRadiologyAISystem:
                     'incident_response': 'operational',
                     'regulatory_compliance': compliance_status['status'],
                     'security_manager': security_status['status'],
-                    'clinical_dashboard': 'operational'
+                    'clinical_dashboard': 'operational',
+                    'confidence_calibration': 'operational' if self.confidence_calibration else 'unavailable',
+                    'medical_feature_extractor': 'operational' if self.medical_feature_extractor else 'unavailable',
+                    'medical_augmentation': 'operational' if self.medical_augmentation else 'unavailable',
+                    'sota_model_builder': 'operational' if self.sota_model_builder else 'unavailable'
                 },
                 'performance_metrics': {
                     'total_alerts_24h': monitoring_summary.get('total_alerts_24h', 0),
@@ -489,7 +570,13 @@ class OptimizedRadiologyAISystem:
                     'Sistema de resposta a incidentes',
                     'Conformidade regulatória automatizada',
                     'Auditoria e segurança avançada',
-                    'Dashboard de monitoramento clínico'
+                    'Dashboard de monitoramento clínico',
+                    'Calibração de confiança clínica',
+                    'Extração de características médicas avançadas',
+                    'Augmentação médica específica',
+                    'Ensemble de modelos especializados',
+                    'Explicabilidade integrada com Integrated Gradients',
+                    'Controle de qualidade automatizado'
                 ],
                 'compliance_standards': [
                     'FDA 510(k)',

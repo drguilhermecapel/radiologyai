@@ -25,6 +25,12 @@ except ImportError:
     ModalitySpecificNormalizer = None
 
 try:
+    from .medai_medical_augmentation import create_medical_augmentation_pipeline, MedicalAugmentationTF
+except ImportError:
+    create_medical_augmentation_pipeline = None
+    MedicalAugmentationTF = None
+
+try:
     import mlflow
     import mlflow.tensorflow
     MLFLOW_AVAILABLE = True
@@ -245,58 +251,62 @@ class MLPipeline:
             
             return image, label
         
-        # Função de augmentation
+        # Função de augmentation médica específica
         def augment(image, label):
             # Ensure image is float32 for all operations
             image = tf.cast(image, tf.float32)
             
-            # Rotação
-            if config.augmentation_config.get('rotation_range', 0) > 0:
-                angle = tf.random.uniform([], 
-                    -config.augmentation_config['rotation_range'], 
-                    config.augmentation_config['rotation_range']
-                ) * np.pi / 180
-                image = tf.image.rot90(image, k=int(angle/90))
+            modality = config.augmentation_config.get('modality', 'CR')
             
-            # Translação
-            if config.augmentation_config.get('width_shift_range', 0) > 0:
-                dx = tf.random.uniform([], 
-                    -config.augmentation_config['width_shift_range'], 
-                    config.augmentation_config['width_shift_range']
-                ) * tf.cast(tf.shape(image)[1], tf.float32)
-                dy = tf.random.uniform([], 
-                    -config.augmentation_config.get('height_shift_range', 0), 
-                    config.augmentation_config.get('height_shift_range', 0)
-                ) * tf.cast(tf.shape(image)[0], tf.float32)
-                image = tf.keras.utils.img_to_array(tf.keras.preprocessing.image.apply_affine_transform(
-                    tf.keras.utils.array_to_img(image), tx=dx, ty=dy, fill_mode='nearest'))
-            
-            # Zoom
-            if config.augmentation_config.get('zoom_range', 0) > 0:
-                zoom_factor = tf.random.uniform([], 
-                    1 - config.augmentation_config['zoom_range'],
-                    1 + config.augmentation_config['zoom_range']
-                )
-                new_size = tf.cast(
-                    tf.cast(tf.shape(image)[:2], tf.float32) * zoom_factor, 
-                    tf.int32
-                )
-                image = tf.image.resize(image, new_size)
-                image = tf.image.resize_with_crop_or_pad(
-                    image, config.image_size[0], config.image_size[1]
+            max_rotation = min(config.augmentation_config.get('rotation_range', 5), 5.0)
+            if max_rotation > 0:
+                angle = tf.random.uniform([], -max_rotation, max_rotation) * np.pi / 180
+                image = tf.keras.utils.image_utils.apply_affine_transform(
+                    image, theta=angle, fill_mode='nearest'
                 )
             
-            # Flip horizontal
-            if config.augmentation_config.get('horizontal_flip', False):
+            if config.augmentation_config.get('medical_noise', True):
+                noise_factor = config.augmentation_config.get('noise_factor', 0.05)
+                noise_std = tf.random.uniform([], 0.01, noise_factor) * tf.math.reduce_std(image)
+                noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=noise_std)
+                image = tf.clip_by_value(image + noise, 0.0, 1.0)
+            
+            # Simulação de movimento respiratório para modalidades de tórax
+            if modality in ['CR', 'DX'] and config.augmentation_config.get('breathing_motion', True):
+                max_displacement = config.augmentation_config.get('max_displacement', 2.0)
+                dy = tf.random.uniform([], -max_displacement, max_displacement)
+                dx = tf.random.uniform([], -max_displacement/2, max_displacement/2)
+                image = tf.keras.utils.image_utils.apply_affine_transform(
+                    image, tx=dx, ty=dy, fill_mode='nearest'
+                )
+            
+            # Ajustes de contraste específicos por modalidade
+            contrast_range = config.augmentation_config.get('contrast_range', 0.1)
+            if modality == 'CT':
+                contrast_range = min(contrast_range, 0.1)  # CT requer menos variação
+            elif modality in ['CR', 'DX']:
+                contrast_range = min(contrast_range, 0.2)  # Raios-X podem ter mais variação
+            
+            if contrast_range > 0:
+                image = tf.image.random_contrast(image, 
+                    1 - contrast_range, 1 + contrast_range)
+            
+            # Ajustes de brilho específicos por modalidade
+            brightness_range = config.augmentation_config.get('brightness_range', 0.05)
+            if modality == 'CT':
+                brightness_range = min(brightness_range, 0.05)
+            elif modality in ['CR', 'DX']:
+                brightness_range = min(brightness_range, 0.1)
+            
+            if brightness_range > 0:
+                image = tf.image.random_brightness(image, brightness_range)
+            
+            # Flip horizontal apenas se clinicamente apropriado
+            if (config.augmentation_config.get('horizontal_flip', False) and 
+                modality not in ['CR', 'DX']):  # Evitar flip em raios-X de tórax
                 image = tf.image.random_flip_left_right(image)
             
-            # Ajustes de brilho/contraste
-            image = tf.image.random_brightness(image, 0.1)
-            image = tf.image.random_contrast(image, 0.9, 1.1)
-            
-            # Ruído gaussiano
-            noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=0.02, dtype=tf.float32)
-            image = image + noise
+            # Normalização final
             image = tf.clip_by_value(image, 0.0, 1.0)
             
             return image, label

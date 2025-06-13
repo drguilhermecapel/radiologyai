@@ -1,0 +1,313 @@
+
+
+preprocessing:
+  modality_settings:
+    CT:
+      window_presets:
+        lung: [-1000, 500]
+        mediastinum: [-50, 350]
+        bone: [400, 1800]
+        brain: [0, 80]
+        liver: [30, 150]
+      slice_thickness_normalization: true
+      hounsfield_unit_conversion: true
+      
+    CR:  # Chest X-ray
+      clahe_params:
+        clip_limit: 3.0
+        tile_grid_size: [16, 16]
+      auto_crop: true
+      remove_annotations: true
+      lung_field_segmentation: true
+      
+    MR:
+      bias_field_correction: true
+      intensity_normalization: "z-score"
+      skull_stripping: true
+      
+  quality_control:
+    min_resolution: [512, 512]
+    max_resolution: [4096, 4096]
+    contrast_threshold: 0.3
+    brightness_range: [0.1, 0.9]
+    noise_threshold: 0.2
+    reject_corrupted: true
+    
+  advanced_preprocessing:
+    anisotropic_diffusion: true
+    morphological_operations: true
+    frequency_domain_filtering: true
+    histogram_matching: true
+
+
+augmentation:
+  spatial_augmentations:
+    rotation:
+      range: [-10, 10]  # Graus - pacientes não ficam perfeitamente alinhados
+      fill_mode: "nearest"
+      preserve_range: true
+      
+    translation:
+      x_range: [-0.05, 0.05]  # 5% da largura
+      y_range: [-0.05, 0.05]  # 5% da altura
+      
+    elastic_deformation:
+      alpha: 20
+      sigma: 3
+      probability: 0.3
+      
+    breathing_simulation:  # Específico para chest X-ray
+      enabled: true
+      intensity: "mild"
+      
+  intensity_augmentations:
+    contrast_variation:
+      range: [0.8, 1.2]
+      preserve_histogram: true
+      
+    brightness_variation:
+      range: [-0.1, 0.1]
+      
+    noise_injection:
+      types: ["poisson", "gaussian", "speckle"]
+      intensity: "realistic"
+      
+    acquisition_variation:
+      simulate_low_dose: true
+      simulate_motion_blur: true
+      
+  forbidden_augmentations:
+    - horizontal_flip  # Lateralidade é importante!
+    - extreme_zoom  # Pode cortar anatomia importante
+    - color_jitter  # Imagens médicas são grayscale
+    - cutout  # Remove informação diagnóstica
+
+
+model_architecture:
+  ensemble_strategy: "weighted_average"
+  
+  specialized_models:
+    pneumonia_detector:
+      base_model: "EfficientNetV2-L"
+      input_size: [512, 512]
+      pretrained: "imagenet"
+      fine_tune_layers: 100
+      specific_features:
+        - "consolidation_patterns"
+        - "air_bronchograms"
+        - "bilateral_distribution"
+      
+    nodule_detector:
+      base_model: "ResNet152V2"
+      input_size: [512, 512]
+      attention_mechanism: "spatial"
+      multi_scale: true
+      anchor_sizes: [4, 8, 16, 32, 64]
+      
+    cardiomegaly_analyzer:
+      base_model: "DenseNet201"
+      input_size: [512, 512]
+      additional_inputs:
+        - "cardiothoracic_ratio"
+        - "heart_boundaries"
+      regression_head: true
+      
+    fracture_detector:
+      base_model: "ConvNeXt-XL"
+      input_size: [768, 768]
+      high_resolution: true
+      edge_enhancement: true
+      
+    general_pathology:
+      base_model: "ViT-L/16"  # Vision Transformer
+      input_size: [384, 384]
+      patch_size: 16
+      multi_label: true
+      
+  advanced_techniques:
+    attention_mechanisms:
+      - "self_attention"
+      - "cross_attention"
+      - "spatial_attention"
+      - "channel_attention"
+      
+    multi_task_learning:
+      tasks:
+        - "classification"
+        - "localization"
+        - "severity_assessment"
+        - "differential_diagnosis"
+      
+    uncertainty_estimation:
+      method: "monte_carlo_dropout"
+      n_iterations: 10
+      
+    gradient_accumulation:
+      steps: 4  # Para batch size efetivo maior
+
+
+training:
+  strategy:
+    distributed: true
+    mixed_precision: true
+    gradient_checkpointing: true
+    
+  optimizer:
+    name: "AdamW"
+    learning_rate: 1e-4
+    weight_decay: 1e-5
+    
+    lr_schedule:
+      name: "cosine_restarts"
+      initial_lr: 1e-4
+      first_decay_steps: 1000
+      t_mul: 2.0
+      m_mul: 0.9
+      alpha: 1e-6
+      
+  loss_functions:
+    classification:
+      name: "focal_loss"
+      alpha: 0.25
+      gamma: 2.0
+      
+    localization:
+      name: "giou_loss"
+      
+    auxiliary:
+      - "label_smoothing"
+      - "mixup"
+      - "cutmix"
+      
+  callbacks:
+    early_stopping:
+      monitor: "val_auc"
+      patience: 15
+      restore_best_weights: true
+      
+    reduce_lr:
+      monitor: "val_loss"
+      factor: 0.5
+      patience: 5
+      min_lr: 1e-7
+      
+    model_checkpoint:
+      save_best_only: true
+      save_weights_only: false
+      monitor: "val_f1_score"
+      
+    custom_callbacks:
+      - "GradientAccumulation"
+      - "WarmupSchedule"
+      - "StochasticWeightAveraging"
+
+
+validation:
+  cross_validation:
+    n_folds: 5
+    stratified: true
+    group_by: "patient_id"  # Importante!
+    
+  metrics:
+    primary:
+      - "sensitivity"  # Taxa de detecção
+      - "specificity"  # Taxa de verdadeiros negativos
+      - "ppv"  # Valor preditivo positivo
+      - "npv"  # Valor preditivo negativo
+      
+    secondary:
+      - "auc_roc"
+      - "auc_pr"  # Precision-Recall
+      - "f1_score"
+      - "cohen_kappa"
+      - "matthews_correlation"
+      
+    clinical:
+      - "number_needed_to_diagnose"
+      - "likelihood_ratio_positive"
+      - "likelihood_ratio_negative"
+      - "diagnostic_odds_ratio"
+      
+  operating_points:
+    screening:  # Alta sensibilidade
+      target_sensitivity: 0.95
+      acceptable_specificity: 0.70
+      
+    confirmation:  # Alta especificidade
+      target_specificity: 0.95
+      acceptable_sensitivity: 0.70
+      
+    balanced:  # Youden index
+      optimize: "youden"
+
+
+calibration:
+  methods:
+    - "temperature_scaling"
+    - "platt_scaling"
+    - "isotonic_regression"
+    - "beta_calibration"
+    
+  validation:
+    expected_calibration_error: 0.05
+    maximum_calibration_error: 0.10
+    reliability_diagrams: true
+    
+  confidence_thresholds:
+    min_confidence: 0.7
+    uncertainty_threshold: 0.3
+    abstention_allowed: true
+
+
+explainability:
+  methods:
+    - "grad_cam++"
+    - "integrated_gradients"
+    - "shap"
+    - "lime"
+    - "attention_rollout"
+    
+  visualizations:
+    heatmaps:
+      overlay_alpha: 0.4
+      colormap: "jet"
+      
+    bounding_boxes:
+      confidence_threshold: 0.5
+      nms_threshold: 0.3
+      
+    segmentation_masks:
+      alpha: 0.5
+      
+  report_generation:
+    include_confidence: true
+    include_alternatives: true
+    include_evidence: true
+    medical_terminology: true
+
+
+monitoring:
+  metrics_tracking:
+    - "prediction_latency"
+    - "model_accuracy"
+    - "confidence_distribution"
+    - "data_drift"
+    
+  alerts:
+    accuracy_drop:
+      threshold: 0.05
+      window: "24h"
+      
+    high_uncertainty:
+      threshold: 0.4
+      frequency: "10%"
+      
+    system_health:
+      memory_usage: 0.9
+      gpu_utilization: 0.95
+      
+  logging:
+    level: "INFO"
+    include_predictions: true
+    include_confidence: true
+    anonymize_patient_data: true

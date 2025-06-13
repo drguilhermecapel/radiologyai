@@ -897,3 +897,239 @@ class StateOfTheArtModels:
         x = layers.Add(name=f'{name}_add')([residual, x])
         
         return x
+    
+    def build_specialized_medical_ensemble(self, input_shape=(224, 224, 3), num_classes=5):
+        """
+        Builds ensemble of specialized medical models for different pathologies
+        Based on user's MedicalModelEnsemble improvements for diagnostic precision
+        """
+        inputs = layers.Input(shape=input_shape)
+        
+        pneumonia_features = self._build_pneumonia_specialist(inputs)
+        nodule_features = self._build_nodule_specialist(inputs)
+        cardiomegaly_features = self._build_cardiomegaly_specialist(inputs)
+        fracture_features = self._build_fracture_specialist(inputs)
+        general_features = self._build_general_pathology_specialist(inputs)
+        
+        specialized_features = [
+            pneumonia_features, nodule_features, cardiomegaly_features,
+            fracture_features, general_features
+        ]
+        
+        class SpecializedMedicalEnsemble(layers.Layer):
+            def __init__(self, num_specialists=5, attention_dim=256, **kwargs):
+                super().__init__(**kwargs)
+                self.num_specialists = num_specialists
+                self.attention_dim = attention_dim
+                
+                self.attention_dense = layers.Dense(attention_dim, activation='relu')
+                self.attention_weights = layers.Dense(num_specialists, activation='softmax')
+                
+                self.final_dense = layers.Dense(512, activation='relu')
+                self.final_dropout = layers.Dropout(0.3)
+                self.final_output = layers.Dense(num_classes, activation='softmax')
+                
+            def call(self, specialist_features):
+                stacked_features = tf.stack(specialist_features, axis=1)  # [batch, specialists, features]
+                
+                global_context = tf.reduce_mean(stacked_features, axis=1)
+                
+                attention_context = self.attention_dense(global_context)
+                attention_weights = self.attention_weights(attention_context)
+                attention_weights = tf.expand_dims(attention_weights, axis=-1)
+                
+                weighted_features = tf.reduce_sum(stacked_features * attention_weights, axis=1)
+                
+                x = self.final_dense(weighted_features)
+                x = self.final_dropout(x)
+                output = self.final_output(x)
+                
+                return output
+        
+        ensemble_output = SpecializedMedicalEnsemble(
+            num_specialists=5,
+            attention_dim=256,
+            name='specialized_medical_ensemble'
+        )(specialized_features)
+        
+        model = models.Model(
+            inputs=inputs,
+            outputs=ensemble_output,
+            name="SpecializedMedicalEnsemble"
+        )
+        
+        return model
+    
+    def _build_pneumonia_specialist(self, inputs):
+        """
+        Pneumonia specialist model with attention mechanisms
+        Based on user's improvements for pneumonia detection
+        """
+        base = tf.keras.applications.EfficientNetB4(
+            input_tensor=inputs,
+            weights='imagenet',
+            include_top=False
+        )
+        
+        for layer in base.layers[:-20]:
+            layer.trainable = False
+        
+        x = base.output
+        
+        attention = self._spatial_attention_block(x)
+        x = layers.Multiply()([x, attention])
+        
+        avg_pool = layers.GlobalAveragePooling2D()(x)
+        max_pool = layers.GlobalMaxPooling2D()(x)
+        concat = layers.Concatenate()([avg_pool, max_pool])
+        
+        x = layers.Dense(512, activation='relu')(concat)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.5)(x)
+        x = layers.Dense(256, activation='relu')(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.3)(x)
+        
+        return x
+    
+    def _build_nodule_specialist(self, inputs):
+        """
+        Nodule detection specialist with fine-grained feature extraction
+        """
+        base = tf.keras.applications.ConvNeXtBase(
+            input_tensor=inputs,
+            weights='imagenet',
+            include_top=False
+        )
+        
+        for layer in base.layers[:-15]:
+            layer.trainable = False
+        
+        x = base.output
+        
+        x1 = layers.Conv2D(256, 1, activation='relu')(x)
+        x2 = layers.Conv2D(256, 3, padding='same', activation='relu')(x)
+        x3 = layers.Conv2D(256, 5, padding='same', activation='relu')(x)
+        
+        multi_scale = layers.Concatenate()([x1, x2, x3])
+        
+        pooled = layers.GlobalAveragePooling2D()(multi_scale)
+        
+        x = layers.Dense(384, activation='relu')(pooled)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.4)(x)
+        
+        return x
+    
+    def _build_cardiomegaly_specialist(self, inputs):
+        """
+        Cardiomegaly specialist focusing on cardiac silhouette
+        """
+        # Vision Transformer for global cardiac shape analysis
+        base = tf.keras.applications.ViTB16(
+            input_tensor=inputs,
+            weights='imagenet',
+            include_top=False
+        )
+        
+        for layer in base.layers[:-12]:
+            layer.trainable = False
+        
+        x = base.output
+        
+        cardiac_attention = self._cardiac_attention_block(x)
+        x = layers.Multiply()([x, cardiac_attention])
+        
+        pooled = layers.GlobalAveragePooling2D()(x)
+        
+        x = layers.Dense(320, activation='relu')(pooled)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.3)(x)
+        
+        return x
+    
+    def _build_fracture_specialist(self, inputs):
+        """
+        Fracture detection specialist with edge enhancement
+        """
+        # EfficientNet with edge enhancement for fracture detection
+        base = tf.keras.applications.EfficientNetB3(
+            input_tensor=inputs,
+            weights='imagenet',
+            include_top=False
+        )
+        
+        for layer in base.layers[:-18]:
+            layer.trainable = False
+        
+        x = base.output
+        
+        edge_enhanced = self._edge_enhancement_block(x)
+        x = layers.Add()([x, edge_enhanced])
+        
+        pooled = layers.GlobalAveragePooling2D()(x)
+        
+        x = layers.Dense(256, activation='relu')(pooled)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.4)(x)
+        
+        return x
+    
+    def _build_general_pathology_specialist(self, inputs):
+        """
+        General pathology specialist for overall assessment
+        """
+        eff_base = tf.keras.applications.EfficientNetB2(
+            input_tensor=inputs,
+            weights='imagenet',
+            include_top=False
+        )
+        
+        for layer in eff_base.layers[:-15]:
+            layer.trainable = False
+        
+        x = eff_base.output
+        pooled = layers.GlobalAveragePooling2D()(x)
+        
+        x = layers.Dense(384, activation='relu')(pooled)
+        x = layers.BatchNormalization()(x)
+        x = layers.Dropout(0.3)(x)
+        
+        return x
+    
+    def _spatial_attention_block(self, feature_map):
+        """
+        Spatial attention block for focusing on relevant regions
+        Based on user's improvements for pneumonia detection
+        """
+        avg_pool = layers.Lambda(lambda x: tf.reduce_mean(x, axis=-1, keepdims=True))(feature_map)
+        max_pool = layers.Lambda(lambda x: tf.reduce_max(x, axis=-1, keepdims=True))(feature_map)
+        
+        concat = layers.Concatenate(axis=-1)([avg_pool, max_pool])
+        
+        attention = layers.Conv2D(1, 7, padding='same', activation='sigmoid')(concat)
+        
+        return attention
+    
+    def _cardiac_attention_block(self, feature_map):
+        """
+        Cardiac-specific attention for cardiomegaly detection
+        """
+        cardiac_mask = layers.Conv2D(64, 3, padding='same', activation='relu')(feature_map)
+        cardiac_mask = layers.Conv2D(1, 1, activation='sigmoid')(cardiac_mask)
+        
+        return cardiac_mask
+    
+    def _edge_enhancement_block(self, feature_map):
+        """
+        Edge enhancement for fracture detection
+        """
+        edge_x = layers.Conv2D(64, (3, 1), padding='same', activation='relu')(feature_map)
+        edge_y = layers.Conv2D(64, (1, 3), padding='same', activation='relu')(feature_map)
+        
+        edges = layers.Add()([edge_x, edge_y])
+        edges = layers.Conv2D(feature_map.shape[-1], 1, activation='tanh')(edges)
+        
+        return edges
+
+SOTAModelBuilder = StateOfTheArtModels

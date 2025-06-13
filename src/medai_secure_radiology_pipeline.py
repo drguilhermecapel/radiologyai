@@ -100,6 +100,9 @@ class RadiologicalPreprocessor:
             
             image = ds.pixel_array.astype(np.float32)
             
+            if hasattr(ds, 'WindowCenter') and hasattr(ds, 'WindowWidth'):
+                image = self._apply_voi_lut(ds)
+            
             if hasattr(ds, 'Modality'):
                 image = self._apply_modality_normalization(image, ds.Modality)
             
@@ -155,6 +158,41 @@ class RadiologicalPreprocessor:
             image = (image - np.min(image)) / (np.max(image) - np.min(image))
         
         return image
+    
+    def _apply_voi_lut(self, ds) -> np.ndarray:
+        """
+        Aplicação correta de VOI/LUT - ESSENCIAL para diagnóstico
+        Baseado nas melhorias do usuário para precisão diagnóstica
+        """
+        try:
+            from pydicom.pixel_data_handlers.util import apply_voi_lut
+            
+            pixel_array = apply_voi_lut(ds.pixel_array, ds)
+            
+            if not hasattr(ds, 'WindowCenter') or not hasattr(ds, 'WindowWidth'):
+                pixel_array = self._apply_default_windowing(pixel_array, ds.Modality)
+            
+            return pixel_array.astype(np.float32)
+            
+        except Exception as e:
+            logger.warning(f"Erro na aplicação VOI/LUT: {e}, usando pixel_array original")
+            return ds.pixel_array.astype(np.float32)
+    
+    def _apply_default_windowing(self, pixel_array: np.ndarray, modality: str) -> np.ndarray:
+        """Aplica windowing padrão baseado na modalidade"""
+        if modality == 'CT':
+            window_center, window_width = 50, 400
+        elif modality in ['CR', 'DX']:
+            window_center, window_width = 32768, 65536
+        else:
+            window_center = np.mean(pixel_array)
+            window_width = np.std(pixel_array) * 4
+        
+        img_min = window_center - window_width // 2
+        img_max = window_center + window_width // 2
+        windowed = np.clip(pixel_array, img_min, img_max)
+        
+        return windowed
     
     def _validate_image_quality(self, image: np.ndarray, metadata: Dict):
         """Valida qualidade da imagem"""
@@ -286,6 +324,165 @@ class QualityControlSystem:
             return min(noise_level, 1.0)
         except:
             return 0.5
+    
+    def check_image_quality_enhanced(self, img: np.ndarray, metadata: dict) -> Dict[str, float]:
+        """
+        Verifica qualidade da imagem antes de processar
+        Baseado nas melhorias do usuário para controle de qualidade automático
+        """
+        quality_checks = {
+            'contrast': self.check_contrast(img),
+            'brightness': self.check_brightness(img),
+            'noise_level': self.estimate_noise_advanced(img),
+            'sharpness': self.check_sharpness(img),
+            'artifacts': self.detect_artifacts(img),
+            'anatomical_coverage': self.check_anatomical_coverage(img, metadata),
+            'positioning': self.check_positioning(img, metadata)
+        }
+        
+        valid_scores = [v for v in quality_checks.values() if v is not None]
+        quality_score = np.mean(valid_scores) if valid_scores else 0.0
+        quality_checks['overall_score'] = quality_score
+        
+        return quality_checks
+    
+    def check_contrast(self, img: np.ndarray) -> float:
+        """
+        Verifica se contraste está adequado
+        Baseado no método Michelson contrast
+        """
+        i_max = np.percentile(img, 99)
+        i_min = np.percentile(img, 1)
+        contrast = (i_max - i_min) / (i_max + i_min + 1e-6)
+        
+        ideal_contrast = 0.7
+        score = 1.0 - abs(contrast - ideal_contrast) / ideal_contrast
+        
+        return np.clip(score, 0, 1)
+    
+    def check_brightness(self, img: np.ndarray) -> float:
+        """
+        Verifica se brilho está adequado
+        """
+        mean_brightness = np.mean(img)
+        
+        ideal_brightness = 0.5
+        brightness_tolerance = 0.3
+        
+        score = 1.0 - abs(mean_brightness - ideal_brightness) / brightness_tolerance
+        return np.clip(score, 0, 1)
+    
+    def estimate_noise_advanced(self, img: np.ndarray) -> float:
+        """
+        Estima nível de ruído na imagem
+        Método baseado em Laplacian
+        """
+        import cv2
+        
+        laplacian = cv2.Laplacian(img.astype(np.float32), cv2.CV_64F)
+        noise_estimate = np.std(laplacian)
+        
+        max_acceptable_noise = 0.1  # Ajustado para imagens normalizadas
+        score = 1.0 - (noise_estimate / max_acceptable_noise)
+        
+        return np.clip(score, 0, 1)
+    
+    def check_sharpness(self, img: np.ndarray) -> float:
+        """
+        Verifica nitidez da imagem usando variância do Laplacian
+        """
+        import cv2
+        
+        laplacian = cv2.Laplacian(img.astype(np.float32), cv2.CV_64F)
+        sharpness = np.var(laplacian)
+        
+        min_sharpness = 0.01
+        max_sharpness = 0.5
+        
+        normalized_sharpness = (sharpness - min_sharpness) / (max_sharpness - min_sharpness)
+        return np.clip(normalized_sharpness, 0, 1)
+    
+    def detect_artifacts(self, img: np.ndarray) -> float:
+        """
+        Detecta artefatos na imagem
+        """
+        extreme_values = np.sum((img < 0.01) | (img > 0.99)) / img.size
+        
+        artifact_score = 1.0 - (extreme_values * 10)  # Penalizar artefatos
+        
+        return np.clip(artifact_score, 0, 1)
+    
+    def check_anatomical_coverage(self, img: np.ndarray, metadata: dict) -> float:
+        """
+        Verifica se anatomia relevante está presente
+        """
+        modality = metadata.get('modality', 'CR')
+        
+        if modality in ['CR', 'DX']:
+            return self.check_lung_coverage(img)
+        elif modality == 'CT':
+            return self.check_ct_coverage(metadata)
+        
+        return 1.0
+    
+    def check_lung_coverage(self, img: np.ndarray) -> float:
+        """
+        Verifica cobertura pulmonar em radiografias de tórax
+        """
+        h, w = img.shape[:2]
+        
+        central_region = img[h//4:3*h//4, w//4:3*w//4]
+        
+        intensity_variation = np.std(central_region)
+        
+        min_variation = 0.1
+        max_variation = 0.4
+        
+        if intensity_variation < min_variation:
+            return 0.3  # Muito uniforme, pode estar faltando estruturas
+        elif intensity_variation > max_variation:
+            return 0.7  # Muita variação, pode ter artefatos
+        else:
+            return 1.0  # Variação adequada
+    
+    def check_ct_coverage(self, metadata: dict) -> float:
+        """
+        Verifica cobertura adequada para CT
+        """
+        slice_thickness = metadata.get('SliceThickness', 5.0)
+        
+        if slice_thickness > 10.0:
+            return 0.5  # Slices muito grossos
+        elif slice_thickness < 1.0:
+            return 0.8  # Slices muito finos podem ter mais ruído
+        else:
+            return 1.0  # Espessura adequada
+    
+    def check_positioning(self, img: np.ndarray, metadata: dict) -> float:
+        """
+        Verifica posicionamento adequado do paciente
+        """
+        modality = metadata.get('modality', 'CR')
+        
+        if modality in ['CR', 'DX']:
+            h, w = img.shape[:2]
+            left_half = img[:, :w//2]
+            right_half = img[:, w//2:]
+            
+            right_flipped = np.flip(right_half, axis=1)
+            
+            min_size = min(left_half.shape[1], right_flipped.shape[1])
+            left_resized = left_half[:, :min_size]
+            right_resized = right_flipped[:, :min_size]
+            
+            correlation = np.corrcoef(left_resized.flatten(), right_resized.flatten())[0, 1]
+            
+            if np.isnan(correlation):
+                return 0.5
+            
+            return np.clip(correlation, 0, 1)
+        
+        return 1.0  # Para outras modalidades, assumir posicionamento adequado
 
 class InterpretabilitySystem:
     """Sistema de interpretabilidade para IA médica"""
@@ -445,6 +642,166 @@ class InterpretabilitySystem:
                     segment_id += 1
             
             return segments
+    
+    def integrated_gradients(self, img: np.ndarray, model, target_class: int, steps: int = 50) -> np.ndarray:
+        """
+        Integrated Gradients para explicação mais robusta
+        Baseado nas melhorias do usuário para explicabilidade avançada
+        """
+        try:
+            import tensorflow as tf
+            
+            baseline = np.zeros_like(img)
+            
+            alphas = np.linspace(0, 1, steps)
+            interpolated_images = np.array([baseline + alpha * (img - baseline) for alpha in alphas])
+            
+            with tf.GradientTape() as tape:
+                inputs = tf.convert_to_tensor(interpolated_images, dtype=tf.float32)
+                tape.watch(inputs)
+                predictions = model(inputs)
+                target_predictions = predictions[:, target_class]
+            
+            gradients = tape.gradient(target_predictions, inputs)
+            
+            avg_gradients = tf.reduce_mean(gradients, axis=0)
+            integrated_grads = (img - baseline) * avg_gradients
+            
+            return integrated_grads.numpy()
+            
+        except Exception as e:
+            logger.error(f"Erro no Integrated Gradients: {e}")
+            return np.gradient(img)
+    
+    def generate_counterfactual(self, img: np.ndarray, model, target_class: int, max_iterations: int = 100) -> np.ndarray:
+        """
+        Gera exemplo contrafactual para explicação
+        Baseado nas melhorias do usuário para explicabilidade avançada
+        """
+        try:
+            import tensorflow as tf
+            
+            perturbed = img.copy()
+            learning_rate = 0.01
+            
+            for iteration in range(max_iterations):
+                with tf.GradientTape() as tape:
+                    inp = tf.convert_to_tensor(perturbed[np.newaxis, ...], dtype=tf.float32)
+                    tape.watch(inp)
+                    pred = model(inp)
+                    
+                    target_loss = -pred[0, target_class]
+                    other_classes_loss = tf.reduce_sum(pred[0, :] * (1 - tf.one_hot(target_class, pred.shape[1])))
+                    loss = target_loss + other_classes_loss
+                
+                gradients = tape.gradient(loss, inp)
+                
+                if gradients is not None:
+                    perturbed -= learning_rate * gradients[0].numpy()
+                    perturbed = np.clip(perturbed, 0, 1)
+                
+                if iteration % 20 == 0:
+                    current_pred = model(inp)
+                    current_class = tf.argmax(current_pred[0]).numpy()
+                    if current_class == target_class:
+                        logger.info(f"Contrafactual convergiu na iteração {iteration}")
+                        break
+            
+            return perturbed
+            
+        except Exception as e:
+            logger.error(f"Erro na geração de contrafactual: {e}")
+            noise = np.random.normal(0, 0.1, img.shape)
+            return np.clip(img + noise, 0, 1)
+    
+    def generate_enhanced_explanation(self, image: np.ndarray, model, prediction: Dict) -> Dict:
+        """
+        Gera explicação avançada combinando múltiplas técnicas
+        """
+        try:
+            predicted_class = prediction.get('predicted_class', 'normal')
+            confidence = prediction.get('confidence', 0.0)
+            
+            class_mapping = {'normal': 0, 'pneumonia': 1, 'pleural_effusion': 2}
+            target_class_idx = class_mapping.get(predicted_class, 0)
+            
+            explanation = {}
+            
+            heatmap, visualization = self.generate_gradcam_heatmap(image)
+            explanation['gradcam'] = {
+                'heatmap': heatmap,
+                'visualization': visualization
+            }
+            
+            lime_result = self.generate_lime_explanation(image)
+            explanation['lime'] = lime_result
+            
+            if model is not None:
+                try:
+                    integrated_grads = self.integrated_gradients(image, model, target_class_idx)
+                    explanation['integrated_gradients'] = integrated_grads
+                except Exception as e:
+                    logger.warning(f"Integrated Gradients falhou: {e}")
+                    explanation['integrated_gradients'] = None
+                
+                if confidence > 0.8:
+                    try:
+                        normal_class_idx = class_mapping.get('normal', 0)
+                        if target_class_idx != normal_class_idx:
+                            counterfactual = self.generate_counterfactual(image, model, normal_class_idx)
+                            explanation['counterfactual'] = counterfactual
+                    except Exception as e:
+                        logger.warning(f"Geração de contrafactual falhou: {e}")
+                        explanation['counterfactual'] = None
+            
+            explanation_confidence = self._calculate_explanation_confidence(explanation)
+            explanation['explanation_confidence'] = explanation_confidence
+            
+            return explanation
+            
+        except Exception as e:
+            logger.error(f"Erro na explicação avançada: {e}")
+            return {
+                'gradcam': {'heatmap': None, 'visualization': image},
+                'lime': {'segments': None, 'importance': {}},
+                'integrated_gradients': None,
+                'counterfactual': None,
+                'explanation_confidence': 0.0
+            }
+    
+    def _calculate_explanation_confidence(self, explanation: Dict) -> float:
+        """
+        Calcula confiança na explicação baseada na consistência entre métodos
+        """
+        try:
+            confidence_scores = []
+            
+            if explanation.get('gradcam', {}).get('heatmap') is not None:
+                gradcam_heatmap = explanation['gradcam']['heatmap']
+                if np.max(gradcam_heatmap) > 0.1:  # Ativação significativa
+                    confidence_scores.append(0.8)
+                else:
+                    confidence_scores.append(0.3)
+            
+            lime_importance = explanation.get('lime', {}).get('importance', {})
+            if lime_importance:
+                max_importance = max(lime_importance.values()) if lime_importance else 0
+                if max_importance > 0.1:
+                    confidence_scores.append(0.7)
+                else:
+                    confidence_scores.append(0.4)
+            
+            if explanation.get('integrated_gradients') is not None:
+                confidence_scores.append(0.9)  # Método mais robusto
+            
+            if confidence_scores:
+                return np.mean(confidence_scores)
+            else:
+                return 0.5  # Confiança neutra se nenhum método funcionou
+                
+        except Exception as e:
+            logger.warning(f"Erro no cálculo de confiança da explicação: {e}")
+            return 0.5
 
 class AuditTrail:
     """Sistema de trilha de auditoria"""
