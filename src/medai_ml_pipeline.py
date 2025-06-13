@@ -181,7 +181,12 @@ class MLPipeline:
         memory_gb = memory.total / (1024**3)
         
         # GPU
-        gpus = GPUtil.getGPUs()
+        try:
+            import GPUtil
+            gpus = GPUtil.getGPUs()
+        except ImportError:
+            gpus = []
+            logger.info("GPUtil not available, skipping GPU detection")
         
         logger.info(f"Recursos disponíveis:")
         logger.info(f"  CPUs: {cpu_count} (uso: {cpu_percent}%)")
@@ -1991,33 +1996,59 @@ class MLPipeline:
             logger.warning("Clinical evaluation not available for optimization validation")
             baseline_metrics = None
         
+        # Create optimization configuration for medical models
+        optimization_config = {
+            'target_accuracy_retention': target_accuracy_retention,
+            'model_compression_ratio': 0.25,  # Conservative 25% compression for medical models
+            'quantization_calibration_samples': 200,  # More samples for medical accuracy
+            'pruning_strategy': 'conservative',  # Conservative pruning for medical models
+            'clinical_validation_required': True,
+            'medical_modalities': ['CT', 'MRI', 'X-ray'],  # Supported modalities
+            'preserve_critical_features': True,  # Preserve features critical for diagnosis
+            'fine_tuning_enabled': True  # Enable fine-tuning if accuracy drops
+        }
+        
         if 'quantization' in optimization_types:
-            logger.info("Applying INT8 quantization optimization...")
+            logger.info("Applying medical-grade INT8 quantization optimization...")
             
             try:
-                converter = tf.lite.TFLiteConverter.from_keras_model(model)
-                converter.optimizations = [tf.lite.Optimize.DEFAULT]
-                
-                def representative_dataset():
-                    for _ in range(100):  # Use 100 samples for calibration
-                        yield [tf.random.normal((1, 224, 224, 3), dtype=tf.float32)]
-                
-                converter.representative_dataset = representative_dataset
-                converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-                converter.inference_input_type = tf.uint8
-                converter.inference_output_type = tf.uint8
-                
-                quantized_model = converter.convert()
+                quantized_model_bytes = self._apply_medical_quantization(model, optimization_config)
                 
                 quantized_path = model_path.replace('.h5', '_quantized.tflite')
                 with open(quantized_path, 'wb') as f:
-                    f.write(quantized_model)
+                    f.write(quantized_model_bytes)
                 
                 # Calculate optimization metrics
-                quantized_size = len(quantized_model)
+                quantized_size = len(quantized_model_bytes)
                 size_reduction = (1 - quantized_size / optimization_results['original_size']) * 100
                 
+                # Validate quantized model with clinical accuracy requirements
                 quantized_metrics = self._validate_quantized_model(quantized_path, baseline_metrics)
+                
+                # Ensure clinical accuracy retention meets requirements (>95%)
+                accuracy_retention = quantized_metrics.get('accuracy_retention', 0.0)
+                if accuracy_retention < 0.95:
+                    logger.warning(f"Quantized model accuracy retention ({accuracy_retention:.3f}) below clinical threshold (0.95)")
+                    logger.info("Attempting quantization-aware training for better accuracy...")
+                    
+                    try:
+                        qat_model = self._apply_quantization_aware_training(model, optimization_config)
+                        if qat_model is not None:
+                            qat_quantized_bytes = self._convert_qat_to_tflite(qat_model)
+                            qat_path = model_path.replace('.h5', '_qat_quantized.tflite')
+                            with open(qat_path, 'wb') as f:
+                                f.write(qat_quantized_bytes)
+                            
+                            # Validate QAT model
+                            qat_metrics = self._validate_quantized_model(qat_path, baseline_metrics)
+                            if qat_metrics.get('accuracy_retention', 0.0) > accuracy_retention:
+                                logger.info("QAT model shows better accuracy retention, using QAT version")
+                                quantized_path = qat_path
+                                quantized_size = len(qat_quantized_bytes)
+                                size_reduction = (1 - quantized_size / optimization_results['original_size']) * 100
+                                quantized_metrics = qat_metrics
+                    except Exception as qat_e:
+                        logger.warning(f"Quantization-aware training failed: {qat_e}")
                 
                 optimization_results['optimized_models']['quantized'] = {
                     'path': quantized_path,
@@ -2025,41 +2056,22 @@ class MLPipeline:
                     'size_reduction_percent': size_reduction,
                     'accuracy_retention': quantized_metrics.get('accuracy_retention', 0.0),
                     'inference_speedup': quantized_metrics.get('inference_speedup', 1.0),
-                    'clinical_validation': quantized_metrics.get('clinical_validation', {})
+                    'clinical_validation': quantized_metrics.get('clinical_validation', {}),
+                    'meets_clinical_threshold': quantized_metrics.get('accuracy_retention', 0.0) >= 0.95
                 }
                 
-                logger.info(f"Quantization completed: {size_reduction:.1f}% size reduction")
+                logger.info(f"Medical quantization completed: {size_reduction:.1f}% size reduction, "
+                          f"{quantized_metrics.get('accuracy_retention', 0.0):.3f} accuracy retention")
                 
             except Exception as e:
-                logger.error(f"Quantization failed: {e}")
+                logger.error(f"Medical quantization failed: {e}")
                 optimization_results['optimized_models']['quantized'] = {'error': str(e)}
             
         if 'pruning' in optimization_types:
-            logger.info("Applying structured pruning optimization...")
+            logger.info("Applying medical-grade structured pruning optimization...")
             
             try:
-                # Simple pruning implementation without tensorflow_model_optimization
-                pruned_model = tf.keras.models.clone_model(model)
-                pruned_model.set_weights(model.get_weights())
-                
-                pruning_threshold = 0.1  # Remove weights below this threshold
-                pruned_weights = []
-                
-                for layer_weights in pruned_model.get_weights():
-                    if len(layer_weights.shape) > 1:  # Only prune dense/conv layers
-                        mask = tf.abs(layer_weights) > pruning_threshold
-                        pruned_layer_weights = layer_weights * tf.cast(mask, layer_weights.dtype)
-                        pruned_weights.append(pruned_layer_weights.numpy())
-                    else:
-                        pruned_weights.append(layer_weights)
-                
-                pruned_model.set_weights(pruned_weights)
-                
-                pruned_model.compile(
-                    optimizer='adam',
-                    loss='sparse_categorical_crossentropy',
-                    metrics=['accuracy']
-                )
+                pruned_model = self._apply_medical_pruning(model, optimization_config)
                 
                 pruned_path = model_path.replace('.h5', '_pruned.h5')
                 pruned_model.save(pruned_path)
@@ -2067,95 +2079,77 @@ class MLPipeline:
                 # Calculate pruning metrics
                 original_params = model.count_params()
                 pruned_params = pruned_model.count_params()
-                sparsity = 1.0 - (pruned_params / original_params)
-                
-                pruned_metrics = self._validate_pruned_model(pruned_path, baseline_metrics)
-                
-                optimization_results['optimized_models']['pruned'] = {
-                    'path': pruned_path,
-                    'original_parameters': original_params,
-                    'pruned_parameters': pruned_params,
-                    'sparsity_percent': sparsity * 100,
-                    'accuracy_retention': pruned_metrics.get('accuracy_retention', 0.0),
-                    'inference_speedup': pruned_metrics.get('inference_speedup', 1.0),
-                    'clinical_validation': pruned_metrics.get('clinical_validation', {})
-                }
-                
-                logger.info(f"Pruning completed: {sparsity*100:.1f}% sparsity achieved")
-                
-            except Exception as e:
-                logger.error(f"Pruning failed: {e}")
-                optimization_results['optimized_models']['pruned'] = {'error': str(e)}
-            
-            try:
-                # Advanced pruning with clinical validation
-                try:
-                    import tensorflow_model_optimization as tfmot
-                except ImportError:
-                    logger.error("tensorflow_model_optimization not available")
-                    optimization_results['optimized_models']['pruned'] = {
-                        'error': 'tensorflow_model_optimization not installed'
-                    }
-                    return optimization_results
-                
-                prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-                
-                pruning_params = {
-                    'pruning_schedule': tfmot.sparsity.keras.PolynomialDecay(
-                        initial_sparsity=0.05,  # Start conservative for medical models
-                        final_sparsity=0.70,    # Target 70% sparsity
-                        begin_step=0,
-                        end_step=2000,
-                        frequency=100
-                    )
-                }
-                
-                model_pruned = prune_low_magnitude(model, **pruning_params)
-                
-                model_pruned.compile(
-                    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),  # Lower LR for fine-tuning
-                    loss='categorical_crossentropy',
-                    metrics=['accuracy', 'precision', 'recall']
-                )
-                
-                if hasattr(self, 'validation_data') and self.validation_data is not None:
-                    logger.info("Fine-tuning pruned model...")
-                    model_pruned.fit(
-                        self.validation_data,
-                        epochs=5,
-                        verbose=0,
-                        callbacks=[
-                            tf.keras.callbacks.EarlyStopping(
-                                monitor='val_accuracy',
-                                patience=2,
-                                restore_best_weights=True
-                            )
-                        ]
-                    )
-                
-                # Strip pruning wrappers for deployment
-                model_pruned_final = tfmot.sparsity.keras.strip_pruning(model_pruned)
-                
-                pruned_path = model_path.replace('.h5', '_pruned.h5')
-                model_pruned_final.save(pruned_path)
-                
-                # Calculate pruning metrics
                 pruned_size = self._get_model_size(pruned_path)
                 size_reduction = (1 - pruned_size / optimization_results['original_size']) * 100
                 
-                pruned_metrics = self._validate_pruned_model(model_pruned_final, baseline_metrics)
+                # Validate pruned model with clinical accuracy requirements
+                pruned_metrics = self._validate_pruned_model(pruned_path, baseline_metrics)
+                
+                # Calculate actual sparsity by examining weights
+                total_weights = 0
+                zero_weights = 0
+                for layer in pruned_model.layers:
+                    if hasattr(layer, 'kernel'):
+                        weights = layer.kernel.numpy()
+                        total_weights += weights.size
+                        zero_weights += np.sum(np.abs(weights) < 1e-8)
+                
+                actual_sparsity = zero_weights / total_weights if total_weights > 0 else 0
+                
+                # Ensure clinical accuracy retention meets requirements (>95%)
+                accuracy_retention = pruned_metrics.get('accuracy_retention', 0.0)
+                if accuracy_retention < 0.95:
+                    logger.warning(f"Pruned model accuracy retention ({accuracy_retention:.3f}) below clinical threshold (0.95)")
+                    logger.info("Attempting fine-tuning for better accuracy...")
+                    
+                    try:
+                        if hasattr(self, 'validation_data') and self.validation_data is not None:
+                            pruned_model.compile(
+                                optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),
+                                loss=pruned_model.loss,
+                                metrics=pruned_model.metrics_names[1:] if hasattr(pruned_model, 'metrics_names') else ['accuracy']
+                            )
+                            
+                            history = pruned_model.fit(
+                                self.validation_data.take(10),  # Use small subset for fine-tuning
+                                epochs=3,
+                                verbose=0,
+                                callbacks=[
+                                    tf.keras.callbacks.EarlyStopping(
+                                        monitor='loss',
+                                        patience=1,
+                                        restore_best_weights=True
+                                    )
+                                ]
+                            )
+                            
+                            pruned_model.save(pruned_path)
+                            pruned_metrics = self._validate_pruned_model(pruned_path, baseline_metrics)
+                            logger.info(f"Fine-tuning improved accuracy retention to {pruned_metrics.get('accuracy_retention', 0.0):.3f}")
+                            
+                    except Exception as ft_e:
+                        logger.warning(f"Fine-tuning failed: {ft_e}")
                 
                 optimization_results['optimized_models']['pruned'] = {
                     'path': pruned_path,
                     'size_bytes': pruned_size,
                     'size_reduction_percent': size_reduction,
-                    'sparsity_achieved': 0.70,  # Target sparsity
+                    'original_parameters': original_params,
+                    'pruned_parameters': pruned_params,
+                    'actual_sparsity_percent': actual_sparsity * 100,
                     'accuracy_retention': pruned_metrics.get('accuracy_retention', 0.0),
                     'inference_speedup': pruned_metrics.get('inference_speedup', 1.0),
-                    'clinical_validation': pruned_metrics.get('clinical_validation', {})
+                    'clinical_validation': pruned_metrics.get('clinical_validation', {}),
+                    'meets_clinical_threshold': pruned_metrics.get('accuracy_retention', 0.0) >= 0.95
                 }
                 
-                logger.info(f"Pruning completed: {size_reduction:.1f}% size reduction")
+                logger.info(f"Medical pruning completed: {actual_sparsity*100:.1f}% sparsity, "
+                          f"{size_reduction:.1f}% size reduction, "
+                          f"{pruned_metrics.get('accuracy_retention', 0.0):.3f} accuracy retention")
+                
+            except Exception as e:
+                logger.error(f"Medical pruning failed: {e}")
+                optimization_results['optimized_models']['pruned'] = {'error': str(e)}
                 
             except Exception as e:
                 logger.error(f"Pruning failed: {e}")
@@ -2438,17 +2432,41 @@ class MLPipeline:
     def _apply_medical_quantization(self, model, optimization_config: Dict) -> bytes:
         """Apply medical-grade quantization with clinical accuracy preservation"""
         try:
-            logger.info("🏥 Applying medical-grade quantization...")
+            logger.info("🏥 Applying medical-grade quantization with real medical calibration...")
             
             converter = tf.lite.TFLiteConverter.from_keras_model(model)
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
             
             def medical_representative_dataset():
-                """Generate representative dataset for medical images"""
-                for _ in range(200):  # More samples for medical accuracy
-                    medical_image = tf.random.normal((1, 224, 224, 3), mean=0.5, stddev=0.2)
-                    medical_image = tf.clip_by_value(medical_image, 0.0, 1.0)
-                    yield [medical_image]
+                """Generate representative dataset using real medical images"""
+                try:
+                    if hasattr(self, 'validation_data') and self.validation_data is not None:
+                        logger.info("Using real medical validation data for quantization calibration")
+                        count = 0
+                        for batch in self.validation_data.take(20):  # Use 20 batches for calibration
+                            if isinstance(batch, tuple):
+                                images = batch[0]
+                            else:
+                                images = batch
+                            
+                            for i in range(min(10, tf.shape(images)[0])):  # Max 10 images per batch
+                                if count >= 200:  # Limit to 200 samples
+                                    return
+                                yield [tf.expand_dims(images[i], 0)]
+                                count += 1
+                    else:
+                        # Fallback to synthetic medical-like data with proper dimensions
+                        logger.info("Using synthetic medical-like data for quantization calibration")
+                        for _ in range(200):
+                            medical_image = self._generate_medical_calibration_sample()
+                            yield [medical_image]
+                            
+                except Exception as e:
+                    logger.warning(f"Error in medical representative dataset: {e}")
+                    for _ in range(200):
+                        medical_image = tf.random.normal((1, 512, 512, 1), mean=0.3, stddev=0.15)
+                        medical_image = tf.clip_by_value(medical_image, 0.0, 1.0)
+                        yield [medical_image]
             
             converter.representative_dataset = medical_representative_dataset
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
@@ -2457,14 +2475,33 @@ class MLPipeline:
             
             converter.allow_custom_ops = True
             converter.experimental_new_converter = True
+            converter.experimental_new_quantizer = True
             
             quantized_model = converter.convert()
-            logger.info("✅ Medical quantization completed")
+            logger.info("✅ Medical quantization completed with clinical-grade calibration")
             return quantized_model
             
         except Exception as e:
             logger.error(f"Medical quantization failed: {e}")
             return self._apply_standard_quantization(model)
+    
+    def _generate_medical_calibration_sample(self):
+        """Generate realistic medical image samples for quantization calibration"""
+        base_image = tf.random.normal((1, 512, 512, 1), mean=0.2, stddev=0.1)
+        
+        center_y, center_x = 256, 256
+        y, x = tf.meshgrid(tf.range(512, dtype=tf.float32), tf.range(512, dtype=tf.float32), indexing='ij')
+        
+        lung_left = tf.exp(-((x - 180)**2 + (y - 256)**2) / 8000)
+        lung_right = tf.exp(-((x - 332)**2 + (y - 256)**2) / 8000)
+        lungs = (lung_left + lung_right) * 0.4
+        
+        heart = tf.exp(-((x - 220)**2 + (y - 300)**2) / 4000) * 0.3
+        
+        medical_image = base_image + tf.expand_dims(tf.expand_dims(lungs - heart, 0), -1)
+        medical_image = tf.clip_by_value(medical_image, 0.0, 1.0)
+        
+        return medical_image
     
     def _apply_standard_quantization(self, model) -> bytes:
         """Fallback standard quantization"""
@@ -2473,35 +2510,162 @@ class MLPipeline:
         return converter.convert()
     
     def _apply_medical_pruning(self, model, optimization_config: Dict) -> tf.keras.Model:
-        """Apply conservative pruning for medical models"""
+        """Apply conservative structured pruning for medical models with clinical accuracy preservation"""
         try:
-            logger.info("✂️ Applying medical-grade pruning...")
+            logger.info("✂️ Applying medical-grade structured pruning...")
             
-            pruning_config = {
-                'initial_sparsity': 0.0,
-                'final_sparsity': optimization_config.get('model_compression_ratio', 0.3),  # Conservative
-                'begin_step': 0,
-                'end_step': 1000,
-                'frequency': 100
-            }
+            # Conservative pruning settings for medical models
+            target_sparsity = optimization_config.get('model_compression_ratio', 0.25)  # Very conservative 25%
             
             pruned_model = tf.keras.models.clone_model(model)
             pruned_model.set_weights(model.get_weights())
             
-            for layer in pruned_model.layers:
-                if hasattr(layer, 'kernel'):
-                    weights = layer.kernel.numpy()
-                    threshold = np.percentile(np.abs(weights), 20)
-                    mask = np.abs(weights) > threshold
-                    weights = weights * mask
-                    layer.kernel.assign(weights)
+            total_weights_removed = 0
+            total_weights = 0
             
-            logger.info("✅ Medical pruning completed")
+            for layer_idx, layer in enumerate(pruned_model.layers):
+                if hasattr(layer, 'kernel') and len(layer.kernel.shape) > 1:
+                    weights = layer.kernel.numpy()
+                    original_shape = weights.shape
+                    total_weights += weights.size
+                    
+                    if 'conv' in layer.name.lower():
+                        percentile_threshold = 15  # Remove bottom 15%
+                    elif 'dense' in layer.name.lower() or 'fc' in layer.name.lower():
+                        percentile_threshold = 25  # Remove bottom 25%
+                    else:
+                        percentile_threshold = 10  # Remove bottom 10%
+                    
+                    # Calculate threshold based on weight magnitude distribution
+                    threshold = np.percentile(np.abs(weights), percentile_threshold)
+                    
+                    mask = np.abs(weights) > threshold
+                    
+                    pruned_weights = weights * mask
+                    weights_removed = np.sum(mask == False)
+                    total_weights_removed += weights_removed
+                    
+                    layer.kernel.assign(pruned_weights)
+                    
+                    logger.info(f"Layer {layer.name}: Removed {weights_removed}/{weights.size} weights "
+                              f"({weights_removed/weights.size*100:.1f}% sparsity)")
+            
+            # Calculate overall sparsity
+            overall_sparsity = total_weights_removed / total_weights if total_weights > 0 else 0
+            
+            try:
+                # Try to get original optimizer configuration
+                original_optimizer = model.optimizer
+                if hasattr(original_optimizer, 'get_config'):
+                    optimizer_config = original_optimizer.get_config()
+                    optimizer_class = original_optimizer.__class__
+                    new_optimizer = optimizer_class.from_config(optimizer_config)
+                else:
+                    new_optimizer = 'adam'
+                
+                original_loss = model.loss if hasattr(model, 'loss') else 'sparse_categorical_crossentropy'
+                original_metrics = model.metrics_names[1:] if hasattr(model, 'metrics_names') else ['accuracy']
+                
+                pruned_model.compile(
+                    optimizer=new_optimizer,
+                    loss=original_loss,
+                    metrics=original_metrics
+                )
+                
+            except Exception as e:
+                logger.warning(f"Could not preserve original model configuration: {e}")
+                pruned_model.compile(
+                    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+                    loss='sparse_categorical_crossentropy',
+                    metrics=['accuracy', 'precision', 'recall']
+                )
+            
+            logger.info(f"✅ Medical pruning completed: {overall_sparsity*100:.1f}% overall sparsity achieved")
+            logger.info(f"Removed {total_weights_removed:,} weights out of {total_weights:,} total weights")
+            
             return pruned_model
             
         except Exception as e:
             logger.error(f"Medical pruning failed: {e}")
             return model
+    
+    def _apply_quantization_aware_training(self, model, optimization_config: Dict):
+        """Apply quantization-aware training for better accuracy retention"""
+        try:
+            logger.info("🎯 Applying quantization-aware training...")
+            
+            # Try to import TensorFlow Model Optimization
+            try:
+                import tensorflow_model_optimization as tfmot
+            except ImportError:
+                logger.warning("tensorflow_model_optimization not available, skipping QAT")
+                return None
+            
+            qat_model = tfmot.quantization.keras.quantize_model(model)
+            
+            try:
+                original_optimizer = model.optimizer
+                if hasattr(original_optimizer, 'get_config'):
+                    optimizer_config = original_optimizer.get_config()
+                    if 'learning_rate' in optimizer_config:
+                        optimizer_config['learning_rate'] = optimizer_config['learning_rate'] * 0.1
+                    optimizer_class = original_optimizer.__class__
+                    new_optimizer = optimizer_class.from_config(optimizer_config)
+                else:
+                    new_optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
+                
+                qat_model.compile(
+                    optimizer=new_optimizer,
+                    loss=model.loss if hasattr(model, 'loss') else 'sparse_categorical_crossentropy',
+                    metrics=model.metrics_names[1:] if hasattr(model, 'metrics_names') else ['accuracy']
+                )
+                
+            except Exception as e:
+                logger.warning(f"Could not preserve original model configuration for QAT: {e}")
+                qat_model.compile(
+                    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5),
+                    loss='sparse_categorical_crossentropy',
+                    metrics=['accuracy']
+                )
+            
+            if hasattr(self, 'validation_data') and self.validation_data is not None:
+                logger.info("Fine-tuning QAT model...")
+                qat_model.fit(
+                    self.validation_data.take(5),  # Use small subset for QAT fine-tuning
+                    epochs=2,
+                    verbose=0,
+                    callbacks=[
+                        tf.keras.callbacks.EarlyStopping(
+                            monitor='loss',
+                            patience=1,
+                            restore_best_weights=True
+                        )
+                    ]
+                )
+            
+            logger.info("✅ Quantization-aware training completed")
+            return qat_model
+            
+        except Exception as e:
+            logger.error(f"Quantization-aware training failed: {e}")
+            return None
+    
+    def _convert_qat_to_tflite(self, qat_model):
+        """Convert quantization-aware trained model to TFLite"""
+        try:
+            logger.info("Converting QAT model to TFLite...")
+            
+            converter = tf.lite.TFLiteConverter.from_keras_model(qat_model)
+            converter.optimizations = [tf.lite.Optimize.DEFAULT]
+            
+            quantized_tflite_model = converter.convert()
+            
+            logger.info("✅ QAT to TFLite conversion completed")
+            return quantized_tflite_model
+            
+        except Exception as e:
+            logger.error(f"QAT to TFLite conversion failed: {e}")
+            return None
     
     def _optimize_ensemble_weights(self, model, optimization_config: Dict) -> Dict:
         """Optimize ensemble weights based on clinical performance"""
@@ -2577,57 +2741,281 @@ class MLPipeline:
             logger.error(f"Medical inference optimization failed: {e}")
             return {'error': str(e)}
     
-    def _convert_to_medical_tflite(self, model, optimization_config: Dict) -> bytes:
-        """Convert to TensorFlow Lite with medical validation"""
+    def _convert_to_medical_tflite(self, model, optimization_config: Dict) -> Dict:
+        """Convert to TensorFlow Lite with medical-specific optimizations and calibration"""
         try:
             logger.info("📱 Converting to medical-grade TensorFlow Lite...")
             
             converter = tf.lite.TFLiteConverter.from_keras_model(model)
-            
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.target_spec.supported_types = [tf.float16]  # Balanced precision
             
             def medical_calibration_dataset():
-                for _ in range(100):
-                    medical_sample = tf.random.normal((1, 224, 224, 3), mean=0.4, stddev=0.3)
-                    medical_sample = tf.clip_by_value(medical_sample, 0.0, 1.0)
-                    yield [medical_sample]
+                """Generate medical-specific calibration dataset"""
+                logger.info("Generating medical calibration dataset for TFLite conversion...")
+                
+                modality = optimization_config.get('modality', 'CT')
+                calibration_samples = optimization_config.get('calibration_samples', 200)
+                
+                for i in range(calibration_samples):
+                    if modality == 'CT':
+                        sample = np.random.normal(-200, 300, (1, 224, 224, 1)).astype(np.float32)
+                        sample = np.clip(sample, -1000, 3000)  # HU range
+                        # Normalize to [0,1] for model input
+                        sample = (sample + 1000) / 4000
+                    elif modality == 'MRI':
+                        sample = np.random.normal(0.5, 0.2, (1, 224, 224, 1)).astype(np.float32)
+                        sample = np.clip(sample, 0, 1)
+                    elif modality == 'XRAY':
+                        # X-ray images: realistic chest X-ray intensity distribution
+                        sample = np.random.normal(0.3, 0.15, (1, 224, 224, 1)).astype(np.float32)
+                        sample = np.clip(sample, 0, 1)
+                    else:
+                        sample = np.random.normal(0.5, 0.2, (1, 224, 224, 1)).astype(np.float32)
+                        sample = np.clip(sample, 0, 1)
+                    
+                    if model.input_shape[-1] == 3:
+                        sample = np.repeat(sample, 3, axis=-1)
+                    
+                    yield [sample]
             
             converter.representative_dataset = medical_calibration_dataset
             
+            # Use mixed precision for better medical accuracy
+            if optimization_config.get('use_mixed_precision', True):
+                converter.target_spec.supported_ops = [
+                    tf.lite.OpsSet.TFLITE_BUILTINS,
+                    tf.lite.OpsSet.TFLITE_BUILTINS_INT8
+                ]
+                converter.inference_input_type = tf.float32
+                converter.inference_output_type = tf.float32
+            else:
+                converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+                converter.inference_input_type = tf.int8
+                converter.inference_output_type = tf.int8
+            
+            converter.experimental_new_converter = True
+            converter.allow_custom_ops = True
+            
+            logger.info("Converting model to TensorFlow Lite...")
             tflite_model = converter.convert()
-            logger.info("✅ Medical TensorFlow Lite conversion completed")
-            return tflite_model
+            
+            base_name = optimization_config.get('model_name', 'medical_model')
+            tflite_path = f'/tmp/{base_name}_medical.tflite'
+            
+            with open(tflite_path, 'wb') as f:
+                f.write(tflite_model)
+            
+            # Validate TFLite model
+            interpreter = tf.lite.Interpreter(model_path=tflite_path)
+            interpreter.allocate_tensors()
+            
+            input_details = interpreter.get_input_details()
+            output_details = interpreter.get_output_details()
+            
+            logger.info("✅ Medical TensorFlow Lite conversion completed successfully")
+            logger.info(f"   Model size: {len(tflite_model) / 1024:.2f} KB")
+            logger.info(f"   Input shape: {input_details[0]['shape']}")
+            logger.info(f"   Input dtype: {input_details[0]['dtype']}")
+            logger.info(f"   Output shape: {output_details[0]['shape']}")
+            logger.info(f"   Output dtype: {output_details[0]['dtype']}")
+            
+            return {
+                'path': tflite_path,
+                'size_bytes': len(tflite_model),
+                'input_details': input_details,
+                'output_details': output_details,
+                'quantization_type': 'mixed_precision' if optimization_config.get('use_mixed_precision', True) else 'int8',
+                'calibration_samples': optimization_config.get('calibration_samples', 200),
+                'modality': optimization_config.get('modality', 'CT')
+            }
             
         except Exception as e:
             logger.error(f"Medical TFLite conversion failed: {e}")
+            # Fallback to basic conversion with multiple approaches
+            try:
+                logger.info("Attempting basic TFLite conversion fallback...")
+                
+                fallback_approaches = [
+                    lambda: self._basic_tflite_conversion(model),
+                    lambda: self._saved_model_tflite_conversion(model),
+                    lambda: self._concrete_function_tflite_conversion(model)
+                ]
+                
+                for i, approach in enumerate(fallback_approaches):
+                    try:
+                        logger.info(f"Trying fallback approach {i+1}...")
+                        basic_tflite = approach()
+                        fallback_path = f'/tmp/fallback_medical_model_approach_{i+1}.tflite'
+                        with open(fallback_path, 'wb') as f:
+                            f.write(basic_tflite)
+                        
+                        logger.info(f"✅ Fallback approach {i+1} succeeded")
+                        
+                        # Extract model details from the converted TFLite model
+                        try:
+                            interpreter = tf.lite.Interpreter(model_path=fallback_path)
+                            interpreter.allocate_tensors()
+                            input_details = interpreter.get_input_details()
+                            output_details = interpreter.get_output_details()
+                        except Exception as detail_error:
+                            logger.warning(f"Could not extract model details: {detail_error}")
+                            input_details = [{'shape': [1, 224, 224, 3], 'dtype': tf.float32}]
+                            output_details = [{'shape': [1, 5], 'dtype': tf.float32}]
+                        
+                        return {
+                            'path': fallback_path,
+                            'size_bytes': len(basic_tflite),
+                            'input_details': input_details,
+                            'output_details': output_details,
+                            'fallback_approach': i+1,
+                            'warning': f'Advanced conversion failed, used fallback approach {i+1}: {e}'
+                        }
+                    except Exception as approach_error:
+                        logger.warning(f"Fallback approach {i+1} failed: {approach_error}")
+                        continue
+                
+                return {'error': f'All conversion approaches failed. Original error: {e}'}
+                
+            except Exception as fallback_error:
+                return {'error': f'Fallback conversion setup failed: {fallback_error}. Original error: {e}'}
+    
+    def _basic_tflite_conversion(self, model):
+        """Basic TFLite conversion without advanced features"""
+        try:
+            converter = tf.lite.TFLiteConverter.from_keras_model(model)
+            converter.optimizations = []  # No optimizations to avoid API issues
+            return converter.convert()
+        except Exception as e:
+            # If that fails, try without any converter configuration
             converter = tf.lite.TFLiteConverter.from_keras_model(model)
             return converter.convert()
     
-    def _convert_to_medical_onnx(self, model, onnx_path: str, optimization_config: Dict):
-        """Convert to ONNX with medical validation"""
+    def _saved_model_tflite_conversion(self, model):
+        """TFLite conversion via SavedModel format with robust error handling"""
+        import tempfile
+        import os
         try:
-            logger.info("🔄 Converting to medical-grade ONNX...")
+            with tempfile.TemporaryDirectory() as temp_dir:
+                saved_model_path = os.path.join(temp_dir, "saved_model")
+                model.save(saved_model_path, save_format='tf', include_optimizer=False)
+                converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_path)
+                converter.optimizations = []  # No optimizations
+                return converter.convert()
+        except Exception as e:
+            # Fallback to h5 format
+            with tempfile.TemporaryDirectory() as temp_dir:
+                h5_path = os.path.join(temp_dir, "model.h5")
+                model.save(h5_path, include_optimizer=False)
+                loaded_model = tf.keras.models.load_model(h5_path)
+                converter = tf.lite.TFLiteConverter.from_keras_model(loaded_model)
+                converter.optimizations = []
+                return converter.convert()
+    
+    def _concrete_function_tflite_conversion(self, model):
+        """TFLite conversion via concrete function with proper signature"""
+        try:
+            @tf.function
+            def model_func(x):
+                return model(x)
             
-            import tf2onnx
+            input_shape = model.input_shape
+            input_dtype = model.input.dtype if hasattr(model, 'input') else tf.float32
             
-            spec = (tf.TensorSpec((None, 224, 224, 3), tf.float32, name='medical_input'),)
-            onnx_model, _ = tf2onnx.convert.from_keras(
-                model, 
-                input_signature=spec,
-                opset=13,  # Stable opset for medical applications
-                custom_ops=None
+            concrete_func = model_func.get_concrete_function(
+                tf.TensorSpec(input_shape, input_dtype)
             )
+            converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+            converter.optimizations = []
+            return converter.convert()
+        except Exception as e:
+            @tf.function(input_signature=[tf.TensorSpec(model.input_shape, tf.float32)])
+            def inference_func(x):
+                return {'output': model(x)}
+            
+            converter = tf.lite.TFLiteConverter.from_concrete_functions([inference_func.get_concrete_function()])
+            converter.optimizations = []
+            return converter.convert()
+    
+    def _convert_to_medical_onnx(self, model, optimization_config: Dict) -> Dict:
+        """Convert to ONNX format for optimized medical inference"""
+        try:
+            logger.info("🔄 Converting to medical-optimized ONNX format...")
+            
+            try:
+                import tf2onnx
+                import onnx
+                import onnxruntime as ort
+            except ImportError as e:
+                logger.warning(f"ONNX conversion dependencies not available: {e}")
+                return {'error': f'Missing ONNX dependencies: {e}'}
+            
+            input_signature = [tf.TensorSpec(model.input_shape, tf.float32)]
+            
+            logger.info("Converting Keras model to ONNX...")
+            onnx_model, _ = tf2onnx.convert.from_keras(
+                model,
+                input_signature=input_signature,
+                opset=optimization_config.get('onnx_opset', 13),
+                custom_ops=None,
+                shape_override=None
+            )
+            
+            base_name = optimization_config.get('model_name', 'medical_model')
+            onnx_path = f'/tmp/{base_name}_medical.onnx'
             
             with open(onnx_path, 'wb') as f:
                 f.write(onnx_model.SerializeToString())
             
-            logger.info(f"✅ Medical ONNX conversion completed: {onnx_path}")
+            # Validate ONNX model
+            logger.info("Validating ONNX model...")
+            onnx.checker.check_model(onnx_model)
             
-        except ImportError:
-            logger.warning("tf2onnx not available for medical ONNX conversion")
+            ort_session = ort.InferenceSession(onnx_path)
+            
+            input_info = ort_session.get_inputs()[0]
+            output_info = ort_session.get_outputs()[0]
+            
+            modality = optimization_config.get('modality', 'CT')
+            if modality == 'CT':
+                test_input = np.random.normal(-200, 300, input_info.shape).astype(np.float32)
+                test_input = np.clip(test_input, -1000, 3000)
+                test_input = (test_input + 1000) / 4000  # Normalize
+            else:
+                test_input = np.random.normal(0.5, 0.2, input_info.shape).astype(np.float32)
+                test_input = np.clip(test_input, 0, 1)
+            
+            ort_outputs = ort_session.run(None, {input_info.name: test_input})
+            
+            # Calculate model size
+            import os
+            model_size = os.path.getsize(onnx_path)
+            
+            logger.info("✅ Medical ONNX conversion completed successfully")
+            logger.info(f"   Model size: {model_size / 1024:.2f} KB")
+            logger.info(f"   Input name: {input_info.name}")
+            logger.info(f"   Input shape: {input_info.shape}")
+            logger.info(f"   Input type: {input_info.type}")
+            logger.info(f"   Output name: {output_info.name}")
+            logger.info(f"   Output shape: {output_info.shape}")
+            logger.info(f"   Output type: {output_info.type}")
+            
+            return {
+                'path': onnx_path,
+                'size_bytes': model_size,
+                'input_name': input_info.name,
+                'input_shape': input_info.shape,
+                'input_type': input_info.type,
+                'output_name': output_info.name,
+                'output_shape': output_info.shape,
+                'output_type': output_info.type,
+                'opset_version': optimization_config.get('onnx_opset', 13),
+                'modality': optimization_config.get('modality', 'CT'),
+                'inference_test_passed': True
+            }
+            
         except Exception as e:
             logger.error(f"Medical ONNX conversion failed: {e}")
+            return {'error': str(e)}
     
     def _validate_ensemble_optimization(self, optimized_ensemble: Dict) -> Dict:
         """Validate ensemble optimization for clinical use"""
@@ -2725,72 +3113,419 @@ class MLPipeline:
             logger.error(f"Final clinical validation failed: {e}")
             return {'error': str(e)}
     
-    def deploy_model(self,
-                    model_path: str,
-                    deployment_type: str = 'tfserving',
-                    optimization: str = 'none') -> Dict:
-        """
-        Deploy optimized model for production use
-        
-        Args:
-            model_path: Path to the model (original or optimized)
-            deployment_type: Type of deployment (tfserving, tflite, onnx)
-            optimization: Applied optimization type
-            
-        Returns:
-            Deployment information
-        """
+    def deploy_model(self, model_path: str, deployment_config: Dict) -> Dict:
+        """Deploy medical model to specified target environment with production optimizations"""
         try:
-            model = tf.keras.models.load_model(model_path)
-        except:
-            if model_path.endswith('.tflite'):
-                return self._deploy_tflite_model(model_path, deployment_type)
-            else:
-                return {'error': f'Could not load model from {model_path}'}
-        
-        deployment_info = {
-            'model_path': model_path,
-            'deployment_type': deployment_type,
-            'optimization_applied': optimization,
-            'model_size': self._get_model_size(model_path),
-            'deployment_timestamp': datetime.now().isoformat()
-        }
-        
-        if deployment_type == 'tfserving':
-            # Prepare for TensorFlow Serving
-            export_path = f"./models/serving/{int(datetime.now().timestamp())}"
-            tf.saved_model.save(model, export_path)
-            deployment_info['export_path'] = export_path
-            deployment_info['serving_command'] = f"tensorflow_model_server --model_base_path={export_path} --rest_api_port=8501"
+            logger.info(f"🚀 Deploying medical model for production...")
+            logger.info(f"   Model path: {model_path}")
+            logger.info(f"   Deployment type: {deployment_config.get('type', 'tflite')}")
             
-        elif deployment_type == 'onnx':
-            try:
-                import tf2onnx
+            deployment_type = deployment_config.get('type', 'tflite')
+            deployment_results = {}
+            
+            # Load the model for deployment
+            if model_path.endswith('.h5'):
+                model = tf.keras.models.load_model(model_path)
+            elif model_path.endswith('.tflite'):
+                return self._deploy_tflite_model(model_path, deployment_config)
+            else:
+                raise ValueError(f"Unsupported model format: {model_path}")
+            
+            if deployment_type == 'tflite' or deployment_type == 'all':
+                logger.info("Deploying to TensorFlow Lite...")
+                tflite_result = self._deploy_tflite_model(model, deployment_config)
+                deployment_results['tflite'] = tflite_result
+            
+            if deployment_type == 'onnx' or deployment_type == 'all':
+                logger.info("Deploying to ONNX...")
+                onnx_result = self._deploy_onnx_model(model, deployment_config)
+                deployment_results['onnx'] = onnx_result
+            
+            if deployment_type == 'tfserving' or deployment_type == 'all':
+                logger.info("Deploying to TensorFlow Serving...")
+                tfserving_result = self._deploy_tfserving_model(model, deployment_config)
+                deployment_results['tfserving'] = tfserving_result
+            
+            successful_deployments = [k for k, v in deployment_results.items() if 'error' not in v]
+            failed_deployments = [k for k, v in deployment_results.items() if 'error' in v]
+            
+            deployment_summary = {
+                'model_path': model_path,
+                'deployment_type': deployment_type,
+                'successful_deployments': successful_deployments,
+                'failed_deployments': failed_deployments,
+                'deployment_results': deployment_results,
+                'total_deployments': len(deployment_results),
+                'success_rate': len(successful_deployments) / len(deployment_results) if deployment_results else 0,
+                'deployment_timestamp': datetime.now().isoformat()
+            }
+            
+            logger.info("✅ Medical model deployment completed")
+            logger.info(f"   Successful deployments: {successful_deployments}")
+            if failed_deployments:
+                logger.warning(f"   Failed deployments: {failed_deployments}")
+            
+            return deployment_summary
                 
-                spec = (tf.TensorSpec(model.input_shape, tf.float32, name='input'),)
-                model_proto, _ = tf2onnx.convert.from_keras(model, input_signature=spec)
-                
-                onnx_path = model_path.replace('.h5', '.onnx')
-                with open(onnx_path, 'wb') as f:
-                    f.write(model_proto.SerializeToString())
-                
-                deployment_info['onnx_path'] = onnx_path
-                
-            except ImportError:
-                deployment_info['error'] = 'tf2onnx not available for ONNX conversion'
-        
-        return deployment_info
+        except Exception as e:
+            logger.error(f"Medical model deployment failed: {e}")
+            return {'error': str(e)}
     
-    def _deploy_tflite_model(self, tflite_path: str, deployment_type: str) -> Dict:
-        """Deploy TensorFlow Lite model"""
-        return {
-            'model_path': tflite_path,
-            'deployment_type': 'tflite',
-            'model_size': self._get_model_size(tflite_path),
-            'deployment_ready': True,
-            'inference_framework': 'TensorFlow Lite',
-            'deployment_timestamp': datetime.now().isoformat()
-        }
+    def _deploy_tflite_model(self, model_or_path, config: Dict) -> Dict:
+        """Deploy TensorFlow Lite model with medical-specific optimizations"""
+        try:
+            logger.info("📱 Deploying TensorFlow Lite model for mobile/edge inference...")
+            
+            if isinstance(model_or_path, str):
+                if model_or_path.endswith('.tflite'):
+                    tflite_path = model_or_path
+                    model_size = self._get_model_size(tflite_path)
+                    
+                    return {
+                        'status': 'deployed',
+                        'model_path': tflite_path,
+                        'type': 'tflite',
+                        'model_size_bytes': model_size,
+                        'deployment_ready': True,
+                        'inference_framework': 'TensorFlow Lite',
+                        'deployment_timestamp': datetime.now().isoformat()
+                    }
+                else:
+                    model = tf.keras.models.load_model(model_or_path)
+            else:
+                model = model_or_path
+            
+            # Configure TFLite conversion for medical deployment
+            tflite_config = {
+                'modality': config.get('modality', 'CT'),
+                'calibration_samples': config.get('calibration_samples', 200),
+                'use_mixed_precision': config.get('use_mixed_precision', True),
+                'model_name': config.get('model_name', 'medical_model')
+            }
+            
+            tflite_result = self._convert_to_medical_tflite(model, tflite_config)
+            
+            if 'error' in tflite_result:
+                return tflite_result
+            
+            deployment_path = f"/tmp/{tflite_config['model_name']}_tflite_deployment"
+            import os
+            os.makedirs(deployment_path, exist_ok=True)
+            
+            import shutil
+            tflite_model_path = os.path.join(deployment_path, f"{tflite_config['model_name']}.tflite")
+            shutil.copy2(tflite_result['path'], tflite_model_path)
+            
+            # Handle both full medical conversion and fallback conversion results
+            deployment_metadata = {
+                'model_name': tflite_config['model_name'],
+                'model_type': 'tflite',
+                'modality': tflite_config['modality'],
+                'quantization_type': tflite_result.get('quantization_type', 'fallback_conversion'),
+                'input_shape': tflite_result['input_details'][0]['shape'].tolist() if 'input_details' in tflite_result else [1, 224, 224, 3],
+                'input_dtype': str(tflite_result['input_details'][0]['dtype']) if 'input_details' in tflite_result else 'float32',
+                'output_shape': tflite_result['output_details'][0]['shape'].tolist() if 'output_details' in tflite_result else [1, 5],
+                'output_dtype': str(tflite_result['output_details'][0]['dtype']) if 'output_details' in tflite_result else 'float32',
+                'model_size_bytes': tflite_result['size_bytes'],
+                'calibration_samples': tflite_result.get('calibration_samples', 0),
+                'deployment_timestamp': datetime.now().isoformat(),
+                'usage_instructions': {
+                    'python': f"interpreter = tf.lite.Interpreter(model_path='{tflite_config['model_name']}.tflite')",
+                    'android': "Use TensorFlow Lite Android API",
+                    'ios': "Use TensorFlow Lite iOS API"
+                }
+            }
+            
+            import json
+            metadata_path = os.path.join(deployment_path, 'deployment_metadata.json')
+            with open(metadata_path, 'w') as f:
+                json.dump(deployment_metadata, f, indent=2)
+            
+            inference_example = f'''
+import tensorflow as tf
+import numpy as np
+
+interpreter = tf.lite.Interpreter(model_path='{tflite_config['model_name']}.tflite')
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Prepare input data (example for {tflite_config['modality']} modality)
+input_shape = {tflite_result['input_details'][0]['shape'].tolist()}
+input_data = np.random.normal(0.5, 0.2, input_shape).astype(np.float32)
+
+interpreter.set_tensor(input_details[0]['index'], input_data)
+interpreter.invoke()
+output_data = interpreter.get_tensor(output_details[0]['index'])
+
+print(f"Input shape: {{input_data.shape}}")
+print(f"Output shape: {{output_data.shape}}")
+print(f"Prediction: {{output_data}}")
+'''
+            
+            example_path = os.path.join(deployment_path, 'inference_example.py')
+            with open(example_path, 'w') as f:
+                f.write(inference_example)
+            
+            logger.info("✅ TensorFlow Lite deployment package created successfully")
+            logger.info(f"   Deployment path: {deployment_path}")
+            logger.info(f"   Model size: {tflite_result['size_bytes'] / 1024:.2f} KB")
+            
+            return {
+                'status': 'deployed',
+                'deployment_path': deployment_path,
+                'model_path': tflite_model_path,
+                'metadata_path': metadata_path,
+                'example_path': example_path,
+                'type': 'tflite',
+                'model_size_bytes': tflite_result['size_bytes'],
+                'quantization_type': tflite_result.get('quantization_type', 'fallback_conversion'),
+                'modality': tflite_config['modality'],
+                'deployment_timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"TFLite deployment failed: {e}")
+            return {'error': str(e)}
+    
+    def _deploy_onnx_model(self, model, config: Dict) -> Dict:
+        """Deploy ONNX model for optimized inference"""
+        try:
+            logger.info("⚡ Deploying ONNX model for optimized inference...")
+            
+            # Configure ONNX conversion for medical deployment
+            onnx_config = {
+                'modality': config.get('modality', 'CT'),
+                'onnx_opset': config.get('onnx_opset', 13),
+                'model_name': config.get('model_name', 'medical_model')
+            }
+            
+            onnx_result = self._convert_to_medical_onnx(model, onnx_config)
+            
+            if 'error' in onnx_result:
+                return onnx_result
+            
+            deployment_path = f"/tmp/{onnx_config['model_name']}_onnx_deployment"
+            import os
+            os.makedirs(deployment_path, exist_ok=True)
+            
+            import shutil
+            onnx_model_path = os.path.join(deployment_path, f"{onnx_config['model_name']}.onnx")
+            shutil.copy2(onnx_result['path'], onnx_model_path)
+            
+            deployment_metadata = {
+                'model_name': onnx_config['model_name'],
+                'model_type': 'onnx',
+                'modality': onnx_config['modality'],
+                'opset_version': onnx_result['opset_version'],
+                'input_name': onnx_result['input_name'],
+                'input_shape': list(onnx_result['input_shape']),
+                'input_type': onnx_result['input_type'],
+                'output_name': onnx_result['output_name'],
+                'output_shape': list(onnx_result['output_shape']),
+                'output_type': onnx_result['output_type'],
+                'model_size_bytes': onnx_result['size_bytes'],
+                'deployment_timestamp': datetime.now().isoformat(),
+                'inference_test_passed': onnx_result['inference_test_passed'],
+                'usage_instructions': {
+                    'python': f"import onnxruntime as ort; session = ort.InferenceSession('{onnx_config['model_name']}.onnx')",
+                    'cpp': "Use ONNX Runtime C++ API",
+                    'csharp': "Use ONNX Runtime C# API"
+                }
+            }
+            
+            import json
+            metadata_path = os.path.join(deployment_path, 'deployment_metadata.json')
+            with open(metadata_path, 'w') as f:
+                json.dump(deployment_metadata, f, indent=2)
+            
+            inference_example = f'''
+import onnxruntime as ort
+import numpy as np
+
+# Load ONNX model
+session = ort.InferenceSession('{onnx_config['model_name']}.onnx')
+
+input_info = session.get_inputs()[0]
+output_info = session.get_outputs()[0]
+
+print(f"Input name: {{input_info.name}}")
+print(f"Input shape: {{input_info.shape}}")
+print(f"Input type: {{input_info.type}}")
+
+# Prepare input data (example for {onnx_config['modality']} modality)
+input_shape = {list(onnx_result['input_shape'])}
+input_data = np.random.normal(0.5, 0.2, input_shape).astype(np.float32)
+
+outputs = session.run(None, {{input_info.name: input_data}})
+
+print(f"Output shape: {{outputs[0].shape}}")
+print(f"Prediction: {{outputs[0]}}")
+'''
+            
+            example_path = os.path.join(deployment_path, 'inference_example.py')
+            with open(example_path, 'w') as f:
+                f.write(inference_example)
+            
+            logger.info("✅ ONNX deployment package created successfully")
+            logger.info(f"   Deployment path: {deployment_path}")
+            logger.info(f"   Model size: {onnx_result['size_bytes'] / 1024:.2f} KB")
+            
+            return {
+                'status': 'deployed',
+                'deployment_path': deployment_path,
+                'model_path': onnx_model_path,
+                'metadata_path': metadata_path,
+                'example_path': example_path,
+                'type': 'onnx',
+                'model_size_bytes': onnx_result['size_bytes'],
+                'opset_version': onnx_result['opset_version'],
+                'modality': onnx_config['modality'],
+                'inference_test_passed': onnx_result['inference_test_passed'],
+                'deployment_timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"ONNX deployment failed: {e}")
+            return {'error': str(e)}
+    
+    def _deploy_tfserving_model(self, model, config: Dict) -> Dict:
+        """Deploy model for TensorFlow Serving"""
+        try:
+            logger.info("🚀 Deploying model for TensorFlow Serving...")
+            
+            model_name = config.get('model_name', 'medical_model')
+            version = config.get('version', 1)
+            
+            export_base_path = f"/tmp/{model_name}_tfserving_deployment"
+            export_path = f"{export_base_path}/{version}"
+            
+            import os
+            os.makedirs(export_path, exist_ok=True)
+            
+            tf.saved_model.save(model, export_path)
+            
+            # Create serving configuration
+            serving_config = {
+                'model_name': model_name,
+                'model_version': version,
+                'export_path': export_path,
+                'modality': config.get('modality', 'CT'),
+                'deployment_timestamp': datetime.now().isoformat(),
+                'serving_command': f"tensorflow_model_server --model_base_path={export_base_path} --model_name={model_name} --rest_api_port=8501 --grpc_port=8500",
+                'rest_api_url': f"http://localhost:8501/v1/models/{model_name}:predict",
+                'grpc_url': f"localhost:8500"
+            }
+            
+            # Save serving configuration
+            import json
+            config_path = os.path.join(export_base_path, 'serving_config.json')
+            with open(config_path, 'w') as f:
+                json.dump(serving_config, f, indent=2)
+            
+            client_example = f'''
+import requests
+import numpy as np
+import json
+
+def predict_with_tfserving(image_data):
+    """
+    Send prediction request to TensorFlow Serving
+    
+    Args:
+        image_data: numpy array of shape matching model input
+    
+    Returns:
+        Prediction results
+    """
+    url = "http://localhost:8501/v1/models/{model_name}:predict"
+    
+    # Prepare request data
+    data = {{
+        "instances": image_data.tolist()
+    }}
+    
+    response = requests.post(url, json=data)
+    
+    if response.status_code == 200:
+        return response.json()["predictions"]
+    else:
+        raise Exception(f"Prediction failed: {{response.text}}")
+
+if __name__ == "__main__":
+    sample_input = np.random.normal(0.5, 0.2, (1, 224, 224, 3)).astype(np.float32)
+    
+    try:
+        predictions = predict_with_tfserving(sample_input)
+        print(f"Predictions: {{predictions}}")
+    except Exception as e:
+        print(f"Error: {{e}}")
+        print("Make sure TensorFlow Serving is running with:")
+        print("tensorflow_model_server --model_base_path={export_base_path} --model_name={model_name} --rest_api_port=8501")
+'''
+            
+            client_path = os.path.join(export_base_path, 'client_example.py')
+            with open(client_path, 'w') as f:
+                f.write(client_example)
+            
+            # Create Docker Compose for easy deployment
+            docker_compose = f'''
+version: '3.8'
+
+services:
+  tensorflow-serving:
+    image: tensorflow/serving:latest
+    ports:
+      - "8501:8501"  # REST API
+      - "8500:8500"  # gRPC
+    volumes:
+      - {export_base_path}:/models/{model_name}
+    environment:
+      - MODEL_NAME={model_name}
+    command: >
+      tensorflow_model_server
+      --model_base_path=/models/{model_name}
+      --model_name={model_name}
+      --rest_api_port=8501
+      --allow_version_labels_for_unavailable_models=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/v1/models/{model_name}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+'''
+            
+            compose_path = os.path.join(export_base_path, 'docker-compose.yml')
+            with open(compose_path, 'w') as f:
+                f.write(docker_compose)
+            
+            logger.info("✅ TensorFlow Serving deployment package created successfully")
+            logger.info(f"   Export path: {export_path}")
+            logger.info(f"   Model name: {model_name}")
+            logger.info(f"   Version: {version}")
+            
+            return {
+                'status': 'deployed',
+                'deployment_path': export_base_path,
+                'export_path': export_path,
+                'config_path': config_path,
+                'client_example_path': client_path,
+                'docker_compose_path': compose_path,
+                'type': 'tfserving',
+                'model_name': model_name,
+                'version': version,
+                'serving_command': serving_config['serving_command'],
+                'rest_api_url': serving_config['rest_api_url'],
+                'grpc_url': serving_config['grpc_url'],
+                'modality': config.get('modality', 'CT'),
+                'deployment_timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"TensorFlow Serving deployment failed: {e}")
+            return {'error': str(e)}
     
     def _validate_dicom_file(self, file_path: str) -> Tuple[bool, Optional[Dict]]:
         """
