@@ -29,6 +29,9 @@ except ImportError:
 logger = logging.getLogger('MedAI.Inference')
 
 
+MedAIInferenceSystem = None  # Será definido após a classe MedicalInferenceEngine
+
+
 @dataclass
 class PredictionResult:
     """Estrutura para resultados de predição"""
@@ -91,8 +94,18 @@ class MedicalInferenceEngine:
             tf.config.set_visible_devices([], 'GPU')
     
     def _load_model(self):
-        """Carrega modelo treinado com suporte a arquiteturas SOTA"""
+        """
+        Carrega modelo treinado com suporte a arquiteturas SOTA
+        Prioridade: 1) Pré-treinados 2) Checkpoints 3) H5 files 4) Criar SOTA
+        """
         try:
+            pretrained_model = self._load_pretrained_model()
+            if pretrained_model is not None:
+                self.model = pretrained_model
+                self._is_dummy_model = False
+                logger.info("✅ Modelo pré-treinado carregado com sucesso")
+                return
+            
             checkpoint_dir = Path("checkpoints")
             if checkpoint_dir.exists():
                 checkpoint_files = list(checkpoint_dir.glob("model_*.h5"))
@@ -160,6 +173,54 @@ class MedicalInferenceEngine:
             logger.info("Using simulation mode as fallback")
             self.model = None
             self._is_dummy_model = True
+    
+    def _load_pretrained_model(self):
+        """
+        Carrega modelo pré-treinado usando PreTrainedModelLoader
+        
+        Returns:
+            Modelo carregado ou None se não disponível
+        """
+        try:
+            from .medai_pretrained_loader import PreTrainedModelLoader
+            
+            loader = PreTrainedModelLoader()
+            
+            model_mapping = {
+                'chest_xray': 'chest_xray_efficientnetv2',
+                'brain_ct': 'ensemble_sota',
+                'bone_xray': 'ensemble_sota'
+            }
+            
+            # Determina tipo de modelo baseado no caminho
+            model_type = 'chest_xray'  # Padrão
+            if 'brain' in str(self.model_path).lower():
+                model_type = 'brain_ct'
+            elif 'bone' in str(self.model_path).lower():
+                model_type = 'bone_xray'
+            
+            model_name = model_mapping.get(model_type, 'chest_xray_efficientnetv2')
+            
+            download_results = loader.check_and_download_models(
+                models=[model_name], 
+                use_advanced_downloader=False  # Usa método básico para não bloquear
+            )
+            
+            if download_results.get(model_name, False):
+                model = loader.load_pretrained_model(model_name)
+                if model is not None:
+                    logger.info(f"✅ Modelo pré-treinado {model_name} carregado com sucesso")
+                    return model
+            
+            logger.info(f"⚠️ Modelo pré-treinado {model_name} não disponível")
+            return None
+            
+        except ImportError:
+            logger.warning("⚠️ PreTrainedModelLoader não disponível")
+            return None
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao carregar modelo pré-treinado: {e}")
+            return None
     
     def _create_sota_model(self):
         """Cria modelo SOTA baseado na configuração"""
@@ -1779,3 +1840,6 @@ class MedicalInferenceEngine:
                 'status': 'ready'
             }
         }
+
+
+MedAIInferenceSystem = MedicalInferenceEngine

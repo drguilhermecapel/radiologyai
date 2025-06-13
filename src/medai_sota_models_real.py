@@ -10,6 +10,7 @@ import numpy as np
 from typing import Tuple, Dict, Any, Optional
 import logging
 import math
+from pathlib import Path
 
 logger = logging.getLogger('MedAI.SOTA')
 
@@ -17,6 +18,7 @@ class SOTAModelManager:
     """
     Gerenciador de modelos SOTA reais
     Facilita carregamento e uso dos modelos de última geração
+    Integrado com sistema de modelos pré-treinados
     """
     
     def __init__(self):
@@ -27,13 +29,51 @@ class SOTAModelManager:
             'ensemble_model': 'Modelo ensemble com fusão por atenção'
         }
         self.loaded_models = {}
+        self.pretrained_loader = None
+        self._initialize_pretrained_loader()
+    
+    def _initialize_pretrained_loader(self):
+        """Inicializa carregador de modelos pré-treinados"""
+        try:
+            from .medai_pretrained_loader import PreTrainedModelLoader
+            self.pretrained_loader = PreTrainedModelLoader()
+            logger.info("✅ Sistema de modelos pré-treinados inicializado")
+        except ImportError as e:
+            logger.warning(f"⚠️ Sistema de modelos pré-treinados não disponível: {e}")
+            self.pretrained_loader = None
+        except Exception as e:
+            logger.error(f"❌ Erro ao inicializar modelos pré-treinados: {e}")
+            self.pretrained_loader = None
     
     def get_available_models(self):
-        """Retorna lista de modelos disponíveis"""
-        return list(self.available_models.keys())
+        """Retorna lista de modelos disponíveis (SOTA + pré-treinados)"""
+        models = list(self.available_models.keys())
+        
+        if self.pretrained_loader:
+            try:
+                pretrained_models = self.pretrained_loader.get_available_models()
+                models.extend(pretrained_models)
+                logger.info(f"✅ {len(pretrained_models)} modelos pré-treinados disponíveis")
+            except Exception as e:
+                logger.warning(f"⚠️ Erro ao listar modelos pré-treinados: {e}")
+        
+        return list(set(models))  # Remove duplicatas
     
     def load_model(self, model_name: str, input_shape=(384, 384, 3), num_classes=5):
-        """Carrega um modelo SOTA específico"""
+        """
+        Carrega um modelo SOTA específico com fallback para modelos pré-treinados
+        Prioridade: 1) Pré-treinados 2) SOTA construídos 3) Fallback
+        """
+        if self.pretrained_loader:
+            try:
+                pretrained_model = self.pretrained_loader.load_pretrained_model(model_name)
+                if pretrained_model is not None:
+                    self.loaded_models[model_name] = pretrained_model
+                    logger.info(f"✅ Modelo pré-treinado {model_name} carregado com sucesso")
+                    return pretrained_model
+            except Exception as e:
+                logger.warning(f"⚠️ Falha ao carregar modelo pré-treinado {model_name}: {e}")
+        
         if model_name not in self.available_models:
             raise ValueError(f"Modelo {model_name} não disponível")
         
@@ -54,7 +94,7 @@ class SOTAModelManager:
             model = sota_builder.compile_sota_model(model)
             
             self.loaded_models[model_name] = model
-            logger.info(f"✅ Modelo SOTA real {model_name} carregado com sucesso")
+            logger.info(f"✅ Modelo SOTA construído {model_name} carregado com sucesso")
             return model
             
         except Exception as e:
@@ -67,6 +107,50 @@ class SOTAModelManager:
             logger.warning(f"⚠️ Modelo {model_name} não está carregado")
             return None
         return self.loaded_models[model_name]
+    
+    def check_and_download_pretrained_models(self, progress_callback=None):
+        """
+        Verifica e baixa modelos pré-treinados se necessário
+        
+        Args:
+            progress_callback: Função para callback de progresso
+            
+        Returns:
+            Dict com status de download de cada modelo
+        """
+        if not self.pretrained_loader:
+            logger.warning("⚠️ Sistema de modelos pré-treinados não disponível")
+            return {}
+        
+        try:
+            return self.pretrained_loader.check_and_download_models(
+                progress_callback=progress_callback
+            )
+        except Exception as e:
+            logger.error(f"❌ Erro ao verificar/baixar modelos pré-treinados: {e}")
+            return {}
+    
+    def get_pretrained_model_info(self, model_name: str):
+        """Retorna informações sobre modelo pré-treinado"""
+        if not self.pretrained_loader:
+            return None
+        
+        try:
+            return self.pretrained_loader.get_model_info(model_name)
+        except Exception as e:
+            logger.error(f"❌ Erro ao obter informações do modelo {model_name}: {e}")
+            return None
+    
+    def get_storage_usage(self):
+        """Retorna informações sobre uso de armazenamento dos modelos"""
+        if not self.pretrained_loader:
+            return {"error": "Sistema de modelos pré-treinados não disponível"}
+        
+        try:
+            return self.pretrained_loader.get_storage_usage()
+        except Exception as e:
+            logger.error(f"❌ Erro ao obter uso de armazenamento: {e}")
+            return {"error": str(e)}
 
 class StateOfTheArtModels:
     """

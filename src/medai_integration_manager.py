@@ -29,6 +29,9 @@ class MedAIIntegrationManager:
     def _initialize_components(self):
         """Inicializa todos os componentes do sistema"""
         try:
+            logger.info("📦 Inicializando sistema de modelos pré-treinados...")
+            self._initialize_pretrained_system()
+            
             try:
                 from .medai_dicom_processor import DicomProcessor
                 self.dicom_processor = DicomProcessor()
@@ -149,12 +152,107 @@ class MedAIIntegrationManager:
             
             logger.info("Modelos de IA de última geração carregados com melhorias do relatório")
             
+            self._initialize_smart_model_management()
+            
             logger.info("Todos os componentes inicializados com sucesso")
             logger.info("Sistema configurado com modelos de IA de última geração para máxima precisão diagnóstica")
             
         except ImportError as e:
             logger.error(f"Erro ao importar componentes: {e}")
             raise
+    
+    def _initialize_pretrained_system(self):
+        """
+        Inicializa sistema de modelos pré-treinados
+        Verifica e baixa modelos se necessário
+        """
+        try:
+            from .medai_pretrained_loader import PreTrainedModelLoader
+            
+            self.pretrained_loader = PreTrainedModelLoader()
+            
+            available_models = self.pretrained_loader.get_available_models()
+            
+            if available_models:
+                logger.info(f"📦 {len(available_models)} modelos pré-treinados disponíveis")
+                
+                import threading
+                
+                def check_and_download():
+                    try:
+                        if self.pretrained_loader:
+                            results = self.pretrained_loader.check_and_download_models(
+                                use_advanced_downloader=False  # Sem GUI durante inicialização
+                            )
+                            successful = sum(1 for success in results.values() if success)
+                            total = len(results)
+                            
+                            if successful > 0:
+                                logger.info(f"✅ {successful}/{total} modelos pré-treinados prontos")
+                            else:
+                                logger.warning("⚠️ Nenhum modelo pré-treinado foi baixado")
+                        else:
+                            logger.warning("⚠️ PreTrainedModelLoader não disponível")
+                            
+                    except Exception as e:
+                        logger.warning(f"⚠️ Erro ao verificar modelos pré-treinados: {e}")
+                
+                download_thread = threading.Thread(target=check_and_download, daemon=True)
+                download_thread.start()
+                
+            else:
+                logger.info("📦 Sistema de modelos pré-treinados inicializado (sem modelos)")
+                
+        except ImportError:
+            logger.warning("⚠️ Sistema de modelos pré-treinados não disponível")
+            self.pretrained_loader = None
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao inicializar sistema de modelos pré-treinados: {e}")
+            self.pretrained_loader = None
+    
+    def _initialize_smart_model_management(self):
+        """
+        Inicializa sistema de gerenciamento inteligente de modelos
+        """
+        try:
+            if self.pretrained_loader:
+                from .medai_smart_model_manager import SmartModelManager
+                
+                self.smart_model_manager = SmartModelManager(self.pretrained_loader)
+                
+                import threading
+                
+                def auto_optimize():
+                    try:
+                        import time
+                        time.sleep(30)
+                        
+                        if self.smart_model_manager:
+                            optimization_result = self.smart_model_manager.optimize_cache_automatically()
+                            
+                            if optimization_result.get('actions_taken'):
+                                logger.info(f"🚀 Otimização automática executada: {len(optimization_result['actions_taken'])} ações")
+                        else:
+                            logger.warning("⚠️ SmartModelManager não disponível para otimização automática")
+                        
+                    except Exception as e:
+                        logger.warning(f"⚠️ Erro na otimização automática: {e}")
+                
+                optimization_thread = threading.Thread(target=auto_optimize, daemon=True)
+                optimization_thread.start()
+                
+                logger.info("🧠 Sistema de gerenciamento inteligente de modelos inicializado")
+                
+            else:
+                logger.warning("⚠️ Gerenciamento inteligente não disponível (sem pretrained_loader)")
+                self.smart_model_manager = None
+                
+        except ImportError:
+            logger.warning("⚠️ SmartModelManager não disponível")
+            self.smart_model_manager = None
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao inicializar gerenciamento inteligente: {e}")
+            self.smart_model_manager = None
     
     def _create_simple_model(self):
         """Cria um modelo simples para evitar erros de TensorFlow"""
