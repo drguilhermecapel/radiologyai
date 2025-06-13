@@ -19,8 +19,25 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+def convert_numpy_to_json(obj):
+    """Recursively convert numpy arrays and types to JSON-serializable types"""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (np.floating, np.complexfloating)):
+        return float(obj)
+    elif isinstance(obj, (np.integer, np.unsignedinteger)):
+        return int(obj)
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_to_json(value) for key, value in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [convert_numpy_to_json(item) for item in obj]
+    else:
+        return obj
+
 try:
-    from .medai_main_structure import Config, logger
+    from medai_main_structure import Config, logger
 except ImportError:
     class Config:
         APP_NAME = "MedAI Radiologia"
@@ -30,37 +47,38 @@ except ImportError:
     logger = logging.getLogger('MedAI')
 
 try:
-    from .medai_integration_manager import MedAIIntegrationManager
+    from medai_integration_manager import MedAIIntegrationManager
 except ImportError:
     logger.warning("Integration manager não disponível")
     MedAIIntegrationManager = None
 
 try:
-    from .medai_setup_initialize import SystemInitializer
+    from medai_setup_initialize import SystemInitializer
 except ImportError:
     logger.warning("System initializer não disponível")
     SystemInitializer = None
 
 try:
-    from .medai_inference_system import MedicalInferenceEngine
+    from medai_inference_system import MedicalInferenceEngine
 except ImportError:
     logger.warning("Inference engine não disponível")
     MedicalInferenceEngine = None
 
 try:
-    from .medai_sota_models import StateOfTheArtModels
+    from medai_sota_models import StateOfTheArtModels
 except ImportError:
     logger.warning("SOTA models não disponível")
     StateOfTheArtModels = None
 
 try:
-    from .medai_clinical_evaluation import ClinicalPerformanceEvaluator
+    from medai_clinical_evaluation import ClinicalPerformanceEvaluator
 except ImportError:
     logger.warning("Clinical evaluator não disponível")
     ClinicalPerformanceEvaluator = None
 
-app = Flask(__name__)
-CORS(app)
+app = Flask(__name__, template_folder='../templates')
+CORS(app, origins=["*"], methods=["GET", "POST", "OPTIONS"], 
+     allow_headers=["Content-Type", "Authorization"])
 
 medai_system = None
 
@@ -87,11 +105,26 @@ def initialize_medai_system():
             logger.info("Executando em modo CPU otimizado")
         
         try:
-            inference_engine = MedicalInferenceEngine()
+            inference_engine = None
+            if MedicalInferenceEngine:
+                try:
+                    inference_engine = MedicalInferenceEngine()
+                except Exception as e:
+                    logger.warning(f"Could not initialize inference engine: {e}")
             
-            sota_models = StateOfTheArtModels()
+            sota_models = None
+            if StateOfTheArtModels:
+                try:
+                    sota_models = StateOfTheArtModels()
+                except Exception as e:
+                    logger.warning(f"Could not initialize SOTA models: {e}")
             
-            clinical_evaluator = ClinicalPerformanceEvaluator()
+            clinical_evaluator = None
+            if ClinicalPerformanceEvaluator:
+                try:
+                    clinical_evaluator = ClinicalPerformanceEvaluator()
+                except Exception as e:
+                    logger.warning(f"Could not initialize clinical evaluator: {e}")
             
             enhanced_models_info = {
                 'efficientnetv2': {
@@ -134,9 +167,16 @@ def initialize_medai_system():
             app.config['SOTA_MODELS'] = sota_models
             app.config['CLINICAL_EVALUATOR'] = clinical_evaluator
             
-            integration_manager = MedAIIntegrationManager()
-            integration_manager.inference_engine = inference_engine
-            integration_manager.clinical_evaluator = clinical_evaluator
+            integration_manager = None
+            if MedAIIntegrationManager:
+                try:
+                    integration_manager = MedAIIntegrationManager()
+                    if hasattr(integration_manager, 'inference_engine'):
+                        integration_manager.inference_engine = inference_engine
+                    if hasattr(integration_manager, 'clinical_evaluator'):
+                        integration_manager.clinical_evaluator = clinical_evaluator
+                except Exception as e:
+                    logger.warning(f"Could not initialize integration manager: {e}")
             
             app.config['INTEGRATION_MANAGER'] = integration_manager
             
@@ -149,8 +189,13 @@ def initialize_medai_system():
             
         except Exception as e:
             logger.error(f"Erro na inicialização do sistema avançado: {e}")
-            medai_system = MedAIIntegrationManager()
-            logger.info("Sistema MedAI inicializado em modo básico (fallback)")
+            if MedAIIntegrationManager:
+                try:
+                    medai_system = MedAIIntegrationManager()
+                    logger.info("Sistema MedAI inicializado em modo básico (fallback)")
+                except Exception as fallback_error:
+                    logger.error(f"Fallback initialization failed: {fallback_error}")
+                    medai_system = None
         
         logger.info("Sistema MedAI inicializado com sucesso para modo web")
         return True
@@ -177,12 +222,8 @@ def api_status():
 
 @app.route('/api/analyze', methods=['POST'])
 def api_analyze():
-    """Análise avançada de imagem médica com TorchXRayVision AI real"""
-    try:
-        from torchxray_integration import TorchXRayInference
-        torchxray_model = TorchXRayInference()
-    except Exception as e:
-        return jsonify({'error': f'Erro ao carregar modelo TorchXRayVision: {str(e)}'}), 500
+    """Análise avançada de imagem médica com AI real"""
+    global medai_system
     
     try:
         if 'image' not in request.files:
@@ -252,18 +293,27 @@ def api_analyze():
             processing_time = analysis_result.metadata.get('processing_time', 0.0)
             
         else:
+            if not medai_system:
+                return jsonify({'error': 'Sistema AI não inicializado'}), 503
+            
             try:
-                analysis_result = medai_system.analyze_image_with_ensemble(
-                    image_array, 
-                    'chest_xray', 
-                    generate_attention_map=generate_visualization
-                )
-            except AttributeError:
-                analysis_result = medai_system.analyze_image(
-                    image_array, 
-                    'chest_xray', 
-                    generate_attention_map=generate_visualization
-                )
+                if hasattr(medai_system, 'analyze_image_with_ensemble'):
+                    analysis_result = medai_system.analyze_image_with_ensemble(
+                        image_array, 
+                        'chest_xray', 
+                        generate_attention_map=generate_visualization
+                    )
+                elif hasattr(medai_system, 'analyze_image'):
+                    analysis_result = medai_system.analyze_image(
+                        image_array, 
+                        'chest_xray', 
+                        generate_attention_map=generate_visualization
+                    )
+                else:
+                    return jsonify({'error': 'Método de análise não disponível'}), 503
+            except Exception as e:
+                logger.error(f"Error in image analysis: {e}")
+                return jsonify({'error': f'Erro na análise: {str(e)}'}), 500
             
             predicted_class = analysis_result.get('predicted_class', 'Normal')
             confidence = analysis_result.get('confidence', 0.0)
@@ -325,13 +375,13 @@ def api_analyze():
             predicted_class, confidence, all_scores, clinical_metrics
         )
         
-        result = {
+        result = convert_numpy_to_json({
             'success': True,
             'filename': file.filename,
             'analysis': {
                 'predicted_class': predicted_class,
                 'confidence': float(confidence),
-                'all_scores': {k: float(v) for k, v in all_scores.items()},
+                'all_scores': {k: float(v) if isinstance(v, (int, float, np.number)) else v for k, v in all_scores.items()},
                 'findings': findings,
                 'recommendations': recommendations
             },
@@ -346,15 +396,15 @@ def api_analyze():
             'clinical_report': clinical_report,
             'visualization': {
                 'attention_weights': attention_weights,
-                'gradcam_available': gradcam_data is not None,
+                'gradcam_available': gradcam_data is not None if gradcam_data else False,
                 'gradcam_data': gradcam_data
             },
             'processing_time': float(processing_time),
             'model_used': 'SOTA_Ensemble_with_Explainability',
             'ensemble_components': ['EfficientNetV2', 'VisionTransformer', 'ConvNeXt', 'AttentionWeightedEnsemble'],
-            'clinical_ready': clinical_metrics.get('meets_clinical_threshold', False),
+            'clinical_ready': clinical_metrics.get('meets_clinical_threshold', False) if clinical_metrics else False,
             'analysis_type': 'sota_ensemble_with_clinical_validation'
-        }
+        })
         
         if generate_visualization:
             if gradcam_data:

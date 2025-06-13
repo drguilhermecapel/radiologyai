@@ -458,19 +458,20 @@
         function displayResult(result) {
             const analysis = result.analysis || {};
             
-            // Display all diagnoses instead of just primary
+            // Display all diagnoses with proper error handling
             const allDiagnoses = analysis.all_diagnoses || [];
             const diagnosesListElement = document.getElementById('all-diagnoses-list');
             
             if (allDiagnoses.length > 0) {
                 let diagnosesHTML = '';
                 allDiagnoses.forEach((diagnosis, index) => {
-                    const confidence = (diagnosis.confidence * 100).toFixed(1);
+                    const confidence = diagnosis.confidence ? (diagnosis.confidence * 100).toFixed(1) : '0.0';
                     const significanceClass = diagnosis.clinical_significance || 'moderate';
+                    const diagnosisName = diagnosis.diagnosis || 'Diagnóstico não especificado';
                     
                     diagnosesHTML += `
                         <div class="diagnosis-item">
-                            <span class="diagnosis-name">${diagnosis.diagnosis}</span>
+                            <span class="diagnosis-name">${diagnosisName}</span>
                             <span class="diagnosis-confidence ${significanceClass}">${confidence}%</span>
                         </div>
                     `;
@@ -479,7 +480,7 @@
             } else {
                 // Fallback to single diagnosis display
                 const predictedClass = analysis.predicted_class || 'Não determinado';
-                const confidence = ((analysis.confidence || 0) * 100).toFixed(1);
+                const confidence = analysis.confidence ? (analysis.confidence * 100).toFixed(1) : '0.0';
                 diagnosesListElement.innerHTML = `
                     <div class="diagnosis-item">
                         <span class="diagnosis-name">${predictedClass}</span>
@@ -488,28 +489,36 @@
                 `;
             }
             
+            // Handle findings with proper error checking
+            const findings = analysis.findings || analysis.clinical_findings || [];
             document.getElementById('findings').textContent = 
-                (analysis.clinical_findings && analysis.clinical_findings.length > 0) 
-                    ? analysis.clinical_findings.join(', ') 
+                (Array.isArray(findings) && findings.length > 0) 
+                    ? findings.join(', ') 
                     : 'Nenhum achado específico';
             
+            // Handle recommendations with proper error checking
+            const recommendations = analysis.recommendations || [];
             document.getElementById('recommendations').textContent = 
-                (analysis.recommendations && analysis.recommendations.length > 0) 
-                    ? analysis.recommendations.join(', ') 
+                (Array.isArray(recommendations) && recommendations.length > 0) 
+                    ? recommendations.join(', ') 
                     : 'Acompanhamento de rotina';
             
+            // Handle model info with fallback
             document.getElementById('model-used').textContent = 
-                (analysis.model_info && analysis.model_info.model_name) || 'TorchXRayVision';
+                result.model_used || analysis.model_used || 'MedAI Sistema';
             
+            // Handle processing time with proper fallback
+            const processingTime = result.processing_time || analysis.processing_time || 0;
             document.getElementById('processing-time').textContent = 
-                (analysis.processing_time || 0).toFixed(2);
+                (typeof processingTime === 'number' ? processingTime.toFixed(2) : '0.00');
 
-            // Update status badge based on highest confidence diagnosis
+            // Update status badge based on diagnosis
             const statusBadge = document.getElementById('status-badge');
             const primaryDiagnosis = allDiagnoses.length > 0 ? allDiagnoses[0] : null;
+            const predictedClass = analysis.predicted_class || '';
             
             if (primaryDiagnosis) {
-                const diagnosisName = primaryDiagnosis.diagnosis.toLowerCase();
+                const diagnosisName = (primaryDiagnosis.diagnosis || '').toLowerCase();
                 if (diagnosisName.includes('normal') || diagnosisName.includes('sem alterações')) {
                     statusBadge.textContent = '✅ Normal';
                     statusBadge.className = 'status-badge status-normal';
@@ -517,6 +526,9 @@
                     statusBadge.textContent = '⚠️ Requer Atenção';
                     statusBadge.className = 'status-badge status-abnormal';
                 }
+            } else if (predictedClass.toLowerCase().includes('normal')) {
+                statusBadge.textContent = '✅ Normal';
+                statusBadge.className = 'status-badge status-normal';
             } else {
                 statusBadge.textContent = '⚠️ Requer Atenção';
                 statusBadge.className = 'status-badge status-abnormal';

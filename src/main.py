@@ -14,7 +14,7 @@ from PyQt5.QtCore import Qt
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from .medai_main_structure import Config, logger
+    from medai_main_structure import Config, logger
 except ImportError:
     class Config:
         APP_NAME = "MedAI Radiologia"
@@ -24,19 +24,32 @@ except ImportError:
     logger = logging.getLogger('MedAI')
 
 try:
-    from .medai_gui_main import MedAIMainWindow
+    from medai_gui_main import MedAIMainWindow
 except ImportError:
     logger.warning("GUI não disponível")
     MedAIMainWindow = None
 
 try:
-    from .medai_setup_initialize import SystemInitializer
+    from medai_setup_initialize import SystemInitializer
 except ImportError:
     logger.warning("System initializer não disponível")
     # Criar mock do SystemInitializer
     class SystemInitializer:
         def initialize_system(self):
             return True
+
+def check_environment():
+    """Verifica se o ambiente está configurado corretamente"""
+    try:
+        import tensorflow as tf
+        import numpy as np
+        import PIL
+        import cv2
+        logger.info("Dependências principais verificadas com sucesso")
+        return True
+    except ImportError as e:
+        logger.error(f"Dependência faltando: {e}")
+        return False
 
 def main():
     """Função principal"""
@@ -86,7 +99,7 @@ Opções:
         try:
             from PyQt5.QtWidgets import QApplication
             try:
-                from .medai_gui_main import MedAIMainWindow
+                from medai_gui_main import MedAIMainWindow
             except ImportError:
                 logger.warning("GUI main não disponível")
                 MedAIMainWindow = None
