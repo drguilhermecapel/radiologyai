@@ -51,6 +51,10 @@ def parse_args():
     parser.add_argument('--architectures', type=str, nargs='+',
                        default=['EfficientNetV2', 'VisionTransformer', 'ConvNeXt'],
                        help='Arquiteturas para treinar')
+    parser.add_argument('--modality', type=str, 
+                       choices=['X-ray', 'CT', 'MRI', 'Ultrasound', 'PET-CT'],
+                       default='X-ray',
+                       help='Modalidade de imagem médica para treinamento')
     parser.add_argument('--epochs', type=int, default=50,
                        help='Número de épocas para treinamento')
     parser.add_argument('--batch_size', type=int, default=16,
@@ -67,15 +71,23 @@ def parse_args():
                        help='Retomar treinamento de um checkpoint')
     return parser.parse_args()
 
-def validate_data_directory(data_dir):
-    """Valida estrutura do diretório de dados"""
-    logger.info(f"Validando diretório de dados: {data_dir}")
+def validate_data_directory(data_dir, modality='X-ray'):
+    """Valida estrutura do diretório de dados baseado na modalidade"""
+    logger.info(f"Validando diretório de dados: {data_dir} (Modalidade: {modality})")
     
     if not os.path.exists(data_dir):
         logger.error(f"Diretório de dados não encontrado: {data_dir}")
         return False
     
-    expected_classes = ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor']
+    modality_classes = {
+        'X-ray': ['normal', 'pneumonia', 'pleural_effusion', 'fracture', 'tumor'],
+        'CT': ['normal', 'tumor', 'stroke', 'hemorrhage', 'edema'],
+        'MRI': ['normal', 'tumor', 'lesion', 'edema', 'hemorrhage'],
+        'Ultrasound': ['normal', 'cisto', 'tumor_solido', 'calcificacao', 'vascularizacao_anormal', 'liquido_livre'],
+        'PET-CT': ['normal', 'hipermetabolismo_benigno', 'hipermetabolismo_maligno', 'hipometabolismo', 'necrose', 'inflamacao']
+    }
+    
+    expected_classes = modality_classes.get(modality, ['normal', 'abnormal'])
     found_classes = []
     
     for class_name in expected_classes:
@@ -94,10 +106,10 @@ def validate_data_directory(data_dir):
         logger.error("Pelo menos 2 classes são necessárias para treinamento")
         return False
     
-    logger.info(f"Validação concluída. Classes encontradas: {found_classes}")
+    logger.info(f"Validação concluída para modalidade {modality}. Classes encontradas: {found_classes}")
     return True
 
-def get_model_config(architecture, input_shape, num_classes, learning_rate):
+def get_model_config(architecture, input_shape, num_classes, learning_rate, modality='X-ray'):
     """Get SOTA model-specific configuration optimized for medical imaging"""
     configs = {
         'EfficientNetV2': {
@@ -135,6 +147,28 @@ def get_model_config(architecture, input_shape, num_classes, learning_rate):
             'freeze_layers': 'backbone',  # Freeze backbone models initially
             'fine_tuning_lr': learning_rate * 0.03,
             'preprocessing': 'ensemble_medical'
+        },
+        'UltrasoundEfficientNetV2': {
+            'input_shape': (384, 384, 3),
+            'batch_size': 16,
+            'learning_rate': learning_rate,
+            'epochs_default': 45,
+            'freeze_layers': -3,
+            'fine_tuning_lr': learning_rate * 0.1,
+            'preprocessing': 'ultrasound_medical',
+            'modality_specific': True,
+            'speckle_reduction': True
+        },
+        'PETCTFusionHybrid': {
+            'input_shape': (512, 512, 3),
+            'batch_size': 8,  # Reduced for larger input size and fusion complexity
+            'learning_rate': learning_rate * 0.5,  # Conservative for fusion model
+            'epochs_default': 60,
+            'freeze_layers': -2,
+            'fine_tuning_lr': learning_rate * 0.05,
+            'preprocessing': 'pet_ct_fusion_medical',
+            'modality_specific': True,
+            'fusion_training': True
         }
     }
     

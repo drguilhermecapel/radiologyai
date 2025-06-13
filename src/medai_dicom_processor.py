@@ -36,7 +36,8 @@ class DicomProcessor:
         'MG': 'Mammography',
         'DX': 'Digital Radiography',
         'XA': 'X-Ray Angiography',
-        'RF': 'Radio Fluoroscopy'
+        'RF': 'Radio Fluoroscopy',
+        'PT': 'Positron Emission Tomography'
     }
     
     def __init__(self, anonymize: bool = True):
@@ -467,6 +468,14 @@ class DicomProcessor:
                 'magnetic_field_strength': str(ds.get('MagneticFieldStrength', '')),
                 'sequence_name': str(ds.get('SequenceName', '')),
                 'repetition_time': str(ds.get('RepetitionTime', ''))
+            })
+        elif modality == 'PT':
+            modality_info.update({
+                'radiopharmaceutical': str(ds.get('RadiopharmaceuticalInformationSequence', [{}])[0].get('Radiopharmaceutical', '') if ds.get('RadiopharmaceuticalInformationSequence') else ''),
+                'radionuclide_half_life': str(ds.get('RadiopharmaceuticalInformationSequence', [{}])[0].get('RadionuclideHalfLife', '') if ds.get('RadiopharmaceuticalInformationSequence') else ''),
+                'decay_correction': str(ds.get('DecayCorrection', '')),
+                'units': str(ds.get('Units', '')),
+                'suv_type': str(ds.get('SUVType', ''))
             })
         
         return modality_info

@@ -561,6 +561,60 @@ class MLPipeline:
             clipped_image = tf.clip_by_value(image, p1_val, p99_val)
             normalized_image = (clipped_image - p1_val) / (p99_val - p1_val + 1e-8)
             
+        elif modality == 'US':
+            # Apply median filtering equivalent using TensorFlow operations
+            kernel_size = 3
+            padded_image = tf.pad(image, [[kernel_size//2, kernel_size//2], [kernel_size//2, kernel_size//2]], 'REFLECT')
+            patches = tf.image.extract_patches(
+                tf.expand_dims(tf.expand_dims(padded_image, 0), -1),
+                sizes=[1, kernel_size, kernel_size, 1],
+                strides=[1, 1, 1, 1],
+                rates=[1, 1, 1, 1],
+                padding='VALID'
+            )
+            median_filtered = tf.nn.top_k(tf.reshape(patches, [-1, kernel_size*kernel_size]), k=kernel_size*kernel_size//2+1).values[:, -1]
+            median_filtered = tf.reshape(median_filtered, tf.shape(image))
+            
+            flat_image = tf.reshape(median_filtered, [-1])
+            sorted_values = tf.sort(flat_image)
+            n_pixels = tf.shape(sorted_values)[0]
+            
+            p5_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.05, tf.int32)
+            p95_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.95, tf.int32)
+            
+            p5_val = sorted_values[p5_idx]
+            p95_val = sorted_values[p95_idx]
+            
+            clipped_image = tf.clip_by_value(median_filtered, p5_val, p95_val)
+            normalized_image = (clipped_image - p5_val) / (p95_val - p5_val + 1e-8)
+            
+        elif modality == 'PT':
+            # Robust normalization excluding background
+            threshold = tf.reduce_mean(image) * 0.05  # Lower threshold for PET
+            mask = tf.cast(image > threshold, tf.float32)
+            
+            masked_image = image * mask
+            valid_pixels = tf.reduce_sum(mask)
+            
+            mean_val = tf.cond(
+                valid_pixels > 0,
+                lambda: tf.reduce_sum(masked_image) / valid_pixels,
+                lambda: tf.reduce_mean(image)
+            )
+            
+            flat_image = tf.reshape(image, [-1])
+            sorted_values = tf.sort(flat_image)
+            n_pixels = tf.shape(sorted_values)[0]
+            
+            p1_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.01, tf.int32)
+            p99_idx = tf.cast(tf.cast(n_pixels, tf.float32) * 0.99, tf.int32)
+            
+            p1_val = sorted_values[p1_idx]
+            p99_val = sorted_values[p99_idx]
+            
+            clipped_image = tf.clip_by_value(image, p1_val, p99_val)
+            normalized_image = (clipped_image - p1_val) / (p99_val - p1_val + 1e-8)
+            
         else:
             p1_val = tf.reduce_min(image)
             p99_val = tf.reduce_max(image)
@@ -3669,6 +3723,51 @@ services:
         """Gerar imagem de raio-X de tórax sintética"""
         image = np.random.exponential(0.3, (512, 512, 3))
         return np.clip(image, 0, 1)
+    
+    def _generate_ultrasound_image(self) -> np.ndarray:
+        """Gerar imagem de ultrassom sintética com padrões de speckle"""
+        base_image = np.random.gamma(2.0, 0.3, (512, 512))
+        
+        speckle = np.random.rayleigh(0.1, (512, 512))
+        ultrasound_image = base_image * (1 + speckle)
+        
+        y, x = np.ogrid[:512, :512]
+        center_y, center_x = 256, 256
+        
+        for i in range(3):
+            cy = center_y + np.random.randint(-100, 100)
+            cx = center_x + np.random.randint(-100, 100)
+            radius = np.random.randint(20, 60)
+            mask = (x - cx)**2 + (y - cy)**2 < radius**2
+            ultrasound_image[mask] *= np.random.uniform(1.2, 1.8)
+        
+        # Normalize and convert to 3-channel
+        ultrasound_image = np.clip(ultrasound_image, 0, 1)
+        return np.stack([ultrasound_image] * 3, axis=-1)
+    
+    def _generate_pet_ct_fusion_image(self) -> np.ndarray:
+        """Gerar imagem de fusão PET-CT sintética"""
+        ct_component = self._generate_ct_image(40.0, 400.0)
+        
+        pet_base = np.random.exponential(0.2, (512, 512))
+        
+        y, x = np.ogrid[:512, :512]
+        for i in range(np.random.randint(2, 6)):
+            cy = np.random.randint(100, 412)
+            cx = np.random.randint(100, 412)
+            radius = np.random.randint(10, 30)
+            intensity = np.random.uniform(2.0, 5.0)
+            
+            mask = (x - cx)**2 + (y - cy)**2 < radius**2
+            pet_base[mask] += intensity
+        
+        # Normalize PET component
+        pet_component = np.clip(pet_base, 0, 1)
+        pet_component = np.stack([pet_component] * 3, axis=-1)
+        
+        fusion_image = 0.6 * pet_component + 0.4 * ct_component
+        
+        return np.clip(fusion_image, 0, 1)
     
     def _generate_generic_medical_image(self) -> np.ndarray:
         """Gerar imagem médica genérica"""

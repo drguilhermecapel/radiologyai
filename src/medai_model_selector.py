@@ -20,6 +20,8 @@ class ExamType(Enum):
     LUNG_CT = "lung_ct"
     CARDIAC_MRI = "cardiac_mri"
     SPINE_MRI = "spine_mri"
+    ULTRASOUND = "ultrasound"
+    PET_CT_FUSION = "pet_ct_fusion"
     GENERAL = "general"
 
 class ModelSelector:
@@ -116,6 +118,24 @@ class ModelSelector:
                 'confidence_threshold': 0.84,
                 'description': 'Híbrido para patologias da coluna vertebral',
                 'classes': ['Normal', 'Hérnia de Disco', 'Estenose', 'Fratura', 'Tumor', 'Degeneração']
+            },
+            
+            ExamType.ULTRASOUND: {
+                'primary_model': 'efficientnetv2',
+                'secondary_model': 'convnext',
+                'ensemble': True,
+                'confidence_threshold': 0.83,
+                'description': 'EfficientNetV2 otimizado para ultrassonografia',
+                'classes': ['Normal', 'Cisto', 'Tumor Sólido', 'Calcificação', 'Vascularização Anormal', 'Líquido Livre']
+            },
+            
+            ExamType.PET_CT_FUSION: {
+                'primary_model': 'hybrid_cnn_transformer',
+                'secondary_model': 'vision_transformer',
+                'ensemble': True,
+                'confidence_threshold': 0.91,
+                'description': 'Híbrido para fusão PET-CT com análise metabólica e anatômica',
+                'classes': ['Normal', 'Hipermetabolismo Benigno', 'Hipermetabolismo Maligno', 'Hipometabolismo', 'Necrose', 'Inflamação']
             },
             
             ExamType.GENERAL: {
@@ -227,10 +247,16 @@ class ModelSelector:
     def detect_exam_type_from_metadata(self, metadata: Dict[str, Any]) -> ExamType:
         """
         Detecta automaticamente o tipo de exame baseado nos metadados
+        Inclui suporte para ultrassom e fusão PET-CT
         """
         modality = metadata.get('Modality', '').upper()
         body_part = metadata.get('BodyPartExamined', '').upper()
         study_description = metadata.get('StudyDescription', '').upper()
+        series_description = metadata.get('SeriesDescription', '').upper()
+        
+        if self._is_pet_ct_fusion_study(metadata):
+            logger.info("Detectado estudo de fusão PET-CT")
+            return ExamType.PET_CT_FUSION
         
         if modality == 'CR' or modality == 'DX':  # Radiografia
             if 'CHEST' in body_part or 'THORAX' in study_description:
@@ -256,9 +282,44 @@ class ModelSelector:
                 
         elif modality == 'MG':  # Mamografia
             return ExamType.MAMMOGRAPHY
+            
+        elif modality == 'US':  # Ultrassom
+            logger.info(f"Detectado exame de ultrassom: {body_part}")
+            return ExamType.ULTRASOUND
+            
+        elif modality == 'PT':  # PET (Tomografia por Emissão de Pósitrons)
+            logger.info(f"Detectado exame PET isolado: {study_description}")
+            return ExamType.PET_CT_FUSION  # Usar mesmo modelo para PET isolado
         
-        logger.info(f"Tipo de exame não detectado automaticamente, usando modelo geral")
+        logger.info(f"Tipo de exame não detectado automaticamente (Modalidade: {modality}), usando modelo geral")
         return ExamType.GENERAL
+    
+    def _is_pet_ct_fusion_study(self, metadata: Dict[str, Any]) -> bool:
+        """
+        Detecta se o estudo é uma fusão PET-CT baseado nos metadados
+        """
+        modality = metadata.get('Modality', '').upper()
+        study_description = metadata.get('StudyDescription', '').upper()
+        series_description = metadata.get('SeriesDescription', '').upper()
+        
+        fusion_keywords = ['PET-CT', 'PETCT', 'PET/CT', 'FUSION', 'FUSED']
+        if any(keyword in study_description for keyword in fusion_keywords):
+            return True
+        if any(keyword in series_description for keyword in fusion_keywords):
+            return True
+            
+        if modality in ['PT', 'PET']:
+            if 'CT' in study_description or 'CT' in series_description:
+                return True
+                
+        study_modalities = metadata.get('StudyModalities', [])
+        if isinstance(study_modalities, list):
+            has_pet = any(mod.upper() in ['PT', 'PET'] for mod in study_modalities)
+            has_ct = any(mod.upper() == 'CT' for mod in study_modalities)
+            if has_pet and has_ct:
+                return True
+        
+        return False
     
     def get_available_exam_types(self) -> List[str]:
         """Retorna lista de tipos de exame suportados"""
