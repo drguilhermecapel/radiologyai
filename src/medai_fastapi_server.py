@@ -188,16 +188,26 @@ async def list_models():
                     accuracy=0.95,
                     status="ready"
                 ))
-        else:
+        elif isinstance(available_models, dict):
             for model_name, model_info in available_models.items():
-                models.append(ModelInfo(
-                    name=model_name,
-                    version=model_info.get("version", "4.0.0"),
-                    architecture=model_info.get("architecture", "SOTA Ensemble"),
-                    modalities=model_info.get("modalities", ["chest_xray", "brain_ct", "bone_xray"]),
-                    accuracy=model_info.get("accuracy", 0.95),
-                    status=model_info.get("status", "ready")
-                ))
+                if isinstance(model_info, dict):
+                    models.append(ModelInfo(
+                        name=model_name,
+                        version=model_info.get("version", "4.0.0"),
+                        architecture=model_info.get("architecture", "SOTA Ensemble"),
+                        modalities=model_info.get("modalities", ["chest_xray", "brain_ct", "bone_xray"]),
+                        accuracy=model_info.get("accuracy", 0.95),
+                        status=model_info.get("status", "ready")
+                    ))
+                else:
+                    models.append(ModelInfo(
+                        name=model_name,
+                        version="4.0.0",
+                        architecture="SOTA Ensemble",
+                        modalities=["chest_xray", "brain_ct", "bone_xray"],
+                        accuracy=0.95,
+                        status="ready"
+                    ))
         
         if not models:
             default_models = [
@@ -292,18 +302,21 @@ async def analyze_image(
         
         analysis_clean = convert_numpy_to_json(analysis_result)
         
+        if not isinstance(analysis_clean, dict):
+            analysis_clean = {"predicted_class": "Unknown", "confidence": 0.0}
+        
         response_data = {
             "success": True,
             "filename": file.filename,
             "analysis": {
-                "predicted_class": analysis_clean.get("predicted_class", "Unknown"),
-                "confidence": float(analysis_clean.get("confidence", 0.0)),
-                "predictions": analysis_clean.get("predictions", {}),
-                "findings": analysis_clean.get("findings", []),
-                "recommendations": analysis_clean.get("recommendations", [])
+                "predicted_class": analysis_clean.get("predicted_class", "Unknown") if isinstance(analysis_clean, dict) else "Unknown",
+                "confidence": float(analysis_clean.get("confidence", 0.0)) if isinstance(analysis_clean, dict) else 0.0,
+                "predictions": analysis_clean.get("predictions", {}) if isinstance(analysis_clean, dict) else {},
+                "findings": analysis_clean.get("findings", []) if isinstance(analysis_clean, dict) else [],
+                "recommendations": analysis_clean.get("recommendations", []) if isinstance(analysis_clean, dict) else []
             },
             "processing_time": time.time() - start_time_analysis,
-            "model_used": analysis_clean.get("model_used", model),
+            "model_used": analysis_clean.get("model_used", model) if isinstance(analysis_clean, dict) else model,
             "timestamp": datetime.now().isoformat()
         }
         
