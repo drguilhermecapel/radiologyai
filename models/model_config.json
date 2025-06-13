@@ -269,6 +269,118 @@
         "sensitivity_mode": "high",
         "false_positive_tolerance": "medium"
       }
+    },
+    "ultrasound_efficientnetv2": {
+      "model_path": "models/ultrasound_efficientnetv2_model.h5",
+      "input_size": [384, 384, 3],
+      "classes": ["normal", "cisto", "tumor_solido", "calcificacao", "vascularizacao_anormal", "liquido_livre"],
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.83,
+        "clinical_requirements": {
+          "cisto": {"sensitivity": 0.88, "specificity": 0.85},
+          "tumor_solido": {"sensitivity": 0.92, "specificity": 0.88},
+          "calcificacao": {"sensitivity": 0.85, "specificity": 0.90},
+          "vascularizacao_anormal": {"sensitivity": 0.80, "specificity": 0.88},
+          "liquido_livre": {"sensitivity": 0.85, "specificity": 0.87},
+          "normal": {"sensitivity": 0.78, "specificity": 0.92}
+        },
+        "fallback_thresholds": {
+          "cisto": 0.75,
+          "tumor_solido": 0.80,
+          "calcificacao": 0.70,
+          "vascularizacao_anormal": 0.65,
+          "liquido_livre": 0.70,
+          "normal": 0.50
+        }
+      },
+      "architecture": "EfficientNetV2",
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "bilinear",
+        "augmentation": ["rotation", "brightness", "contrast", "speckle_reduction"],
+        "speckle_noise_reduction": true,
+        "contrast_enhancement": "adaptive_histogram",
+        "ultrasound_specific": true,
+        "median_filtering": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "high",
+        "false_positive_tolerance": "medium",
+        "pathology_focus": ["cisto", "tumor_solido", "calcificacao", "vascularizacao_anormal", "liquido_livre"],
+        "doppler_analysis": true,
+        "acoustic_enhancement": true
+      },
+      "training_config": {
+        "batch_size": 16,
+        "learning_rate": 1e-4,
+        "epochs": 45,
+        "early_stopping": true,
+        "patience": 12,
+        "ultrasound_augmentation": true
+      }
+    },
+    "pet_ct_fusion_hybrid": {
+      "model_path": "models/pet_ct_fusion_hybrid_model.h5",
+      "input_size": [512, 512, 3],
+      "classes": ["normal", "hipermetabolismo_benigno", "hipermetabolismo_maligno", "hipometabolismo", "necrose", "inflamacao"],
+      "dynamic_thresholds": {
+        "enabled": true,
+        "calibration_method": "clinical_performance",
+        "default_threshold": 0.91,
+        "clinical_requirements": {
+          "hipermetabolismo_maligno": {"sensitivity": 0.95, "specificity": 0.90},
+          "hipermetabolismo_benigno": {"sensitivity": 0.88, "specificity": 0.85},
+          "hipometabolismo": {"sensitivity": 0.85, "specificity": 0.88},
+          "necrose": {"sensitivity": 0.90, "specificity": 0.92},
+          "inflamacao": {"sensitivity": 0.82, "specificity": 0.85},
+          "normal": {"sensitivity": 0.80, "specificity": 0.95}
+        },
+        "fallback_thresholds": {
+          "hipermetabolismo_maligno": 0.85,
+          "hipermetabolismo_benigno": 0.75,
+          "hipometabolismo": 0.70,
+          "necrose": 0.80,
+          "inflamacao": 0.65,
+          "normal": 0.50
+        }
+      },
+      "architecture": "HybridCNNTransformer",
+      "preprocessing": {
+        "normalize": true,
+        "resize_method": "bicubic",
+        "augmentation": ["rotation", "brightness", "contrast", "metabolic_scaling"],
+        "pet_ct_fusion": true,
+        "suv_normalization": true,
+        "anatomical_registration": true,
+        "metabolic_windowing": true,
+        "multimodal_alignment": true
+      },
+      "clinical_settings": {
+        "sensitivity_mode": "maximum",
+        "false_positive_tolerance": "very_low",
+        "pathology_focus": ["hipermetabolismo_maligno", "necrose", "inflamacao"],
+        "suv_analysis": true,
+        "metabolic_quantification": true,
+        "anatomical_correlation": true
+      },
+      "training_config": {
+        "batch_size": 8,
+        "learning_rate": 5e-5,
+        "epochs": 60,
+        "early_stopping": true,
+        "patience": 15,
+        "multimodal_training": true,
+        "fusion_weight_learning": true
+      },
+      "fusion_parameters": {
+        "pet_weight": 0.6,
+        "ct_weight": 0.4,
+        "fusion_strategy": "weighted_attention",
+        "metabolic_threshold": 2.5,
+        "anatomical_correlation": true
+      }
     }
   },
   "version": "4.0.0",

@@ -149,7 +149,65 @@ class ModalitySpecificNormalizer:
             logger.error(f"Erro na normalização de radiografia: {e}")
             return self._fallback_normalization(image)
     
-    def normalize_by_modality(self, image_data: Union[np.ndarray, pydicom.Dataset], 
+    def normalize_ultrasound(self, image: np.ndarray, enhance_contrast: bool = True) -> np.ndarray:
+        """
+        Normalização específica para ultrassom
+        Aplica redução de ruído speckle e realce de contraste
+        """
+        try:
+            if image.dtype != np.float32:
+                image = image.astype(np.float32)
+            
+            p1, p99 = np.percentile(image, [1, 99])
+            if p99 > p1:
+                image_clipped = np.clip(image, p1, p99)
+                image_uint8 = ((image_clipped - p1) / (p99 - p1) * 255).astype(np.uint8)
+            else:
+                image_uint8 = np.zeros_like(image, dtype=np.uint8)
+            
+            import cv2
+            denoised = cv2.medianBlur(image_uint8, 5)
+            
+            if enhance_contrast:
+                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+                enhanced = clahe.apply(denoised)
+            else:
+                enhanced = denoised
+            
+            p1, p99 = np.percentile(enhanced, [1, 99])
+            normalized = np.clip(enhanced, p1, p99)
+            normalized = (normalized - p1) / (p99 - p1) if p99 > p1 else np.zeros_like(normalized)
+            
+            logger.info("Ultrassom normalizado com redução de speckle")
+            return normalized.astype(np.float32)
+            
+        except Exception as e:
+            logger.error(f"Erro na normalização de ultrassom: {e}")
+            return self._fallback_normalization(image)
+    
+    def normalize_pet_ct_fusion(self, pet_image: np.ndarray, ct_image: np.ndarray) -> np.ndarray:
+        """
+        Normalização para fusão PET-CT
+        Combina informações metabólicas (PET) com anatômicas (CT)
+        """
+        try:
+            pet_normalized = np.clip(pet_image, 0, np.percentile(pet_image, 99))
+            pet_normalized = pet_normalized / np.max(pet_normalized) if np.max(pet_normalized) > 0 else pet_normalized
+            
+            ct_windowed = np.clip(ct_image, -175, 275)
+            ct_normalized = (ct_windowed + 175) / 450
+            
+            fusion_weight = 0.6
+            fused = fusion_weight * pet_normalized + (1 - fusion_weight) * ct_normalized
+            
+            logger.info("Fusão PET-CT normalizada com ponderação metabólica")
+            return fused.astype(np.float32)
+            
+        except Exception as e:
+            logger.error(f"Erro na normalização PET-CT: {e}")
+            return self._fallback_normalization(pet_image)
+    
+    def normalize_by_modality(self, image_data: Union[np.ndarray, pydicom.Dataset],
                              modality: str, 
                              target_organ: str = 'soft_tissue',
                              sequence_type: str = 'T1') -> np.ndarray:
@@ -186,6 +244,21 @@ class ModalitySpecificNormalizer:
                 else:
                     image_array = image_data
                 return self.normalize_xray(image_array)
+            
+            elif modality == 'US':
+                if isinstance(image_data, pydicom.Dataset):
+                    image_array = image_data.pixel_array
+                else:
+                    image_array = image_data
+                return self.normalize_ultrasound(image_array)
+            
+            elif modality == 'PT':
+                if isinstance(image_data, pydicom.Dataset):
+                    image_array = image_data.pixel_array
+                else:
+                    image_array = image_data
+                logger.info("PET normalizado individualmente - considere usar fusão PET-CT se disponível")
+                return self._fallback_normalization(image_array)
             
             else:
                 logger.warning(f"Modalidade não suportada: {modality}, usando normalização padrão")
