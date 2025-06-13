@@ -523,6 +523,47 @@ class PreTrainedModelLoader:
         
         return local_models
     
+    def check_local_models(self) -> List[Dict[str, Any]]:
+        """
+        Verifica modelos disponíveis localmente com informações detalhadas
+        
+        Returns:
+            Lista de dicionários com informações detalhadas dos modelos locais
+        """
+        try:
+            local_models = []
+            
+            for model_name in self.models_registry:
+                if self._is_model_available_locally(model_name):
+                    model_info = self.models_registry[model_name]
+                    model_path = self.base_path.parent / model_info['file_path']
+                    
+                    try:
+                        size_bytes = model_path.stat().st_size if model_path.exists() else 0
+                        size_mb = size_bytes / (1024 * 1024)
+                    except:
+                        size_bytes = 0
+                        size_mb = 0
+                    
+                    local_models.append({
+                        'id': model_name,
+                        'name': model_info.get('name', model_name),
+                        'path': str(model_path),
+                        'category': model_info.get('category', 'unknown'),
+                        'size_bytes': size_bytes,
+                        'size_mb': round(size_mb, 2),
+                        'status': 'available',
+                        'integrity_verified': self.verify_model_integrity(model_name, repair_if_corrupted=False),
+                        'version': model_info.get('version', '1.0.0'),
+                        'accuracy': model_info.get('accuracy', 0.0)
+                    })
+            
+            return local_models
+            
+        except Exception as e:
+            logger.error(f"Erro ao verificar modelos locais: {e}")
+            return []
+    
     def cleanup_corrupted_models(self) -> int:
         """
         Remove modelos corrompidos do disco

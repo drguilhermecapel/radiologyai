@@ -29,6 +29,9 @@ except ImportError:
 logger = logging.getLogger('MedAI.Inference')
 
 
+MedAIInferenceSystem = None  # Será definido após a classe MedicalInferenceEngine
+
+
 @dataclass
 class PredictionResult:
     """Estrutura para resultados de predição"""
@@ -1837,3 +1840,6 @@ class MedicalInferenceEngine:
                 'status': 'ready'
             }
         }
+
+
+MedAIInferenceSystem = MedicalInferenceEngine

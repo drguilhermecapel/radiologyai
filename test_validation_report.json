@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-06-13 20:26:03",
+  "overall_percentage": 100.0,
+  "status": "EXCELENTE",
+  "total_tests": 26,
+  "total_successes": 26,
+  "detailed_results": {
+    "Importação de Módulos": {
+      "medai_pretrained_loader": "✅ SUCESSO",
+      "medai_model_downloader": "✅ SUCESSO",
+      "medai_smart_model_manager": "✅ SUCESSO",
+      "medai_model_validator": "✅ SUCESSO",
+      "medai_sota_models_real": "✅ SUCESSO",
+      "medai_inference_system": "✅ SUCESSO",
+      "medai_integration_manager": "✅ SUCESSO"
+    },
+    "Estrutura de Diretórios": {
+      "models": "✅ EXISTE",
+      "models/pre_trained": "✅ EXISTE",
+      "models/model_registry.json": "✅ EXISTE",
+      "models/pre_trained/README.md": "✅ EXISTE",
+      "models/pre_trained/.gitkeep": "✅ EXISTE",
+      "registry_content": "✅ 4 modelos"
+    },
+    "PreTrainedModelLoader": {
+      "initialization": "✅ SUCESSO",
+      "get_available_models": "✅ 4 modelos",
+      "check_local_models": "✅ 0 locais",
+      "smart_recommendations": "✅ SUCESSO"
+    },
+    "MedAIIntegrationManager": {
+      "import": "✅ SUCESSO",
+      "method__initialize_pretrained_system": "✅ EXISTE",
+      "method__initialize_smart_model_management": "✅ EXISTE",
+      "method__initialize_components": "✅ EXISTE"
+    },
+    "Sistemas de Instalação": {
+      "MedAI_Radiologia_Installer.py": "✅ EXISTE",
+      "MedAI_Model_Installer.py": "✅ EXISTE",
+      "build_with_models.py": "✅ EXISTE"
+    },
+    "Documentação": {
+      "MODELS_LICENSE.md": "✅ EXISTE",
+      "models/pre_trained/README.md": "✅ EXISTE"
+    }
+  }
+}
