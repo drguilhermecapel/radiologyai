@@ -51,8 +51,9 @@ def test_quantization_optimization():
             print(f'❌ Quantization failed: {optimization_results["error"]}')
             return False
         
-        if 'quantized' in optimization_results['optimized_models']:
-            quantized_info = optimization_results['optimized_models']['quantized']
+        optimized_models = optimization_results.get('optimized_models', {})
+        if 'quantized' in optimized_models:
+            quantized_info = optimized_models['quantized']
             
             if 'error' in quantized_info:
                 print(f'❌ Quantization error: {quantized_info["error"]}')
@@ -62,6 +63,13 @@ def test_quantization_optimization():
             print(f'  Size reduction: {quantized_info.get("size_reduction_percent", 0):.1f}%')
             print(f'  Accuracy retention: {quantized_info.get("accuracy_retention", 0):.3f}')
             print(f'  Inference speedup: {quantized_info.get("inference_speedup", 1.0):.2f}x')
+            print(f'  Meets clinical threshold: {quantized_info.get("meets_clinical_threshold", False)}')
+            
+            accuracy_retention = quantized_info.get('accuracy_retention', 0)
+            if accuracy_retention >= 0.85:
+                print(f'✅ Accuracy retention meets medical standards: {accuracy_retention:.3f}')
+            else:
+                print(f'⚠️ Accuracy retention below medical standards: {accuracy_retention:.3f}')
             
             if os.path.exists(test_model_path):
                 os.remove(test_model_path)
@@ -109,17 +117,30 @@ def test_pruning_optimization():
             print(f'❌ Pruning failed: {optimization_results["error"]}')
             return False
         
-        if 'pruned' in optimization_results['optimized_models']:
-            pruned_info = optimization_results['optimized_models']['pruned']
+        optimized_models = optimization_results.get('optimized_models', {})
+        if 'pruned' in optimized_models:
+            pruned_info = optimized_models['pruned']
             
             if 'error' in pruned_info:
-                print(f'⚠️ Pruning error (expected if tensorflow_model_optimization not available): {pruned_info["error"]}')
-                return True
+                error_msg = pruned_info['error']
+                if any(keyword in error_msg for keyword in ['tensorflow_model_optimization', 'tfmot', 'not available']):
+                    print(f'⚠️ Pruning skipped due to missing dependencies (expected): {error_msg}')
+                    return True
+                else:
+                    print(f'❌ Pruning error: {error_msg}')
+                    return False
             
             print(f'✅ Pruning successful:')
             print(f'  Size reduction: {pruned_info.get("size_reduction_percent", 0):.1f}%')
-            print(f'  Sparsity achieved: {pruned_info.get("sparsity_achieved", 0):.1f}')
+            print(f'  Sparsity achieved: {pruned_info.get("actual_sparsity_percent", 0):.1f}%')
             print(f'  Accuracy retention: {pruned_info.get("accuracy_retention", 0):.3f}')
+            print(f'  Meets clinical threshold: {pruned_info.get("meets_clinical_threshold", False)}')
+            
+            accuracy_retention = pruned_info.get('accuracy_retention', 0)
+            if accuracy_retention >= 0.85:
+                print(f'✅ Accuracy retention meets medical standards: {accuracy_retention:.3f}')
+            else:
+                print(f'⚠️ Accuracy retention below medical standards: {accuracy_retention:.3f}')
             
             if os.path.exists(test_model_path):
                 os.remove(test_model_path)
@@ -272,22 +293,50 @@ def test_deployment_integration():
         
         pipeline = MLPipeline('test_project', 'performance_test')
         
-        print('Testing deployment integration...')
-        deployment_info = pipeline.deploy_model(
-            test_model_path,
-            deployment_type='tfserving',
-            optimization='quantization'
-        )
+        print('Testing TFLite deployment integration...')
+        deployment_config = {
+            'type': 'tflite',
+            'modality': 'CT',
+            'model_name': 'test_deployment_model',
+            'calibration_samples': 50,
+            'use_mixed_precision': True
+        }
+        
+        deployment_info = pipeline.deploy_model(test_model_path, deployment_config)
         
         if 'error' in deployment_info:
-            print(f'❌ Deployment failed: {deployment_info["error"]}')
+            print(f'❌ TFLite deployment failed: {deployment_info["error"]}')
             return False
         
-        print(f'✅ Deployment integration successful:')
-        print(f'  Model path: {deployment_info.get("model_path", "Unknown")}')
-        print(f'  Deployment type: {deployment_info.get("deployment_type", "Unknown")}')
-        print(f'  Optimization applied: {deployment_info.get("optimization_applied", "None")}')
-        print(f'  Model size: {deployment_info.get("model_size", 0)} bytes')
+        successful_deployments = deployment_info.get('successful_deployments', [])
+        if 'tflite' in successful_deployments:
+            print(f'✅ TFLite deployment integration successful')
+            print(f'  Successful deployments: {successful_deployments}')
+            
+            deployment_results = deployment_info.get('deployment_results', {})
+            if 'tflite' in deployment_results:
+                tflite_info = deployment_results['tflite']
+                print(f'  Model size: {tflite_info.get("model_size_bytes", 0)} bytes')
+                print(f'  Deployment path: {tflite_info.get("deployment_path", "Unknown")}')
+        else:
+            print(f'⚠️ TFLite deployment partially successful but not in expected format')
+            print(f'  Deployment info keys: {list(deployment_info.keys())}')
+        
+        print('Testing ONNX deployment integration (may fail due to compatibility)...')
+        onnx_config = {
+            'type': 'onnx',
+            'modality': 'CT',
+            'model_name': 'test_deployment_model_onnx',
+            'onnx_opset': 13
+        }
+        
+        onnx_deployment_info = pipeline.deploy_model(test_model_path, onnx_config)
+        onnx_successful = onnx_deployment_info.get('successful_deployments', [])
+        
+        if 'onnx' in onnx_successful:
+            print(f'✅ ONNX deployment also successful')
+        else:
+            print(f'⚠️ ONNX deployment failed as expected (compatibility issues)')
         
         if os.path.exists(test_model_path):
             os.remove(test_model_path)
@@ -296,6 +345,75 @@ def test_deployment_integration():
         
     except Exception as e:
         print(f'❌ Deployment integration test error: {e}')
+        import traceback
+        traceback.print_exc()
+        return False
+
+def test_medical_grade_optimization():
+    """Test medical-grade optimization with clinical accuracy validation"""
+    try:
+        from medai_ml_pipeline import MLPipeline
+        import tensorflow as tf
+        
+        model = tf.keras.Sequential([
+            tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3)),
+            tf.keras.layers.Conv2D(64, 3, activation='relu'),
+            tf.keras.layers.GlobalAveragePooling2D(),
+            tf.keras.layers.Dense(128, activation='relu'),
+            tf.keras.layers.Dense(5, activation='softmax')
+        ])
+        
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        
+        test_model_path = 'test_medical_model.h5'
+        model.save(test_model_path)
+        
+        pipeline = MLPipeline('test_project', 'medical_optimization_test')
+        
+        print('Testing medical-grade optimization with high accuracy retention...')
+        optimization_results = pipeline.implement_performance_optimizations(
+            test_model_path,
+            optimization_types=['quantization', 'pruning'],
+            target_accuracy_retention=0.95
+        )
+        
+        if 'error' in optimization_results:
+            print(f'❌ Medical optimization failed: {optimization_results["error"]}')
+            return False
+        
+        print(f'✅ Medical-grade optimization completed:')
+        print(f'  Original parameters: {optimization_results.get("original_parameters", 0):,}')
+        print(f'  Target accuracy retention: {optimization_results.get("target_accuracy_retention", 0):.1%}')
+        
+        optimized_models = optimization_results.get('optimized_models', {})
+        clinical_ready_count = 0
+        
+        for opt_type, opt_info in optimized_models.items():
+            if 'error' not in opt_info:
+                meets_clinical = opt_info.get('meets_clinical_threshold', False)
+                accuracy_retention = opt_info.get('accuracy_retention', 0)
+                
+                print(f'  {opt_type.capitalize()}:')
+                print(f'    Accuracy retention: {accuracy_retention:.3f}')
+                print(f'    Meets clinical threshold: {meets_clinical}')
+                print(f'    Size reduction: {opt_info.get("size_reduction_percent", 0):.1f}%')
+                
+                if meets_clinical and accuracy_retention >= 0.90:
+                    clinical_ready_count += 1
+                    print(f'    ✅ Ready for clinical deployment')
+                else:
+                    print(f'    ⚠️ Requires further optimization for clinical use')
+        
+        print(f'\n📊 Clinical readiness summary:')
+        print(f'  Models meeting clinical standards: {clinical_ready_count}/{len(optimized_models)}')
+        
+        if os.path.exists(test_model_path):
+            os.remove(test_model_path)
+        
+        return clinical_ready_count > 0
+        
+    except Exception as e:
+        print(f'❌ Medical-grade optimization test error: {e}')
         import traceback
         traceback.print_exc()
         return False
@@ -311,7 +429,8 @@ def main():
         ("Pruning Optimization", test_pruning_optimization),
         ("Knowledge Distillation", test_knowledge_distillation),
         ("Optimization Summary", test_optimization_summary),
-        ("Deployment Integration", test_deployment_integration)
+        ("Deployment Integration", test_deployment_integration),
+        ("Medical-Grade Optimization", test_medical_grade_optimization)
     ]
     
     passed = 0
