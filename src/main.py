@@ -1,128 +1,134 @@
 #!/usr/bin/env python3
 """
-MedAI Radiologia - Sistema de Análise de Imagens Médicas por IA
-Arquivo principal para execução da aplicação
+MedAI Radiologia - Sistema Principal
+Versão 3.0.0 - Branch 36
 """
 
 import sys
 import os
 import logging
+import warnings
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtCore import Qt
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Configurar encoding UTF-8
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-try:
-    from medai_main_structure import Config, logger
-except ImportError:
-    class Config:
-        APP_NAME = "MedAI Radiologia"
-        APP_VERSION = "3.0.0"
-    
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('MedAI')
+# Suprimir warnings
+warnings.filterwarnings('ignore')
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-try:
-    from medai_gui_main import MedAIMainWindow
-except ImportError:
-    logger.warning("GUI não disponível")
-    MedAIMainWindow = None
+# Configurar logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('medai.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger('MedAI')
 
-try:
-    from medai_setup_initialize import SystemInitializer
-except ImportError:
-    logger.warning("System initializer não disponível")
-    # Criar mock do SystemInitializer
-    class SystemInitializer:
-        def initialize_system(self):
-            return True
-
-def check_environment():
-    """Verifica se o ambiente está configurado corretamente"""
+def check_dependencies():
+    """Verifica se as dependências estão instaladas"""
     try:
-        import tensorflow as tf
-        import numpy as np
-        import PIL
+        import tensorflow
+        import numpy
+        import PyQt5
+        import flask
         import cv2
-        logger.info("Dependências principais verificadas com sucesso")
+        logger.info("✅ Dependências principais verificadas")
         return True
     except ImportError as e:
-        logger.error(f"Dependência faltando: {e}")
+        logger.error(f"❌ Dependência faltando: {e}")
         return False
 
 def main():
     """Função principal"""
-    logger.info("🏥 Iniciando MedAI Radiologia v3.0.0")
+    logger.info("MedAI Radiologia v3.0.0 - Iniciando...")
     
-    if not check_environment():
-        logger.warning("Reinicie o programa após a instalação das dependências")
-        input("Pressione Enter para sair...")
-        sys.exit(1)
+    # Verificar dependências
+    if not check_dependencies():
+        logger.error("Por favor, instale as dependências: pip install -r requirements.txt")
+        return 1
     
-    if '--help' in sys.argv or '-h' in sys.argv:
-        print("""
-MedAI Radiologia - Sistema de Análise de Imagens Médicas
-
-Uso:
-  python main.py [opções]
-
-Opções:
-  --web       Iniciar servidor web
-  --gui       Iniciar interface gráfica (padrão)
-  --port N    Porta do servidor web (padrão: 5000)
-  --help      Mostrar esta mensagem
-        """)
-        sys.exit(0)
+    # Tentar diferentes modos de execução
+    mode = "gui"  # Modo padrão
     
-    if '--web' in sys.argv:
-        logger.info("Iniciando em modo servidor web...")
+    # Verificar argumentos de linha de comando
+    if len(sys.argv) > 1:
+        if "--web" in sys.argv or "-w" in sys.argv:
+            mode = "web"
+        elif "--cli" in sys.argv or "-c" in sys.argv:
+            mode = "cli"
+        elif "--help" in sys.argv or "-h" in sys.argv:
+            print("MedAI Radiologia - Opções:")
+            print("  --gui    : Interface gráfica (padrão)")
+            print("  --web    : Interface web")
+            print("  --cli    : Interface linha de comando")
+            print("  --help   : Mostra esta ajuda")
+            return 0
+    
+    # Executar modo selecionado
+    if mode == "gui":
         try:
-            from web_server import app, initialize_medai_system
-            
-            initialize_medai_system()
-            
-            port = 5000
-            if '--port' in sys.argv:
-                idx = sys.argv.index('--port')
-                if idx + 1 < len(sys.argv):
-                    port = int(sys.argv[idx + 1])
-            
-            logger.info(f"Servidor disponível em http://localhost:{port}")
-            app.run(host='0.0.0.0', port=port, debug=False)
-            
-        except Exception as e:
-            logger.error(f"Erro ao iniciar servidor web: {e}")
-            sys.exit(1)
-    else:
-        logger.info("Iniciando interface gráfica...")
-        try:
+            logger.info("Iniciando interface gráfica...")
+            from medai_gui_main import MedAIMainWindow
             from PyQt5.QtWidgets import QApplication
-            try:
-                from medai_gui_main import MedAIMainWindow
-            except ImportError:
-                logger.warning("GUI main não disponível")
-                MedAIMainWindow = None
             
-            if MedAIMainWindow:
-                app = QApplication(sys.argv)
-                app.setApplicationName("MedAI Radiologia")
-                app.setOrganizationName("Dr. Guilherme Capel")
-                
+            app = QApplication(sys.argv)
+            
+            # Tentar criar janela principal
+            try:
                 window = MedAIMainWindow()
                 window.show()
+                return app.exec_()
+            except AttributeError as e:
+                logger.warning(f"Problema na GUI: {e}")
+                logger.info("Tentando modo web como alternativa...")
+                mode = "web"
                 
-                sys.exit(app.exec_())
-            else:
-                raise ImportError("GUI não disponível")
-            
-        except ImportError:
-            logger.warning("PyQt5 não disponível, iniciando em modo web...")
-            os.system(f'"{sys.executable}" "{__file__}" --web')
+        except ImportError as e:
+            logger.warning(f"PyQt5 não disponível: {e}")
+            logger.info("Mudando para modo web...")
+            mode = "web"
+    
+    if mode == "web":
+        try:
+            logger.info("Iniciando servidor web...")
+            import web_server
+            web_server.main()
+            return 0
         except Exception as e:
-            logger.error(f"Erro ao iniciar GUI: {e}")
-            logger.info("Tentando modo web como alternativa...")
-            os.system(f'"{sys.executable}" "{__file__}" --web')
+            logger.error(f"Erro no modo web: {e}")
+            mode = "cli"
+    
+    if mode == "cli":
+        try:
+            logger.info("Iniciando modo CLI...")
+            import medai_cli
+            medai_cli.cli()
+            return 0
+        except Exception as e:
+            logger.error(f"Erro no modo CLI: {e}")
+    
+    logger.error("Nenhum modo de execução disponível!")
+    print("\nSugestões:")
+    print("1. Verifique se os arquivos necessários estão presentes")
+    print("2. Execute: pip install -r requirements.txt")
+    print("3. Tente executar diretamente:")
+    print("   - python web_server.py")
+    print("   - python medai_cli.py")
+    
+    return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nPrograma interrompido pelo usuário")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Erro não tratado: {e}")
+        sys.exit(1)
