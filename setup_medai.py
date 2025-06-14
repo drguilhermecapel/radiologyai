@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Script de Setup Automatizado para MedAI Radiologia
+Script de Setup Automatizado para MedAI Radiologia - VERSÃO CORRIGIDA
 Instala dependências e configura o ambiente para teste local
+Resolve conflitos de dependências e problemas de encoding no Windows
 """
 
 import os
@@ -11,50 +12,115 @@ import platform
 import json
 from pathlib import Path
 
+def setup_encoding():
+    """Configura encoding UTF-8 para evitar erros no Windows"""
+    if platform.system() == 'Windows':
+        try:
+            os.system('chcp 65001 > nul')
+            os.environ['PYTHONIOENCODING'] = 'utf-8'
+            
+            if hasattr(sys.stdout, 'reconfigure'):
+                sys.stdout.reconfigure(encoding='utf-8')
+            if hasattr(sys.stderr, 'reconfigure'):
+                sys.stderr.reconfigure(encoding='utf-8')
+        except Exception:
+            pass  # Falha silenciosa se não conseguir configurar
+
+def safe_print(text):
+    """Imprime texto de forma segura, evitando erros de encoding"""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        ascii_text = text.encode('ascii', 'replace').decode('ascii')
+        print(ascii_text)
+
 def print_header():
     """Exibe cabeçalho do setup"""
-    print("=" * 60)
-    print("🏥 MEDAI RADIOLOGIA - SETUP AUTOMATIZADO")
-    print("=" * 60)
-    print("Sistema de Análise Radiológica com IA de Última Geração")
-    print("Arquiteturas: EfficientNetV2, Vision Transformer, ConvNeXt")
-    print("=" * 60)
+    safe_print("=" * 60)
+    safe_print("MEDAI RADIOLOGIA - SETUP AUTOMATIZADO")
+    safe_print("=" * 60)
+    safe_print("Sistema de Análise Radiológica com IA de Última Geração")
+    safe_print("Arquiteturas: EfficientNetV2, Vision Transformer, ConvNeXt")
+    safe_print("=" * 60)
 
 def check_python_version():
     """Verifica versão do Python"""
-    print("\n🐍 Verificando versão do Python...")
+    safe_print("\nVerificando versão do Python...")
     version = sys.version_info
     if version.major < 3 or (version.major == 3 and version.minor < 8):
-        print("❌ Python 3.8+ é necessário")
-        print(f"   Versão atual: {version.major}.{version.minor}")
+        safe_print("ERRO: Python 3.8+ é necessário")
+        safe_print(f"   Versão atual: {version.major}.{version.minor}")
         return False
-    print(f"✅ Python {version.major}.{version.minor}.{version.micro}")
+    safe_print(f"OK: Python {version.major}.{version.minor}.{version.micro}")
     return True
 
 def install_requirements():
-    """Instala dependências do requirements.txt"""
-    print("\n📦 Instalando dependências...")
+    """Instala dependências do requirements.txt com tratamento robusto de erros"""
+    safe_print("\nInstalando dependências...")
     
     requirements_file = Path("requirements.txt")
     if not requirements_file.exists():
-        print("❌ Arquivo requirements.txt não encontrado")
+        safe_print("ERRO: Arquivo requirements.txt não encontrado")
         return False
     
+    safe_print("Atualizando pip...")
     try:
         subprocess.run([
-            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
+            sys.executable, "-m", "pip", "install", "--upgrade", "pip"
         ], check=True, capture_output=True, text=True)
-        print("✅ Dependências instaladas com sucesso")
-        return True
+        safe_print("OK: Pip atualizado")
+    except subprocess.CalledProcessError:
+        safe_print("AVISO: Não foi possível atualizar pip, continuando...")
+    
+    # Instala dependências críticas primeiro
+    critical_deps = [
+        "numpy==1.24.3",
+        "tensorflow==2.15.0",  # Versão compatível com Python 3.11 e Pydantic 2.5.0
+        "opencv-python==4.8.1.78",
+        "Pillow>=10.0.0",
+        "pydicom==2.4.3"
+    ]
+    
+    safe_print("Instalando dependências críticas...")
+    failed_critical = []
+    
+    for dep in critical_deps:
+        try:
+            safe_print(f"  Instalando {dep}...")
+            subprocess.run([
+                sys.executable, "-m", "pip", "install", dep
+            ], check=True, capture_output=True, text=True)
+            safe_print(f"  OK: {dep}")
+        except subprocess.CalledProcessError as e:
+            safe_print(f"  ERRO: {dep} - {e}")
+            failed_critical.append(dep)
+    
+    try:
+        safe_print("Instalando demais dependências...")
+        result = subprocess.run([
+            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
+        ], capture_output=True, text=True, timeout=300)
+        
+        if result.returncode == 0:
+            safe_print("OK: Dependências instaladas com sucesso")
+            return True
+        else:
+            safe_print("AVISO: Algumas dependências falharam, mas continuando...")
+            safe_print(f"   Saída: {result.stdout}")
+            safe_print(f"   Erro: {result.stderr}")
+            return len(failed_critical) == 0  # Sucesso se dependências críticas OK
+            
+    except subprocess.TimeoutExpired:
+        safe_print("AVISO: Timeout na instalação, mas continuando...")
+        return len(failed_critical) == 0
     except subprocess.CalledProcessError as e:
-        print(f"❌ Erro ao instalar dependências: {e}")
-        print(f"   Saída: {e.stdout}")
-        print(f"   Erro: {e.stderr}")
-        return False
+        safe_print(f"AVISO: Erro ao instalar dependências: {e}")
+        safe_print("Continuando com dependências críticas...")
+        return len(failed_critical) == 0
 
 def create_directories():
     """Cria diretórios necessários"""
-    print("\n📁 Criando estrutura de diretórios...")
+    safe_print("\nCriando estrutura de diretórios...")
     
     directories = [
         "data/samples/normal",
@@ -70,51 +136,51 @@ def create_directories():
     
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
-        print(f"✅ {directory}")
+        safe_print(f"OK: {directory}")
     
     return True
 
 def check_gpu_support():
     """Verifica suporte a GPU"""
-    print("\n🖥️  Verificando suporte a GPU...")
+    safe_print("\nVerificando suporte a GPU...")
     
     try:
         import tensorflow as tf
         gpus = tf.config.list_physical_devices('GPU')
         if gpus:
-            print(f"✅ {len(gpus)} GPU(s) detectada(s)")
+            safe_print(f"OK: {len(gpus)} GPU(s) detectada(s)")
             for i, gpu in enumerate(gpus):
-                print(f"   GPU {i}: {gpu.name}")
+                safe_print(f"   GPU {i}: {gpu.name}")
         else:
-            print("⚠️  Nenhuma GPU detectada - usando CPU")
+            safe_print("AVISO: Nenhuma GPU detectada - usando CPU")
         return True
     except ImportError:
-        print("❌ TensorFlow não instalado")
+        safe_print("ERRO: TensorFlow não instalado")
         return False
 
 def validate_models():
     """Valida modelos de IA"""
-    print("\n🤖 Validando modelos de IA...")
+    safe_print("\nValidando modelos de IA...")
     
     try:
         sys.path.insert(0, str(Path("src")))
         from medai_sota_models import StateOfTheArtModels
         
         sota_models = StateOfTheArtModels(input_shape=(224, 224, 3), num_classes=5)
-        print("✅ StateOfTheArtModels inicializado")
+        safe_print("OK: StateOfTheArtModels inicializado")
         
         architectures = ['EfficientNetV2', 'VisionTransformer', 'ConvNeXt']
         for arch in architectures:
-            print(f"✅ {arch} disponível")
+            safe_print(f"OK: {arch} disponível")
         
         return True
     except Exception as e:
-        print(f"❌ Erro ao validar modelos: {e}")
+        safe_print(f"ERRO: Erro ao validar modelos: {e}")
         return False
 
 def test_web_server():
     """Testa servidor web"""
-    print("\n🌐 Testando servidor web...")
+    safe_print("\nTestando servidor web...")
     
     try:
         import requests
@@ -134,19 +200,19 @@ def test_web_server():
         
         response = requests.get('http://localhost:8080/', timeout=5)
         if response.status_code == 200:
-            print("✅ Servidor web funcionando")
+            safe_print("OK: Servidor web funcionando")
             return True
         else:
-            print(f"❌ Servidor retornou código {response.status_code}")
+            safe_print(f"ERRO: Servidor retornou código {response.status_code}")
             return False
             
     except Exception as e:
-        print(f"❌ Erro ao testar servidor: {e}")
+        safe_print(f"ERRO: Erro ao testar servidor: {e}")
         return False
 
 def run_functionality_tests():
     """Executa testes de funcionalidade"""
-    print("\n🧪 Executando testes de funcionalidade...")
+    safe_print("\nExecutando testes de funcionalidade...")
     
     test_files = [
         "test_ai_functionality.py",
@@ -161,20 +227,20 @@ def run_functionality_tests():
                 ], capture_output=True, text=True, timeout=60)
                 
                 if result.returncode == 0:
-                    print(f"✅ {test_file}")
+                    safe_print(f"OK: {test_file}")
                 else:
-                    print(f"❌ {test_file} - Código: {result.returncode}")
-                    print(f"   Erro: {result.stderr}")
+                    safe_print(f"ERRO: {test_file} - Código: {result.returncode}")
+                    safe_print(f"   Erro: {result.stderr}")
             except subprocess.TimeoutExpired:
-                print(f"⏰ {test_file} - Timeout")
+                safe_print(f"TIMEOUT: {test_file} - Timeout")
             except Exception as e:
-                print(f"❌ {test_file} - Erro: {e}")
+                safe_print(f"ERRO: {test_file} - Erro: {e}")
         else:
-            print(f"⚠️  {test_file} não encontrado")
+            safe_print(f"AVISO: {test_file} não encontrado")
 
 def create_sample_config():
     """Cria configuração de exemplo"""
-    print("\n⚙️  Criando configuração de exemplo...")
+    safe_print("\nCriando configuração de exemplo...")
     
     config = {
         "server": {
@@ -206,51 +272,53 @@ def create_sample_config():
     with open(config_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
     
-    print("✅ Configuração criada em config/local_config.json")
+    safe_print("OK: Configuração criada em config/local_config.json")
 
 def display_usage_instructions():
     """Exibe instruções de uso"""
-    print("\n" + "=" * 60)
-    print("🚀 SETUP CONCLUÍDO - INSTRUÇÕES DE USO")
-    print("=" * 60)
+    safe_print("\n" + "=" * 60)
+    safe_print("SETUP CONCLUÍDO - INSTRUÇÕES DE USO")
+    safe_print("=" * 60)
     
-    print("\n📋 Para iniciar o sistema:")
-    print("   python src/web_server.py")
-    print("   ou")
-    print("   python src/main.py")
+    safe_print("\nPara iniciar o sistema:")
+    safe_print("   python src/web_server.py")
+    safe_print("   ou")
+    safe_print("   python src/main.py")
     
-    print("\n🌐 Acesso via navegador:")
-    print("   http://localhost:8080")
+    safe_print("\nAcesso via navegador:")
+    safe_print("   http://localhost:8080")
     
-    print("\n🧪 Para executar testes:")
-    print("   python test_ai_functionality.py")
-    print("   python test_verification.py")
+    safe_print("\nPara executar testes:")
+    safe_print("   python test_ai_functionality.py")
+    safe_print("   python test_verification.py")
     
-    print("\n🤖 Para treinar modelos:")
-    print("   python train_models.py --architecture EfficientNetV2")
-    print("   python train_models.py --architecture VisionTransformer")
-    print("   python train_models.py --architecture ConvNeXt")
+    safe_print("\nPara treinar modelos:")
+    safe_print("   python train_models.py --architecture EfficientNetV2")
+    safe_print("   python train_models.py --architecture VisionTransformer")
+    safe_print("   python train_models.py --architecture ConvNeXt")
     
-    print("\n📊 Arquivos de configuração:")
-    print("   config/local_config.json - Configurações locais")
-    print("   models/model_config.json - Configurações dos modelos")
+    safe_print("\nArquivos de configuração:")
+    safe_print("   config/local_config.json - Configurações locais")
+    safe_print("   models/model_config.json - Configurações dos modelos")
     
-    print("\n📁 Estrutura de dados:")
-    print("   data/samples/ - Amostras DICOM para teste")
-    print("   models/ - Modelos de IA treinados")
-    print("   reports/ - Relatórios gerados")
+    safe_print("\nEstrutura de dados:")
+    safe_print("   data/samples/ - Amostras DICOM para teste")
+    safe_print("   models/ - Modelos de IA treinados")
+    safe_print("   reports/ - Relatórios gerados")
     
-    print("\n" + "=" * 60)
-    print("✅ Sistema MedAI pronto para uso!")
-    print("=" * 60)
+    safe_print("\n" + "=" * 60)
+    safe_print("Sistema MedAI pronto para uso!")
+    safe_print("=" * 60)
 
 def main():
     """Função principal do setup"""
+    setup_encoding()
+    
     print_header()
     
     if not Path("src").exists():
-        print("❌ Execute este script no diretório raiz do projeto")
-        print("   Certifique-se de que a pasta 'src' existe")
+        safe_print("ERRO: Execute este script no diretório raiz do projeto")
+        safe_print("   Certifique-se de que a pasta 'src' existe")
         return 1
     
     steps = [
@@ -271,17 +339,17 @@ def main():
             if step_func():
                 success_count += 1
             else:
-                print(f"⚠️  {step_name} falhou, mas continuando...")
+                safe_print(f"AVISO: {step_name} falhou, mas continuando...")
         except Exception as e:
-            print(f"❌ Erro em {step_name}: {e}")
+            safe_print(f"ERRO: Erro em {step_name}: {e}")
     
-    print(f"\n📊 Resultado: {success_count}/{total_steps} etapas concluídas")
+    safe_print(f"\nResultado: {success_count}/{total_steps} etapas concluídas")
     
     if success_count >= total_steps - 1:  # Permite 1 falha
         display_usage_instructions()
         return 0
     else:
-        print("❌ Setup falhou - verifique os erros acima")
+        safe_print("ERRO: Setup falhou - verifique os erros acima")
         return 1
 
 if __name__ == "__main__":

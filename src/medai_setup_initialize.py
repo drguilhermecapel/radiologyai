@@ -480,34 +480,6 @@ class MedAISetup:
         )
         
         return model
-        p1 = tf.keras.layers.MaxPooling2D()(c1)
-        
-        c2 = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='same')(p1)
-        p2 = tf.keras.layers.MaxPooling2D()(c2)
-        
-        # Bridge
-        c3 = tf.keras.layers.Conv2D(64, 3, activation='relu', padding='same')(p2)
-        
-        # Decoder
-        u2 = tf.keras.layers.UpSampling2D()(c3)
-        u2 = tf.keras.layers.concatenate([u2, c2])
-        c4 = tf.keras.layers.Conv2D(32, 3, activation='relu', padding='same')(u2)
-        
-        u1 = tf.keras.layers.UpSampling2D()(c4)
-        u1 = tf.keras.layers.concatenate([u1, c1])
-        c5 = tf.keras.layers.Conv2D(16, 3, activation='relu', padding='same')(u1)
-        
-        outputs = tf.keras.layers.Conv2D(1, 1, activation='sigmoid')(c5)
-        
-        model = tf.keras.Model(inputs=[inputs], outputs=[outputs])
-        
-        model.compile(
-            optimizer='adam',
-            loss='binary_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        return model
     
     def create_config_file(self):
         """Cria arquivo de configuração JSON"""
