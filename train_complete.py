@@ -26,46 +26,60 @@ import seaborn as sns
 from typing import Dict, List, Tuple, Optional
 import gc
 import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
+
+class NumpyEncoder(json.JSONEncoder):
+    """
+    Encoder customizado para converter tipos numpy em tipos Python nativos.
+    Essencial para salvar métricas de treinamento de modelos TensorFlow/Keras.
+    """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('ClinicalRadiologyAI')
+logger = logging.getLogger("ClinicalRadiologyAI")
 
 # Configurações globais
 CONFIG = {
-    'data_dir': 'data/nih_chest_xray',
-    'image_dir': 'data/nih_chest_xray/images',
-    'csv_file': 'data/nih_chest_xray/Data_Entry_2017_v2020.csv',
-    'output_dir': 'models/clinical_production',
-    'batch_size': 16,  # Otimizado para CPU
-    'image_size': (320, 320),  # Balanceamento entre qualidade e velocidade
-    'epochs': 100,
-    'learning_rate': 1e-4,
-    'min_lr': 1e-7,
-    'patience': 10,
-    'num_classes': 14,
-    'validation_split': 0.15,
-    'test_split': 0.15,
-    'random_seed': 42,
-    'checkpoint_freq': 5,
-    'mixed_precision': False,  # Desabilitado para CPU
-    'num_workers': 4,
-    'prefetch_buffer': 2
+    "data_dir": "data/nih_chest_xray",
+    "image_dir": "data/nih_chest_xray/images",
+    "csv_file": "data/nih_chest_xray/Data_Entry_2017_v2020.csv",
+    "output_dir": "models/clinical_production",
+    "batch_size": 16,  # Otimizado para CPU
+    "image_size": (320, 320),  # Balanceamento entre qualidade e velocidade
+    "epochs": 100,
+    "learning_rate": 1e-4,
+    "min_lr": 1e-7,
+    "patience": 10,
+    "num_classes": 14,
+    "validation_split": 0.15,
+    "test_split": 0.15,
+    "random_seed": 42,
+    "checkpoint_freq": 5,
+    "mixed_precision": False,  # Desabilitado para CPU
+    "num_workers": 4,
+    "prefetch_buffer": 2
 }
 
 # Classes de patologias
 PATHOLOGY_CLASSES = [
-    'No Finding', 'Atelectasis', 'Cardiomegaly', 'Effusion', 
-    'Infiltration', 'Mass', 'Nodule', 'Pneumonia', 
-    'Pneumothorax', 'Consolidation', 'Edema', 'Emphysema', 
-    'Fibrosis', 'Pleural_Thickening'
+    "No Finding", "Atelectasis", "Cardiomegaly", "Effusion", 
+    "Infiltration", "Mass", "Nodule", "Pneumonia", 
+    "Pneumothorax", "Consolidation", "Edema", "Emphysema", 
+    "Fibrosis", "Pleural_Thickening"
 ]
 
 # Configurar TensorFlow para CPU otimizado
 tf.config.threading.set_inter_op_parallelism_threads(4)
 tf.config.threading.set_intra_op_parallelism_threads(8)
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '1'
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
 
 class ClinicalDataGenerator(tf.keras.utils.Sequence):
     """Gerador de dados otimizado para grandes datasets médicos"""
@@ -93,11 +107,11 @@ class ClinicalDataGenerator(tf.keras.utils.Sequence):
         batch_df = self.df.iloc[indexes]
         
         X = np.zeros((len(batch_df), *self.image_size, 3), dtype=np.float32)
-        y = np.zeros((len(batch_df), CONFIG['num_classes']), dtype=np.float32)
+        y = np.zeros((len(batch_df), CONFIG["num_classes"]), dtype=np.float32)
         
         for i, (idx, row) in enumerate(batch_df.iterrows()):
             # Carregar imagem com cache
-            img = self._load_image(row['Image Index'])
+            img = self._load_image(row["Image Index"])
             
             # Augmentação médica específica
             if self.augment:
@@ -106,7 +120,7 @@ class ClinicalDataGenerator(tf.keras.utils.Sequence):
             X[i] = img
             
             # Labels multi-label
-            labels = row['Finding Labels'].split('|')
+            labels = row["Finding Labels"].split("|")
             for label in labels:
                 if label in PATHOLOGY_CLASSES:
                     y[i, PATHOLOGY_CLASSES.index(label)] = 1.0
@@ -207,50 +221,50 @@ def create_clinical_model(input_shape=(320, 320, 3), num_classes=14):
     
     # Arquitetura customizada otimizada para radiologia
     # Bloco 1
-    x = layers.Conv2D(32, 3, padding='same')(inputs)
+    x = layers.Conv2D(32, 3, padding="same")(inputs)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-    x = layers.Conv2D(32, 3, padding='same')(x)
+    x = layers.Activation("relu")(x)
+    x = layers.Conv2D(32, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
+    x = layers.Activation("relu")(x)
     x = layers.MaxPooling2D(2)(x)
     
     # Bloco 2
-    x = layers.Conv2D(64, 3, padding='same')(x)
+    x = layers.Conv2D(64, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-    x = layers.Conv2D(64, 3, padding='same')(x)
+    x = layers.Activation("relu")(x)
+    x = layers.Conv2D(64, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
+    x = layers.Activation("relu")(x)
     x = layers.MaxPooling2D(2)(x)
     
     # Bloco 3
-    x = layers.Conv2D(128, 3, padding='same')(x)
+    x = layers.Conv2D(128, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-    x = layers.Conv2D(128, 3, padding='same')(x)
+    x = layers.Activation("relu")(x)
+    x = layers.Conv2D(128, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
+    x = layers.Activation("relu")(x)
     x = layers.MaxPooling2D(2)(x)
     
     # Bloco 4
-    x = layers.Conv2D(256, 3, padding='same')(x)
+    x = layers.Conv2D(256, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-    x = layers.Conv2D(256, 3, padding='same')(x)
+    x = layers.Activation("relu")(x)
+    x = layers.Conv2D(256, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
+    x = layers.Activation("relu")(x)
     x = layers.MaxPooling2D(2)(x)
     
     # Bloco 5 - Atenção
-    x = layers.Conv2D(512, 3, padding='same')(x)
+    x = layers.Conv2D(512, 3, padding="same")(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
+    x = layers.Activation("relu")(x)
     
     # Mecanismo de atenção simples
     attention = layers.GlobalAveragePooling2D()(x)
-    attention = layers.Dense(512 // 16, activation='relu')(attention)
-    attention = layers.Dense(512, activation='sigmoid')(attention)
+    attention = layers.Dense(512 // 16, activation="relu")(attention)
+    attention = layers.Dense(512, activation="sigmoid")(attention)
     attention = layers.Reshape((1, 1, 512))(attention)
     x = layers.Multiply()([x, attention])
     
@@ -258,15 +272,15 @@ def create_clinical_model(input_shape=(320, 320, 3), num_classes=14):
     x = layers.GlobalAveragePooling2D()(x)
     
     # Classificador
-    x = layers.Dense(512, activation='relu')(x)
+    x = layers.Dense(512, activation="relu")(x)
     x = layers.Dropout(0.5)(x)
-    x = layers.Dense(256, activation='relu')(x)
+    x = layers.Dense(256, activation="relu")(x)
     x = layers.Dropout(0.3)(x)
     
     # Saída multi-label com sigmoid
-    outputs = layers.Dense(num_classes, activation='sigmoid')(x)
+    outputs = layers.Dense(num_classes, activation="sigmoid")(x)
     
-    model = keras.Model(inputs=inputs, outputs=outputs, name='ClinicalRadiologyNet')
+    model = keras.Model(inputs=inputs, outputs=outputs, name="ClinicalRadiologyNet")
     
     return model
 
@@ -278,9 +292,9 @@ class ClinicalMetricsCallback(callbacks.Callback):
         self.validation_data = validation_data
         self.output_dir = Path(output_dir)
         self.history = {
-            'auc_per_class': [],
-            'sensitivity_per_class': [],
-            'specificity_per_class': []
+            "auc_per_class": [],
+            "sensitivity_per_class": [],
+            "specificity_per_class": []
         }
     
     def on_epoch_end(self, epoch, logs=None):
@@ -303,7 +317,7 @@ class ClinicalMetricsCallback(callbacks.Callback):
             sensitivities = []
             specificities = []
             
-            for i in range(CONFIG['num_classes']):
+            for i in range(CONFIG["num_classes"]):
                 if y_true[:, i].sum() > 0:  # Classe presente
                     auc = roc_auc_score(y_true[:, i], y_pred[:, i])
                     
@@ -341,42 +355,42 @@ class ClinicalMetricsCallback(callbacks.Callback):
                             sensitivities, specificities):
         """Salva relatório clínico detalhado"""
         report = {
-            'epoch': epoch + 1,
-            'timestamp': datetime.now().isoformat(),
-            'overall_metrics': {
-                'mean_auc': float(np.mean(auc_scores)),
-                'mean_sensitivity': float(np.mean(sensitivities)),
-                'mean_specificity': float(np.mean(specificities))
+            "epoch": epoch + 1,
+            "timestamp": datetime.now().isoformat(),
+            "overall_metrics": {
+                "mean_auc": float(np.mean(auc_scores)),
+                "mean_sensitivity": float(np.mean(sensitivities)),
+                "mean_specificity": float(np.mean(specificities))
             },
-            'per_class_metrics': {}
+            "per_class_metrics": {}
         }
         
         for i, class_name in enumerate(PATHOLOGY_CLASSES):
             if i < len(auc_scores):
-                report['per_class_metrics'][class_name] = {
-                    'auc': float(auc_scores[i]),
-                    'sensitivity': float(sensitivities[i]),
-                    'specificity': float(specificities[i])
+                report["per_class_metrics"][class_name] = {
+                    "auc": float(auc_scores[i]),
+                    "sensitivity": float(sensitivities[i]),
+                    "specificity": float(specificities[i])
                 }
         
-        report_path = self.output_dir / f'clinical_report_epoch_{epoch + 1}.json'
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
+        report_path = self.output_dir / f"clinical_report_epoch_{epoch + 1}.json"
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2, cls=NumpyEncoder)
 
 def prepare_clinical_data():
     """Prepara dados para treinamento clínico"""
     logger.info("Carregando dataset NIH ChestX-ray14...")
     
     # Carregar CSV
-    df = pd.read_csv(CONFIG['csv_file'])
+    df = pd.read_csv(CONFIG["csv_file"])
     logger.info(f"Total de imagens: {len(df)}")
     
     # Filtrar imagens válidas
-    image_dir = Path(CONFIG['image_dir'])
+    image_dir = Path(CONFIG["image_dir"])
     valid_images = []
     
     for idx, row in df.iterrows():
-        if (image_dir / row['Image Index']).exists():
+        if (image_dir / row["Image Index"]).exists():
             valid_images.append(idx)
         
         if idx % 10000 == 0:
@@ -389,17 +403,17 @@ def prepare_clinical_data():
     # Primeiro, separar conjunto de teste
     train_val_df, test_df = train_test_split(
         df_valid, 
-        test_size=CONFIG['test_split'],
-        random_state=CONFIG['random_seed'],
-        stratify=df_valid['Finding Labels'].apply(lambda x: x.split('|')[0])
+        test_size=CONFIG["test_split"],
+        random_state=CONFIG["random_seed"],
+        stratify=df_valid["Finding Labels"].apply(lambda x: x.split("|")[0])
     )
     
     # Depois, separar treino e validação
     train_df, val_df = train_test_split(
         train_val_df,
-        test_size=CONFIG['validation_split'] / (1 - CONFIG['test_split']),
-        random_state=CONFIG['random_seed'],
-        stratify=train_val_df['Finding Labels'].apply(lambda x: x.split('|')[0])
+        test_size=CONFIG["validation_split"] / (1 - CONFIG["test_split"]),
+        random_state=CONFIG["random_seed"],
+        stratify=train_val_df["Finding Labels"].apply(lambda x: x.split("|")[0])
     )
     
     logger.info(f"Divisão dos dados:")
@@ -412,10 +426,10 @@ def prepare_clinical_data():
 def calculate_class_weights(train_df):
     """Calcula pesos para classes desbalanceadas"""
     # Contar ocorrências de cada patologia
-    class_counts = np.zeros(CONFIG['num_classes'])
+    class_counts = np.zeros(CONFIG["num_classes"])
     
-    for labels in train_df['Finding Labels']:
-        for label in labels.split('|'):
+    for labels in train_df["Finding Labels"]:
+        for label in labels.split("|"):
             if label in PATHOLOGY_CLASSES:
                 class_counts[PATHOLOGY_CLASSES.index(label)] += 1
     
@@ -425,7 +439,7 @@ def calculate_class_weights(train_df):
     
     for i, count in enumerate(class_counts):
         if count > 0:
-            weight = total_samples / (CONFIG['num_classes'] * count)
+            weight = total_samples / (CONFIG["num_classes"] * count)
             # Limitar pesos para evitar instabilidade
             class_weights[i] = np.clip(weight, 0.5, 5.0)
         else:
@@ -438,201 +452,204 @@ def calculate_class_weights(train_df):
     return class_weights
 
 def train_clinical_model():
-    """Função principal de treinamento"""
-    # Criar diretórios
-    output_dir = Path(CONFIG['output_dir'])
-    output_dir.mkdir(parents=True, exist_ok=True)
+    """Função principal para treinar o modelo clínico"""
     
-    # Preparar dados
+    # 1. Preparar dados
     train_df, val_df, test_df = prepare_clinical_data()
     
-    # Calcular pesos das classes
+    # 2. Calcular pesos das classes
     class_weights = calculate_class_weights(train_df)
     
-    # Criar geradores
+    # 3. Criar geradores de dados
     logger.info("Criando geradores de dados...")
-    train_gen = ClinicalDataGenerator(
-        train_df, CONFIG['image_dir'], 
-        batch_size=CONFIG['batch_size'],
-        image_size=CONFIG['image_size'],
-        augment=True,
-        cache_size=2000
+    train_generator = ClinicalDataGenerator(
+        train_df, CONFIG["image_dir"], batch_size=CONFIG["batch_size"], 
+        image_size=CONFIG["image_size"], augment=True, shuffle=True
+    )
+    val_generator = ClinicalDataGenerator(
+        val_df, CONFIG["image_dir"], batch_size=CONFIG["batch_size"], 
+        image_size=CONFIG["image_size"], augment=False, shuffle=False
+    )
+    test_generator = ClinicalDataGenerator(
+        test_df, CONFIG["image_dir"], batch_size=CONFIG["batch_size"], 
+        image_size=CONFIG["image_size"], augment=False, shuffle=False
     )
     
-    val_gen = ClinicalDataGenerator(
-        val_df, CONFIG['image_dir'],
-        batch_size=CONFIG['batch_size'],
-        image_size=CONFIG['image_size'],
-        augment=False,
-        cache_size=1000
-    )
-    
-    # Criar modelo
+    # 4. Criar modelo
     logger.info("Criando modelo clínico...")
-    model = create_clinical_model(
-        input_shape=(*CONFIG['image_size'], 3),
-        num_classes=CONFIG['num_classes']
-    )
+    model = create_clinical_model(input_shape=(*CONFIG["image_size"], 3), 
+                                  num_classes=CONFIG["num_classes"])
     
-    # Compilar com otimizador e loss apropriados
-    optimizer = keras.optimizers.Adam(learning_rate=CONFIG['learning_rate'])
-    
-    # Loss binário com pesos por classe
-    def weighted_binary_crossentropy(y_true, y_pred):
-        weights = tf.constant(list(class_weights.values()), dtype=tf.float32)
-        bce = keras.losses.binary_crossentropy(y_true, y_pred)
-        weighted_bce = bce * tf.reduce_sum(y_true * weights, axis=-1)
-        return tf.reduce_mean(weighted_bce)
-    
+    # 5. Compilar modelo
     model.compile(
-        optimizer=optimizer,
-        loss=weighted_binary_crossentropy,
+        optimizer=keras.optimizers.Adam(learning_rate=CONFIG["learning_rate"]),
+        loss=keras.losses.BinaryCrossentropy(),
         metrics=[
-            'binary_accuracy',
-            tf.keras.metrics.AUC(multi_label=True, name='auc'),
-            tf.keras.metrics.Precision(name='precision'),
-            tf.keras.metrics.Recall(name='recall')
+            keras.metrics.BinaryAccuracy(name="binary_accuracy"),
+            keras.metrics.AUC(name="auc"),
+            keras.metrics.Precision(name="precision"),
+            keras.metrics.Recall(name="recall")
         ]
     )
     
-    # Callbacks
+    # 6. Callbacks
+    Path(CONFIG["output_dir"]).mkdir(parents=True, exist_ok=True)
+    
+    model_checkpoint_callback = callbacks.ModelCheckpoint(
+        filepath=os.path.join(CONFIG["output_dir"], "best_model.h5"),
+        monitor="val_auc",
+        mode="max",
+        save_best_only=True,
+        verbose=1
+    )
+    
+    reduce_lr_on_plateau = callbacks.ReduceLROnPlateau(
+        monitor="val_auc",
+        factor=0.5,
+        patience=CONFIG["patience"] // 2,
+        min_lr=CONFIG["min_lr"],
+        mode="max",
+        verbose=1
+    )
+    
+    early_stopping = callbacks.EarlyStopping(
+        monitor="val_auc",
+        patience=CONFIG["patience"],
+        mode="max",
+        restore_best_weights=True,
+        verbose=1
+    )
+    
+    # Ajuste para salvar a cada N épocas, não steps
+    class CustomCheckpoint(callbacks.Callback):
+        def __init__(self, filepath, save_freq):
+            super().__init__()
+            self.filepath = filepath
+            self.save_freq = save_freq
+
+        def on_epoch_end(self, epoch, logs=None):
+            if (epoch + 1) % self.save_freq == 0:
+                self.model.save(self.filepath.format(epoch=epoch + 1))
+                logger.info(f"Modelo salvo em checkpoint_epoch_{epoch + 1}.h5")
+
+    custom_checkpoint = CustomCheckpoint(
+        filepath=os.path.join(CONFIG["output_dir"], "checkpoint_epoch_{epoch:03d}.h5"),
+        save_freq=CONFIG["checkpoint_freq"]
+    )
+
+    clinical_metrics_callback = ClinicalMetricsCallback(
+        validation_data=val_generator, output_dir=CONFIG["output_dir"]
+    )
+    
     callbacks_list = [
-        # Checkpoint do melhor modelo
-        callbacks.ModelCheckpoint(
-            str(output_dir / 'best_model.h5'),
-            monitor='val_auc',
-            mode='max',
-            save_best_only=True,
-            verbose=1
-        ),
-        
-        # Checkpoint periódico
-        callbacks.ModelCheckpoint(
-            str(output_dir / 'checkpoint_epoch_{epoch:03d}.h5'),
-            save_freq=CONFIG['checkpoint_freq'] * len(train_gen),
-            verbose=1
-        ),
-        
-        # Redução de learning rate
-        callbacks.ReduceLROnPlateau(
-            monitor='val_loss',
-            factor=0.5,
-            patience=5,
-            min_lr=CONFIG['min_lr'],
-            verbose=1
-        ),
-        
-        # Early stopping
-        callbacks.EarlyStopping(
-            monitor='val_auc',
-            mode='max',
-            patience=CONFIG['patience'],
-            restore_best_weights=True,
-            verbose=1
-        ),
-        
-        # Métricas clínicas
-        ClinicalMetricsCallback(val_gen, output_dir),
-        
-        # Log de CSV
-        callbacks.CSVLogger(str(output_dir / 'training_log.csv')),
-        
-        # TensorBoard
-        callbacks.TensorBoard(
-            log_dir=str(output_dir / 'tensorboard'),
-            histogram_freq=0,  # Desabilitado para economizar recursos
-            write_graph=False,
-            update_freq='epoch'
-        )
+        model_checkpoint_callback,
+        reduce_lr_on_plateau,
+        early_stopping,
+        custom_checkpoint,
+        clinical_metrics_callback
     ]
     
-    # Configuração para economia de memória
-    logger.info("Iniciando treinamento clínico...")
+    # 7. Treinar modelo
+    logger.info(f"Iniciando treinamento clínico...")
     logger.info(f"Configuração:")
     logger.info(f"  - Épocas: {CONFIG['epochs']}")
     logger.info(f"  - Batch size: {CONFIG['batch_size']}")
     logger.info(f"  - Learning rate inicial: {CONFIG['learning_rate']}")
     logger.info(f"  - Imagem size: {CONFIG['image_size']}")
-    
-    # Treinar modelo
+
     history = model.fit(
-        train_gen,
-        epochs=CONFIG['epochs'],
-        validation_data=val_gen,
-        callbacks=callbacks_list,
-        verbose=1,
-        workers=CONFIG['num_workers'],
-        use_multiprocessing=False,  # Mais estável para CPU
-        max_queue_size=10
+        train_generator,
+        epochs=CONFIG["epochs"],
+        validation_data=val_generator,
+        class_weight=class_weights,
+        callbacks=callbacks_list
     )
     
-    # Salvar modelo final
-    model.save(str(output_dir / 'final_model.h5'))
-    
-    # Salvar histórico
-    with open(output_dir / 'training_history.json', 'w') as f:
-        json.dump(history.history, f, indent=2)
-    
-    # Avaliação final no conjunto de teste
+    # 8. Salvar histórico de treinamento
+    history_path = Path(CONFIG["output_dir"]) / "training_history.json"
+    with open(history_path, "w") as f:
+        json.dump(history.history, f, indent=2, cls=NumpyEncoder)
+    logger.info(f"Histórico de treinamento salvo em {history_path}")
+
+    # 9. Avaliar modelo no conjunto de teste
     logger.info("Avaliando modelo no conjunto de teste...")
-    test_gen = ClinicalDataGenerator(
-        test_df, CONFIG['image_dir'],
-        batch_size=CONFIG['batch_size'],
-        image_size=CONFIG['image_size'],
-        augment=False,
-        shuffle=False
+    # Carregar o melhor modelo salvo
+    best_model_path = os.path.join(CONFIG["output_dir"], "best_model.h5")
+    if os.path.exists(best_model_path):
+        model = keras.models.load_model(best_model_path)
+        logger.info(f"Melhor modelo carregado de {best_model_path}")
+    else:
+        logger.warning("Melhor modelo não encontrado. Usando o modelo treinado final.")
+
+    test_loss, test_binary_accuracy, test_auc, test_precision, test_recall = model.evaluate(
+        test_generator,
+        workers=CONFIG["num_workers"],
+        use_multiprocessing=True,
+        max_queue_size=CONFIG["prefetch_buffer"] * CONFIG["batch_size"]
     )
+    logger.info(f"Métricas no conjunto de teste:")
+    logger.info(f"  Loss: {test_loss:.4f}")
+    logger.info(f"  Binary Accuracy: {test_binary_accuracy:.4f}")
+    logger.info(f"  AUC: {test_auc:.4f}")
+    logger.info(f"  Precision: {test_precision:.4f}")
+    logger.info(f"  Recall: {test_recall:.4f}")
+
+    # Gerar relatório de classificação detalhado
+    y_true_test = []
+    y_pred_test = []
+    for i in range(len(test_generator)):
+        X_batch, y_batch = test_generator[i]
+        pred_batch = model.predict(X_batch, verbose=0)
+        y_true_test.append(y_batch)
+        y_pred_test.append(pred_batch)
     
-    test_results = model.evaluate(test_gen, verbose=1)
-    
-    # Salvar resultados finais
-    final_report = {
-        'timestamp': datetime.now().isoformat(),
-        'config': CONFIG,
-        'test_results': {
-            'loss': float(test_results[0]),
-            'binary_accuracy': float(test_results[1]),
-            'auc': float(test_results[2]),
-            'precision': float(test_results[3]),
-            'recall': float(test_results[4])
+    y_true_test = np.vstack(y_true_test)
+    y_pred_test = np.vstack(y_pred_test)
+
+    # Calcular métricas por classe para o conjunto de teste
+    test_auc_scores = []
+    test_sensitivities = []
+    test_specificities = []
+
+    for i in range(CONFIG["num_classes"]):
+        if y_true_test[:, i].sum() > 0:  # Classe presente
+            auc = roc_auc_score(y_true_test[:, i], y_pred_test[:, i])
+            fpr, tpr, thresholds = roc_curve(y_true_test[:, i], y_pred_test[:, i])
+            optimal_idx = np.argmax(tpr - fpr)
+            optimal_threshold = thresholds[optimal_idx]
+            y_pred_binary = (y_pred_test[:, i] > optimal_threshold).astype(int)
+            tn, fp, fn, tp = confusion_matrix(y_true_test[:, i], y_pred_binary).ravel()
+            sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+            specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+            test_auc_scores.append(auc)
+            test_sensitivities.append(sensitivity)
+            test_specificities.append(specificity)
+
+    test_report = {
+        "overall_metrics": {
+            "mean_auc": float(np.mean(test_auc_scores)),
+            "mean_sensitivity": float(np.mean(test_sensitivities)),
+            "mean_specificity": float(np.mean(test_specificities))
         },
-        'training_time': str(datetime.now() - start_time),
-        'final_learning_rate': float(model.optimizer.learning_rate.numpy()),
-        'total_parameters': model.count_params()
+        "per_class_metrics": {}
     }
-    
-    with open(output_dir / 'final_report.json', 'w') as f:
-        json.dump(final_report, f, indent=2)
-    
-    logger.info("✅ Treinamento clínico completo!")
-    logger.info(f"Modelos salvos em: {output_dir}")
-    logger.info(f"Métricas finais:")
-    logger.info(f"  - AUC: {test_results[2]:.4f}")
-    logger.info(f"  - Precisão: {test_results[3]:.4f}")
-    logger.info(f"  - Recall: {test_results[4]:.4f}")
-    
-    return model, history
+
+    for i, class_name in enumerate(PATHOLOGY_CLASSES):
+        if i < len(test_auc_scores):
+            test_report["per_class_metrics"][class_name] = {
+                "auc": float(test_auc_scores[i]),
+                "sensitivity": float(test_sensitivities[i]),
+                "specificity": float(test_specificities[i])
+            }
+
+    test_report_path = Path(CONFIG["output_dir"]) / "test_evaluation_report.json"
+    with open(test_report_path, "w") as f:
+        json.dump(test_report, f, indent=2, cls=NumpyEncoder)
+    logger.info(f"Relatório de avaliação no conjunto de teste salvo em {test_report_path}")
+
+    logger.info("Treinamento e avaliação concluídos.")
 
 if __name__ == "__main__":
-    start_time = datetime.now()
-    
-    try:
-        # Verificar se o dataset existe
-        if not Path(CONFIG['csv_file']).exists():
-            logger.error(f"Dataset não encontrado em {CONFIG['csv_file']}")
-            logger.error("Por favor, baixe o dataset NIH ChestX-ray14 primeiro.")
-            sys.exit(1)
-        
-        # Executar treinamento
-        model, history = train_clinical_model()
-        
-        # Tempo total
-        total_time = datetime.now() - start_time
-        logger.info(f"Tempo total de treinamento: {total_time}")
-        
-    except Exception as e:
-        logger.error(f"Erro durante o treinamento: {e}")
-        raise
-    finally:
-        # Limpar memória
-        gc.collect()
+    train_clinical_model()
+
+
