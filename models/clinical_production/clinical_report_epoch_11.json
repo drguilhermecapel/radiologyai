@@ -1,0 +1,41 @@
+{
+  "epoch": 11,
+  "timestamp": "2025-06-20T16:44:44.899422",
+  "overall_metrics": {
+    "mean_auc": 0.5518518518518518,
+    "mean_sensitivity": 0.611111111111111,
+    "mean_specificity": 0.5111111111111111
+  },
+  "per_class_metrics": {
+    "No Finding": {
+      "auc": 0.6,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 0.6
+    },
+    "Atelectasis": {
+      "auc": 0.33333333333333337,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 0.26666666666666666
+    },
+    "Cardiomegaly": {
+      "auc": 0.19999999999999996,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 0.2
+    },
+    "Effusion": {
+      "auc": 0.7555555555555555,
+      "sensitivity": 0.3333333333333333,
+      "specificity": 0.7333333333333333
+    },
+    "Infiltration": {
+      "auc": 0.6333333333333333,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 0.4666666666666667
+    },
+    "Mass": {
+      "auc": 0.788888888888889,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 0.8
+    }
+  }
+}
