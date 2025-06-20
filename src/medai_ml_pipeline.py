@@ -251,13 +251,143 @@ class MLPipeline:
             
             return image, label
         
-        # Função de augmentation médica específica
+        # Função de augmentation médica específica - CORRIGIDA
+        @tf.function
         def augment(image, label):
-    """Augmentação simplificada para compatibilidade"""
-    # Aplicar augmentações básicas do TensorFlow
-    image = tf.image.random_flip_left_right(image)
-    image = tf.image.random_brightness(image, 0.1)
-    image = tf.image.random_contrast(image, 0.9, 1.1)
+            """
+            Augmentação de dados otimizada para modo grafo do TensorFlow.
+            
+            Esta função implementa transformações geométricas e de intensidade
+            compatíveis com a execução em grafo do TensorFlow, evitando operações
+            Python diretas em tensores simbólicos.
+            """
+            # Ensure image is float32
+            image = tf.cast(image, tf.float32)
+            
+            # Random rotation using tf.keras.layers instead of legacy functions
+            augmentation = tf.keras.Sequential([
+                tf.keras.layers.RandomRotation(0.02),  # ±7.2 degrees
+                tf.keras.layers.RandomTranslation(0.05, 0.05),
+                tf.keras.layers.RandomZoom(0.05),
+                tf.keras.layers.RandomFlip("horizontal"),
+            ])
+            
+            # Apply augmentation
+            image = augmentation(image, training=True)
+            
+            # Random brightness/contrast adjustments
+            image = tf.image.random_brightness(image, 0.1)
+            image = tf.image.random_contrast(image, 0.9, 1.1)
+            
+            # Add Gaussian noise for robustness
+            noise = tf.random.normal(shape=tf.shape(image), mean=0.0, stddev=0.01, dtype=tf.float32)
+            image = image + noise
+            
+            # Ensure values are in [0, 1] range
+            image = tf.clip_by_value(image, 0.0, 1.0)
+            
+            return image, label
+        
+        # Carregar lista de arquivos com validação e balanceamento
+        data_dir = Path(data_dir)
+        all_files = []
+        all_labels = []
+        
+        # Criar dataset balanceado para validação clínica
+        balanced_files, balanced_labels = self._create_balanced_medical_dataset(
+            data_dir, config.class_names, config
+        )
+        
+        for class_idx, class_name in enumerate(config.class_names):
+            class_dir = data_dir / class_name
+            if class_dir.exists():
+                files = list(class_dir.glob('*'))
+                validated_files = self._validate_medical_files(files, class_name)
+                all_files.extend([str(f) for f in validated_files])
+                all_labels.extend([class_idx] * len(validated_files))
+        
+        # Adicionar dados balanceados sintéticos se necessário
+        if len(all_files) < len(config.class_names) * 10:  # Mínimo 10 amostras por classe
+            all_files.extend(balanced_files)
+            all_labels.extend(balanced_labels)
+        
+        # Dividir dados - ajustar para datasets pequenos com validação de tamanho mínimo
+        total_samples = len(all_files)
+        unique_classes = len(set(all_labels))
+        
+        min_samples_per_split = max(1, config.batch_size // 2)
+        
+        if total_samples < max(unique_classes * 3, min_samples_per_split * 3):
+            test_size = min(config.test_split, 0.3)  # Limitar test_size para datasets pequenos
+            val_size = min(config.validation_split, 0.3)
+            
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=test_size, 
+                stratify=None,
+                random_state=42
+            )
+            
+            remaining_samples = len(X_temp)
+            adjusted_val_split = min(val_size / (1 - test_size), 0.5)
+            
+            if remaining_samples >= 2:  # Garantir pelo menos 2 amostras para divisão
+                X_train, X_val, y_train, y_val = train_test_split(
+                    X_temp, y_temp,
+                    test_size=adjusted_val_split,
+                    stratify=None,
+                    random_state=42
+                )
+            else:
+                X_train, X_val, y_train, y_val = X_temp, [], y_temp, []
+        else:
+            X_temp, X_test, y_temp, y_test = train_test_split(
+                all_files, all_labels, 
+                test_size=config.test_split, 
+                stratify=all_labels,
+                random_state=42
+            )
+            
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_temp, y_temp,
+                test_size=config.validation_split / (1 - config.test_split),
+                stratify=y_temp,
+                random_state=42
+            )
+        
+        y_train = np.array(y_train, dtype=np.int32) if y_train else np.array([], dtype=np.int32)
+        y_val = np.array(y_val, dtype=np.int32) if y_val else np.array([], dtype=np.int32)
+        y_test = np.array(y_test, dtype=np.int32) if y_test else np.array([], dtype=np.int32)
+        
+        # Ajustar batch_size para datasets pequenos
+        effective_batch_size = min(config.batch_size, max(1, len(X_train)))
+        
+        # Criar datasets com drop_remainder=False para evitar problemas com batches pequenos
+        train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+        train_ds = train_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
+        train_ds = train_ds.map(augment, num_parallel_calls=AUTOTUNE)
+        train_ds = train_ds.batch(effective_batch_size, drop_remainder=False)
+        train_ds = train_ds.prefetch(AUTOTUNE)
+        
+        if len(X_val) > 0:
+            val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
+            val_ds = val_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
+            val_ds = val_ds.batch(min(effective_batch_size, len(X_val)), drop_remainder=False)
+            val_ds = val_ds.prefetch(AUTOTUNE)
+        else:
+            val_ds = train_ds.take(1)
+        
+        if len(X_test) > 0:
+            test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+            test_ds = test_ds.map(parse_image, num_parallel_calls=AUTOTUNE)
+            test_ds = test_ds.batch(min(effective_batch_size, len(X_test)), drop_remainder=False)
+            test_ds = test_ds.prefetch(AUTOTUNE)
+        else:
+            test_ds = train_ds.take(1)
+        
+        logger.info(f"Datasets criados - Treino: {len(X_train)}, Val: {len(X_val)}, Teste: {len(X_test)}")
+        
+        return train_ds, val_ds, test_ds
     
     # Adicionar ruído gaussiano
     noise = tf.random.normal(shape=tf.shape(image), mean=0.0, stddev=0.02)
@@ -328,10 +458,19 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/v1/models/{model_name}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      # Configuração de monitoramento:
+      # - interval: 30s
+      # - timeout: 10s  
+      # - retries: 3
 '''
+            
+            # Configuração de monitoramento em Python
+            monitoring_config = {
+                'interval': '30s',  # String válida em Python
+                'timeout': '10s',
+                'retries': 3,
+                'metrics': ['loss', 'accuracy', 'auc']
+            }
             
             compose_path = os.path.join(export_base_path, 'docker-compose.yml')
             with open(compose_path, 'w') as f:

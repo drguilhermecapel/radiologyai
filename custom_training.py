@@ -62,6 +62,7 @@ class MedicalDataGenerator(tf.keras.utils.Sequence):
             np.random.shuffle(self.indexes)
     
     def __data_generation(self, batch_df):
+        # Inicialização com dimensões fixas
         X = np.empty((len(batch_df), *self.image_size, 3), dtype=np.float32)
         y = np.empty((len(batch_df), self.num_classes), dtype=np.float32)
         
@@ -72,6 +73,10 @@ class MedicalDataGenerator(tf.keras.utils.Sequence):
             
             if self.augment:
                 img = self.apply_medical_augmentation(img)
+            
+            # Garante que a imagem tem exatamente as dimensões esperadas
+            assert img.shape == (*self.image_size, 3), \
+                f"Imagem com shape incorreto: {img.shape}, esperado: {(*self.image_size, 3)}"
             
             X[i,] = img
             
@@ -93,8 +98,8 @@ class MedicalDataGenerator(tf.keras.utils.Sequence):
             if img is None:
                 raise ValueError(f"Não foi possível carregar a imagem: {img_path}")
             
-            # Redimensionar
-            img = cv2.resize(img, self.image_size)
+            # Redimensionar para o tamanho exato esperado
+            img = cv2.resize(img, self.image_size, interpolation=cv2.INTER_CUBIC)
             
             # Aplicar CLAHE (Contrast Limited Adaptive Histogram Equalization)
             clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -106,11 +111,15 @@ class MedicalDataGenerator(tf.keras.utils.Sequence):
             # Normalizar
             img = img.astype(np.float32) / 255.0
             
+            # Garante que a imagem tem exatamente as dimensões esperadas
+            assert img.shape == (*self.image_size, 3), \
+                f"Imagem com shape incorreto: {img.shape}, esperado: {(*self.image_size, 3)}"
+            
             return img
             
         except Exception as e:
             logger.error(f"Erro ao processar imagem {img_path}: {e}")
-            # Retornar imagem em branco em caso de erro
+            # Retornar imagem em branco em caso de erro com dimensões corretas
             return np.zeros((*self.image_size, 3), dtype=np.float32)
     
     def apply_medical_augmentation(self, img):
