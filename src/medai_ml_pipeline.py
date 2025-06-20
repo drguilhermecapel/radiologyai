@@ -251,62 +251,39 @@ class MLPipeline:
             
             return image, label
         
-        # Função de augmentation médica específica
+        # Função de augmentation médica específica - CORRIGIDA
+        @tf.function
         def augment(image, label):
-            # Ensure image is float32 for all operations
+            """
+            Augmentação de dados otimizada para modo grafo do TensorFlow.
+            
+            Esta função implementa transformações geométricas e de intensidade
+            compatíveis com a execução em grafo do TensorFlow, evitando operações
+            Python diretas em tensores simbólicos.
+            """
+            # Ensure image is float32
             image = tf.cast(image, tf.float32)
             
-            modality = config.augmentation_config.get('modality', 'CR')
+            # Random rotation using tf.keras.layers instead of legacy functions
+            augmentation = tf.keras.Sequential([
+                tf.keras.layers.RandomRotation(0.02),  # ±7.2 degrees
+                tf.keras.layers.RandomTranslation(0.05, 0.05),
+                tf.keras.layers.RandomZoom(0.05),
+                tf.keras.layers.RandomFlip("horizontal"),
+            ])
             
-            max_rotation = min(config.augmentation_config.get('rotation_range', 5), 5.0)
-            if max_rotation > 0:
-                angle = tf.random.uniform([], -max_rotation, max_rotation) * np.pi / 180
-                image = tf.keras.utils.image_utils.apply_affine_transform(
-                    image, theta=angle, fill_mode='nearest'
-                )
+            # Apply augmentation
+            image = augmentation(image, training=True)
             
-            if config.augmentation_config.get('medical_noise', True):
-                noise_factor = config.augmentation_config.get('noise_factor', 0.05)
-                noise_std = tf.random.uniform([], 0.01, noise_factor) * tf.math.reduce_std(image)
-                noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=noise_std)
-                image = tf.clip_by_value(image + noise, 0.0, 1.0)
+            # Random brightness/contrast adjustments
+            image = tf.image.random_brightness(image, 0.1)
+            image = tf.image.random_contrast(image, 0.9, 1.1)
             
-            # Simulação de movimento respiratório para modalidades de tórax
-            if modality in ['CR', 'DX'] and config.augmentation_config.get('breathing_motion', True):
-                max_displacement = config.augmentation_config.get('max_displacement', 2.0)
-                dy = tf.random.uniform([], -max_displacement, max_displacement)
-                dx = tf.random.uniform([], -max_displacement/2, max_displacement/2)
-                image = tf.keras.utils.image_utils.apply_affine_transform(
-                    image, tx=dx, ty=dy, fill_mode='nearest'
-                )
+            # Add Gaussian noise for robustness
+            noise = tf.random.normal(shape=tf.shape(image), mean=0.0, stddev=0.01, dtype=tf.float32)
+            image = image + noise
             
-            # Ajustes de contraste específicos por modalidade
-            contrast_range = config.augmentation_config.get('contrast_range', 0.1)
-            if modality == 'CT':
-                contrast_range = min(contrast_range, 0.1)  # CT requer menos variação
-            elif modality in ['CR', 'DX']:
-                contrast_range = min(contrast_range, 0.2)  # Raios-X podem ter mais variação
-            
-            if contrast_range > 0:
-                image = tf.image.random_contrast(image, 
-                    1 - contrast_range, 1 + contrast_range)
-            
-            # Ajustes de brilho específicos por modalidade
-            brightness_range = config.augmentation_config.get('brightness_range', 0.05)
-            if modality == 'CT':
-                brightness_range = min(brightness_range, 0.05)
-            elif modality in ['CR', 'DX']:
-                brightness_range = min(brightness_range, 0.1)
-            
-            if brightness_range > 0:
-                image = tf.image.random_brightness(image, brightness_range)
-            
-            # Flip horizontal apenas se clinicamente apropriado
-            if (config.augmentation_config.get('horizontal_flip', False) and 
-                modality not in ['CR', 'DX']):  # Evitar flip em raios-X de tórax
-                image = tf.image.random_flip_left_right(image)
-            
-            # Normalização final
+            # Ensure values are in [0, 1] range
             image = tf.clip_by_value(image, 0.0, 1.0)
             
             return image, label
@@ -3556,10 +3533,19 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/v1/models/{model_name}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      # Configuração de monitoramento:
+      # - interval: 30s
+      # - timeout: 10s  
+      # - retries: 3
 '''
+            
+            # Configuração de monitoramento em Python
+            monitoring_config = {
+                'interval': '30s',  # String válida em Python
+                'timeout': '10s',
+                'retries': 3,
+                'metrics': ['loss', 'accuracy', 'auc']
+            }
             
             compose_path = os.path.join(export_base_path, 'docker-compose.yml')
             with open(compose_path, 'w') as f:
