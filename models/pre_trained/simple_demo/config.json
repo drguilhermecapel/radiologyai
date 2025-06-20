@@ -1,0 +1,21 @@
+{
+  "name": "simple_demo",
+  "version": "1.0",
+  "trained_on": "Synthetic ChestX-ray",
+  "classes": [
+    "No Finding",
+    "Pneumonia",
+    "Cardiomegaly",
+    "Effusion",
+    "Mass",
+    "Nodule"
+  ],
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "training_date": "2025-06-19T21:54:16.973486",
+  "epochs_trained": 5,
+  "best_val_auc": 0.5374999642372131
+}

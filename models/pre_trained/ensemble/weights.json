@@ -1,0 +1,6 @@
+{
+  "efficientnetv2_chest_xray": 0.40,
+  "vision_transformer_chest_xray": 0.35,
+  "convnext_chest_xray": 0.25
+}
+

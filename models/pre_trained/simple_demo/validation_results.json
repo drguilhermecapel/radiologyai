@@ -1,0 +1,41 @@
+{
+  "model_info": {
+    "name": "simple_demo",
+    "version": "1.0",
+    "trained_on": "Synthetic ChestX-ray",
+    "classes": [
+      "No Finding",
+      "Pneumonia",
+      "Cardiomegaly",
+      "Effusion",
+      "Mass",
+      "Nodule"
+    ],
+    "input_shape": [
+      224,
+      224,
+      3
+    ],
+    "training_date": "2025-06-19T21:54:16.973486",
+    "epochs_trained": 5,
+    "best_val_auc": 0.5374999642372131
+  },
+  "validation_metrics": {
+    "AUC_No Finding": 0.6,
+    "AUC_Pneumonia": 0.0,
+    "AUC_Cardiomegaly": 1.0,
+    "AUC_Effusion": 0.8,
+    "AUC_Mass": 0.19999999999999996,
+    "AUC_Nodule": 0.4,
+    "AUC_mean": 0.5000000000000001,
+    "Accuracy_No Finding": 0.8333333333333334,
+    "Accuracy_Pneumonia": 0.8333333333333334,
+    "Accuracy_Cardiomegaly": 0.8333333333333334,
+    "Accuracy_Effusion": 0.8333333333333334,
+    "Accuracy_Mass": 0.8333333333333334,
+    "Accuracy_Nodule": 0.8333333333333334,
+    "Accuracy_mean": 0.8333333333333334
+  },
+  "test_samples": 30,
+  "validation_date": "2025-06-19T21:55:45.068071"
+}
