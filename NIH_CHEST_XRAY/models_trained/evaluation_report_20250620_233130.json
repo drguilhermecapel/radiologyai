@@ -1,0 +1,8 @@
+{
+  "timestamp": "20250620_233130",
+  "mean_auc": NaN,
+  "per_class_auc": {
+    "No Finding": NaN
+  },
+  "test_samples": 1
+}
