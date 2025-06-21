@@ -1,0 +1,23 @@
+{
+  "data_dir": "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED",
+  "image_dir": "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED/images",
+  "csv_file": "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED/Data_Entry_2017_v2020.csv",
+  "output_dir": "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED/models_trained",
+  "batch_size": 16,
+  "image_size": [
+    256,
+    256
+  ],
+  "epochs": 30,
+  "learning_rate": 0.0001,
+  "validation_split": 0.15,
+  "test_split": 0.15,
+  "selected_classes": [
+    "No Finding",
+    "Infiltration",
+    "Effusion",
+    "Atelectasis",
+    "Nodule",
+    "Pneumothorax"
+  ]
+}

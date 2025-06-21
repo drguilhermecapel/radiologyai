@@ -1,0 +1,34 @@
+{
+  "data_dir": "/home/ubuntu/radiologyai_project/radiologyai/NIH_CHEST_XRAY",
+  "image_dir": "/home/ubuntu/radiologyai_project/radiologyai/NIH_CHEST_XRAY/images",
+  "csv_file": "/home/ubuntu/radiologyai_project/radiologyai/NIH_CHEST_XRAY/Data_Entry_2017_v2020.csv",
+  "output_dir": "/home/ubuntu/radiologyai_project/radiologyai/NIH_CHEST_XRAY/models_trained",
+  "batch_size": 16,
+  "image_size": [
+    320,
+    320
+  ],
+  "epochs": 50,
+  "learning_rate": 0.0001,
+  "validation_split": 0.15,
+  "test_split": 0.15,
+  "selected_classes": [
+    "No Finding",
+    "Pneumonia",
+    "Effusion",
+    "Atelectasis",
+    "Infiltration",
+    "Mass",
+    "Nodule",
+    "Consolidation",
+    "Pneumothorax"
+  ],
+  "random_seed": 42,
+  "num_workers": 4,
+  "prefetch_buffer": 2,
+  "clinical_thresholds": {
+    "default": 0.5,
+    "high_sensitivity": 0.3,
+    "high_specificity": 0.7
+  }
+}
