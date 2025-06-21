@@ -1,6 +1,6 @@
+# train_chest_xray.py
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -135,7 +135,7 @@ def create_model(num_classes, input_shape=(320, 320, 3)):
     base_model = tf.keras.applications.EfficientNetB3(
         input_shape=input_shape,
         include_top=False,
-        weights="imagenet"
+        weights=\'imagenet\'
     )
     
     # Congelar primeiras camadas
@@ -155,28 +155,28 @@ def create_model(num_classes, input_shape=(320, 320, 3)):
     x = layers.GlobalAveragePooling2D()(x)
     
     # Camadas densas com regularização
-    x = layers.Dense(512, activation="relu")(x)
+    x = layers.Dense(512, activation=\'relu\')(x)
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.5)(x)
     
-    x = layers.Dense(256, activation="relu")(x)
+    x = layers.Dense(256, activation=\'relu\')(x)
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.3)(x)
     
     # Saída multi-label (sigmoid para cada classe)
-    outputs = layers.Dense(num_classes, activation="sigmoid", name="predictions")(x)
+    outputs = layers.Dense(num_classes, activation=\'sigmoid\', name=\'predictions\')(x)
     
     model = keras.Model(inputs, outputs)
     
     # Compilar modelo
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=CONFIG["learning_rate"]),
-        loss="binary_crossentropy",  # Para multi-label
+        optimizer=keras.optimizers.Adam(learning_rate=CONFIG[\'learning_rate\']),
+        loss=\'binary_crossentropy\',  # Para multi-label
         metrics=[
-            "binary_accuracy",
-            tf.keras.metrics.AUC(name="auc", multi_label=True),
-            tf.keras.metrics.Precision(name="precision"),
-            tf.keras.metrics.Recall(name="recall")
+            \'binary_accuracy\',
+            tf.keras.metrics.AUC(name=\'auc\', multi_label=True),
+            tf.keras.metrics.Precision(name=\'precision\'),
+            tf.keras.metrics.Recall(name=\'recall\')
         ]
     )
     
@@ -187,16 +187,16 @@ def prepare_data():
     print("\nCarregando dataset...")
     
     # Carregar CSV
-    df = pd.read_csv(CONFIG["csv_file"])
+    df = pd.read_csv(CONFIG[\'csv_file\'])
     print(f"Total de imagens no CSV: {len(df)}")
     
     # Verificar quais imagens existem
     print("\nVerificando arquivos de imagem...")
-    image_dir = Path(CONFIG["image_dir"])
+    image_dir = CONFIG[\'image_dir\']
     existing_images = []
     
     for idx, row in df.iterrows():
-        img_path = image_dir / row["Image Index"]
+        img_path = image_dir / row[\'Image Index\']
         if img_path.exists():
             existing_images.append(idx)
         
@@ -210,9 +210,21 @@ def prepare_data():
     # Dividir dados
     print("\nDividindo dados...")
     
-    train_df = df_valid.sample(frac=0.7, random_state=42)
-    val_df = df_valid.drop(train_df.index).sample(frac=0.5, random_state=42)
-    test_df = df_valid.drop(train_df.index).drop(val_df.index)
+    # Primeiro separar teste
+    train_val_df, test_df = train_test_split(
+        df_valid, 
+        test_size=CONFIG[\'test_split\'],
+        random_state=42,
+        stratify=df_valid[\'Finding Labels\'].apply(lambda x: x.split(\'|\')[0])
+    )
+    
+    # Depois separar validação
+    train_df, val_df = train_test_split(
+        train_val_df,
+        test_size=CONFIG[\'validation_split\']/(1-CONFIG[\'test_split\']),
+        random_state=42,
+        stratify=train_val_df[\'Finding Labels\'].apply(lambda x: x.split(\'|\')[0])
+    )
     
     print(f"  Treino: {len(train_df)} imagens")
     print(f"  Validação: {len(val_df)} imagens")
@@ -231,30 +243,30 @@ def train_model():
     
     train_gen = ChestXrayDataGenerator(
         train_df,
-        CONFIG["image_dir"],
-        batch_size=CONFIG["batch_size"],
-        image_size=CONFIG["image_size"],
+        CONFIG[\'image_dir\'],
+        batch_size=CONFIG[\'batch_size\'],
+        image_size=CONFIG[\'image_size\'],
         augment=True,
-        classes=CONFIG["selected_classes"]
+        classes=CONFIG[\'selected_classes\']
     )
     
     val_gen = ChestXrayDataGenerator(
         val_df,
-        CONFIG["image_dir"],
-        batch_size=CONFIG["batch_size"],
-        image_size=CONFIG["image_size"],
+        CONFIG[\'image_dir\'],
+        batch_size=CONFIG[\'batch_size\'],
+        image_size=CONFIG[\'image_size\'],
         augment=False,
-        classes=CONFIG["selected_classes"]
+        classes=CONFIG[\'selected_classes\']
     )
     
     # Criar modelo
     print("\nConstruindo modelo...")
-    num_classes = len(CONFIG["selected_classes"])
+    num_classes = len(CONFIG[\'selected_classes\'])
     model = create_model(num_classes)
     model.summary()
     
     # Criar diretório de saída
-    output_dir = Path(CONFIG["output_dir"])
+    output_dir = CONFIG[\'output_dir\']
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Callbacks
@@ -263,17 +275,17 @@ def train_model():
     callbacks_list = [
         # Salvar melhor modelo
         callbacks.ModelCheckpoint(
-            str(output_dir / f"best_model_{timestamp}.h5"),
-            monitor="val_auc",
-            mode="max",
+            str(output_dir / f\'best_model_{timestamp}.h5\'),
+            monitor=\'val_auc\',
+            mode=\'max\',
             save_best_only=True,
             verbose=1
         ),
         
         # Early stopping
         callbacks.EarlyStopping(
-            monitor="val_auc",
-            mode="max",
+            monitor=\'val_auc\',
+            mode=\'max\',
             patience=10,
             restore_best_weights=True,
             verbose=1
@@ -281,7 +293,7 @@ def train_model():
         
         # Reduzir learning rate
         callbacks.ReduceLROnPlateau(
-            monitor="val_loss",
+            monitor=\'val_loss\',
             factor=0.5,
             patience=5,
             min_lr=1e-7,
@@ -290,30 +302,30 @@ def train_model():
         
         # Logs
         callbacks.CSVLogger(
-            str(output_dir / f"training_log_{timestamp}.csv")
+            str(output_dir / f\'training_log_{timestamp}.csv\')
         )
     ]
     
     # Treinar modelo
     print("\nIniciando treinamento...")
-    print(f"  Épocas: {CONFIG['epochs']}")
-    print(f"  Batch size: {CONFIG['batch_size']}")
-    print(f"  Learning rate: {CONFIG['learning_rate']}")
+    print(f"  Épocas: {CONFIG[\'epochs\']}")
+    print(f"  Batch size: {CONFIG[\'batch_size\']}")
+    print(f"  Learning rate: {CONFIG[\'learning_rate\']}")
     
     history = model.fit(
         train_gen,
-        epochs=CONFIG["epochs"],
+        epochs=CONFIG[\'epochs\'],
         validation_data=val_gen,
         callbacks=callbacks_list,
         verbose=1
     )
     
     # Salvar modelo final
-    model.save(str(output_dir / f"final_model_{timestamp}.h5"))
+    model.save(str(output_dir / f\'final_model_{timestamp}.h5\'))
     
     # Salvar configuração
-    config_path = output_dir / f"config_{timestamp}.json"
-    with open(config_path, "w") as f:
+    config_path = output_dir / f\'config_{timestamp}.json\'
+    with open(config_path, \'w\') as f:
         json.dump(CONFIG, f, indent=2)
     
     # Plotar histórico
@@ -330,47 +342,35 @@ def plot_training_history(history, output_dir, timestamp):
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     
     # Loss
-    if "loss" in history.history and "val_loss" in history.history:
-        axes[0, 0].plot(history.history["loss"], label="Treino")
-        axes[0, 0].plot(history.history["val_loss"], label="Validação")
-        axes[0, 0].set_title("Loss")
-        axes[0, 0].set_xlabel("Época")
-        axes[0, 0].legend()
-    else:
-        axes[0, 0].set_title("Loss (Dados insuficientes)")
-
+    axes[0, 0].plot(history.history[\'loss\'], label=\'Treino\')
+    axes[0, 0].plot(history.history[\'val_loss\'], label=\'Validação\')
+    axes[0, 0].set_title(\'Loss\')
+    axes[0, 0].set_xlabel(\'Época\')
+    axes[0, 0].legend()
+    
     # AUC
-    if "auc" in history.history and "val_auc" in history.history:
-        axes[0, 1].plot(history.history["auc"], label="Treino")
-        axes[0, 1].plot(history.history["val_auc"], label="Validação")
-        axes[0, 1].set_title("AUC")
-        axes[0, 1].set_xlabel("Época")
-        axes[0, 1].legend()
-    else:
-        axes[0, 1].set_title("AUC (Dados insuficientes)")
+    axes[0, 1].plot(history.history[\'auc\'], label=\'Treino\')
+    axes[0, 1].plot(history.history[\'val_auc\'], label=\'Validação\')
+    axes[0, 1].set_title(\'AUC\')
+    axes[0, 1].set_xlabel(\'Época\')
+    axes[0, 1].legend()
     
     # Precision
-    if "precision" in history.history and "val_precision" in history.history:
-        axes[1, 0].plot(history.history["precision"], label="Treino")
-        axes[1, 0].plot(history.history["val_precision"], label="Validação")
-        axes[1, 0].set_title("Precisão")
-        axes[1, 0].set_xlabel("Época")
-        axes[1, 0].legend()
-    else:
-        axes[1, 0].set_title("Precisão (Dados insuficientes)")
+    axes[1, 0].plot(history.history[\'precision\'], label=\'Treino\')
+    axes[1, 0].plot(history.history[\'val_precision\'], label=\'Validação\')
+    axes[1, 0].set_title(\'Precisão\')
+    axes[1, 0].set_xlabel(\'Época\')
+    axes[1, 0].legend()
     
     # Recall
-    if "recall" in history.history and "val_recall" in history.history:
-        axes[1, 1].plot(history.history["recall"], label="Treino")
-        axes[1, 1].plot(history.history["val_recall"], label="Validação")
-        axes[1, 1].set_title("Recall")
-        axes[1, 1].set_xlabel("Época")
-        axes[1, 1].legend()
-    else:
-        axes[1, 1].set_title("Recall (Dados insuficientes)")
+    axes[1, 1].plot(history.history[\'recall\'], label=\'Treino\')
+    axes[1, 1].plot(history.history[\'val_recall\'], label=\'Validação\')
+    axes[1, 1].set_title(\'Recall\')
+    axes[1, 1].set_xlabel(\'Época\')
+    axes[1, 1].legend()
     
     plt.tight_layout()
-    plt.savefig(str(output_dir / f"training_history_{timestamp}.png"))
+    plt.savefig(str(output_dir / f\'training_history_{timestamp}.png\'))
     plt.close()
 
 def evaluate_model(model, test_df, output_dir, timestamp):
@@ -379,11 +379,11 @@ def evaluate_model(model, test_df, output_dir, timestamp):
     # Criar gerador de teste
     test_gen = ChestXrayDataGenerator(
         test_df,
-        CONFIG["image_dir"],
-        batch_size=CONFIG["batch_size"],
-        image_size=CONFIG["image_size"],
+        CONFIG[\'image_dir\'],
+        batch_size=CONFIG[\'batch_size\'],
+        image_size=CONFIG[\'image_size\'],
         augment=False,
-        classes=CONFIG["selected_classes"]
+        classes=CONFIG[\'selected_classes\']
     )
     
     # Fazer predições
@@ -395,7 +395,7 @@ def evaluate_model(model, test_df, output_dir, timestamp):
     
     # AUC por classe
     auc_scores = []
-    for i, class_name in enumerate(CONFIG["selected_classes"]):
+    for i, class_name in enumerate(CONFIG[\'selected_classes\']):
         if y_true[:, i].sum() > 0:  # Apenas se houver exemplos positivos
             auc = roc_auc_score(y_true[:, i], predictions[:, i])
             auc_scores.append(auc)
@@ -407,34 +407,27 @@ def evaluate_model(model, test_df, output_dir, timestamp):
     
     # Salvar relatório
     report = {
-        "timestamp": timestamp,
-        "mean_auc": float(mean_auc),
-        "per_class_auc": {
+        \'timestamp\': timestamp,
+        \'mean_auc\': float(mean_auc),
+        \'per_class_auc\': {
             class_name: float(auc) 
-            for class_name, auc in zip(CONFIG["selected_classes"], auc_scores)
+            for class_name, auc in zip(CONFIG[\'selected_classes\'], auc_scores)
         },
-        "test_samples": len(test_df)
+        \'test_samples\': len(test_df)
     }
     
-    report_path = output_dir / f"evaluation_report_{timestamp}.json"
-    with open(report_path, "w") as f:
+    report_path = output_dir / f\'evaluation_report_{timestamp}.json\'
+    with open(report_path, \'w\') as f:
         json.dump(report, f, indent=2)
 
 if __name__ == "__main__":
     # Verificar GPU
-    try:
-        gpus = tf.config.list_physical_devices("GPU")
-        if gpus:
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-            print(f"GPUs disponíveis: {len(gpus)}")
-        else:
-            print("Nenhuma GPU encontrada. Usando CPU.")
-    except Exception as e:
-        print(f"Erro ao configurar GPU: {e}")
-
+    if tf.config.list_physical_devices(\'GPU\'):
+        print("\nGPU detectada e configurada para treinamento.")
+    else:
+        print("\nNenhuma GPU detectada. O treinamento será executado na CPU, o que pode ser lento.")
+    
+    # Iniciar treinamento
     train_model()
-
-
 
 

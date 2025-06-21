@@ -1,24 +1,18 @@
-# config_training.py
-"""
-Arquivo de configuração para treinamento com NIH ChestX-ray14
-Ajuste os caminhos e parâmetros conforme necessário
-"""
-
 import os
 from pathlib import Path
 
 # Configuração customizada para seu dataset
 # Tenta ler o caminho do dataset de uma variável de ambiente, caso contrário, usa um padrão
-DATASET_ROOT = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", r"/home/ubuntu/radiologyai_project/radiologyai/NIH_CHEST_XRAY")
+DATASET_ROOT = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED") # Caminho padrão para HD externo ou montagem
 
 CONFIG = {
     # Caminhos do dataset - ajuste para sua localização
-    'data_dir': DATASET_ROOT,
-    'image_dir': os.path.join(DATASET_ROOT, 'images'),
-    'csv_file': os.path.join(DATASET_ROOT, 'Data_Entry_2017_v2020.csv'),
+    'data_dir': Path(DATASET_ROOT),
+    'image_dir': Path(DATASET_ROOT) / 'images',
+    'csv_file': Path(DATASET_ROOT) / 'Data_Entry_2017_v2020.csv',
     
     # Diretório de saída para modelos treinados
-    'output_dir': os.path.join(DATASET_ROOT, 'models_trained'),
+    'output_dir': Path(DATASET_ROOT) / 'models_trained',
     
     # Parâmetros de treinamento
     'batch_size': 16,  # Reduzir para 8 ou 4 se tiver pouca memória RAM
@@ -75,7 +69,7 @@ def verify_paths():
 # Criar diretório de saída se não existir
 def create_output_dir():
     """Cria diretório de saída se não existir"""
-    output_path = Path(CONFIG['output_dir'])
+    output_path = CONFIG['output_dir']
     output_path.mkdir(parents=True, exist_ok=True)
     print(f"Diretório de saída: {output_path}")
 

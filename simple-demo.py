@@ -12,9 +12,6 @@ print("=" * 60)
 print("DEMONSTRACAO - Sistema NIH ChestX-ray14")
 print("=" * 60)
 
-# Configuração do dataset, priorizando variável de ambiente
-DATASET_PATH = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/mnt/d/NIH_CHEST_XRAY")
-
 def show_workflow():
     """Mostra o fluxo de trabalho completo"""
     
@@ -23,8 +20,8 @@ def show_workflow():
     steps = [
         ("1. VERIFICAR AMBIENTE", "python verify_environment.py"),
         ("2. CONFIGURACAO RAPIDA", "python quick_start_nih_training.py"),
-        ("3. ANALISAR DATASET", "python analyze_dataset.py"), # Assuming analyze_dataset.py exists
-        ("4. TREINAR MODELO", "python train_simple.py"), # train_simple.py is created by quick_start
+        ("3. ANALISAR DATASET", "python analyze_dataset.py"),
+        ("4. TREINAR MODELO", "python train_simple.py"),
         ("5. TESTAR MODELO", "python test_trained_model.py")
     ]
     
@@ -39,7 +36,7 @@ def show_file_structure():
     
     print("\nESTRUTURA DE ARQUIVOS NECESSARIA:\n")
     
-    structure = f"""
+    structure = """
     Pasta do Projeto/
     |-- config_training.py
     |-- quick_start_nih_training.py
@@ -49,7 +46,7 @@ def show_file_structure():
     |-- test_trained_model.py
     |-- simple_demo.py (este arquivo)
     
-    {DATASET_PATH}/
+    D:/NIH_CHEST_XRAY/
     |-- images/
     |   |-- 00000001_000.png
     |   |-- 00000001_001.png
@@ -91,7 +88,7 @@ def show_common_issues():
          "Reduza batch_size para 8 ou 4 em config_training.py"),
         
         ("Dataset não encontrado", 
-         f"Verifique se existe {DATASET_PATH}/images/ ou defina NIH_CHEST_XRAY_DATASET_ROOT"),
+         "Verifique se existe D:/NIH_CHEST_XRAY/images/"),
         
         ("Treinamento muito lento", 
          "Use GPU ou reduza epochs e image_size"),
@@ -120,7 +117,7 @@ def show_expected_results():
     print("- Especificidade: > 85%")
     print()
     
-    print(f"Arquivos gerados em {DATASET_PATH}/models_trained/:")
+    print("Arquivos gerados em D:/NIH_CHEST_XRAY/models_trained/:")
     print("- best_model_*.h5 (modelo com melhor AUC)")
     print("- final_model_*.h5 (modelo final)")
     print("- training_log_*.csv (histórico de treino)")
@@ -169,5 +166,3 @@ if __name__ == "__main__":
     print("\nBem-vindo ao sistema de treinamento NIH ChestX-ray14!")
     print("Este é um guia interativo para ajudá-lo a começar.")
     main()
-
-

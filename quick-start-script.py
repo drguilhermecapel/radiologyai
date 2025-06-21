@@ -1,8 +1,3 @@
-# quick_start_nih_training.py
-"""
-Script de Início Rápido para Treinamento com NIH ChestX-ray14
-"""
-
 import os
 import sys
 import subprocess
@@ -13,13 +8,15 @@ print("=" * 60)
 print("INÍCIO RÁPIDO - Treinamento NIH ChestX-ray14")
 print("=" * 60)
 
-# Configuração automática para o caminho do dataset, priorizando variável de ambiente
-DATASET_PATH = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/mnt/d/NIH_CHEST_XRAY")
+# Configuração automática para o caminho do dataset
+# Tenta ler o caminho do dataset de uma variável de ambiente, caso contrário, usa um padrão
+DATASET_ROOT = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/home/ubuntu/NIH_CHEST_XRAY_SIMULATED")
 
 def check_environment():
     """Verifica ambiente e instala dependências"""
     print("\n1. Verificando ambiente Python...")
     
+    # Verificar versão Python
     python_version = sys.version_info
     print(f"   Python {python_version.major}.{python_version.minor}.{python_version.micro}")
     
@@ -53,29 +50,33 @@ def install_dependencies():
 
 def verify_dataset():
     """Verifica se o dataset está presente"""
-    print(f"\n3. Verificando dataset em {DATASET_PATH}...")
+    print(f"\n3. Verificando dataset em {DATASET_ROOT}...")
     
-    dataset_path = Path(DATASET_PATH)
+    dataset_path = Path(DATASET_ROOT)
     
+    # Verificar pasta principal
     if not dataset_path.exists():
-        print(f"   ERRO: Pasta não encontrada: {DATASET_PATH}")
-        print("   Por favor, verifique o caminho do dataset ou defina a variável de ambiente NIH_CHEST_XRAY_DATASET_ROOT")
+        print(f"   ERRO: Pasta não encontrada: {DATASET_ROOT}")
+        print("   Por favor, verifique o caminho do dataset")
         return False
     
+    # Verificar CSV
     csv_file = dataset_path / "Data_Entry_2017_v2020.csv"
     if not csv_file.exists():
+        # Tentar com nome alternativo
         csv_file = dataset_path / "Data_Entry_2017.csv"
     
     if not csv_file.exists():
         print("   ERRO: Arquivo CSV de labels não encontrado")
-        print("   Esperado: Data_Entry_2017_v2020.csv ou Data_Entry_2017.csv")
         return False
     
+    # Verificar pasta de imagens
     images_dir = dataset_path / "images"
     if not images_dir.exists():
         print("   ERRO: Pasta de imagens não encontrada")
         return False
     
+    # Contar imagens
     image_count = len(list(images_dir.glob("*.png")))
     print(f"   OK: Dataset encontrado: {image_count} imagens")
     
@@ -86,18 +87,20 @@ def create_training_config(csv_path):
     print("\n4. Criando configuração de treinamento...")
     
     config = {
-        "data_dir": DATASET_PATH,
-        "image_dir": os.path.join(DATASET_PATH, "images"),
+        "data_dir": DATASET_ROOT,
+        "image_dir": os.path.join(DATASET_ROOT, "images"),
         "csv_file": csv_path,
-        "output_dir": os.path.join(DATASET_PATH, "models_trained"),
+        "output_dir": os.path.join(DATASET_ROOT, "models_trained"),
         
+        # Configurações otimizadas
         "batch_size": 16,
-        "image_size": [256, 256],
-        "epochs": 30,
+        "image_size": [256, 256],  # Reduzido para treinar mais rápido
+        "epochs": 30,  # Reduzido para demonstração
         "learning_rate": 0.0001,
         "validation_split": 0.15,
         "test_split": 0.15,
         
+        # Classes principais (5 mais comuns + No Finding)
         "selected_classes": [
             "No Finding",
             "Infiltration",
@@ -108,6 +111,7 @@ def create_training_config(csv_path):
         ]
     }
     
+    # Salvar configuração
     with open("training_config.json", "w") as f:
         json.dump(config, f, indent=2)
     
@@ -118,9 +122,9 @@ def create_simple_training_script(config):
     """Cria script de treinamento simplificado"""
     print("\n5. Criando script de treinamento...")
     
-    script_content = f"""
+    script_content = f'''
 import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Reduzir logs do TensorFlow
 
 import json
 import numpy as np
@@ -137,9 +141,11 @@ from sklearn.preprocessing import MultiLabelBinarizer
 print("Iniciando Treinamento Simplificado NIH ChestX-ray14")
 print("=" * 60)
 
+# Carregar configuração
 with open("training_config.json", "r") as f:
     CONFIG = json.load(f)
 
+# Função para carregar e processar imagem
 def load_and_preprocess_image(image_path, size):
     img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
     if img is None:
@@ -149,9 +155,11 @@ def load_and_preprocess_image(image_path, size):
     img = np.stack([img] * 3, axis=-1)
     return img
 
+# Preparar dados
 print("Carregando dados...")
 df = pd.read_csv(CONFIG["csv_file"])
 
+# Filtrar apenas imagens que existem
 image_dir = Path(CONFIG["image_dir"])
 valid_indices = []
 for idx, row in df.iterrows():
@@ -163,6 +171,7 @@ for idx, row in df.iterrows():
 df_valid = df.iloc[valid_indices]
 print(f"Imagens válidas: {{len(df_valid)}}")
 
+# Preparar labels
 print("Preparando labels...")
 mlb = MultiLabelBinarizer(classes=CONFIG["selected_classes"])
 
@@ -172,6 +181,7 @@ labels_list = df_valid["Finding Labels"].apply(lambda x: [
 
 labels = mlb.fit_transform(labels_list)
 
+# Dividir dados
 print("Dividindo dados...")
 X_train, X_test, y_train, y_test = train_test_split(
     df_valid["Image Index"].values, labels, 
@@ -187,6 +197,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 
 print(f"   Treino: {{len(X_train)}} | Validação: {{len(X_val)}} | Teste: {{len(X_test)}}")
 
+# Criar geradores de dados
 class SimpleDataGenerator(tf.keras.utils.Sequence):
     def __init__(self, image_names, labels, batch_size=32):
         self.image_names = image_names
@@ -212,9 +223,11 @@ class SimpleDataGenerator(tf.keras.utils.Sequence):
                 
         return np.array(images), batch_y
 
+# Criar modelo simplificado
 print("Construindo modelo...")
 def create_simple_model():
     model = keras.Sequential([
+        # Base convolucional
         layers.Conv2D(32, 3, activation="relu", input_shape=(*CONFIG["image_size"], 3)),
         layers.MaxPooling2D(2),
         layers.BatchNormalization(),
@@ -244,12 +257,15 @@ def create_simple_model():
 model = create_simple_model()
 model.summary()
 
-output_dir = Path(CONFIG["output_dir"])
-output_dir.mkdir(parents=True, exist_ok=True)
-
+# Criar geradores
 train_gen = SimpleDataGenerator(X_train, y_train, CONFIG["batch_size"])
 val_gen = SimpleDataGenerator(X_val, y_val, CONFIG["batch_size"])
 
+# Criar diretório de saída
+output_dir = Path(CONFIG["output_dir"])
+output_dir.mkdir(parents=True, exist_ok=True)
+
+# Callbacks
 callbacks_list = [
     keras.callbacks.ModelCheckpoint(
         str(output_dir / "best_model.h5"),
@@ -274,10 +290,11 @@ callbacks_list = [
     )
 ]
 
+# Treinar
 print("Iniciando treinamento...")
-print(f"   Épocas: {{CONFIG["epochs"]}}")
-print(f"   Batch size: {{CONFIG["batch_size"]}}")
-print(f"   Classes: {{", ".join(CONFIG["selected_classes"])}})")
+print(f"   Épocas: {{CONFIG['epochs']}}")
+print(f"   Batch size: {{CONFIG['batch_size']}}")
+print(f"   Classes: {{', '.join(CONFIG['selected_classes'])}}")
 
 history = model.fit(
     train_gen,
@@ -287,8 +304,10 @@ history = model.fit(
     verbose=1
 )
 
+# Salvar modelo final
 model.save(str(output_dir / "final_model.h5"))
 
+# Avaliar no teste
 print("Avaliando modelo...")
 test_gen = SimpleDataGenerator(X_test, y_test, CONFIG["batch_size"])
 test_loss, test_acc, test_auc = model.evaluate(test_gen, verbose=1)
@@ -299,17 +318,18 @@ print(f"   Acurácia teste: {{test_acc:.4f}}")
 print(f"   AUC teste: {{test_auc:.4f}}")
 print(f"   Modelos salvos em: {{output_dir}}")
 
-results = {
+# Salvar resultados
+results = {{
     "test_loss": float(test_loss),
     "test_accuracy": float(test_acc),
     "test_auc": float(test_auc),
     "classes": CONFIG["selected_classes"],
     "training_completed": datetime.now().isoformat()
-}
+}}
 
 with open(output_dir / "results.json", "w") as f:
     json.dump(results, f, indent=2)
-"""
+'''
     
     with open("train_simple.py", "w", encoding="utf-8") as f:
         f.write(script_content)
@@ -319,11 +339,13 @@ with open(output_dir / "results.json", "w") as f:
 def main():
     """Função principal"""
     
+    # 1. Verificar ambiente
     if not check_environment():
         print("\nERRO: Ambiente Python incompatível")
         input("Pressione ENTER para sair...")
         return
     
+    # 2. Instalar dependências
     try:
         install_dependencies()
     except Exception as e:
@@ -331,6 +353,7 @@ def main():
         input("Pressione ENTER para sair...")
         return
     
+    # 3. Verificar dataset
     dataset_check = verify_dataset()
     if not dataset_check:
         print("\nERRO: Dataset não encontrado ou incompleto")
@@ -339,8 +362,10 @@ def main():
     
     _, csv_path = dataset_check
     
+    # 4. Criar configuração
     config = create_training_config(csv_path)
     
+    # 5. Criar script de treinamento
     create_simple_training_script(config)
     
     print("\n" + "=" * 60)
@@ -348,10 +373,10 @@ def main():
     print("=" * 60)
     
     print("\nPróximos passos:")
-    print(f"   1. Defina a variável de ambiente NIH_CHEST_XRAY_DATASET_ROOT para o caminho do seu HD externo (ex: export NIH_CHEST_XRAY_DATASET_ROOT=/mnt/d/NIH_CHEST_XRAY)")
+    print(f"   1. Certifique-se de que seu dataset NIH ChestX-ray14 está em: {DATASET_ROOT}")
     print("   2. Execute: python train_simple.py")
     print("   3. O treinamento levará 1-3 horas (dependendo do hardware)")
-    print(f"   4. Os modelos serão salvos em: {{os.path.join(DATASET_PATH, "models_trained")}}")
+    print(f"   4. Os modelos serão salvos em: {DATASET_ROOT}/models_trained")
     
     print("\nDicas:")
     print("   - Use GPU se disponível (instale tensorflow-gpu)")
@@ -360,11 +385,11 @@ def main():
     
     resposta = input("\nDeseja iniciar o treinamento agora? (S/N): ")
     
-    if resposta.upper() == "S":
+    if resposta.upper() == 'S':
         print("\nIniciando treinamento...")
         os.system("python train_simple.py")
     else:
-        print("\nExecute \'python train_simple.py\' quando estiver pronto!")
+        print("\nExecute 'python train_simple.py' quando estiver pronto!")
 
 if __name__ == "__main__":
     main()

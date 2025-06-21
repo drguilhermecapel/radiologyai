@@ -17,27 +17,31 @@ print("Teste de Modelo Treinado - NIH ChestX-ray14")
 print("=" * 60)
 
 # Configurações
-DATASET_ROOT = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/mnt/d/NIH_CHEST_XRAY")
-MODEL_DIR = os.path.join(DATASET_ROOT, "models_trained")
-CONFIG_FILE = "training_config.json"
+DATASET_ROOT = os.getenv("NIH_CHEST_XRAY_DATASET_ROOT", "/mnt/data/NIH_CHEST_XRAY")
+MODEL_DIR = Path(DATASET_ROOT) / "models_trained"
+CONFIG_FILE = Path(DATASET_ROOT) / "models_trained" / "config_*.json" # Pode ser necessário ajustar para o nome exato do arquivo de configuração salvo
 
 def load_model_and_config():
     """Carrega modelo treinado e configuração"""
     print("\nCarregando modelo...")
     
+    # Verificar diretório de modelos
     model_dir = Path(MODEL_DIR)
     if not model_dir.exists():
         print("ERRO: Diretório de modelos não encontrado!")
         return None, None
     
+    # Procurar modelo
     model_files = list(model_dir.glob("*.h5"))
     if not model_files:
         print("ERRO: Nenhum modelo .h5 encontrado!")
         return None, None
     
+    # Usar o modelo mais recente
     model_path = max(model_files, key=os.path.getctime)
     print(f"   Modelo encontrado: {model_path.name}")
     
+    # Carregar modelo
     try:
         model = tf.keras.models.load_model(model_path)
         print("   OK: Modelo carregado com sucesso!")
@@ -45,10 +49,14 @@ def load_model_and_config():
         print(f"   ERRO: Erro ao carregar modelo: {e}")
         return None, None
     
-    if Path(CONFIG_FILE).exists():
-        with open(CONFIG_FILE, 'r') as f:
+    # Carregar configuração
+    config_files = list(model_dir.glob("config_*.json"))
+    if config_files:
+        config_file_path = max(config_files, key=os.path.getctime)
+        with open(config_file_path, 'r') as f:
             config = json.load(f)
     else:
+        # Configuração padrão
         config = {
             "image_size": [256, 256],
             "selected_classes": [
@@ -61,14 +69,22 @@ def load_model_and_config():
 
 def preprocess_image(image_path, size):
     """Pré-processa imagem para inferência"""
+    # Carregar imagem
     img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
     if img is None:
         print(f"ERRO: Não foi possível carregar: {image_path}")
         return None
     
+    # Redimensionar
     img = cv2.resize(img, tuple(size))
+    
+    # Normalizar
     img = img.astype(np.float32) / 255.0
+    
+    # Converter para RGB (3 canais)
     img = np.stack([img] * 3, axis=-1)
+    
+    # Adicionar dimensão do batch
     img = np.expand_dims(img, axis=0)
     
     return img
@@ -77,33 +93,41 @@ def predict_single_image(model, config, image_path):
     """Faz predição em uma única imagem"""
     print(f"\nAnalisando: {Path(image_path).name}")
     
+    # Pré-processar imagem
     img = preprocess_image(image_path, config["image_size"])
     if img is None:
         return None
     
+    # Fazer predição
     predictions = model.predict(img, verbose=0)[0]
     
+    # Criar dicionário de resultados
     results = {}
     for i, class_name in enumerate(config["selected_classes"]):
         results[class_name] = float(predictions[i])
     
+    # Ordenar por probabilidade
     results = dict(sorted(results.items(), key=lambda x: x[1], reverse=True))
     
     return results
 
 def visualize_prediction(image_path, results, threshold=0.3):
     """Visualiza imagem com predições"""
+    # Carregar imagem original
     img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
     
     plt.figure(figsize=(12, 5))
     
+    # Subplot 1: Imagem
     plt.subplot(1, 2, 1)
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img, cmap=\'gray\')
     plt.title(f"Raio-X: {Path(image_path).name}")
-    plt.axis("off")
+    plt.axis(\'off\')
     
+    # Subplot 2: Predições
     plt.subplot(1, 2, 2)
     
+    # Filtrar predições acima do threshold
     filtered_results = {k: v for k, v in results.items() if v > threshold}
     if not filtered_results:
         filtered_results = {list(results.keys())[0]: list(results.values())[0]}
@@ -111,29 +135,34 @@ def visualize_prediction(image_path, results, threshold=0.3):
     classes = list(filtered_results.keys())
     probabilities = list(filtered_results.values())
     
+    # Criar gráfico de barras
     bars = plt.barh(classes, probabilities)
     
+    # Colorir barras
     for i, (class_name, prob) in enumerate(zip(classes, probabilities)):
         if class_name == "No Finding":
-            bars[i].set_color("green")
+            bars[i].set_color(\'green\')
         elif prob > 0.7:
-            bars[i].set_color("red")
+            bars[i].set_color(\'red\')
         elif prob > 0.5:
-            bars[i].set_color("orange")
+            bars[i].set_color(\'orange\')
         else:
-            bars[i].set_color("yellow")
+            bars[i].set_color(\'yellow\')
     
-    plt.xlabel("Probabilidade")
-    plt.title("Predições do Modelo")
+    plt.xlabel(\'Probabilidade\')
+    plt.title(\'Predições do Modelo\')
     plt.xlim(0, 1)
     
+    # Adicionar valores nas barras
     for i, (class_name, prob) in enumerate(zip(classes, probabilities)):
-        plt.text(prob + 0.01, i, f"{prob:.1%}", va="center")
+        plt.text(prob + 0.01, i, f\'{prob:.1%}\
+', va=\'center\')
     
     plt.tight_layout()
     
+    # Salvar visualização
     output_path = Path("prediction_result.png")
-    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.savefig(output_path, dpi=150, bbox_inches=\'tight\')
     print(f"\nVisualização salva em: {output_path}")
     
     plt.show()
@@ -142,6 +171,7 @@ def test_batch_images(model, config, image_folder):
     """Testa múltiplas imagens de uma pasta"""
     image_folder = Path(image_folder)
     
+    # Encontrar imagens
     image_files = list(image_folder.glob("*.png")) + list(image_folder.glob("*.jpg"))
     
     if not image_files:
@@ -152,7 +182,7 @@ def test_batch_images(model, config, image_folder):
     
     all_results = []
     
-    for image_path in image_files[:10]:
+    for image_path in image_files[:10]:  # Limitar a 10 para demonstração
         results = predict_single_image(model, config, image_path)
         if results:
             all_results.append({
@@ -160,16 +190,18 @@ def test_batch_images(model, config, image_folder):
                 "predictions": results
             })
     
+    # Salvar resultados
     output_file = "batch_predictions.json"
-    with open(output_file, 'w') as f:
+    with open(output_file, \'w\') as f:
         json.dump(all_results, f, indent=2)
     
     print(f"\nResultados salvos em: {output_file}")
     
+    # Mostrar resumo
     print("\nResumo das Predições:")
-    for result in all_results[:5]:
-        print(f"\n{result['image']}:")
-        top_pred = list(result['predictions'].items())[0]
+    for result in all_results[:5]:  # Mostrar apenas 5 primeiros
+        print(f"\n{result[\'image\']}:")
+        top_pred = list(result[\'predictions\'].items())[0]
         print(f"   Principal: {top_pred[0]} ({top_pred[1]:.1%})")
 
 def interactive_test(model, config):
@@ -187,7 +219,7 @@ def interactive_test(model, config):
         choice = input("\nEscolha uma opção (1-4): ")
         
         if choice == "1":
-            image_path = input("\nCaminho da imagem: ").strip('"')
+            image_path = input("\nCaminho da imagem: ").strip(\'"\')
             if Path(image_path).exists():
                 results = predict_single_image(model, config, image_path)
                 if results:
@@ -200,14 +232,15 @@ def interactive_test(model, config):
                 print("ERRO: Arquivo não encontrado!")
                 
         elif choice == "2":
-            folder_path = input("\nCaminho da pasta: ").strip('"')
+            folder_path = input("\nCaminho da pasta: ").strip(\'"\')
             if Path(folder_path).exists():
                 test_batch_images(model, config, folder_path)
             else:
                 print("ERRO: Pasta não encontrada!")
                 
         elif choice == "3":
-            example_dir = Path(os.path.join(DATASET_ROOT, "images"))
+            # Usar imagem de exemplo do dataset
+            example_dir = Path(DATASET_ROOT) / "images"
             if example_dir.exists():
                 example_images = list(example_dir.glob("*.png"))[:5]
                 if example_images:
@@ -237,6 +270,7 @@ def interactive_test(model, config):
 
 def main():
     """Função principal"""
+    # Carregar modelo
     model, config = load_model_and_config()
     
     if model is None:
@@ -246,9 +280,10 @@ def main():
         return
     
     print(f"\nInformações do Modelo:")
-    print(f"   Classes: {", ".join(config["selected_classes"])})")
-    print(f"   Tamanho de entrada: {config["image_size"]}")
+    print(f"   Classes: {\\', \\'.join(config[\'selected_classes\'])}")
+    print(f"   Tamanho de entrada: {config[\'image_size\']}")
     
+    # Iniciar modo interativo
     interactive_test(model, config)
 
 if __name__ == "__main__":
