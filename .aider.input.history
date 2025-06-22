@@ -10,3 +10,16 @@
 
 # 2025-06-21 21:09:26.104141
 +pode iniciar o treinamento
+
+# 2025-06-21 21:13:29.508012
++n
+
+# 2025-06-21 21:14:00.615433
++está dando problema ao executar a organização do datataset: PS C:\Users\User\OneDrive\Documentos\GitHub\radiologyai> python organize_nih_dataset.py
++Traceback (most recent call last):
++  File "C:\Users\User\OneDrive\Documentos\GitHub\radiologyai\organize_nih_dataset.py", line 2, in <module>
++    import pandas as pd
++ModuleNotFoundError: No module named 'pandas'
+
+# 2025-06-21 21:14:04.376291
++y
