@@ -161,3 +161,4 @@ mlruns/
 *.msi
 *.lnk
 dist/
+.aider*
