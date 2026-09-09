@@ -161,3 +161,40 @@ mlruns/
 *.msi
 *.lnk
 dist/
+
+# --- Adicionado na Fase 0 do ROADMAP ---
+# Segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bancos locais (o .gitignore anterior só cobria db.sqlite3)
+*.db
+*.sqlite
+*.sqlite3
+
+# Dados médicos — NENHUM pixel no git
+data/**
+!data/DATASET_CARD.md
+!data/.gitkeep
+*.dcm
+*.nii
+*.nii.gz
+*.mhd
+*.raw
+*.nrrd
+
+# Pesos de modelo (distribuídos por release/HF Hub, com sha256 no model card)
+*.h5
+*.keras
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.safetensors
+
+# Artefatos de avaliação (exceto as métricas, que são o registro)
+artifacts/**
+!artifacts/eval/**/metrics.json

@@ -1,5 +1,8 @@
 # MedAI Radiologia - Critérios de Teste Completos
 
+> ⚠️ **Nenhum destes critérios foi atingido.** Este documento lista METAS, não resultados. Nenhum modelo foi treinado. Ver [HONEST_STATUS.md](HONEST_STATUS.md).
+
+
 ## 1. Funcionalidade de IA de Última Geração
 - [ ] Verificar se os modelos SOTA (transformers, timm) carregam corretamente
 - [ ] Testar análise de raio-x de tórax com precisão 94-96%

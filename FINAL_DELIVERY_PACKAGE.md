@@ -1,5 +1,8 @@
 # 🏥 MedAI Radiologia - Versão Final Corrigida e Funcional
 
+> ⚠️ **RETRATADO.** Este documento continha alegações de desempenho fabricadas. Nenhum modelo foi treinado e nenhuma métrica foi medida neste projeto. Ver [HONEST_STATUS.md](HONEST_STATUS.md) e [ROADMAP.md](ROADMAP.md).
+
+
 ## ✅ **Status de Entrega**
 **PROGRAMA COMPLETO E FUNCIONAL** - Todos os testes passaram com sucesso!
 
@@ -62,7 +65,7 @@ pyinstaller --onefile MedAI_Radiologia_Installer.py
 
 ## 📊 **Resultados dos Testes**
 
-### ✅ **Todos os Testes Passaram (100%)**
+### ❌ **RETRATADO** — os artefatos de treino registram `success_rate: 0.0` e `mean_auc: NaN`
 ```
 🎉 TODOS OS TESTES PASSARAM!
 ✅ Instalador Python autônomo está pronto

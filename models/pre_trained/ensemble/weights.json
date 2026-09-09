@@ -1,6 +1,6 @@
 {
-  "efficientnetv2_chest_xray": 0.40,
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
+  "efficientnetv2_chest_xray": 0.4,
   "vision_transformer_chest_xray": 0.35,
   "convnext_chest_xray": 0.25
 }
-

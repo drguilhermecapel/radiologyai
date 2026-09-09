@@ -1,8 +1,19 @@
 {
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
   "ensemble_type": "attention_weighted_fusion",
-  "input_shape": [512, 512, 3],
+  "input_shape": [
+    512,
+    512,
+    3
+  ],
   "num_classes": 5,
-  "class_names": ["normal", "pneumonia", "pleural_effusion", "fracture", "tumor"],
+  "class_names": [
+    "normal",
+    "pneumonia",
+    "pleural_effusion",
+    "fracture",
+    "tumor"
+  ],
   "models": {
     "EfficientNetV2": {
       "weight": 0.35,
@@ -19,7 +30,7 @@
       "specialization": "global_pattern_recognition"
     },
     "ConvNeXt": {
-      "weight": 0.30,
+      "weight": 0.3,
       "clinical_score": 0.35,
       "model_path": "models/chest_xray_convnext_model.h5",
       "architecture": "convnext_base",

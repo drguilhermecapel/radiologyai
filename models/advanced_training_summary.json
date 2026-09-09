@@ -1,4 +1,5 @@
 {
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
   "training_completed_at": "2025-06-20T15:05:40.200913",
   "training_approach": "progressive_with_clinical_validation",
   "arguments": {
@@ -59,7 +60,7 @@
       "ensemble_method": "attention_weighted_fusion"
     },
     "recommendations": [
-      "CR\u00cdTICO: Nenhum modelo atende crit\u00e9rios cl\u00ednicos. Revisar dados e hiperpar\u00e2metros."
+      "CRÍTICO: Nenhum modelo atende critérios clínicos. Revisar dados e hiperparâmetros."
     ]
   }
 }

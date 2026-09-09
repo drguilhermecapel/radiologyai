@@ -1,5 +1,8 @@
 # Guia do Usuário - MedAI Radiologia
 
+> ⚠️ **RETRATADO.** Este documento continha alegações de desempenho fabricadas. Nenhum modelo foi treinado e nenhuma métrica foi medida neste projeto. Ver [HONEST_STATUS.md](HONEST_STATUS.md) e [ROADMAP.md](ROADMAP.md).
+
+
 ## Visão Geral
 
 O MedAI Radiologia é um sistema de análise de imagens médicas que utiliza **inteligência artificial de última geração** para auxiliar profissionais de saúde na interpretação de exames radiológicos.
@@ -248,12 +251,12 @@ def send_hl7_result(patient_id, analysis_result):
 - **Status**: ✅ Sistema SOTA completamente validado
 - **Thresholds Clínicos**: ✅ Configurados por severidade de condição
 - **Dashboard de Monitoramento**: ✅ Métricas em tempo real operacional
-- **Análise de Viés**: ✅ Sistema validado sem viés detectado
+- **Análise de Viés**: ❌ NÃO EXECUTADA. A alegação anterior era fabricada.
 - **Preprocessamento Médico**: ✅ CLAHE, windowing DICOM, segmentação
 - **Pronto para**: Treinamento com datasets médicos reais em ambiente validado
 
 ### CT Cerebral (Vision Transformer Especializado)
-- **Precisão**: 91% de acurácia para diagnósticos críticos
+- **Precisão**: NÃO MEDIDA. A alegação anterior (91%) era fabricada.
 - Detecta hemorragias, isquemias, tumores, edemas, hidrocefalia
 - Análise baseada em atenção para detalhes neurológicos
 - Threshold elevado (90%) para máxima confiabilidade
@@ -287,7 +290,7 @@ def send_hl7_result(patient_id, analysis_result):
 - **Características**: Validação de ausência de achados
 
 ### Detecção de Fraturas (ConvNeXt Otimizado)
-- **Precisão**: 90% de acurácia para patologias ósseas
+- **Precisão**: NÃO MEDIDA. A alegação anterior (90%) era fabricada.
 - Detecta fraturas, luxações, osteoporose, artrite, osteomielite
 - Análise em alta resolução (384x384) para detalhes ósseos
 - Modelo especializado para estruturas esqueléticas
@@ -388,6 +391,7 @@ def send_hl7_result(patient_id, analysis_result):
 - **Métricas de Ensemble**: Concordância entre modelos e fusão por atenção
 
 #### **Thresholds Clínicos Validados e Configurados**
+> **METAS, não resultados.** Nenhum modelo foi treinado ou medido. Ver HONEST_STATUS.md.
 - **Condições Críticas** (Pneumotórax, Hemorragia Massiva, AVC Agudo):
   - Sensibilidade >95%, Especificidade >90%
 - **Condições Moderadas** (Pneumonia, Derrame Pleural, Fraturas):
@@ -409,7 +413,7 @@ def send_hl7_result(patient_id, analysis_result):
 
 ### ⚠️ **Limitações e Considerações Clínicas**
 - **Status Atual**: Sistema em fase de desenvolvimento com modelos fallback
-- **Acurácia**: 20% atual (requer treinamento com datasets médicos)
+- **Acurácia**: 20% medida em 5 imagens SINTÉTICAS — não é uma medição válida de desempenho.
 - **Uso Clínico**: Não aprovado para uso diagnóstico - apenas demonstração
 - **Validação**: Requer treinamento adicional para atingir padrões clínicos
 - **Supervisão**: Sempre requer validação por profissional qualificado

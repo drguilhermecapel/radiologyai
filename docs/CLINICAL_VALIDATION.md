@@ -1,5 +1,8 @@
 # Clinical Validation Report - MedAI Radiologia
 
+> ℹ️ Este é o único documento historicamente honesto do repositório: registra 20% de acurácia em 5 imagens sintéticas, com modelos de fallback. Descreve a v1 e é mantido como registro histórico. Ver [HONEST_STATUS.md](HONEST_STATUS.md).
+
+
 ## Executive Summary
 
 The MedAI Radiologia system has undergone comprehensive validation testing to assess its readiness for clinical deployment. This report documents the current system status, validation results, and recommendations for achieving clinical standards.
@@ -45,7 +48,7 @@ The MedAI Radiologia system has undergone comprehensive validation testing to as
 - **Negative Predictive Value (NPV)**: TN/(TN+FN)
 - **Area Under ROC Curve (AUC)**: Overall performance measure
 
-### Clinical Thresholds Defined
+### Clinical Thresholds Defined (METAS NÃO ATINGIDAS — nenhum modelo foi medido)
 - **Critical Conditions**: Sensitivity >95%, Specificity >90%
 - **Moderate Conditions**: Sensitivity >90%, Specificity >85%
 - **Standard Conditions**: Sensitivity >85%, Specificity >92%

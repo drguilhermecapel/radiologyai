@@ -1,4 +1,5 @@
 {
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
   "original_model_path": "test_model.h5",
   "original_size": 24480,
   "original_parameters": 1061,
@@ -45,7 +46,7 @@
       }
     },
     "clinical_recommendations": [
-      "\u26a0\ufe0f Quantized optimization suitable for screening applications"
+      "⚠️ Quantized optimization suitable for screening applications"
     ]
   }
 }

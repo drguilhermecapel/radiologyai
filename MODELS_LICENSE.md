@@ -1,5 +1,8 @@
 # Licenciamento dos Modelos Pré-Treinados - MedAI Radiologia
 
+> ⚠️ **RETRATADO.** Este documento continha alegações de desempenho fabricadas. Nenhum modelo foi treinado e nenhuma métrica foi medida neste projeto. Ver [HONEST_STATUS.md](HONEST_STATUS.md) e [ROADMAP.md](ROADMAP.md).
+
+
 ## Informações Gerais
 
 Este documento descreve o licenciamento, uso permitido e restrições dos modelos de inteligência artificial pré-treinados incluídos no sistema MedAI Radiologia.
@@ -21,7 +24,7 @@ Este documento descreve o licenciamento, uso permitido e restrições dos modelo
   - CheXpert Stanford (Licença de Pesquisa)
   - MIMIC-CXR (PhysioNet Credentialed Health Data License)
 - **Licença do Modelo**: Apache License 2.0
-- **Acurácia Validada**: 92.3% (Sensibilidade: 90%, Especificidade: 89%)
+- **Acurácia**: NÃO MEDIDA — nenhum modelo foi treinado. A alegação anterior nesta linha era fabricada.
 - **Status Regulatório**: Pendente FDA 510(k) - Não aprovado para uso clínico
 - **Tamanho**: ~150MB
 - **Modalidades Suportadas**: Raio-X de Tórax (PA e Lateral)
@@ -35,7 +38,7 @@ Este documento descreve o licenciamento, uso permitido e restrições dos modelo
   - MIMIC-CXR (PhysioNet Credentialed Health Data License)
   - PadChest (Creative Commons Attribution-ShareAlike 4.0)
 - **Licença do Modelo**: MIT License
-- **Acurácia Validada**: 91.1% (Sensibilidade: 88%, Especificidade: 91%)
+- **Acurácia**: NÃO MEDIDA — nenhum modelo foi treinado. A alegação anterior nesta linha era fabricada.
 - **Status Regulatório**: Apenas para pesquisa - Não aprovado para uso clínico
 - **Tamanho**: ~300MB
 - **Modalidades Suportadas**: Raio-X de Tórax
@@ -49,7 +52,7 @@ Este documento descreve o licenciamento, uso permitido e restrições dos modelo
   - ChestX-ray14 (CC0)
   - OpenI Indiana University (Open Access)
 - **Licença do Modelo**: Apache License 2.0
-- **Acurácia Validada**: 90.8% (Balanceado para velocidade e precisão)
+- **Acurácia**: NÃO MEDIDA — nenhum modelo foi treinado. A alegação anterior nesta linha era fabricada.
 - **Status Regulatório**: Pesquisa e desenvolvimento
 - **Tamanho**: ~200MB
 - **Modalidades Suportadas**: Raio-X de Tórax
@@ -63,7 +66,7 @@ Este documento descreve o licenciamento, uso permitido e restrições dos modelo
   - Combinação de todos os datasets acima
   - Dados proprietários de validação clínica (anonimizados)
 - **Licença do Modelo**: Apache License 2.0
-- **Acurácia Validada**: 94.5% (Sensibilidade: 92%, Especificidade: 94%)
+- **Acurácia**: NÃO MEDIDA — nenhum modelo foi treinado. A alegação anterior nesta linha era fabricada.
 - **Status Regulatório**: Em processo de certificação FDA 510(k)
 - **Tamanho**: ~800MB
 - **Modalidades Suportadas**: Raio-X de Tórax, CT Cerebral, Raio-X Ósseo

@@ -15,12 +15,12 @@ services:
       - ENVIRONMENT=production
       - DB_HOST=medai-db
       - DB_USERNAME=medai_user
-      - DB_PASSWORD=${DB_PASSWORD:-medai_secure_password}
-      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key-here}
-      - CLINICAL_ALERT_EMAIL=${CLINICAL_ALERT_EMAIL:-admin@hospital.com}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD obrigatorio}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET obrigatorio}
+      - CLINICAL_ALERT_EMAIL=${CLINICAL_ALERT_EMAIL:-}
       - CLINICAL_ALERT_WEBHOOK=${CLINICAL_ALERT_WEBHOOK}
-      - SLACK_WEBHOOK=${SLACK_WEBHOOK:-https://hooks.slack.com/your-webhook}
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@hospital.com}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - PAGERDUTY_KEY=${PAGERDUTY_KEY}
     volumes:
       - ./data:/app/data
@@ -57,7 +57,7 @@ services:
     environment:
       - POSTGRES_DB=medai_production
       - POSTGRES_USER=medai_user
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-medai_secure_password}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?DB_PASSWORD obrigatorio}
     volumes:
       - medai-db-data:/var/lib/postgresql/data
       - ./config/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
