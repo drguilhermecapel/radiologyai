@@ -198,3 +198,11 @@ data/**
 # Artefatos de avaliação (exceto as métricas, que são o registro)
 artifacts/**
 !artifacts/eval/**/metrics.json
+
+# Build / venv da Fase 1
+dist/
+.venv/
+.coverage
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/

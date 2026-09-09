@@ -14,18 +14,58 @@ Plataforma de pesquisa em interpretação de imagens radiológicas por inteligê
 
 ## O que existe hoje
 
+O núcleo v2 (`src/radiologyai/`) está em construção. O código v1 foi arquivado
+em `legacy/` — está preservado, mas nada o importa e ele é excluído de build,
+lint, tipos e CI.
+
 | Camada | Estado |
 |---|---|
-| Leitura DICOM (pydicom + SimpleITK), windowing por modalidade | **funcional**, com defeitos conhecidos ([HONEST_STATUS.md](HONEST_STATUS.md) §6, §10) |
-| Normalização por modalidade (HU para TC, etc.) | **funcional** |
-| Contrato de API REST (FastAPI, `/api/v1/*`) | **esqueleto**; a implementação atual fabrica métricas por requisição |
-| Modelos treinados | **nenhum** |
-| Métricas de desempenho | **nenhuma medida** |
-| Validação clínica | **nenhuma** |
-| CI, testes automatizados, empacotamento | **nenhum** |
-| Documentação regulatória (IEC 62304, ISO 14971) | **em construção** — `docs/regulatory/` |
+| Leitura DICOM — VOI LUT, MONOCHROME1, RescaleSlope/Intercept, sem quantização | **funcional, testada** |
+| Des-identificação PS3.15 (subconjunto) com pseudo-IDs determinísticos HMAC | **funcional, testada** |
+| Janelamento por modalidade (presets de TC em HU) | **funcional, testada** |
+| Plugin de modalidade + gate de escopo (o controle de risco H-03) | **funcional, testada** |
+| Modalidades TC / RM / US | **declaradas**, não implementadas — levantam `NotImplementedError` |
+| Model card com sha256 validado e verificação de integridade | **funcional, testada** |
+| Motor de inferência falha-fechada | **funcional** — sem backend de pesos ainda |
+| Métricas (AUROC com IC bootstrap, ponto de operação, ECE, vazamento) | **funcional, testada** |
+| CLI (`radiologyai version / selftest / modalities / inspect / cards`) | **funcional** |
+| Backend de pesos reais, calibração, abstenção, Grad-CAM, API | Fase 2 |
+| **Modelos treinados** | **nenhum** |
+| **Métricas de desempenho** | **nenhuma medida** |
+| **Validação clínica** | **nenhuma** |
 
-O restante do código em `src/` (67 módulos) está em processo de arquivamento. Ver a tabela de disposição em [`ROADMAP.md` §1.14](ROADMAP.md).
+## Instalação
+
+```bash
+uv venv --python 3.11 && source .venv/bin/activate
+uv pip install -e ".[dev,eval]"
+radiologyai selftest
+```
+
+## Verificação
+
+```bash
+ruff check src/ tests/ scripts/     # lint
+mypy src/radiologyai               # tipos, modo strict
+pytest --cov=radiologyai           # 154 testes
+python scripts/check_honesty.py    # guardião de honestidade
+python scripts/trace.py --check    # rastreabilidade RISCO→REQ→TESTE
+python scripts/soup.py --check     # lista SOUP (IEC 62304 §8.1.2)
+```
+
+Três portões de CI existem especificamente para impedir a recorrência do modo de
+falha do v1:
+
+- **`check_honesty.py`** — quebra o build em qualquer alegação numérica de
+  desempenho sem artefato de avaliação que a sustente, qualquer sha256 inválido,
+  qualquer `except ImportError` que degrade em silêncio, e qualquer marcador de
+  simulação em código de produção.
+- **`trace.py`** — quebra o build se um requisito ficar sem teste verificador ou
+  se um teste citar um requisito inexistente.
+- **`soup.py`** — quebra o build se a lista SOUP divergir das dependências.
+
+O problema do v1 nunca foi falta de competência técnica. Foi que nada no sistema
+jamais objetou quando um número foi inventado. A objeção agora é automática.
 
 ## Objetivo
 

@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_LINK_MODE: copy
+
+jobs:
+  quality:
+    name: Lint, tipos e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Python 3.11
+        run: uv python install 3.11
+
+      - name: Instalar dependências
+        run: uv sync --extra dev --extra eval
+
+      - name: Lint (ruff)
+        run: uv run ruff check src/ tests/ scripts/
+
+      - name: Formatação (ruff)
+        run: uv run ruff format --check src/ tests/
+
+      - name: Tipos (mypy --strict)
+        run: uv run mypy src/radiologyai
+
+      - name: Testes com cobertura
+        run: uv run pytest --cov=radiologyai --cov-report=term-missing --cov-fail-under=85
+
+      # --- Portões específicos deste projeto (ROADMAP §8) ---
+
+      - name: Guardião de honestidade
+        run: uv run python scripts/check_honesty.py
+
+      - name: Lista SOUP atualizada (IEC 62304 §8.1.2)
+        run: uv run python scripts/soup.py --check
+
+      - name: Rastreabilidade RISCO→REQ→TESTE (IEC 62304 §5.7)
+        run: uv run python scripts/trace.py --check
+
+      - name: Núcleo não importa dependências pesadas
+        run: |
+          uv run python -c "
+          import sys, radiologyai
+          heavy = [m for m in ('torch','numpy','SimpleITK','cv2') if m in sys.modules]
+          assert not heavy, f'import pesado no __init__: {heavy}'
+          print('import limpo')
+          "
+
+      - name: Selftest falha alto, não em silêncio
+        run: uv run radiologyai selftest
+
+      - name: Nenhum dado de pixel commitado
+        run: |
+          if git ls-files | grep -E '\.(dcm|nii|nii\.gz|mhd|raw|nrrd)$'; then
+            echo "ERRO: dados de imagem médica commitados. Ver data/DATASET_CARD.md"
+            exit 1
+          fi
+          echo "nenhum pixel no repositório"
+
+  build:
+    name: Build do pacote
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.11
+      - name: Build wheel e sdist
+        run: uv build
+      - name: Instalação limpa a partir do wheel
+        run: |
+          uv venv /tmp/clean
+          VIRTUAL_ENV=/tmp/clean uv pip install dist/*.whl
+          /tmp/clean/bin/radiologyai version
+          /tmp/clean/bin/radiologyai modalities
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

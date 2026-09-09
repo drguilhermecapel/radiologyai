@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "radiologyai"
+version = "2.0.0.dev0"
+description = "Plataforma de pesquisa em interpretação de imagens radiológicas por IA. Software de pesquisa — não é dispositivo médico."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "Guilherme Capel Pasqua" }]
+keywords = ["radiology", "dicom", "medical-imaging", "samd"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+# Núcleo deliberadamente leve: SEM torch. Isso mantém `import radiologyai`
+# abaixo de 200 ms e permite CI de CPU rápido. Ver ROADMAP §8.
+dependencies = [
+  "numpy>=1.26,<2.2",
+  "pydicom==2.4.4",
+  "pydantic>=2.7,<3",
+  "pydantic-settings>=2.3,<3",
+  "PyYAML>=6.0,<7",
+  "typer>=0.12,<0.16",
+]
+
+[project.optional-dependencies]
+imaging = [
+  "SimpleITK>=2.3,<3",
+  "Pillow>=10.0",
+]
+eval = [
+  "scikit-learn>=1.4,<2",
+  "scipy>=1.11,<2",
+]
+ml = [
+  "torch==2.5.1",
+  "torchvision==0.20.1",
+  "timm>=1.0",
+  "torchxrayvision>=1.2",
+  "monai>=1.3,<2",
+  "onnxruntime>=1.18",
+]
+api = [
+  "fastapi>=0.110,<1",
+  "uvicorn[standard]>=0.29",
+  "python-multipart>=0.0.9",
+]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "types-PyYAML",
+]
+
+[project.scripts]
+radiologyai = "radiologyai.cli.main:app"
+
+# Ponto de extensão por modalidade (ROADMAP §4.1).
+# Uma modalidade pode futuramente ser distribuída como pacote separado.
+[project.entry-points."radiologyai.modalities"]
+xr = "radiologyai.modalities.xr:XRPlugin"
+ct = "radiologyai.modalities.ct:CTPlugin"
+mr = "radiologyai.modalities.mr:MRPlugin"
+us = "radiologyai.modalities.us:USPlugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/radiologyai"]
+
+# ---------------------------------------------------------------- ferramentas
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["legacy", ".git", "artifacts", "data"]
+addopts = "-ra --strict-markers"
+markers = [
+  "requirement(id): vincula este teste a um requisito REQ-xxx (IEC 62304 §5.7)",
+  "slow: teste lento; excluído do CI rápido",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["legacy"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT", "RET", "SIM", "ARG", "PTH"]
+ignore = ["A005"]  # subpacote `io` sombreia o stdlib de propósito (nome de domínio)
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+exclude = ["^legacy/", "^tests/"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["SimpleITK.*", "pydicom.*", "sklearn.*", "scipy.*"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src/radiologyai"]
+omit = ["*/cli/*"]
