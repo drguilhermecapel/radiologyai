@@ -29,10 +29,35 @@ lint, tipos e CI.
 | Motor de inferência falha-fechada | **funcional** — sem backend de pesos ainda |
 | Métricas (AUROC com IC bootstrap, ponto de operação, ECE, vazamento) | **funcional, testada** |
 | CLI (`radiologyai version / selftest / modalities / inspect / cards`) | **funcional** |
-| Backend de pesos reais, calibração, abstenção, Grad-CAM, API | Fase 2 |
-| **Modelos treinados** | **nenhum** |
-| **Métricas de desempenho** | **nenhuma medida** |
+| Backend torchxrayvision (pesos reais, integridade sha256) | **funcional, testada** |
+| Manifest do NIH ChestX-ray14 + detecção de vazamento | **funcional, testada** |
+| Executor de avaliação (AUROC com IC, subgrupos, proveniência) | **funcional, testada** |
+| Calibração, abstenção, Grad-CAM, API | Fase 2 |
+| **Modelo próprio treinado** | **nenhum** |
+| **Métricas de desempenho medidas** | **nenhuma ainda** — ver abaixo |
 | **Validação clínica** | **nenhuma** |
+
+## Linha de base honesta
+
+O marco da Fase 1 é publicar *um* número real, medido, reproduzível, com
+intervalo de confiança. Toda a infraestrutura existe e está testada; falta
+executar sobre as 25.596 imagens do split de teste do NIH.
+
+**Rode no Google Colab:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb)
+— GPU T4 gratuita, ~12 min de inferência, sem consumir disco local.
+
+```bash
+radiologyai manifest /caminho/nih --split test          # já commitado
+radiologyai evaluate --card xrv-densenet121-pc \
+    --manifest datasets/manifests/nih_cxr14_test.csv \
+    --data-root /caminho/nih --out artifacts/eval
+```
+
+**A armadilha que o código evita:** usar `densenet121-res224-all` no NIH seria
+*in-distribution* — esses pesos foram treinados no NIH, entre outros datasets.
+Usamos `-pc` (só PadChest, Espanha) contra o teste oficial do NIH (EUA):
+validação externa genuína. O `check_leakage` detecta o caso ruim automaticamente
+e recusa chamá-lo de validação externa.
 
 ## Instalação
 

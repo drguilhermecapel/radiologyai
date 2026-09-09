@@ -107,9 +107,24 @@ class TestYamlLoading:
 
 
 class TestRegistry:
-    def test_no_cards_shipped_yet(self):
-        """Nenhum modelo foi treinado — o registro deve estar vazio."""
-        assert list_cards() == []
+    def test_shipped_cards_are_valid(self):
+        """Todo card distribuído carrega e valida — sha256 hex incluído."""
+        for card in list_cards():
+            assert len(card.weights_sha256) == 64
+
+    def test_no_shipped_card_claims_performance(self):
+        """Nenhum card do repositório alega desempenho: nenhum foi medido aqui."""
+        unbacked = [c.card_id for c in list_cards() if c.has_measured_performance]
+        assert not unbacked, f"cards alegando desempenho sem artefato nesta árvore: {unbacked}"
+
+    def test_baseline_card_is_padchest_not_all(self):
+        """A linha de base usa pesos PadChest, não '-all' (que viu o NIH).
+
+        Avaliar '-all' no NIH seria in-distribution — uma fabricação sutil.
+        """
+        card = get_card("xrv-densenet121-pc")
+        assert card.trained_on == ("PadChest",)
+        assert "NIH" not in " ".join(card.trained_on)
 
     def test_get_unknown_card_raises(self):
         with pytest.raises(ModelNotFoundError, match="não encontrado"):

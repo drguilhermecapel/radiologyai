@@ -1,0 +1,75 @@
+# Model card — torchxrayvision DenseNet-121, pesos PadChest.
+#
+# ESCOLHA DELIBERADA: usamos os pesos "-pc" (só PadChest), NÃO os "-all".
+# Os pesos "-all" foram treinados em NIH, PadChest, CheXpert, MIMIC-CXR, Google,
+# OpenI e RSNA — o próprio nome do arquivo publicado é
+# "nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-...". Avaliá-los no NIH
+# ChestX-ray14 seria in-distribution e produziria um número inflado que parece
+# medição mas não é. Os pesos "-pc" vêm do Hospital San Juan (Alicante, Espanha);
+# o NIH vem do NIH Clinical Center (EUA). País, equipamento, população e
+# pipeline de rotulagem diferentes: validação externa genuína, sem credenciamento.
+
+card_id: xrv-densenet121-pc
+display_name: TorchXRayVision DenseNet-121 (PadChest)
+version: "1.0.0"
+modality: XR
+backend: torch
+task: multilabel-classification
+
+# ATENÇÃO — 3 das 18 saídas NÃO foram treinadas nestes pesos.
+# O PadChest não continha 'Lung Lesion', 'Lung Opacity' nem 'Enlarged
+# Cardiomediastinum', então o torchxrayvision devolve string vazia nos índices
+# 14, 16 e 17 de model.pathologies. Essas posições existem no tensor de saída
+# mas o valor não significa nada.
+#
+# O backend as renomeia para __untrained_<i> e o executor de avaliação as declara
+# em not_evaluated[]. Usar a lista default_pathologies como se fosse a do modelo
+# faria reportar AUROC de uma cabeça não treinada — número que parece medição
+# e não é.
+#
+# Os 14 rótulos do NIH ChestX-ray14 TÊM cabeça treinada: a linha de base é válida
+# para todos eles.
+labels:
+  - Atelectasis
+  - Consolidation
+  - Infiltration
+  - Pneumothorax
+  - Edema
+  - Emphysema
+  - Fibrosis
+  - Effusion
+  - Pneumonia
+  - Pleural_Thickening
+  - Cardiomegaly
+  - Nodule
+  - Mass
+  - Hernia
+  - __untrained_14   # 'Lung Lesion' — ausente no PadChest
+  - Fracture
+  - __untrained_16   # 'Lung Opacity' — ausente no PadChest
+  - __untrained_17   # 'Enlarged Cardiomediastinum' — ausente no PadChest
+
+input_shape: [224, 224]
+
+weights_uri: https://github.com/mlmed/torchxrayvision/releases/download/v1/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+weights_sha256: a9148ef62ae4e7a31a9bed8cef22811f39681cd61e4390398936efc6280af521
+weights_size_bytes: 28381804
+
+trained_on:
+  - PadChest
+
+license: "Apache-2.0 (código); pesos sob os termos do torchxrayvision"
+citation: >-
+  Cohen JP, Viviano JD, Bertin P, et al. TorchXRayVision: A library of chest
+  X-ray datasets and models. MIDL 2022. https://github.com/mlmed/torchxrayvision
+
+# VAZIO significa: nenhum desempenho foi medido neste projeto, e nenhum pode ser
+# alegado. Preenchido pelo executor de avaliação quando um artefato for produzido.
+evaluation_runs: []
+
+intended_use_ref: docs/regulatory/01-intended-use.md
+
+notes: >-
+  Modelo de terceiros, usado como linha de base de referência. NÃO é o modelo do
+  produto. Os escores NÃO são calibrados e NÃO representam probabilidade de
+  doença. Este card existe para tornar a linha de base reproduzível e verificável.

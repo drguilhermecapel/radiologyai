@@ -82,7 +82,7 @@ def collect_test_markers() -> dict[str, list[str]]:
                 target = target.value
             if parts[:1] != ["requirement"]:
                 continue
-            for arg in (call.args if call else []):
+            for arg in call.args if call else []:
                 if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
                     ids.append(arg.value)
         return ids
@@ -108,9 +108,7 @@ def build() -> tuple[dict[str, Requirement], list[str]]:
         if not REQ_ID_RE.match(req_id):
             problems.append(f"marcador com id malformado: {req_id!r} em {locations[0]}")
         elif req_id not in reqs:
-            problems.append(
-                f"teste referencia requisito inexistente {req_id} ({locations[0]})"
-            )
+            problems.append(f"teste referencia requisito inexistente {req_id} ({locations[0]})")
         else:
             reqs[req_id].tests.extend(locations)
 

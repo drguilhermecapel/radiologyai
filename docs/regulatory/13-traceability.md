@@ -23,13 +23,14 @@ requisito inexistente.
 | **REQ-010** Pseudo-identificadores determinísticos | safety | RISK-009 | implemented | `TestDeterminism` |
 | **REQ-011** Cobertura de des-identificação | safety | RISK-009 | implemented | `TestTagRemoval` |
 | **REQ-020** Integridade verificável dos pesos | safety | RISK-004 | implemented | `TestSha256Validation` |
+| **REQ-021** Saídas de modelo não treinadas não são reportadas | safety | RISK-004 | implemented | `test_untrained_heads_are_marked_not_silently_named` |
 | **REQ-030** Inferência falha fechada | safety | RISK-004 | implemented | `TestFailClosed` |
 | **REQ-031** Gate de escopo antes do modelo | safety | RISK-003 | implemented | `TestScopeGateRunsBeforeModel` |
 | **REQ-042** Limites do uso pretendido em radiografia | safety | RISK-003 | implemented | `TestXRScopeGate` |
-| **REQ-050** Avaliação reprodutível | functional | RISK-007 | implemented | `test_same_seed_is_bit_reproducible` |
+| **REQ-050** Avaliação reprodutível | functional | RISK-007 | implemented | `test_same_seed_is_bit_reproducible`<br>`test_records_full_provenance`<br>`test_same_seed_is_reproducible` |
 | **REQ-051** Ausência de vazamento por paciente | safety | RISK-007 | implemented | `TestPatientLeakage` |
 
-**12 requisitos · 12 verificações.**
+**13 requisitos · 15 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.

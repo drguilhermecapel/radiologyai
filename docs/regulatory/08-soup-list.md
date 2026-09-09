@@ -3,7 +3,7 @@ doc_id: REG-08
 title: Lista SOUP (Software of Unknown Provenance)
 status: GERADO AUTOMATICAMENTE — não editar à mão
 generated_by: scripts/soup.py
-source_commit: c80c22e
+source_commit: ff61959
 ---
 
 # Lista SOUP
@@ -32,14 +32,14 @@ anomalias publicadas (CVE/OSV) e avaliação de impacto a cada atualização.
 | `typer` | `typer>=0.12,<0.16` | 0.15.4 | core | não | Interface de linha de comando |
 | `scikit-learn` | `scikit-learn>=1.4,<2` | 1.9.0 | eval | não | Métricas de referência e utilidades de avaliação |
 | `scipy` | `scipy>=1.11,<2` | 1.17.1 | eval | não | Estatística usada nos intervalos de confiança |
-| `pillow` | `Pillow>=10.0` | — | imaging | não | Decodificação de imagem não-DICOM |
+| `pillow` | `Pillow>=10.0` | 12.3.0 | imaging | não | Decodificação de imagem não-DICOM |
 | `simpleitk` | `SimpleITK>=2.3,<3` | — | imaging | **sim** | Leitura de séries e reamostragem volumétrica (TC/RM) |
 | `monai` | `monai>=1.3,<2` | — | ml | **sim** | Transformações e arquiteturas de imagem médica (2D e 3D) |
 | `onnxruntime` | `onnxruntime>=1.18` | — | ml | **sim** | Runtime de inferência para implantação em CPU |
 | `timm` | `timm>=1.0` | — | ml | **sim** | Arquiteturas de backbone pré-treinadas |
-| `torch` | `torch==2.5.1` | — | ml | **sim** | Runtime de inferência de rede neural |
-| `torchvision` | `torchvision==0.20.1` | — | ml | não | Transformações de imagem para modelos torch |
-| `torchxrayvision` | `torchxrayvision>=1.2` | — | ml | **sim** | Modelos de radiografia de tórax pré-treinados e publicados |
+| `torch` | `torch==2.5.1` | 2.5.1+cpu | ml | **sim** | Runtime de inferência de rede neural |
+| `torchvision` | `torchvision==0.20.1` | 0.20.1+cpu | ml | não | Transformações de imagem para modelos torch |
+| `torchxrayvision` | `torchxrayvision>=1.2` | 1.5.4 | ml | **sim** | Modelos de radiografia de tórax pré-treinados e publicados |
 
 ## Monitoramento de anomalias
 

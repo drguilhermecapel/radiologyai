@@ -362,6 +362,25 @@ Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/
 
 **Saída:** AUROC por patologia, medido, com IC, reproduzível bit a bit por terceiro a partir de um checkout limpo. Cobertura ≥85% em `io/` e `evaluation/`.
 
+**Estado em setembro/2026 — infraestrutura concluída, execução pendente:**
+
+| Item | Estado |
+|---|---|
+| Pacote `radiologyai`, CI, 3 portões automatizados | concluído |
+| Backend torchxrayvision com verificação de sha256 | concluído |
+| Manifest do NIH (25.596 imagens, 2.797 pacientes, disjunção verificada) | **commitado** |
+| Executor de avaliação com IC, subgrupos e proveniência completa | concluído |
+| Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
+| **Executar sobre as 25.596 imagens** | **pendente** — ~12 min em T4 |
+
+**Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
+**não treinadas** (o PadChest não continha `Lung Lesion`, `Lung Opacity` nem
+`Enlarged Cardiomediastinum`). Usar a lista `default_pathologies` da biblioteca
+como se fosse a do modelo faria reportar AUROC de uma cabeça nunca treinada —
+mesma classe de defeito das métricas fabricadas do v1, por mecanismo mais sutil.
+Tratado em REQ-021. Os 14 rótulos do NIH têm cabeça treinada, então a linha de
+base é válida para todos eles.
+
 ### Fase 2 — Produtizar o caminho de RX · 8–10 semanas (~90 h)
 
 - `calibration/` — *temperature scaling* em split retido; ECE e diagrama de confiabilidade em todo relatório.

@@ -100,7 +100,15 @@ exclude = ["^legacy/", "^tests/"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = ["SimpleITK.*", "pydicom.*", "sklearn.*", "scipy.*"]
+module = [
+  "SimpleITK.*",
+  "pydicom.*",
+  "sklearn.*",
+  "scipy.*",
+  "torchxrayvision.*",
+  "timm.*",
+  "monai.*",
+]
 ignore_missing_imports = true
 
 [tool.coverage.run]

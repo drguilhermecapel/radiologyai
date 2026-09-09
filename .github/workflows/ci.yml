@@ -76,6 +76,46 @@ jobs:
           fi
           echo "nenhum pixel no repositório"
 
+  ml:
+    name: Backend de inferência (pesos reais)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.11
+
+      - name: Instalar com o extra [ml] (torch CPU)
+        run: |
+          uv sync --extra dev --extra eval --extra imaging
+          uv pip install --index-strategy unsafe-best-match \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch==2.5.1 torchvision==0.20.1 torchxrayvision
+
+      - name: Cache dos pesos torchxrayvision
+        uses: actions/cache@v4
+        with:
+          path: ~/.torchxrayvision
+          key: xrv-weights-v1
+
+      # Estes testes exercitam o caminho que produz a linha de base: ordem dos
+      # rótulos, cabeças não treinadas (REQ-021) e integridade do sha256 dos
+      # pesos publicados. Sem eles, REQ-021 ficaria apenas declarado.
+      - name: Testes do backend com pesos reais
+        run: uv run pytest tests/unit/models/test_xrv_backend.py -v
+
+      - name: Integridade do sha256 do model card distribuído
+        run: |
+          uv run python -c "
+          from radiologyai.models import get_card
+          from radiologyai.models.backends.xrv import weights_cache_path
+          card = get_card('xrv-densenet121-pc')
+          card.verify_weights(weights_cache_path('densenet121-res224-pc'))
+          print('sha256 dos pesos confere com o card')
+          "
+
   build:
     name: Build do pacote
     runs-on: ubuntu-latest
