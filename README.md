@@ -32,7 +32,12 @@ lint, tipos e CI.
 | Backend torchxrayvision (pesos reais, integridade sha256) | **funcional, testada** |
 | Manifest do NIH ChestX-ray14 + detecção de vazamento | **funcional, testada** |
 | Executor de avaliação (AUROC com IC, subgrupos, proveniência) | **funcional, testada** |
-| Calibração, abstenção, Grad-CAM, API | Fase 2 |
+| Calibração por temperatura (preserva ordenação, logo AUROC) | **funcional, testada** |
+| Política de abstenção em 3 bandas, mais larga para achado crítico | **funcional, testada** |
+| Grad-CAM **real** por hooks de gradiente | **funcional, testada** |
+| Trilha de auditoria encadeada por hash, adulteração detectável | **funcional, testada** |
+| API FastAPI — gate de escopo por HTTP, sem métrica fabricada | **funcional, testada** |
+| Laudo estruturado em PDF, PACS, frontend | Fase 4 |
 | **Modelo próprio treinado** | **nenhum** |
 | **Métricas de desempenho medidas** | **nenhuma ainda** — ver abaixo |
 | **Validação clínica** | **nenhuma** |
@@ -77,6 +82,21 @@ python scripts/check_honesty.py    # guardião de honestidade
 python scripts/trace.py --check    # rastreabilidade RISCO→REQ→TESTE
 python scripts/soup.py --check     # lista SOUP (IEC 62304 §8.1.2)
 ```
+
+**270 testes · 88% de cobertura · `mypy --strict` limpo · 20 requisitos rastreados.**
+
+### Subir a API
+
+```bash
+pip install -e ".[api,ml,imaging,eval]"
+uvicorn --factory radiologyai.api:create_app --port 8000
+# ou
+docker build -t radiologyai . && docker run -p 8000:8000 radiologyai
+```
+
+`GET /api/v1/metrics` devolve `measured: false` enquanto não houver artefato de
+avaliação. O servidor do v1 fabricava `clinical_metrics` a cada requisição, a
+partir de `y_true = np.array([1])  # Mock ground truth`.
 
 Três portões de CI existem especificamente para impedir a recorrência do modo de
 falha do v1:

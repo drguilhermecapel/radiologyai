@@ -31,7 +31,7 @@ jobs:
         run: uv python install 3.11
 
       - name: Instalar dependências
-        run: uv sync --extra dev --extra eval
+        run: uv sync --extra dev --extra eval --extra api --extra imaging
 
       - name: Lint (ruff)
         run: uv run ruff check src/ tests/ scripts/
@@ -103,8 +103,8 @@ jobs:
       # Estes testes exercitam o caminho que produz a linha de base: ordem dos
       # rótulos, cabeças não treinadas (REQ-021) e integridade do sha256 dos
       # pesos publicados. Sem eles, REQ-021 ficaria apenas declarado.
-      - name: Testes do backend com pesos reais
-        run: uv run pytest tests/unit/models/test_xrv_backend.py -v
+      - name: Testes do backend e da explicabilidade com pesos reais
+        run: uv run pytest tests/unit/models/test_xrv_backend.py tests/unit/explain -v
 
       - name: Integridade do sha256 do model card distribuído
         run: |

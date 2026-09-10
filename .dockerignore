@@ -1,0 +1,15 @@
+legacy/
+data/
+artifacts/
+.venv/
+.git/
+.github/
+notebooks/
+dist/
+datasets/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage

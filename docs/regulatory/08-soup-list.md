@@ -3,7 +3,7 @@ doc_id: REG-08
 title: Lista SOUP (Software of Unknown Provenance)
 status: GERADO AUTOMATICAMENTE — não editar à mão
 generated_by: scripts/soup.py
-source_commit: ff61959
+source_commit: 14f7a45
 ---
 
 # Lista SOUP
@@ -21,9 +21,9 @@ anomalias publicadas (CVE/OSV) e avaliação de impacto a cada atualização.
 
 | Item | Especificação | Instalado | Extra | Segurança | Propósito no sistema |
 |---|---|---|---|---|---|
-| `fastapi` | `fastapi>=0.110,<1` | — | api | não | Camada de API REST |
-| `python-multipart` | `python-multipart>=0.0.9` | — | api | não | Upload de arquivos na API |
-| `uvicorn` | `uvicorn[standard]>=0.29` | — | api | não | Servidor ASGI |
+| `fastapi` | `fastapi>=0.110,<1` | 0.141.1 | api | não | Camada de API REST |
+| `python-multipart` | `python-multipart>=0.0.9` | 0.0.32 | api | não | Upload de arquivos na API |
+| `uvicorn` | `uvicorn[standard]>=0.29` | 0.52.4 | api | não | Servidor ASGI |
 | `numpy` | `numpy>=1.26,<2.2` | 2.1.3 | core | **sim** | Aritmética de arrays em todo o pipeline de imagem e métricas |
 | `pydantic` | `pydantic>=2.7,<3` | 2.13.5 | core | **sim** | Validação de contratos de dados (model cards, metadados, resultados) |
 | `pydantic-settings` | `pydantic-settings>=2.3,<3` | 2.15.0 | core | não | Carga de configuração a partir do ambiente |

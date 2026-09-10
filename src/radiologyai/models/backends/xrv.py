@@ -155,6 +155,39 @@ class TorchXRayVisionBackend(InferenceBackend):
             output = self._model(tensor)
         return np.asarray(output.cpu().numpy(), dtype=np.float32)
 
+    def gradcam(self, image: npt.NDArray[np.float32], target_label: str) -> Any:
+        """Grad-CAM real para um rótulo, usando os gradientes deste modelo.
+
+        Raises:
+            ValueError: rótulo desconhecido ou cabeça não treinada. Não se
+                produz saliência para uma saída que não significa nada.
+        """
+        import numpy as np
+
+        from radiologyai.explain.gradcam import GradCAM
+
+        if target_label not in self._labels:
+            raise ValueError(
+                f"rótulo {target_label!r} não é saída deste modelo; "
+                f"disponíveis: {list(self.trained_labels)}"
+            )
+        if target_label.startswith(UNTRAINED_PREFIX):
+            raise ValueError(
+                f"{target_label!r} é uma cabeça não treinada nestes pesos; "
+                "explicar uma saída sem significado produziria um mapa enganoso"
+            )
+
+        index = self._labels.index(target_label)
+        arr = self._xrv.datasets.normalize(image * XRV_MAXVAL, XRV_MAXVAL)
+        arr = self._resize(self._crop(arr[None, ...]))
+        tensor = self._torch.from_numpy(np.ascontiguousarray(arr))[None, ...].float()
+        tensor.requires_grad_(True)
+
+        # Última camada convolucional da DenseNet-121, antes do pooling global.
+        target_layer = self._model.features.denseblock4
+        cam = GradCAM(self._model, target_layer, "features.denseblock4")
+        return cam.explain(tensor, index, target_label)
+
     def to(self, device: str) -> TorchXRayVisionBackend:
         """Move o modelo para um dispositivo ('cuda' ou 'cpu')."""
         self._model = self._model.to(device)

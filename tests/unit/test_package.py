@@ -36,46 +36,41 @@ def test_selftest_reports_optional_deps():
     assert "torch" in optional
 
 
-@pytest.mark.requirement("REQ-001")
-def test_no_silent_import_fallbacks():
-    """O anti-padrão do legado: `except ImportError: self.x = None`.
+def _guard():
+    """Carrega scripts/check_honesty.py apontado para o repositório real.
 
-    A detecção é por AST, não por texto: docstrings que *descrevem* o
-    anti-padrão (como as deste pacote) não são ocorrências dele.
+    Os testes abaixo delegam ao guardião em vez de reimplementar as regras.
+    Duas implementações da mesma regra divergem; uma diverge do código.
     """
-    import ast
+    import importlib.util
+    import sys
     from pathlib import Path
 
-    root = Path(radiologyai.__file__).parent
-    offenders = []
-    for path in root.rglob("*.py"):
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.ExceptHandler) or node.type is None:
-                continue
-            names = (
-                [node.type]
-                if isinstance(node.type, ast.Name)
-                else list(getattr(node.type, "elts", []))
-            )
-            if any(getattr(n, "id", None) in {"ImportError", "ModuleNotFoundError"} for n in names):
-                offenders.append(f"{path.relative_to(root)}:{node.lineno}")
-    assert not offenders, f"import silencioso encontrado em: {offenders}"
+    script = Path(radiologyai.__file__).resolve().parents[2] / "scripts" / "check_honesty.py"
+    spec = importlib.util.spec_from_file_location("check_honesty_pkg", script)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["check_honesty_pkg"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.requirement("REQ-001")
+def test_no_silent_import_fallbacks():
+    """O anti-padrão do v1: `except ImportError: self.x = None`.
+
+    Detecção por AST no guardião: docstrings que *descrevem* o anti-padrão
+    (como as deste pacote) não são ocorrências dele.
+    """
+    offenders = _guard().rule_4_silent_imports()
+    assert not offenders, [str(v) for v in offenders]
 
 
 @pytest.mark.requirement("REQ-002")
 def test_no_random_in_non_evaluation_code():
-    """np.random só é permitido no reamostrador de bootstrap, com seed explícita."""
-    from pathlib import Path
+    """np.random só é permitido no reamostrador de bootstrap, com seed explícita.
 
-    root = Path(radiologyai.__file__).parent
-    allowed = {"evaluation/metrics.py"}
-    offenders = []
-    for p in root.rglob("*.py"):
-        rel = p.relative_to(root).as_posix()
-        if rel in allowed:
-            continue
-        text = p.read_text(encoding="utf-8")
-        if "np.random" in text or "random.random" in text:
-            offenders.append(rel)
-    assert not offenders, f"aleatoriedade fora da avaliação: {offenders}"
+    Detecção token-aware: `explain/gradcam.py` cita `np.random.normal` na
+    docstring para documentar o que o v1 fazia — isso não é uso.
+    """
+    offenders = _guard().rule_2_randomness()
+    assert not offenders, [str(v) for v in offenders]
