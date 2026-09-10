@@ -160,15 +160,44 @@ def download(url: str, dest: Path) -> bool:
     return True
 
 
-def extract(archive: Path, out: Path) -> None:
-    """Extrai um tarball para ``out/<nome>/``."""
+def load_test_list(out: Path) -> set[str] | None:
+    """Nomes das imagens do split oficial de teste, se o arquivo existir."""
+    path = out / "test_list.txt"
+    if not path.is_file():
+        return None
+    return {ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()}
+
+
+def extract(archive: Path, out: Path, keep: set[str] | None = None) -> int:
+    """Extrai um tarball para ``out/<nome>/``.
+
+    Args:
+        keep: quando dado, extrai apenas estes nomes de arquivo. As imagens do
+            split de teste estão espalhadas entre os 12 tarballs, então o
+            download continua completo — o que se economiza é disco.
+
+    Returns:
+        Número de imagens extraídas.
+    """
     target = out / archive.name.replace(".tar.gz", "")
     if target.is_dir() and any(target.rglob("*.png")):
-        print(f"  já extraído: {target.name}")
-        return
+        n = sum(1 for _ in target.rglob("*.png"))
+        print(f"  já extraído: {target.name} ({n} imagens)")
+        return n
+
     print(f"  extraindo {archive.name} ...", flush=True)
+    extracted = 0
     with tarfile.open(archive, "r:gz") as tar:
-        tar.extractall(target, filter="data")
+        if keep is None:
+            tar.extractall(target, filter="data")
+            extracted = sum(1 for _ in target.rglob("*.png"))
+        else:
+            members = [m for m in tar.getmembers() if Path(m.name).name in keep]
+            if members:
+                tar.extractall(target, members=members, filter="data")
+            extracted = len(members)
+    print(f"    {extracted} imagens")
+    return extracted
 
 
 def main() -> int:
@@ -185,6 +214,12 @@ def main() -> int:
         type=int,
         default=len(IMAGE_ARCHIVES),
         help="limita o número de tarballs (para teste)",
+    )
+    parser.add_argument(
+        "--test-only",
+        action="store_true",
+        help="extrai apenas as imagens do split oficial de teste "
+        "(25.596 de 112.120); economiza ~30 GB de disco",
     )
     args = parser.parse_args()
 
@@ -209,18 +244,29 @@ def main() -> int:
         print("\nSomente metadados. Use sem --metadata-only para as imagens.")
         return 0
 
-    print(f"\nImagens ({args.max_archives} arquivos, ~42 GB no total):")
+    keep = load_test_list(out) if args.test_only else None
+    if keep is not None:
+        print(f"\nModo --test-only: extraindo somente as {len(keep)} imagens do teste.")
+
+    print(f"\nImagens ({args.max_archives} arquivos, ~42 GB de download):")
+    total = 0
     for name, url in IMAGE_ARCHIVES[: args.max_archives]:
         archive = out / name
         if not download(url, archive):
             return 1
-        extract(archive, out)
+        total += extract(archive, out, keep)
         if not args.keep_archives:
             archive.unlink(missing_ok=True)
-            print(f"  removido {name} (libera espaço; extraído já está em disco)")
+            print(f"  removido {name} (libera espaço; o extraído já está em disco)")
 
     n = sum(1 for _ in out.rglob("*.png"))
     print(f"\nPronto. {n} imagens em {out}")
+    if keep is not None and n != len(keep):
+        print(
+            f"AVISO: esperadas {len(keep)} imagens do split de teste, encontradas {n}. "
+            "Uma avaliação sobre conjunto incompleto não é a medição completa.",
+            file=sys.stderr,
+        )
     print("Próximo passo: radiologyai manifest", out, "--split test")
     return 0
 
