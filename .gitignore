@@ -212,3 +212,9 @@ dist/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+
+# Relatórios de avaliação gerados a partir de artifacts/eval/ — versionados
+# de propósito: são o registro legível do número, e o README linka para eles.
+# (Regra herdada do v1 ignorava reports/ inteiro.)
+!reports/
+!reports/EVALUATION_*.md
