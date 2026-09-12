@@ -57,7 +57,9 @@ Corrigir isso publicamente é o pré-requisito de tudo o mais.
 
 Existe agora **um** número de desempenho neste repositório, e ele está lastreado:
 AUROC macro **0,664** de um modelo de terceiros (PadChest) no split oficial de
-teste do NIH ChestX-ray14 — `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json`.
+teste do NIH ChestX-ray14 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
+Duas execuções independentes concordam (delta −0,0008), variando apenas o
+carregador de imagem.
 
 É uma medição retrospectiva de algoritmo isolado, sobre rótulos minerados por
 NLP, sem calibração. **Continua não havendo validação clínica.** O que mudou é

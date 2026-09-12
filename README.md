@@ -39,46 +39,62 @@ lint, tipos e CI.
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | **funcional, testada** |
 | Laudo estruturado em PDF, PACS, frontend | Fase 4 |
 | **Modelo próprio treinado** | **nenhum** |
-| **Métricas de desempenho medidas** | **uma** — AUROC macro 0,664 em validação externa (`artifacts/eval/xrv-densenet121-pc__20260912T202549Z/`) |
+| **Métricas de desempenho medidas** | **duas** — AUROC macro 0,664 em validação externa; a segunda isola o pré-processamento |
 | **Validação clínica** | **nenhuma** |
 
 ## Linha de base honesta — o primeiro número real
 
-Medido em 2026-09-12 no Google Colab (T4), sobre o **split oficial de teste do
+Medido no Google Colab (T4) em 2026-09-12, sobre o **split oficial de teste do
 NIH ChestX-ray14**: 25.596 imagens, 2.797 pacientes, disjunto por paciente.
 Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em
 PadChest (Espanha) — validação externa genuína, sem vazamento.
 
 | | |
 |---|---|
-| **AUROC macro** | **0,664** sobre 14 achados — fonte: `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` |
-| Melhores | Hérnia 0,836 (n+=86, IC largo) · Cardiomegalia 0,796 · Derrame 0,752 · Edema 0,745 — `reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md` |
-| Piores | Fibrose **0,455** (abaixo do acaso: os rótulos "Fibrosis" do PadChest e do NIH não descrevem a mesma coisa) · Espessamento pleural 0,579 · Enfisema 0,591 — `reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md` |
-| Incidência | PA 0,696 vs AP 0,631 — a lacuna prevista apareceu (`reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md`) |
-| Calibração | ECE 0,18–0,51 em todos os achados: os escores **não** são probabilidade de doença |
-| Proveniência | git `9d240cc`, pesos `a9148ef6…`, manifest `39f31d78…`, seed 20260101, bootstrap 2000 |
+| **AUROC macro** | **0,664** sobre 14 achados — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
+| Melhores | Hérnia 0,829 (n+=86, IC largo) · Cardiomegalia 0,796 · Derrame 0,752 · Edema 0,744 |
+| Piores | Fibrose **0,448**, IC95 [0,421, 0,473] — abaixo do acaso com IC que exclui 0,5 |
+| Incidência | PA 0,692 vs AP 0,630 — a lacuna prevista apareceu |
+| Calibração | ECE 0,18–0,51: os escores **não** são probabilidade de doença |
+| Ponto de operação | Especificidade a 90% de sensibilidade entre 0,12 e 0,48 — tabela completa em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) |
 
-Relatório completo, gerado do artefato: [`reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md`](reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md).
+Relatório completo: [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
 
-**Sobre o número.** A expectativa registrada no ROADMAP era 0,72–0,82. O medido
-é 0,664. A expectativa estava errada; o número fica. É exatamente para isto que
-o projeto foi reconstruído: publicar o que foi medido, com intervalo de
-confiança, em vez do que se gostaria de ter medido. O README do v1 alegava 0,94.
+**Fibrose abaixo do acaso** não diz que o modelo erra fibrose: diz que o rótulo
+"Fibrosis" do PadChest e o do NIH não nomeiam o mesmo achado. É um resultado
+sobre rótulos, não sobre o modelo.
 
-**O que este número não é:** validação clínica, evidência de utilidade, ou
-desempenho do modelo do produto — é um modelo de referência de terceiros, sem
-calibração, sobre rótulos minerados por NLP. A especificidade a 90% de
-sensibilidade fica entre 0,12 e 0,48: como triagem, esta linha de base **não
-serve** — e é isso que uma linha de base honesta deve dizer.
+### Duas medições isolam o efeito do pré-processamento
 
-**Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb)
-no commit `9d240cc`. O carregador de PNG mudou depois (normalização canônica pelo
-fundo de escala, em vez de min-max por imagem); uma nova execução na ponta da
-branch produzirá um segundo artefato, e os dois ficam registrados.
+O mesmo modelo, o mesmo split (manifest `39f31d78…`), variando só o carregador
+de imagem:
 
-**A armadilha que o código evita:** usar `densenet121-res224-all` no NIH seria
-*in-distribution* — esses pesos foram treinados no NIH. O `check_leakage`
-detecta e recusa chamar isso de validação externa.
+| Run | Normalização | AUROC macro |
+|---|---|---|
+| [`xrv-densenet121-pc__20260912T202549Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T202549Z.md) | min-max por imagem | 0,6644 |
+| [`xrv-densenet121-pc__20260912T215742Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) | fundo de escala (canônica do torchxrayvision) | 0,6636 |
+
+**Delta: −0,0008.** Nenhum achado mudou mais que 0,01; todos os IC95 se
+sobrepõem. Eu previa melhora ao alinhar com o pré-processamento de treino —
+errei: o modelo é robusto a essa diferença de contraste. A hipótese mais
+provável, **não testada**, é que radiografias do NIH já ocupam quase todo o
+intervalo dinâmico, tornando as duas normalizações quase equivalentes.
+
+Os dois artefatos ficam versionados. Medir a diferença custou uma execução e
+substituiu uma suposição por um número.
+
+**Sobre a expectativa.** O ROADMAP registrava 0,72–0,82 antes da medição. O
+medido é 0,664, e a previsão errada fica ao lado do número. O README do v1
+alegava 0,94 sem ter medido nada.
+
+**O que estes números não são:** validação clínica, evidência de utilidade, ou
+desempenho do modelo do produto. É um modelo de referência de terceiros, sem
+calibração, sobre rótulos minerados por NLP. Pela especificidade a 90% de
+sensibilidade medida em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md), **como triagem esta linha de base
+não serve** — e uma linha de base honesta tem que poder dizer isso.
+
+**Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb).
+O apêndice do notebook roda só a inferência, sem rebaixar o dataset.
 
 ## Referência técnica
 

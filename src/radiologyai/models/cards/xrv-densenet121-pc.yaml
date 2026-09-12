@@ -67,12 +67,19 @@ citation: >-
 # neste repositório — um teste impõe isso. Vazio significaria: nenhum desempenho
 # medido, nenhum alegável.
 #
-# xrv-densenet121-pc__20260912T202549Z: NIH ChestX-ray14, split oficial de teste (25.596 imagens,
-#   2.797 pacientes), Colab T4, git 9d240cc. AUROC macro 0,664. Produzido com
-#   o carregador PNG de min-max por imagem (anterior ao pipeline canônico);
-#   reproduzível naquele commit.
+# Os dois runs medem o MESMO modelo no MESMO split (manifest 39f31d78…),
+# diferindo apenas no carregador de PNG. A comparação isola o efeito do
+# pré-processamento: AUROC macro 0,6644 -> 0,6636 (delta -0,0008), nenhum
+# achado com |delta| >= 0,01, todos os IC95 sobrepostos.
+#
+# xrv-densenet121-pc__20260912T202549Z
+#   git 9d240cc · normalização min-max por imagem · AUROC macro 0,6644
+# xrv-densenet121-pc__20260912T215742Z
+#   git 990b288 · normalização pelo fundo de escala (canônica do
+#   torchxrayvision) · AUROC macro 0,6636 · Colab T4, torch 2.11.0+cu128
 evaluation_runs:
   - xrv-densenet121-pc__20260912T202549Z
+  - xrv-densenet121-pc__20260912T215742Z
 
 intended_use_ref: docs/regulatory/01-intended-use.md
 

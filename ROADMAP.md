@@ -371,7 +371,7 @@ Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/
 | Manifest do NIH (25.596 imagens, 2.797 pacientes, disjunção verificada) | **commitado** |
 | Executor de avaliação com IC, subgrupos e proveniência completa | concluído |
 | Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
-| **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664, `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/` |
+| **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664; duas execuções isolam o efeito do pré-processamento (delta −0,0008) |
 
 **Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
 **não treinadas** (o PadChest não continha `Lung Lesion`, `Lung Opacity` nem

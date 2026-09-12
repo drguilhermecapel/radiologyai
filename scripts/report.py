@@ -112,12 +112,10 @@ def main() -> int:
         return 1
     m = json.loads(metrics_path.read_text(encoding="utf-8"))
     rel = metrics_path.relative_to(REPO).as_posix()
-    date = m["timestamp_utc"][:10]
-    out = (
-        REPO
-        / "reports"
-        / f"EVALUATION_{slug(m['model']['card_id'])}_{slug(m['dataset']['name'])}_{date}.md"
-    )
+    # O nome carrega o run_id inteiro: dois runs do mesmo modelo no mesmo dia
+    # precisam de relatórios distintos. Um nome só com a data sobrescrevia o
+    # anterior em silêncio — aconteceu entre os dois runs de 2026-09-12.
+    out = REPO / "reports" / f"EVALUATION_{slug(m['dataset']['name'])}_{m['run_id']}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(m, rel), encoding="utf-8")
     print(f"Gravado: {out.relative_to(REPO)}")

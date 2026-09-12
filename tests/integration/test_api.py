@@ -246,7 +246,8 @@ class TestThresholdsComeFromMeasuredArtifact:
         evaluated = [f for f in findings if f["evaluated"]]
         assert evaluated, "nenhum achado com medição — o artefato não foi usado"
         for f in evaluated:
-            assert f["evaluation_run"] == "xrv-densenet121-pc__20260912T202549Z"
+            # latest_run_for_card escolhe o run mais recente entre os do card.
+            assert f["evaluation_run"] == "xrv-densenet121-pc__20260912T215742Z"
             assert f["band"] in ("achado_provavel", "nao_avaliavel", "achado_improvavel")
             assert f["calibrated"] is False
 

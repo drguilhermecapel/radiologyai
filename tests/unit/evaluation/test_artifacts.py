@@ -77,3 +77,43 @@ class TestRunLookup:
     def test_none_when_no_referenced_run_exists(self, tmp_path):
         assert latest_run_for_card(tmp_path, ("ausente",)) is None
         assert latest_run_for_card(tmp_path, ()) is None
+
+
+class TestReportFilenameIsUniquePerRun:
+    """Dois runs do mesmo modelo no mesmo dia precisam de relatórios distintos.
+
+    O gerador nomeava por data; o segundo run de 2026-09-12 sobrescreveu o
+    relatório do primeiro em silêncio.
+    """
+
+    @staticmethod
+    def _out_name(run_id: str, dataset: str = "NIH ChestX-ray14") -> str:
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        script = Path(__file__).resolve().parents[3] / "scripts" / "report.py"
+        spec = importlib.util.spec_from_file_location("report_mod", script)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["report_mod"] = mod
+        spec.loader.exec_module(mod)
+        return f"EVALUATION_{mod.slug(dataset)}_{run_id}.md"
+
+    def test_same_day_runs_get_distinct_names(self):
+        a = self._out_name("xrv-densenet121-pc__20260912T202549Z")
+        b = self._out_name("xrv-densenet121-pc__20260912T215742Z")
+        assert a != b
+
+    def test_name_contains_full_run_id(self):
+        run_id = "xrv-densenet121-pc__20260912T215742Z"
+        assert run_id in self._out_name(run_id)
+
+    def test_both_shipped_reports_exist(self):
+        from pathlib import Path
+
+        reports = Path(__file__).resolve().parents[3] / "reports"
+        for run_id in (
+            "xrv-densenet121-pc__20260912T202549Z",
+            "xrv-densenet121-pc__20260912T215742Z",
+        ):
+            assert (reports / self._out_name(run_id)).is_file()
