@@ -18,7 +18,18 @@ if TYPE_CHECKING:
 
 
 def load_png(path: Path) -> npt.NDArray[np.float32]:
-    """Lê uma imagem PNG/JPEG em escala de cinza, normalizada para [0, 1]."""
+    """Lê uma imagem PNG/JPEG em escala de cinza como fração do fundo de escala.
+
+    Normaliza pelo **máximo do tipo de pixel** (255 para 8 bits, 65535 para
+    16 bits), não pelo mínimo/máximo da imagem. É o pipeline canônico do
+    torchxrayvision (``imread`` → ``normalize(img, 255)``): o modelo foi
+    treinado sem esticar o contraste por imagem, e esticar aqui introduziria
+    uma diferença de pré-processamento entre treino e avaliação.
+
+    A primeira linha de base (run ``xrv-densenet121-pc__20260912T202549Z``,
+    git ``9d240cc``) foi produzida com min-max por imagem; o artefato registra
+    o SHA e permanece reproduzível naquele commit.
+    """
     import importlib.util
 
     if importlib.util.find_spec("PIL") is None:
@@ -30,12 +41,15 @@ def load_png(path: Path) -> npt.NDArray[np.float32]:
     from PIL import Image
 
     with Image.open(path) as img:
-        arr = np.asarray(img.convert("F"), dtype=np.float32)
+        mode = img.mode
+        if mode in ("I;16", "I;16B", "I;16L", "I"):
+            arr = np.asarray(img, dtype=np.float32)
+            full_scale = 65535.0
+        else:
+            arr = np.asarray(img.convert("L"), dtype=np.float32)
+            full_scale = 255.0
 
-    lo, hi = float(arr.min()), float(arr.max())
-    if hi <= lo:
-        return np.zeros_like(arr, dtype=np.float32)
-    return ((arr - lo) / (hi - lo)).astype(np.float32)
+    return np.clip(arr / np.float32(full_scale), 0.0, 1.0).astype(np.float32)
 
 
 def predict_manifest(

@@ -53,6 +53,18 @@ O repositório é público e assinado com o nome e o CRM de um médico. Alegar d
 
 Corrigir isso publicamente é o pré-requisito de tudo o mais.
 
+## Primeira medição real (2026-09-12)
+
+Existe agora **um** número de desempenho neste repositório, e ele está lastreado:
+AUROC macro **0,664** de um modelo de terceiros (PadChest) no split oficial de
+teste do NIH ChestX-ray14 — `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json`.
+
+É uma medição retrospectiva de algoritmo isolado, sobre rótulos minerados por
+NLP, sem calibração. **Continua não havendo validação clínica.** O que mudou é
+que a frase "nenhuma métrica foi medida" deixou de ser verdadeira — e a única
+métrica existente é pior do que o README do v1 alegava (0,94) e pior do que a
+expectativa registrada no ROADMAP (0,72–0,82).
+
 ## O que vem a seguir
 
 Veja [`ROADMAP.md`](ROADMAP.md). O primeiro marco técnico é publicar **um** número de desempenho real, medido, reproduzível, com intervalo de confiança — e não publicar nenhum outro até lá.

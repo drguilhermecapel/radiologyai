@@ -208,3 +208,42 @@ class TestInDistributionWarning:
         assert data["dataset"]["external_to_training_data"] is False
         assert "ATENÇÃO" in data["limitations"][0]
         assert "NÃO é validação externa" in data["limitations"][0]
+
+
+class TestLoadPngCanonical:
+    """Normalização pelo fundo de escala, como o torchxrayvision treina."""
+
+    def test_uint8_is_divided_by_255_not_stretched(self, tmp_path):
+        import numpy as np
+        from PIL import Image
+
+        from radiologyai.evaluation import load_png
+
+        arr = np.full((8, 8), 51, dtype=np.uint8)
+        arr[0, 0] = 204
+        Image.fromarray(arr).save(tmp_path / "a.png")
+        out = load_png(tmp_path / "a.png")
+        assert out[1, 1] == pytest.approx(51 / 255)
+        assert out[0, 0] == pytest.approx(204 / 255)
+        assert out.max() < 1.0, "min-max por imagem esticaria o máximo para 1.0"
+
+    def test_uint16_is_divided_by_65535(self, tmp_path):
+        import numpy as np
+        from PIL import Image
+
+        from radiologyai.evaluation import load_png
+
+        arr = np.full((4, 4), 6553, dtype=np.uint16)
+        Image.fromarray(arr).save(tmp_path / "b.png")
+        assert load_png(tmp_path / "b.png")[0, 0] == pytest.approx(6553 / 65535, abs=1e-6)
+
+    def test_output_in_unit_range_float32(self, tmp_path):
+        import numpy as np
+        from PIL import Image
+
+        from radiologyai.evaluation import load_png
+
+        Image.fromarray(np.arange(64, dtype=np.uint8).reshape(8, 8)).save(tmp_path / "c.png")
+        out = load_png(tmp_path / "c.png")
+        assert out.dtype == np.float32
+        assert 0.0 <= out.min() <= out.max() <= 1.0

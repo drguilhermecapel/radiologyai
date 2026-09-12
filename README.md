@@ -39,88 +39,46 @@ lint, tipos e CI.
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | **funcional, testada** |
 | Laudo estruturado em PDF, PACS, frontend | Fase 4 |
 | **Modelo próprio treinado** | **nenhum** |
-| **Métricas de desempenho medidas** | **nenhuma ainda** — ver abaixo |
+| **Métricas de desempenho medidas** | **uma** — AUROC macro 0,664 em validação externa (`artifacts/eval/xrv-densenet121-pc__20260912T202549Z/`) |
 | **Validação clínica** | **nenhuma** |
 
-## Linha de base honesta
+## Linha de base honesta — o primeiro número real
 
-O marco da Fase 1 é publicar *um* número real, medido, reproduzível, com
-intervalo de confiança. Toda a infraestrutura existe e está testada; falta
-executar sobre as 25.596 imagens do split de teste do NIH.
+Medido em 2026-09-12 no Google Colab (T4), sobre o **split oficial de teste do
+NIH ChestX-ray14**: 25.596 imagens, 2.797 pacientes, disjunto por paciente.
+Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em
+PadChest (Espanha) — validação externa genuína, sem vazamento.
 
-**Rode no Google Colab:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb)
-— GPU T4 gratuita, ~12 min de inferência, sem consumir disco local.
+| | |
+|---|---|
+| **AUROC macro** | **0,664** sobre 14 achados — fonte: `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` |
+| Melhores | Hérnia 0,836 (n+=86, IC largo) · Cardiomegalia 0,796 · Derrame 0,752 · Edema 0,745 — `reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md` |
+| Piores | Fibrose **0,455** (abaixo do acaso: os rótulos "Fibrosis" do PadChest e do NIH não descrevem a mesma coisa) · Espessamento pleural 0,579 · Enfisema 0,591 — `reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md` |
+| Incidência | PA 0,696 vs AP 0,631 — a lacuna prevista apareceu (`reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md`) |
+| Calibração | ECE 0,18–0,51 em todos os achados: os escores **não** são probabilidade de doença |
+| Proveniência | git `9d240cc`, pesos `a9148ef6…`, manifest `39f31d78…`, seed 20260101, bootstrap 2000 |
 
-```bash
-radiologyai manifest /caminho/nih --split test          # já commitado
-radiologyai evaluate --card xrv-densenet121-pc \
-    --manifest datasets/manifests/nih_cxr14_test.csv \
-    --data-root /caminho/nih --out artifacts/eval
-```
+Relatório completo, gerado do artefato: [`reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md`](reports/EVALUATION_xrv-densenet121-pc_nih-chestx-ray14_2026-09-12.md).
+
+**Sobre o número.** A expectativa registrada no ROADMAP era 0,72–0,82. O medido
+é 0,664. A expectativa estava errada; o número fica. É exatamente para isto que
+o projeto foi reconstruído: publicar o que foi medido, com intervalo de
+confiança, em vez do que se gostaria de ter medido. O README do v1 alegava 0,94.
+
+**O que este número não é:** validação clínica, evidência de utilidade, ou
+desempenho do modelo do produto — é um modelo de referência de terceiros, sem
+calibração, sobre rótulos minerados por NLP. A especificidade a 90% de
+sensibilidade fica entre 0,12 e 0,48: como triagem, esta linha de base **não
+serve** — e é isso que uma linha de base honesta deve dizer.
+
+**Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb)
+no commit `9d240cc`. O carregador de PNG mudou depois (normalização canônica pelo
+fundo de escala, em vez de min-max por imagem); uma nova execução na ponta da
+branch produzirá um segundo artefato, e os dois ficam registrados.
 
 **A armadilha que o código evita:** usar `densenet121-res224-all` no NIH seria
-*in-distribution* — esses pesos foram treinados no NIH, entre outros datasets.
-Usamos `-pc` (só PadChest, Espanha) contra o teste oficial do NIH (EUA):
-validação externa genuína. O `check_leakage` detecta o caso ruim automaticamente
-e recusa chamá-lo de validação externa.
-
-## Instalação
-
-```bash
-uv venv --python 3.11 && source .venv/bin/activate   # 3.11, 3.12 ou 3.13
-uv pip install -e ".[dev,eval]"
-radiologyai selftest
-```
-
-## Verificação
-
-```bash
-ruff check src/ tests/ scripts/     # lint
-mypy src/radiologyai               # tipos, modo strict
-pytest --cov=radiologyai           # 154 testes
-python scripts/check_honesty.py    # guardião de honestidade
-python scripts/trace.py --check    # rastreabilidade RISCO→REQ→TESTE
-python scripts/soup.py --check     # lista SOUP (IEC 62304 §8.1.2)
-```
-
-**270 testes · 88% de cobertura · `mypy --strict` limpo · 20 requisitos rastreados.**
-
-### Subir a API
-
-```bash
-pip install -e ".[api,ml,imaging,eval]"
-uvicorn --factory radiologyai.api:create_app --port 8000
-# ou
-docker build -t radiologyai . && docker run -p 8000:8000 radiologyai
-```
-
-`GET /api/v1/metrics` devolve `measured: false` enquanto não houver artefato de
-avaliação. O servidor do v1 fabricava `clinical_metrics` a cada requisição, a
-partir de `y_true = np.array([1])  # Mock ground truth`.
-
-Três portões de CI existem especificamente para impedir a recorrência do modo de
-falha do v1:
-
-- **`check_honesty.py`** — quebra o build em qualquer alegação numérica de
-  desempenho sem artefato de avaliação que a sustente, qualquer sha256 inválido,
-  qualquer `except ImportError` que degrade em silêncio, e qualquer marcador de
-  simulação em código de produção.
-- **`trace.py`** — quebra o build se um requisito ficar sem teste verificador ou
-  se um teste citar um requisito inexistente.
-- **`soup.py`** — quebra o build se a lista SOUP divergir das dependências.
-
-O problema do v1 nunca foi falta de competência técnica. Foi que nada no sistema
-jamais objetou quando um número foi inventado. A objeção agora é automática.
-
-## Objetivo
-
-Plataforma multimodal (RX, TC, RM, US) extensível por plugin de modalidade, com médico no circuito, trilha de auditoria, explicabilidade real, calibração, abstenção por baixa confiança e documentação compatível com SaMD, em trajetória de registro ANVISA.
-
-**Nenhuma alegação de desempenho será publicada neste repositório sem um artefato de avaliação reproduzível em `artifacts/eval/` que a sustente.** Um verificador de CI (`scripts/check_honesty.py`) impõe essa regra automaticamente.
-
-## Estado dos dados
-
-Os dados de exemplo previamente incluídos em `data/nih_chest_xray/` eram **imagens sintéticas desenhadas com OpenCV**, gravadas com nomes de arquivos do NIH ChestX-ray14 (`00000001_000.png`). Foram removidos por risco de proveniência. Nenhum dado de paciente jamais esteve neste repositório.
+*in-distribution* — esses pesos foram treinados no NIH. O `check_leakage`
+detecta e recusa chamar isso de validação externa.
 
 ## Referência técnica
 

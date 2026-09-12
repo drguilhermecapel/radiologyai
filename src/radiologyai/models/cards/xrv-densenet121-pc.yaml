@@ -63,9 +63,16 @@ citation: >-
   Cohen JP, Viviano JD, Bertin P, et al. TorchXRayVision: A library of chest
   X-ray datasets and models. MIDL 2022. https://github.com/mlmed/torchxrayvision
 
-# VAZIO significa: nenhum desempenho foi medido neste projeto, e nenhum pode ser
-# alegado. Preenchido pelo executor de avaliação quando um artefato for produzido.
-evaluation_runs: []
+# Cada run listado aqui DEVE existir em artifacts/eval/<run_id>/metrics.json
+# neste repositório — um teste impõe isso. Vazio significaria: nenhum desempenho
+# medido, nenhum alegável.
+#
+# xrv-densenet121-pc__20260912T202549Z: NIH ChestX-ray14, split oficial de teste (25.596 imagens,
+#   2.797 pacientes), Colab T4, git 9d240cc. AUROC macro 0,664. Produzido com
+#   o carregador PNG de min-max por imagem (anterior ao pipeline canônico);
+#   reproduzível naquele commit.
+evaluation_runs:
+  - xrv-densenet121-pc__20260912T202549Z
 
 intended_use_ref: docs/regulatory/01-intended-use.md
 

@@ -354,7 +354,7 @@ radiologyai evaluate --card xrv-densenet121-pc \
 
 `metrics.json` obrigatoriamente carrega: `git_sha`, `weights_sha256`, `manifest_sha256`, `seed`, versões de biblioteca, AUROC por patologia com IC95%, ponto de operação em sensibilidade-alvo, ECE, subgrupos, `not_evaluated[]` e `limitations[]`.
 
-**Expectativa: 0,72–0,82 de AUROC macro.** Cardiomegalia/derrame/enfisema altos (0,85–0,90); pneumonia/infiltrado/nódulo baixos (0,65–0,73). O README hoje alega 0,94. **Publicar 0,78 com intervalo de confiança é o objetivo inteiro deste marco.**
+**Expectativa registrada antes da medição: 0,72–0,82.** Medido: **0,664** (`artifacts/eval/xrv-densenet121-pc__20260912T202549Z/`). A expectativa estava errada — cardiomegalia (0,796) e derrame (0,752) ficaram abaixo do previsto, e fibrose (0,455) ficou abaixo do acaso, o que indica que "Fibrosis" no PadChest e no NIH não nomeiam o mesmo achado. A lacuna PA/AP prevista apareceu (0,696 vs 0,631). Registrar a previsão errada ao lado do número medido faz parte do método: o v1 alegava 0,94.
 
 Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/EVALUATION_*.md`.
 
@@ -371,7 +371,7 @@ Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/
 | Manifest do NIH (25.596 imagens, 2.797 pacientes, disjunção verificada) | **commitado** |
 | Executor de avaliação com IC, subgrupos e proveniência completa | concluído |
 | Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
-| **Executar sobre as 25.596 imagens** | **pendente** — ~12 min em T4 |
+| **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664, `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/` |
 
 **Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
 **não treinadas** (o PadChest não continha `Lung Lesion`, `Lung Opacity` nem

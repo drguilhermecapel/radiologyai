@@ -31,13 +31,13 @@ requisito inexistente.
 | **REQ-051** Ausência de vazamento por paciente | safety | RISK-007 | implemented | `TestPatientLeakage` |
 | **REQ-060** Explicabilidade derivada do modelo real | safety | RISK-008 | implemented | `test_null_gradients_yield_null_map` |
 | **REQ-061** Calibração preserva a ordenação | functional | RISK-010 | implemented | `test_preserves_ranking_and_therefore_auroc` |
-| **REQ-062** Política de abstenção a partir de medição | safety | RISK-001 | implemented | `TestAbstentionPolicy` |
+| **REQ-062** Política de abstenção a partir de medição | safety | RISK-001 | implemented | `TestThresholdsComeFromMeasuredArtifact`<br>`TestAbstentionPolicy` |
 | **REQ-063** O sistema nunca afirma normalidade | safety | RISK-002 | implemented | `TestNeverAssertsNormality` |
 | **REQ-070** Trilha de auditoria à prova de adulteração | safety | RISK-007 | implemented | `TestTamperDetection` |
 | **REQ-071** Reconstrução completa da decisão | safety | RISK-007 | implemented | `TestDecisionReconstruction` |
 | **REQ-080** API não fabrica métricas | safety | RISK-004 | implemented | `TestMetricsNeverFabricated` |
 
-**20 requisitos · 23 verificações.**
+**20 requisitos · 24 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.

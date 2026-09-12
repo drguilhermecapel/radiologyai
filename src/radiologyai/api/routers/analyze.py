@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from radiologyai import __version__
 from radiologyai.api.app import DISCLAIMER
@@ -25,6 +25,7 @@ MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 
 @router.post("/analyze")
 async def analyze(
+    request: Request,
     file: Annotated[UploadFile, File(description="Arquivo DICOM")],
     card_id: Annotated[str, Form()] = "xrv-densenet121-pc",
 ) -> dict[str, Any]:
@@ -83,7 +84,9 @@ async def analyze(
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
         try:
-            findings = _run_inference(path, card, plugin, metadata)
+            findings = _run_inference(
+                path, card, plugin, metadata, artifacts_dir=request.app.state.artifacts_dir
+            )
         except BackendUnavailableError as exc:
             # Falha fechada: sem backend não há predição. Nunca um substituto.
             raise HTTPException(
@@ -109,9 +112,22 @@ async def analyze(
     }
 
 
-def _run_inference(path: Path, card: Any, plugin: Any, metadata: Any) -> list[dict[str, Any]]:
-    """Executa o modelo. Levanta ``BackendUnavailableError`` quando não pode."""
+def _run_inference(
+    path: Path, card: Any, plugin: Any, metadata: Any, *, artifacts_dir: str | Path
+) -> list[dict[str, Any]]:
+    """Executa o modelo. Levanta ``BackendUnavailableError`` quando não pode.
+
+    Os limiares da política de abstenção vêm EXCLUSIVAMENTE de um artefato de
+    avaliação referenciado pelo card. Sem artefato disponível neste checkout,
+    todo achado sai como *não avaliável* — nunca com um limiar inventado.
+    """
     from radiologyai.calibration import AbstentionPolicy
+    from radiologyai.evaluation.artifacts import (
+        evaluated_labels,
+        latest_run_for_card,
+        load_metrics,
+        operating_points,
+    )
     from radiologyai.io.reader import read_dicom, to_pixel_array
     from radiologyai.models.backends import build_backend
 
@@ -121,32 +137,36 @@ def _run_inference(path: Path, card: Any, plugin: Any, metadata: Any) -> list[di
     scores = backend.predict(image)
 
     trained = set(getattr(backend, "trained_labels", backend.labels))
-
-    # Sem artefato de avaliação não há ponto de operação medido, portanto não há
-    # política de abstenção legítima: tudo fica indeterminado até haver medição.
-    if not card.evaluation_runs:
-        return [
-            {
-                "label": label,
-                "score": round(float(score), 6),
-                "band": "nao_avaliavel",
-                "calibrated": False,
-                "evaluated": False,
-                "reason": "nenhum desempenho medido para este modelo",
-            }
-            for label, score in zip(backend.labels, scores, strict=True)
-            if label in trained
-        ]
-
-    policy = AbstentionPolicy.from_operating_points(
-        {label: 0.5 for label in backend.labels if label in trained}, calibrated=False
-    )
     labels = [label for label in backend.labels if label in trained]
     values = [
         float(score)
         for label, score in zip(backend.labels, scores, strict=True)
         if label in trained
     ]
+
+    run_dir = latest_run_for_card(artifacts_dir, tuple(card.evaluation_runs))
+    if run_dir is None:
+        reason = (
+            "nenhum desempenho medido para este modelo"
+            if not card.evaluation_runs
+            else "artefato de avaliação referenciado pelo card não está neste checkout"
+        )
+        return [
+            {
+                "label": label,
+                "score": round(score, 6),
+                "band": "nao_avaliavel",
+                "calibrated": False,
+                "evaluated": False,
+                "reason": reason,
+            }
+            for label, score in zip(labels, values, strict=True)
+        ]
+
+    metrics = load_metrics(artifacts_dir, run_dir.name)
+    policy = AbstentionPolicy.from_operating_points(operating_points(metrics), calibrated=False)
+    measured = evaluated_labels(metrics)
+    findings = policy.apply(labels, values, evaluated=[label in measured for label in labels])
     return [
         {
             "label": f.label,
@@ -154,6 +174,7 @@ def _run_inference(path: Path, card: Any, plugin: Any, metadata: Any) -> list[di
             "band": f.band.value,
             "calibrated": f.calibrated,
             "evaluated": f.evaluated,
+            "evaluation_run": run_dir.name,
         }
-        for f in policy.apply(labels, values)
+        for f in findings
     ]

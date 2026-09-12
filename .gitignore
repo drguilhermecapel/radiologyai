@@ -195,9 +195,15 @@ data/**
 *.tflite
 *.safetensors
 
-# Artefatos de avaliação (exceto as métricas, que são o registro)
-artifacts/**
-!artifacts/eval/**/metrics.json
+# Artefatos de avaliação: só o metrics.json é versionado (é o registro).
+# Um padrão que exclui o diretório inteiro impede qualquer re-inclusão dentro
+# dele; por isso os diretórios pais são liberados degrau a degrau.
+artifacts/*
+!artifacts/eval/
+artifacts/eval/*
+!artifacts/eval/*/
+artifacts/eval/*/*
+!artifacts/eval/*/metrics.json
 
 # Build / venv da Fase 1
 dist/

@@ -99,10 +99,14 @@ class TestMetricsNeverFabricated:
 
 
 class TestModels:
-    def test_cards_declare_no_measured_performance(self, client):
+    def test_measured_performance_flag_matches_runs(self, client):
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[2]
         for card in client.get("/api/v1/models").json():
-            assert card["has_measured_performance"] is False
-            assert card["evaluation_runs"] == []
+            assert card["has_measured_performance"] is bool(card["evaluation_runs"])
+            for run_id in card["evaluation_runs"]:
+                assert (root / "artifacts" / "eval" / run_id / "metrics.json").is_file()
 
     def test_no_accuracy_field_exposed(self, client):
         """O model_registry.json do v1 expunha accuracy: 0.92 fabricado."""
@@ -211,3 +215,49 @@ class TestAnalyzeResponseContract:
         for finding in response.json()["findings"]:
             assert finding["band"] == "nao_avaliavel"
             assert finding["evaluated"] is False
+
+
+@pytest.fixture
+def client_with_repo_artifacts():
+    """API apontada para os artefatos REAIS versionados no repositório."""
+    from pathlib import Path
+
+    from fastapi.testclient import TestClient
+
+    from radiologyai.api import create_app
+
+    root = Path(__file__).resolve().parents[2]
+    return TestClient(create_app(artifacts_dir=str(root / "artifacts" / "eval")))
+
+
+@pytest.mark.requirement("REQ-062")
+class TestThresholdsComeFromMeasuredArtifact:
+    """Os limiares da abstenção vêm do artefato medido — nunca de um placeholder."""
+
+    def test_bands_derive_from_baseline_run(self, client_with_repo_artifacts, cr_dataset):
+        response = client_with_repo_artifacts.post(
+            "/api/v1/analyze",
+            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
+        )
+        if response.status_code == 503:
+            pytest.skip("backend indisponível neste ambiente")
+        assert response.status_code == 200, response.text
+        findings = response.json()["findings"]
+        evaluated = [f for f in findings if f["evaluated"]]
+        assert evaluated, "nenhum achado com medição — o artefato não foi usado"
+        for f in evaluated:
+            assert f["evaluation_run"] == "xrv-densenet121-pc__20260912T202549Z"
+            assert f["band"] in ("achado_provavel", "nao_avaliavel", "achado_improvavel")
+            assert f["calibrated"] is False
+
+    def test_run_without_artifact_in_checkout_is_all_indeterminate(self, client, cr_dataset):
+        """Card referencia um run; o artefato não está neste artifacts_dir → tudo indeterminado."""
+        response = client.post(
+            "/api/v1/analyze",
+            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
+        )
+        if response.status_code == 503:
+            pytest.skip("backend indisponível neste ambiente")
+        for f in response.json()["findings"]:
+            assert f["band"] == "nao_avaliavel"
+            assert "não está neste checkout" in f["reason"]

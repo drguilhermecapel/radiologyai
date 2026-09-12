@@ -136,9 +136,15 @@ class Manifest:
         return cls(name=name, split=split, label_names=label_names, rows=rows)
 
     def sha256(self) -> str:
-        """Hash do próprio manifest — gravado em todo artefato de avaliação."""
+        """Hash do conteúdo do manifest — gravado em todo artefato de avaliação.
+
+        Independente da ordem das linhas: as linhas são hasheadas ordenadas por
+        ``image_id``. O CSV oficial do NIH e o espelho do Kaggle trazem as
+        mesmas 25.596 linhas em ordens diferentes; um hash sensível à ordem
+        fazia dois manifests de conteúdo idêntico parecerem dados diferentes.
+        """
         digest = hashlib.sha256()
-        for row in self.rows:
+        for row in sorted(self.rows, key=lambda r: r.image_id):
             digest.update(row.image_id.encode())
             digest.update(row.patient_id.encode())
             for name in self.label_names:

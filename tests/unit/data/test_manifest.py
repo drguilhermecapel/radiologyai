@@ -76,3 +76,24 @@ class TestRoundTrip:
     def test_missing_file_raises(self, tmp_path):
         with pytest.raises(EvaluationError, match="não encontrado"):
             Manifest.from_csv(tmp_path / "x.csv", name="X", split="test")
+
+
+class TestOrderIndependentHash:
+    """O CSV oficial e o do Kaggle têm as mesmas linhas em ordens diferentes."""
+
+    def test_shuffled_rows_same_hash(self):
+        import random
+
+        a = make_manifest(20)
+        b = make_manifest(20)
+        random.Random(7).shuffle(b.rows)
+        assert [r.image_id for r in a.rows] != [r.image_id for r in b.rows]
+        assert a.sha256() == b.sha256()
+
+    def test_committed_manifest_matches_colab_artifact(self):
+        """Regressão: o artefato de 2026-09-12 registrou 39f31d78… para o mesmo conteúdo."""
+        from pathlib import Path
+
+        path = Path(__file__).resolve().parents[3] / "datasets" / "manifests" / "nih_cxr14_test.csv"
+        m = Manifest.from_csv(path, name="NIH ChestX-ray14", split="test")
+        assert m.sha256() == "39f31d789c3ccc1cc8413800cc07511546fa680aad03745729ce07ffacf44bda"

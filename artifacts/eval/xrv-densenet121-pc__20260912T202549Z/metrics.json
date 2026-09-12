@@ -1,0 +1,429 @@
+{
+  "run_id": "xrv-densenet121-pc__20260912T202549Z",
+  "timestamp_utc": "2026-09-12T20:25:49.685538+00:00",
+  "environment": {
+    "git_sha": "9d240ccd54b24c245c79142a9a59d51e9ff3a181",
+    "code_version": "2.0.0.dev0",
+    "python": "3.13.15",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "libraries": {
+      "numpy": "2.1.3",
+      "torch": "2.11.0+cu128",
+      "torchxrayvision": "1.5.4",
+      "pydicom": "2.4.4"
+    }
+  },
+  "config": {
+    "seed": 20260101,
+    "n_bootstrap": 2000,
+    "target_sensitivity": 0.9,
+    "min_support": 10
+  },
+  "model": {
+    "card_id": "xrv-densenet121-pc",
+    "version": "1.0.0",
+    "weights_sha256": "a9148ef62ae4e7a31a9bed8cef22811f39681cd61e4390398936efc6280af521",
+    "trained_on": [
+      "PadChest"
+    ],
+    "backend": {
+      "backend": "torchxrayvision",
+      "weights_name": "densenet121-res224-pc",
+      "torch_version": "2.11.0+cu128",
+      "torchxrayvision_version": "1.5.4",
+      "n_labels": 18,
+      "n_trained_labels": 15,
+      "untrained_output_indices": [
+        14,
+        16,
+        17
+      ],
+      "input_size": 224,
+      "trained_on": [
+        "PadChest"
+      ]
+    }
+  },
+  "dataset": {
+    "name": "NIH ChestX-ray14",
+    "split": "oficial test_list.txt",
+    "manifest_sha256": "39f31d789c3ccc1cc8413800cc07511546fa680aad03745729ce07ffacf44bda",
+    "n_images": 25596,
+    "n_patients": 2797,
+    "external_to_training_data": true,
+    "leakage_status": "externo"
+  },
+  "per_label": {
+    "Atelectasis": {
+      "auroc": 0.6536,
+      "auroc_ci95": [
+        0.6443,
+        0.6628
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 3279,
+      "n_neg": 22317,
+      "prevalence": 0.1281,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.503179,
+        "sensitivity": 0.9003,
+        "specificity": 0.2964,
+        "ppv": 0.1582,
+        "npv": 0.9529
+      },
+      "ece": 0.341,
+      "calibrated": false
+    },
+    "Consolidation": {
+      "auroc": 0.6542,
+      "auroc_ci95": [
+        0.6429,
+        0.6649
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1815,
+      "n_neg": 23781,
+      "prevalence": 0.0709,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.510363,
+        "sensitivity": 0.9003,
+        "specificity": 0.3532,
+        "ppv": 0.096,
+        "npv": 0.9789
+      },
+      "ece": 0.3718,
+      "calibrated": false
+    },
+    "Infiltration": {
+      "auroc": 0.6499,
+      "auroc_ci95": [
+        0.6424,
+        0.6574
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 6112,
+      "n_neg": 19484,
+      "prevalence": 0.2388,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.521622,
+        "sensitivity": 0.9,
+        "specificity": 0.2759,
+        "ppv": 0.2805,
+        "npv": 0.8979
+      },
+      "ece": 0.3778,
+      "calibrated": false
+    },
+    "Pneumothorax": {
+      "auroc": 0.6741,
+      "auroc_ci95": [
+        0.6637,
+        0.6849
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 2665,
+      "n_neg": 22931,
+      "prevalence": 0.1041,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.500084,
+        "sensitivity": 0.9002,
+        "specificity": 0.2815,
+        "ppv": 0.1271,
+        "npv": 0.9604
+      },
+      "ece": 0.3281,
+      "calibrated": false
+    },
+    "Edema": {
+      "auroc": 0.7451,
+      "auroc_ci95": [
+        0.7312,
+        0.7589
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 925,
+      "n_neg": 24671,
+      "prevalence": 0.0361,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.426304,
+        "sensitivity": 0.9005,
+        "specificity": 0.4389,
+        "ppv": 0.0568,
+        "npv": 0.9916
+      },
+      "ece": 0.3035,
+      "calibrated": false
+    },
+    "Emphysema": {
+      "auroc": 0.5907,
+      "auroc_ci95": [
+        0.5751,
+        0.6063
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1093,
+      "n_neg": 24503,
+      "prevalence": 0.0427,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.063196,
+        "sensitivity": 0.9003,
+        "specificity": 0.2227,
+        "ppv": 0.0491,
+        "npv": 0.9804
+      },
+      "ece": 0.2517,
+      "calibrated": false
+    },
+    "Fibrosis": {
+      "auroc": 0.4553,
+      "auroc_ci95": [
+        0.4296,
+        0.4798
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 435,
+      "n_neg": 25161,
+      "prevalence": 0.017,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.001363,
+        "sensitivity": 0.9011,
+        "specificity": 0.1153,
+        "ppv": 0.0173,
+        "npv": 0.9854
+      },
+      "ece": 0.2545,
+      "calibrated": false
+    },
+    "Effusion": {
+      "auroc": 0.7525,
+      "auroc_ci95": [
+        0.7452,
+        0.7596
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 4658,
+      "n_neg": 20938,
+      "prevalence": 0.182,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.522162,
+        "sensitivity": 0.9002,
+        "specificity": 0.4245,
+        "ppv": 0.2582,
+        "npv": 0.9503
+      },
+      "ece": 0.3614,
+      "calibrated": false
+    },
+    "Pneumonia": {
+      "auroc": 0.6561,
+      "auroc_ci95": [
+        0.6339,
+        0.6774
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 555,
+      "n_neg": 25041,
+      "prevalence": 0.0217,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.514951,
+        "sensitivity": 0.9009,
+        "specificity": 0.2799,
+        "ppv": 0.027,
+        "npv": 0.9922
+      },
+      "ece": 0.5101,
+      "calibrated": false
+    },
+    "Pleural_Thickening": {
+      "auroc": 0.5789,
+      "auroc_ci95": [
+        0.5633,
+        0.595
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1143,
+      "n_neg": 24453,
+      "prevalence": 0.0447,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.107389,
+        "sensitivity": 0.9003,
+        "specificity": 0.1892,
+        "ppv": 0.0493,
+        "npv": 0.9759
+      },
+      "ece": 0.3248,
+      "calibrated": false
+    },
+    "Cardiomegaly": {
+      "auroc": 0.796,
+      "auroc_ci95": [
+        0.7828,
+        0.8085
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1069,
+      "n_neg": 24527,
+      "prevalence": 0.0418,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.41694,
+        "sensitivity": 0.9008,
+        "specificity": 0.4831,
+        "ppv": 0.0706,
+        "npv": 0.9911
+      },
+      "ece": 0.3186,
+      "calibrated": false
+    },
+    "Nodule": {
+      "auroc": 0.6091,
+      "auroc_ci95": [
+        0.5951,
+        0.6232
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1623,
+      "n_neg": 23973,
+      "prevalence": 0.0634,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.353276,
+        "sensitivity": 0.9002,
+        "specificity": 0.189,
+        "ppv": 0.0699,
+        "npv": 0.9655
+      },
+      "ece": 0.3973,
+      "calibrated": false
+    },
+    "Mass": {
+      "auroc": 0.6496,
+      "auroc_ci95": [
+        0.6364,
+        0.6616
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 1748,
+      "n_neg": 23848,
+      "prevalence": 0.0683,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.260455,
+        "sensitivity": 0.9005,
+        "specificity": 0.2269,
+        "ppv": 0.0787,
+        "npv": 0.9688
+      },
+      "ece": 0.3523,
+      "calibrated": false
+    },
+    "Hernia": {
+      "auroc": 0.836,
+      "auroc_ci95": [
+        0.7803,
+        0.8871
+      ],
+      "ci_method": "bootstrap estratificado (n=2000, seed=20260101)",
+      "n_pos": 86,
+      "n_neg": 25510,
+      "prevalence": 0.0034,
+      "operating_point": {
+        "target_sensitivity": 0.9,
+        "threshold": 0.070057,
+        "sensitivity": 0.907,
+        "specificity": 0.4271,
+        "ppv": 0.0053,
+        "npv": 0.9993
+      },
+      "ece": 0.1833,
+      "calibrated": false
+    }
+  },
+  "macro_auroc": 0.6644,
+  "n_labels_evaluated": 14,
+  "not_evaluated": [
+    {
+      "label": "__untrained_14",
+      "reason": "cabeça de saída não treinada neste conjunto de pesos; o valor produzido não tem significado e não é reportado"
+    },
+    {
+      "label": "Fracture",
+      "reason": "sem rótulo correspondente em NIH ChestX-ray14"
+    },
+    {
+      "label": "__untrained_16",
+      "reason": "cabeça de saída não treinada neste conjunto de pesos; o valor produzido não tem significado e não é reportado"
+    },
+    {
+      "label": "__untrained_17",
+      "reason": "cabeça de saída não treinada neste conjunto de pesos; o valor produzido não tem significado e não é reportado"
+    }
+  ],
+  "subgroups": {
+    "sex": {
+      "F": {
+        "n": 10714,
+        "n_labels": 14,
+        "macro_auroc": 0.6662
+      },
+      "M": {
+        "n": 14882,
+        "n_labels": 14,
+        "macro_auroc": 0.6618
+      }
+    },
+    "age_band": {
+      "18-39": {
+        "n": 8290,
+        "n_labels": 13,
+        "macro_auroc": 0.665
+      },
+      "40-59": {
+        "n": 11224,
+        "n_labels": 14,
+        "macro_auroc": 0.6572
+      },
+      "60-74": {
+        "n": 5467,
+        "n_labels": 14,
+        "macro_auroc": 0.6496
+      },
+      "75+": {
+        "n": 611,
+        "n_labels": 12,
+        "macro_auroc": 0.6348
+      }
+    },
+    "view_position": {
+      "AP": {
+        "n": 14500,
+        "n_labels": 14,
+        "macro_auroc": 0.6308
+      },
+      "PA": {
+        "n": 11096,
+        "n_labels": 14,
+        "macro_auroc": 0.6955
+      }
+    }
+  },
+  "limitations": [
+    "Rótulos minerados por NLP dos laudos, não adjudicados por radiologista; a acurácia estimada da rotulagem é de aproximadamente 90%.",
+    "Apenas incidências frontais (PA e AP). Perfil não está representado.",
+    "Sem sujeitos pediátricos identificados separadamente.",
+    "'Infiltration' do NIH não é diretamente comparável ao rótulo homônimo de outros datasets; a concordância entre definições é fraca.",
+    "Esta é uma medição retrospectiva de desempenho de algoritmo isolado, NÃO uma validação clínica.",
+    "Nenhuma calibração foi aplicada: os escores NÃO são probabilidade de doença.",
+    "Medição retrospectiva de desempenho de algoritmo isolado. NÃO constitui validação clínica nem evidência de utilidade clínica."
+  ]
+}

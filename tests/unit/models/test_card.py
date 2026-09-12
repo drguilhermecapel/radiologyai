@@ -112,10 +112,25 @@ class TestRegistry:
         for card in list_cards():
             assert len(card.weights_sha256) == 64
 
-    def test_no_shipped_card_claims_performance(self):
-        """Nenhum card do repositório alega desempenho: nenhum foi medido aqui."""
-        unbacked = [c.card_id for c in list_cards() if c.has_measured_performance]
-        assert not unbacked, f"cards alegando desempenho sem artefato nesta árvore: {unbacked}"
+    def test_every_claimed_run_has_an_artifact_in_this_checkout(self):
+        """Um card só alega desempenho apontando para artefato presente no repositório.
+
+        Antes da primeira medição real este teste exigia evaluation_runs vazio.
+        Agora existe um artefato: o invariante passa a ser que cada run listado
+        tenha o seu artifacts/eval/<run>/metrics.json versionado.
+        """
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[3]
+        for card in list_cards():
+            for run_id in card.evaluation_runs:
+                artifact = root / "artifacts" / "eval" / run_id / "metrics.json"
+                assert artifact.is_file(), f"{card.card_id} referencia {run_id} sem artefato"
+
+    def test_baseline_card_now_has_measured_performance(self):
+        card = get_card("xrv-densenet121-pc")
+        assert card.has_measured_performance
+        assert "xrv-densenet121-pc__20260912T202549Z" in card.evaluation_runs
 
     def test_baseline_card_is_padchest_not_all(self):
         """A linha de base usa pesos PadChest, não '-all' (que viu o NIH).
