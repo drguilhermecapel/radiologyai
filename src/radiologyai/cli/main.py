@@ -143,6 +143,9 @@ def manifest(
 def evaluate(
     card_id: Annotated[str, typer.Option("--card", help="card_id do model card")],
     data_root: Annotated[Path, typer.Option("--data-root", help="Raiz do dataset")],
+    dataset: Annotated[
+        str, typer.Option("--dataset", help="nih-cxr14 (NLP) ou chexpert-valid (radiologistas)")
+    ] = "nih-cxr14",
     manifest_path: Annotated[
         Path | None, typer.Option("--manifest", help="CSV do manifest (gerado se omitido)")
     ] = None,
@@ -168,6 +171,7 @@ def evaluate(
         result = run_baseline(
             data_root,
             out,
+            dataset=dataset,
             card_id=card_id,
             manifest_path=manifest_path,
             device=device,

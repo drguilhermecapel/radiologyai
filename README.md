@@ -31,6 +31,7 @@ lint, tipos e CI.
 | CLI (`radiologyai version / selftest / modalities / inspect / cards`) | **funcional** |
 | Backend torchxrayvision (pesos reais, integridade sha256) | **funcional, testada** |
 | Manifest do NIH ChestX-ray14 + detecção de vazamento | **funcional, testada** |
+| Carregador do CheXpert (validação, rótulos por 3 radiologistas) | **funcional, testada** — ver [`docs/access/`](docs/access/README.md) |
 | Executor de avaliação (AUROC com IC, subgrupos, proveniência) | **funcional, testada** |
 | Calibração por temperatura (preserva ordenação, logo AUROC) | **funcional, testada** |
 | Política de abstenção em 3 bandas, mais larga para achado crítico | **funcional, testada** |

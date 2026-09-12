@@ -324,7 +324,8 @@ Premissa: **8–12 h/semana, solo.** Prazos em tempo decorrido real.
 7. `git filter-repo` para expurgar `medai_security.db` do histórico; rotacionar o que ele tocava; remover segredos de `medai_config.json` e `docker-compose.yml`.
 8. `pyproject.toml` + `uv.lock` + `.github/workflows/ci.yml` verdes em pacote vazio.
 9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch.
-10. Iniciar credenciamento PhysioNet (curso CITI). **Leva 2–6 semanas — comece já.**
+10. Iniciar credenciamento PhysioNet (curso CITI, ~6 h). A revisão sai em 24–48 h
+    depois do relatório enviado; o gargalo é o curso. Ver `docs/access/README.md`.
 11. Comprar HD externo de 4 TB; iniciar download do NIH ChestX-ray14.
 12. Rascunhar `03-risk-management-plan.md` e semear `04-risk-file.md` com H-01…H-10 (§6.3).
 
@@ -561,7 +562,9 @@ R$ 3.000 ≈ USD 550. **Armazenamento é o gargalo, não computação** — voc�
 
 ### Credenciamento PhysioNet — comece na semana 1
 
-VinDr-CXR exige conta credenciada: curso CITI "Data or Specimens Only Research" (grátis, ~6 h) mais referência. Como médico com CRM ativo isso é diretamente obtenível, mas a aprovação leva **2–6 semanas**. Submeta antes de escrever código. A linha de base da Fase 1 depende deliberadamente de nada credenciado, então o credenciamento roda em paralelo e nunca fica no caminho crítico.
+VinDr-CXR exige conta credenciada: curso CITI "Data or Specimens Only Research" (grátis, ~6 h) mais referência. Como médico com CRM ativo é diretamente obtenível, e **a revisão da PhysioNet costuma sair em 24–48 h** depois do relatório CITI enviado — o gargalo é o curso, não a fila. (Versões anteriores deste roadmap diziam 2–6 semanas; estava errado.)
+
+**Há um caminho imediato para rótulos adjudicados, antes do VinDr:** o conjunto de validação do CheXpert — 234 imagens, voto majoritário de 3 radiologistas certificados — exige apenas registro na Stanford AIMI, sem credenciamento. É bem menor que o VinDr (234 imagens contra 3.000 exames), portanto com ICs largos, mas já responde à pergunta que a linha de base do NIH deixou aberta: fibrose em 0,448 é o modelo ou é o rótulo? Implementado em `radiologyai.data.chexpert`; instruções em `docs/access/README.md`.
 
 ### Governança de dados (imposta pelo CI)
 

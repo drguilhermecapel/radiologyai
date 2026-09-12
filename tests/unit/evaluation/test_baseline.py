@@ -163,3 +163,83 @@ class TestRunBaselineEndToEnd:
 
     def test_metrics_json_is_valid(self, result):
         json.loads((result.run_dir / "metrics.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.skipif(not HAS_ML, reason="requer o extra [ml]")
+class TestRunBaselineCheXpert:
+    """O caminho de rótulos adjudicados, ponta a ponta."""
+
+    @pytest.fixture
+    def chexpert_root(self, tmp_path):
+        import csv
+
+        from radiologyai.data.chexpert import CHEXPERT_LABELS
+
+        campos = ["Path", "Sex", "Age", "Frontal/Lateral", "AP/PA", *CHEXPERT_LABELS]
+        rng = np.random.default_rng(1)
+        linhas = []
+        for i in range(40):
+            paciente = f"patient{64000 + i // 2:05d}"
+            rel = f"CheXpert-v1.0/valid/{paciente}/study{i % 2 + 1}/view1_frontal.jpg"
+            destino = tmp_path / rel
+            destino.parent.mkdir(parents=True, exist_ok=True)
+            Image.fromarray(rng.integers(0, 255, (64, 64), dtype=np.uint8)).save(destino)
+            base = dict.fromkeys(CHEXPERT_LABELS, "")
+            base["Cardiomegaly"] = "1.0" if i % 2 == 0 else "0.0"
+            base["Pleural Effusion"] = "1.0" if i % 3 == 0 else "0.0"
+            linhas.append(
+                {
+                    "Path": rel,
+                    "Sex": "Male" if i % 2 else "Female",
+                    "Age": str(40 + i % 40),
+                    "Frontal/Lateral": "Frontal",
+                    "AP/PA": "AP" if i % 2 else "PA",
+                    **base,
+                }
+            )
+        with (tmp_path / "valid.csv").open("w", newline="", encoding="utf-8") as fh:
+            w = csv.DictWriter(fh, fieldnames=campos)
+            w.writeheader()
+            w.writerows(linhas)
+        return tmp_path
+
+    def test_roda_e_grava_artefato(self, chexpert_root):
+        result = run_baseline(
+            chexpert_root,
+            chexpert_root / "art",
+            dataset="chexpert-valid",
+            n_bootstrap=30,
+            batch_size=8,
+            log=lambda _: None,
+        )
+        m = result.metrics
+        assert m["dataset"]["name"] == "CheXpert"
+        assert (result.run_dir / "metrics.json").is_file()
+
+    def test_padchest_em_chexpert_e_externo(self, chexpert_root):
+        result = run_baseline(
+            chexpert_root,
+            chexpert_root / "art2",
+            dataset="chexpert-valid",
+            n_bootstrap=30,
+            batch_size=8,
+            log=lambda _: None,
+        )
+        assert result.leakage_status == "externo"
+
+    def test_limitacoes_do_chexpert_propagadas(self, chexpert_root):
+        result = run_baseline(
+            chexpert_root,
+            chexpert_root / "art3",
+            dataset="chexpert-valid",
+            n_bootstrap=30,
+            batch_size=8,
+            log=lambda _: None,
+        )
+        assert any("3 radiologistas" in x for x in result.metrics["limitations"])
+
+    def test_dataset_desconhecido_falha(self, chexpert_root):
+        with pytest.raises(EvaluationError, match="desconhecido"):
+            run_baseline(
+                chexpert_root, chexpert_root / "x", dataset="inexistente", log=lambda _: None
+            )

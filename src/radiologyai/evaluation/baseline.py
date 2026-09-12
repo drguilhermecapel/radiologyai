@@ -25,12 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from radiologyai.data.manifest import Manifest
-from radiologyai.data.nih_cxr14 import (
-    LIMITATIONS,
-    build_manifest,
-    discover_image_dirs,
-    find_image,
-)
+from radiologyai.data.nih_cxr14 import build_manifest
 from radiologyai.errors import EvaluationError
 from radiologyai.evaluation.predict_dataset import predict_manifest
 from radiologyai.evaluation.runner import EvaluationConfig, check_leakage, run_evaluation
@@ -39,6 +34,46 @@ from radiologyai.models.backends import build_backend
 
 DEFAULT_CARD = "xrv-densenet121-pc"
 DEFAULT_SEED = 20260101
+
+
+def _nih_adapter(data_root: Path) -> tuple[Any, Any, tuple[str, ...]]:
+    """(construtor de manifest, resolvedor de caminho, limitações) do NIH."""
+    from radiologyai.data.nih_cxr14 import (
+        LIMITATIONS,
+        build_manifest,
+        discover_image_dirs,
+        find_image,
+    )
+
+    image_dirs = discover_image_dirs(data_root)
+    if not image_dirs:
+        raise EvaluationError(
+            f"nenhum diretório de imagens em {data_root}. Esperado images_0xx/images/ "
+            "(distribuição oficial e Kaggle) ou images/."
+        )
+    return (
+        lambda: build_manifest(data_root, split="test"),
+        lambda image_id: find_image(image_id, image_dirs),
+        LIMITATIONS,
+    )
+
+
+def _chexpert_adapter(data_root: Path) -> tuple[Any, Any, tuple[str, ...]]:
+    """Conjunto de validação do CheXpert — rótulos por consenso de radiologistas."""
+    from radiologyai.data.chexpert import (
+        LIMITATIONS,
+        build_valid_manifest,
+        resolve_image_path,
+    )
+
+    return (
+        lambda: build_valid_manifest(data_root, frontal_only=True),
+        lambda image_id: resolve_image_path(image_id, data_root),
+        LIMITATIONS,
+    )
+
+
+DATASETS: dict[str, Any] = {"nih-cxr14": _nih_adapter, "chexpert-valid": _chexpert_adapter}
 
 
 @dataclass(frozen=True)
@@ -79,6 +114,7 @@ def run_baseline(
     data_root: str | Path,
     artifacts_dir: str | Path,
     *,
+    dataset: str = "nih-cxr14",
     card_id: str = DEFAULT_CARD,
     manifest_path: str | Path | None = None,
     device: str = "cpu",
@@ -108,8 +144,16 @@ def run_baseline(
         Path(manifest_path) if manifest_path else artifacts_dir / "manifests" / "nih_cxr14_test.csv"
     )
 
-    log(f"dataset: {data_root}")
-    manifest = prepare_manifest(data_root, manifest_path, limit=limit)
+    if dataset not in DATASETS:
+        raise EvaluationError(f"dataset {dataset!r} desconhecido; disponíveis: {sorted(DATASETS)}")
+
+    log(f"dataset: {dataset} em {data_root}")
+    construir, resolver, limitacoes = DATASETS[dataset](data_root)
+
+    manifest = construir()
+    if limit:
+        manifest.rows = manifest.rows[:limit]
+    manifest.to_csv(manifest_path)
     log(
         f"manifest: {len(manifest)} imagens · {len(manifest.patient_ids)} pacientes "
         f"· split {manifest.split} · sha256 {manifest.sha256()[:16]}…"
@@ -117,17 +161,9 @@ def run_baseline(
     if limit:
         log(f"AVISO: limitado a {limit} imagens — resultado NÃO é a medição completa.")
 
-    image_dirs = discover_image_dirs(data_root)
-    if not image_dirs:
-        raise EvaluationError(
-            f"nenhum diretório de imagens em {data_root}. Esperado images_0xx/images/ "
-            "(distribuição oficial e Kaggle) ou images/."
-        )
-    log(f"imagens: {len(image_dirs)} diretório(s)")
-
     # Verifica que a primeira imagem do manifest existe ANTES de carregar o
     # modelo — é o erro mais comum e o mais barato de detectar cedo.
-    find_image(manifest.rows[0].image_id, image_dirs)
+    resolver(manifest.rows[0].image_id)
 
     card = get_card(card_id)
     leakage = check_leakage(card, manifest)
@@ -157,7 +193,7 @@ def run_baseline(
     scores = predict_manifest(
         backend=backend,
         manifest=manifest,
-        resolve_path=lambda image_id: find_image(image_id, image_dirs),
+        resolve_path=resolver,
         batch_size=batch_size,
         progress=progress,
     )
@@ -169,7 +205,7 @@ def run_baseline(
         y_score=scores,
         output_dir=artifacts_dir,
         config=EvaluationConfig(seed=seed, n_bootstrap=n_bootstrap),
-        dataset_limitations=LIMITATIONS,
+        dataset_limitations=limitacoes,
     )
     metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
     log(f"artefato: {run_dir}")
