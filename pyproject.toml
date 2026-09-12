@@ -7,7 +7,7 @@ name = "radiologyai"
 version = "2.0.0.dev0"
 description = "Plataforma de pesquisa em interpretação de imagens radiológicas por IA. Software de pesquisa — não é dispositivo médico."
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
 license = { text = "Proprietary" }
 authors = [{ name = "Guilherme Capel Pasqua" }]
 keywords = ["radiology", "dicom", "medical-imaging", "samd"]

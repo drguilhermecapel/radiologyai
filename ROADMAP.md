@@ -226,7 +226,7 @@ Cada modalidade é, na prática, um dispositivo separado — pré-processamento,
 
 **Custo real da migração: ~1,5 dia, e você deleta mais do que escreve.** O único código que toca TF e vale a pena é um método de `medai_confidence_calibration.py` (~2 h) e `MedicalAugmentationTF` (~1 dia, substituído por `Compose` do MONAI).
 
-**Pinos:** `torch==2.5.1`, `monai==1.4.0`, `torchxrayvision==1.3.4`, `timm`, `pydicom==2.4.4` (2.x — a 3.x mudou a API de pixel handlers), `SimpleITK==2.4.x`, `onnxruntime==1.20.x`, Python `>=3.11,<3.13` (3.11 primário; 3.12 é o que o Colab usa). Lockfile com `uv`. Cada versão entra literalmente na lista SOUP.
+**Pinos:** `torch==2.5.1`, `monai==1.4.0`, `torchxrayvision==1.3.4`, `timm`, `pydicom==2.4.4` (2.x — a 3.x mudou a API de pixel handlers), `SimpleITK==2.4.x`, `onnxruntime==1.20.x`, Python `>=3.11,<3.14` (3.11 primário; o Colab já está em 3.13). Lockfile com `uv`. Cada versão entra literalmente na lista SOUP.
 
 ---
 

@@ -21,9 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 3.11 é o alvo primário; 3.12 é o que o Colab usa. O pyproject declara
-        # >=3.11,<3.13 — os dois precisam ser testados, não só declarados.
-        python: ["3.11", "3.12"]
+        # 3.11 é o alvo primário. O pyproject declara >=3.11,<3.14 — cada versão
+        # da faixa precisa ser testada, não só declarada. O Colab está em 3.13.
+        python: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -121,6 +121,42 @@ jobs:
           card.verify_weights(weights_cache_path('densenet121-res224-pc'))
           print('sha256 dos pesos confere com o card')
           "
+
+  colab:
+    # Espelha o ambiente do Colab: Python 3.13 e o torch MAIS RECENTE (o Colab
+    # traz o dele; o notebook não instala torch). O job "ml" cobre a combinação
+    # pinada no lockfile (3.11 + torch 2.5.1); este cobre a que o usuário
+    # encontra de fato no navegador. Se torch novo quebrar o carregamento dos
+    # pesos do torchxrayvision, é aqui que aparece — antes de aparecer no Colab.
+    name: Como no Colab (py3.13, torch mais recente)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.13
+      - name: Instalar como o notebook instala
+        run: |
+          uv venv --python 3.13 .venv313
+          VIRTUAL_ENV=.venv313 uv pip install --index-strategy unsafe-best-match \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch torchvision torchxrayvision \
+            "pydicom==2.4.4" "pydantic>=2.7" "pydantic-settings>=2.3" "typer>=0.12" PyYAML \
+            numpy scipy scikit-learn pillow pytest
+          VIRTUAL_ENV=.venv313 uv pip install --no-deps -e .
+      - uses: actions/cache@v4
+        with:
+          path: ~/.torchxrayvision
+          key: xrv-weights-v1
+      - name: selftest no 3.13
+        run: .venv313/bin/python -c "import radiologyai; print(radiologyai.selftest())"
+      - name: Backend, explicabilidade e linha de base com pesos reais
+        run: |
+          .venv313/bin/python -m pytest -q \
+            tests/unit/models/test_xrv_backend.py tests/unit/explain \
+            tests/unit/evaluation/test_baseline.py
 
   build:
     name: Build do pacote
