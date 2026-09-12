@@ -145,3 +145,49 @@ class TestWeightsIntegrity:
         from radiologyai.models import list_cards
 
         assert not any(c.card_id.endswith("-all") for c in list_cards())
+
+
+class TestDevicePlacement:
+    """A entrada vai para o dispositivo do modelo — por construção.
+
+    Primeira execução em GPU no Colab: ``to('cuda')`` movia os pesos e a
+    entrada ficava na CPU (``Input type (torch.FloatTensor) and weight type
+    (torch.cuda.FloatTensor) should be the same``). Sem GPU no CI, o que se
+    pode verificar é que o dispositivo é lido dos parâmetros e que toda
+    entrada passa por ``.to(self.device)`` antes do forward.
+    """
+
+    def test_device_is_read_from_parameters(self, backend):
+
+        assert backend.device == next(backend._model.parameters()).device
+        assert backend.device.type == "cpu"
+
+    def test_no_separate_device_state(self, backend):
+        assert not hasattr(backend, "_device")
+
+    def test_to_returns_self_and_keeps_consistency(self, backend):
+        assert backend.to("cpu") is backend
+        assert backend.device.type == "cpu"
+
+    @pytest.mark.parametrize("method", ["predict", "predict_batch"])
+    def test_forward_receives_tensor_on_model_device(self, backend, image, method, monkeypatch):
+        """Espião no forward: o tensor recebido está no mesmo dispositivo dos pesos."""
+        seen = {}
+        real_model = backend._model
+
+        class Spy:
+            def __call__(self, x):
+                seen["device"] = x.device
+                return real_model(x)
+
+            def parameters(self):
+                return real_model.parameters()
+
+        monkeypatch.setattr(backend, "_model", Spy())
+        getattr(backend, method)(image if method == "predict" else [image, image])
+        assert seen["device"] == next(real_model.parameters()).device
+
+    def test_gradcam_input_on_model_device(self, backend, image):
+        """A entrada do Grad-CAM é movida antes de requires_grad_, e segue folha."""
+        explanation = backend.gradcam(image, "Cardiomegaly")
+        assert not explanation.is_null

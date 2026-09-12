@@ -112,6 +112,17 @@ class TorchXRayVisionBackend(InferenceBackend):
         return self._labels
 
     @property
+    def device(self) -> Any:
+        """Dispositivo onde o modelo está — lido dos parâmetros, nunca de um atributo.
+
+        Um atributo separado pode dessincronizar do modelo; foi exatamente o
+        que aconteceu na primeira execução em GPU: ``to('cuda')`` moveu os
+        pesos, mas a entrada continuou na CPU. Lendo dos parâmetros, a entrada
+        vai por construção para onde o modelo estiver.
+        """
+        return next(self._model.parameters()).device
+
+    @property
     def trained_on(self) -> tuple[str, ...]:
         return XRV_TRAINED_ON.get(self._weights_name, ())
 
@@ -135,7 +146,7 @@ class TorchXRayVisionBackend(InferenceBackend):
         # torchxrayvision espera a faixa [-1024, 1024].
         arr = self._xrv.datasets.normalize(image * XRV_MAXVAL, XRV_MAXVAL)
         arr = self._resize(self._crop(arr[None, ...]))
-        tensor = self._torch.from_numpy(arr)[None, ...].float()
+        tensor = self._torch.from_numpy(arr)[None, ...].float().to(self.device)
 
         with self._torch.no_grad():
             output = self._model(tensor)
@@ -149,7 +160,7 @@ class TorchXRayVisionBackend(InferenceBackend):
         for image in images:
             arr = self._xrv.datasets.normalize(image * XRV_MAXVAL, XRV_MAXVAL)
             batch.append(self._resize(self._crop(arr[None, ...])))
-        tensor = self._torch.from_numpy(np.stack(batch)).float()
+        tensor = self._torch.from_numpy(np.stack(batch)).float().to(self.device)
 
         with self._torch.no_grad():
             output = self._model(tensor)
@@ -181,7 +192,7 @@ class TorchXRayVisionBackend(InferenceBackend):
         arr = self._xrv.datasets.normalize(image * XRV_MAXVAL, XRV_MAXVAL)
         arr = self._resize(self._crop(arr[None, ...]))
         tensor = self._torch.from_numpy(np.ascontiguousarray(arr))[None, ...].float()
-        tensor.requires_grad_(True)
+        tensor = tensor.to(self.device).requires_grad_(True)
 
         # Última camada convolucional da DenseNet-121, antes do pooling global.
         target_layer = self._model.features.denseblock4
@@ -191,7 +202,6 @@ class TorchXRayVisionBackend(InferenceBackend):
     def to(self, device: str) -> TorchXRayVisionBackend:
         """Move o modelo para um dispositivo ('cuda' ou 'cpu')."""
         self._model = self._model.to(device)
-        self._device = device
         return self
 
     def describe(self) -> dict[str, Any]:
