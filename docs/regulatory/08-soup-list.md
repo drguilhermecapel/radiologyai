@@ -3,7 +3,7 @@ doc_id: REG-08
 title: Lista SOUP (Software of Unknown Provenance)
 status: GERADO AUTOMATICAMENTE — não editar à mão
 generated_by: scripts/soup.py
-source_commit: 14f7a45
+source_commit: 05b2753
 ---
 
 # Lista SOUP

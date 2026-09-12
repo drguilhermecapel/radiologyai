@@ -21,6 +21,11 @@ from radiologyai.errors import EvaluationError
 from radiologyai.modalities.xr.labels import NIH_CXR14_LABELS
 
 DATA_ENTRY_CSV = "Data_Entry_2017_v2020.csv"
+
+# O espelho do Kaggle (nih-chest-xrays/data) distribui a versão original do CSV,
+# sem o sufixo _v2020. Mesmas 112.120 linhas e mesmas colunas relevantes; a
+# v2020 corrige alguns campos de idade. Aceitamos ambos, preferindo a v2020.
+DATA_ENTRY_CSV_FALLBACKS: tuple[str, ...] = (DATA_ENTRY_CSV, "Data_Entry_2017.csv")
 TEST_LIST = "test_list.txt"
 TRAIN_VAL_LIST = "train_val_list.txt"
 
@@ -73,12 +78,7 @@ def build_manifest(data_root: str | Path, *, split: str = "test") -> Manifest:
         EvaluationError: arquivos oficiais ausentes ou split desconhecido.
     """
     root = Path(data_root)
-    entry_csv = root / DATA_ENTRY_CSV
-    if not entry_csv.is_file():
-        raise EvaluationError(
-            f"{DATA_ENTRY_CSV} não encontrado em {root}. "
-            "Baixe o dataset oficial do NIH ChestX-ray14."
-        )
+    entry_csv = find_data_entry_csv(root)
 
     selected: set[str] | None = None
     if split in ("test", "train_val"):
@@ -125,6 +125,23 @@ def build_manifest(data_root: str | Path, *, split: str = "test") -> Manifest:
         split=f"oficial {split}_list.txt" if selected is not None else "completo",
         label_names=NIH_CXR14_LABELS,
         rows=rows,
+    )
+
+
+def find_data_entry_csv(root: str | Path) -> Path:
+    """Localiza o CSV de metadados, aceitando os dois nomes distribuídos.
+
+    Raises:
+        EvaluationError: nenhum dos nomes conhecidos existe em ``root``.
+    """
+    root = Path(root)
+    for name in DATA_ENTRY_CSV_FALLBACKS:
+        candidate = root / name
+        if candidate.is_file():
+            return candidate
+    raise EvaluationError(
+        f"nenhum de {list(DATA_ENTRY_CSV_FALLBACKS)} encontrado em {root}. "
+        "Baixe o dataset oficial do NIH ChestX-ray14 (ou o espelho do Kaggle)."
     )
 
 

@@ -25,8 +25,10 @@ def selftest() -> dict[str, object]:
     import importlib.util
     import sys
 
-    if not (3, 11) <= sys.version_info[:2] < (3, 12):
-        raise RuntimeError(f"Python 3.11.x é obrigatório; encontrado {sys.version.split()[0]}")
+    if not (3, 11) <= sys.version_info[:2] < (3, 13):
+        raise RuntimeError(
+            f"Python 3.11 ou 3.12 é obrigatório; encontrado {sys.version.split()[0]}"
+        )
 
     required = ["numpy", "pydicom", "pydantic", "yaml"]
     missing = [m for m in required if importlib.util.find_spec(m) is None]

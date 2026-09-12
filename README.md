@@ -67,7 +67,7 @@ e recusa chamá-lo de validação externa.
 ## Instalação
 
 ```bash
-uv venv --python 3.11 && source .venv/bin/activate
+uv venv --python 3.11 && source .venv/bin/activate   # 3.11 ou 3.12
 uv pip install -e ".[dev,eval]"
 radiologyai selftest
 ```

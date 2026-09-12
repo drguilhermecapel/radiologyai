@@ -15,9 +15,15 @@ env:
 
 jobs:
   quality:
-    name: Lint, tipos e testes
+    name: Lint, tipos e testes (py${{ matrix.python }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.11 é o alvo primário; 3.12 é o que o Colab usa. O pyproject declara
+        # >=3.11,<3.13 — os dois precisam ser testados, não só declarados.
+        python: ["3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -27,11 +33,11 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Python 3.11
-        run: uv python install 3.11
+      - name: Python ${{ matrix.python }}
+        run: uv python install ${{ matrix.python }}
 
       - name: Instalar dependências
-        run: uv sync --extra dev --extra eval --extra api --extra imaging
+        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging
 
       - name: Lint (ruff)
         run: uv run ruff check src/ tests/ scripts/
