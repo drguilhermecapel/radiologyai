@@ -18,6 +18,7 @@ requisito inexistente.
 |---|---|---|---|---|
 | **REQ-001** Falhar alto na ausência de dependência | safety | RISK-003 | implemented | `test_no_silent_import_fallbacks` |
 | **REQ-002** Nenhum número gerado aleatoriamente | safety | RISK-007 | implemented | `test_no_random_in_non_evaluation_code` |
+| **REQ-003** Toda verificação declarada é executada | safety | RISK-007 | implemented | `test_nenhum_diretorio_de_teste_casa_com_norecursedirs`<br>`test_todo_arquivo_de_teste_foi_importado` |
 | **REQ-005** Aplicar Modality LUT sem perda de faixa | functional | RISK-005 | implemented | `TestModalityLUT` |
 | **REQ-006** Inverter MONOCHROME1 | safety | RISK-005 | implemented | `TestMonochrome1` |
 | **REQ-010** Pseudo-identificadores determinísticos | safety | RISK-009 | implemented | `TestDeterminism` |
@@ -37,7 +38,7 @@ requisito inexistente.
 | **REQ-071** Reconstrução completa da decisão | safety | RISK-007 | implemented | `TestDecisionReconstruction` |
 | **REQ-080** API não fabrica métricas | safety | RISK-004 | implemented | `TestMetricsNeverFabricated` |
 
-**20 requisitos · 24 verificações.**
+**21 requisitos · 26 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.

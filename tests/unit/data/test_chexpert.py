@@ -9,11 +9,13 @@ import pytest
 from radiologyai.data.chexpert import (
     CHEXPERT_LABELS,
     CHEXPERT_TO_XRV,
+    DRY_RUN_MARKER,
     LIMITATIONS,
     NOT_MAPPED,
     _parse_label,
     build_valid_manifest,
     find_valid_csv,
+    is_dry_run,
     resolve_image_path,
 )
 from radiologyai.errors import EvaluationError
@@ -210,3 +212,69 @@ def test_limitacoes_declaram_a_diferenca_em_relacao_ao_nih():
     texto = " ".join(LIMITATIONS)
     assert "3 radiologistas" in texto
     assert "NÃO uma validação clínica" in texto
+
+
+class TestEnsaioASeco:
+    """O conjunto gerado precisa se declarar sozinho.
+
+    O v1 acumulou artefatos indistinguíveis de medições porque nada no sistema
+    marcava a origem. Aqui o marcador entra no nome do manifest, que entra no
+    metrics.json — sem depender de o operador lembrar.
+    """
+
+    def test_sem_marcador_e_o_dataset_real(self, chexpert_root):
+        assert not is_dry_run(chexpert_root)
+        assert build_valid_manifest(chexpert_root).name == "CheXpert"
+
+    def test_marcador_renomeia_o_manifest(self, chexpert_root):
+        (chexpert_root / DRY_RUN_MARKER).write_text("gerado", encoding="utf-8")
+        assert is_dry_run(chexpert_root)
+        nome = build_valid_manifest(chexpert_root).name
+        assert "SINTETICO" in nome
+        assert "NÃO é medição" in nome
+
+    def test_marcador_no_diretorio_pai_tambem_conta(self, tmp_path):
+        """O gerador grava sob <out>/CheXpert-v1.0-small; o usuário pode passar
+        qualquer um dos dois ao notebook."""
+        (tmp_path / DRY_RUN_MARKER).write_text("gerado", encoding="utf-8")
+        assert is_dry_run(tmp_path / "CheXpert-v1.0-small")
+
+
+class TestGeradorDeEnsaio:
+    def test_gera_conjunto_que_o_carregador_le(self, tmp_path):
+        gerar = _carregar_gerador()
+        raiz = gerar(tmp_path, n_pacientes=12, seed=7)
+
+        manifest = build_valid_manifest(raiz)
+        assert "SINTETICO" in manifest.name
+        assert len(manifest) > 0
+        for linha in manifest.rows:
+            assert resolve_image_path(linha.image_id, raiz).is_file()
+
+    def test_deterministico(self, tmp_path):
+        gerar = _carregar_gerador()
+        a = build_valid_manifest(gerar(tmp_path / "a", n_pacientes=8, seed=3))
+        b = build_valid_manifest(gerar(tmp_path / "b", n_pacientes=8, seed=3))
+        assert a.sha256() == b.sha256()
+
+    def test_incertos_nao_viram_negativos(self, tmp_path):
+        """O gerador emite -1.0 em Consolidation; o carregador tem de excluir."""
+        gerar = _carregar_gerador()
+        manifest = build_valid_manifest(gerar(tmp_path, n_pacientes=60, seed=11))
+        com_consolidacao = sum(1 for linha in manifest.rows if "Consolidation" in linha.labels)
+        assert com_consolidacao < len(manifest)
+
+
+def _carregar_gerador():
+    import importlib.util
+    import sys
+    from pathlib import Path as _Path
+
+    caminho = _Path(__file__).resolve().parents[3] / "scripts" / "make_chexpert_dryrun.py"
+    spec = importlib.util.spec_from_file_location("make_chexpert_dryrun", caminho)
+    assert spec is not None
+    assert spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["make_chexpert_dryrun"] = mod
+    spec.loader.exec_module(mod)
+    return mod.gerar

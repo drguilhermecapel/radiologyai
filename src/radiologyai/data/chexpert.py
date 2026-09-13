@@ -38,6 +38,22 @@ VALID_CSV_NAMES: tuple[str, ...] = (
 # Tratar só a primeira quebra exatamente o download que a documentação recomenda.
 ROOT_PREFIXES: tuple[str, ...] = ("CheXpert-v1.0-small", "CheXpert-v1.0")
 
+# Marcador de ensaio a seco. Um diretório contendo este arquivo tem imagens e
+# rótulos GERADOS, não baixados — serve para verificar que o notebook roda antes
+# de o Research Use Agreement sair, e para mais nada. O nome do manifest muda
+# junto, de modo que qualquer metrics.json produzido a partir dele se declara
+# sintético sem depender de o operador lembrar. Foi por falta exatamente disso
+# que o v1 acumulou artefatos indistinguíveis de medições.
+DRY_RUN_MARKER: str = "SINTETICO.md"
+DRY_RUN_NAME: str = "CheXpert-SINTETICO (ensaio a seco — NÃO é medição)"
+
+
+def is_dry_run(data_root: str | Path) -> bool:
+    """Diz se ``data_root`` é um conjunto gerado, não o CheXpert real."""
+    raiz = Path(data_root)
+    return any((d / DRY_RUN_MARKER).is_file() for d in (raiz, raiz.parent))
+
+
 # As 14 observações do CheXpert, na ordem do CSV oficial.
 CHEXPERT_LABELS: tuple[str, ...] = (
     "No Finding",
@@ -188,7 +204,7 @@ def build_valid_manifest(data_root: str | Path, *, frontal_only: bool = True) ->
         raise EvaluationError(f"nenhuma linha utilizável em {csv_path}")
 
     return Manifest(
-        name="CheXpert",
+        name=DRY_RUN_NAME if is_dry_run(data_root) else "CheXpert",
         split="validação oficial (rótulos por consenso de 3 radiologistas)",
         label_names=tuple(sorted(set(CHEXPERT_TO_XRV.values()))),
         rows=rows,

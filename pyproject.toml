@@ -82,7 +82,13 @@ packages = ["src/radiologyai"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-norecursedirs = ["legacy", ".git", "artifacts", "data"]
+# norecursedirs casa pelo NOME BASE, em qualquer profundidade. "data" aqui
+# silenciava tests/unit/data/ inteiro — 66 testes que pareciam existir e nunca
+# rodavam. Como testpaths já limita a varredura a tests/, os diretórios da raiz
+# (legacy/, artifacts/, data/) nunca são visitados na execução padrão; as
+# entradas abaixo só valem para quem rodar `pytest .` na raiz, e nenhuma delas
+# pode ser o nome de um subdiretório de tests/. Ver test_collection.py.
+norecursedirs = ["legacy", ".git", "artifacts"]
 addopts = "-ra --strict-markers"
 markers = [
   "requirement(id): vincula este teste a um requisito REQ-xxx (IEC 62304 §5.7)",
