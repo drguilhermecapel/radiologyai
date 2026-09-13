@@ -372,6 +372,7 @@ Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/
 | Manifest do NIH (25.596 imagens, 2.797 pacientes, disjunção verificada) | **commitado** |
 | Executor de avaliação com IC, subgrupos e proveniência completa | concluído |
 | Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
+| Adaptador CheXpert + notebook de rótulo adjudicado | `notebooks/02_chexpert_e_credenciamento.ipynb` — executado ponta a ponta em kernel real; **ainda não rodado sobre dados reais do CheXpert** |
 | **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664; duas execuções isolam o efeito do pré-processamento (delta −0,0008) |
 
 **Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
@@ -381,6 +382,15 @@ como se fosse a do modelo faria reportar AUROC de uma cabeça nunca treinada —
 mesma classe de defeito das métricas fabricadas do v1, por mecanismo mais sutil.
 Tratado em REQ-021. Os 14 rótulos do NIH têm cabeça treinada, então a linha de
 base é válida para todos eles.
+
+**Limite do segundo dataset, registrado antes de medir:** das 14 observações do
+CheXpert, nenhuma é fibrose — nem enfisema, nódulo, massa, infiltrado, espessamento
+pleural ou hérnia. Ou seja, o achado que motivou buscar rótulo adjudicado (fibrose,
+AUROC 0,448 com IC95 excluindo 0,5) é justamente o que o CheXpert **não** responde.
+O CheXpert cobre cardiomegalia, edema, consolidação, atelectasia, derrame e mais
+alguns; se o AUROC subir neles, o rótulo do NIH é parte do problema em geral, o que
+muda a leitura do 0,448 sem medi-lo. Medir fibrose contra consenso exige VinDr-CXR,
+e portanto credenciamento PhysioNet. Os dois caminhos estão no notebook 02.
 
 ### Fase 2 — Produtizar o caminho de RX · 8–10 semanas (~90 h)
 

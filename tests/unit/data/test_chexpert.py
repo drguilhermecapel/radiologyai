@@ -188,6 +188,19 @@ class TestCaminhoDeImagem:
         alvo.write_bytes(b"x")
         assert resolve_image_path("CheXpert-v1.0/valid/a.jpg", tmp_path) == alvo
 
+    def test_resolve_variante_small_dentro_da_raiz(self, tmp_path):
+        """O download recomendado é o -small; o prefixo do CSV muda com ele."""
+        alvo = tmp_path / "valid" / "a.jpg"
+        alvo.parent.mkdir(parents=True)
+        alvo.write_bytes(b"x")
+        assert resolve_image_path("CheXpert-v1.0-small/valid/a.jpg", tmp_path) == alvo
+
+    def test_resolve_variante_small_a_partir_do_pai(self, tmp_path):
+        alvo = tmp_path / "CheXpert-v1.0-small" / "valid" / "a.jpg"
+        alvo.parent.mkdir(parents=True)
+        alvo.write_bytes(b"x")
+        assert resolve_image_path("valid/a.jpg", tmp_path) == alvo
+
     def test_ausente_falha(self, tmp_path):
         with pytest.raises(EvaluationError, match="não encontrada"):
             resolve_image_path("valid/x.jpg", tmp_path)

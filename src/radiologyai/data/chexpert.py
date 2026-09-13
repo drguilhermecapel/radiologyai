@@ -27,7 +27,16 @@ from pathlib import Path
 from radiologyai.data.manifest import Manifest, ManifestRow
 from radiologyai.errors import EvaluationError
 
-VALID_CSV_NAMES: tuple[str, ...] = ("valid.csv", "CheXpert-v1.0/valid.csv")
+VALID_CSV_NAMES: tuple[str, ...] = (
+    "valid.csv",
+    "CheXpert-v1.0/valid.csv",
+    "CheXpert-v1.0-small/valid.csv",
+)
+
+# O portal entrega duas variantes e o prefixo da coluna ``Path`` muda com ela:
+# ``CheXpert-v1.0/...`` na íntegra, ``CheXpert-v1.0-small/...`` na reduzida.
+# Tratar só a primeira quebra exatamente o download que a documentação recomenda.
+ROOT_PREFIXES: tuple[str, ...] = ("CheXpert-v1.0-small", "CheXpert-v1.0")
 
 # As 14 observações do CheXpert, na ordem do CSV oficial.
 CHEXPERT_LABELS: tuple[str, ...] = (
@@ -187,15 +196,30 @@ def build_valid_manifest(data_root: str | Path, *, frontal_only: bool = True) ->
 
 
 def resolve_image_path(image_id: str, data_root: str | Path) -> Path:
-    """Resolve o caminho da imagem, tolerando o prefixo ``CheXpert-v1.0/``."""
+    """Resolve o caminho da imagem sob ``data_root``.
+
+    A coluna ``Path`` do CSV carrega o nome do diretório raiz da variante
+    baixada (``CheXpert-v1.0`` ou ``CheXpert-v1.0-small``), mas ``data_root``
+    pode ser esse mesmo diretório ou o pai dele. Tentamos as duas leituras em
+    vez de assumir uma — assumir foi o que quebrou o download recomendado.
+
+    Raises:
+        EvaluationError: nenhum candidato existe.
+    """
     root = Path(data_root)
+    partes = Path(image_id).parts
     candidatos = [root / image_id]
-    if image_id.startswith("CheXpert-v1.0/"):
-        candidatos.append(root / image_id[len("CheXpert-v1.0/") :])
+
+    if partes and partes[0] in ROOT_PREFIXES:
+        # data_root já é o diretório raiz: remove o prefixo repetido.
+        candidatos.append(root.joinpath(*partes[1:]))
     else:
-        candidatos.append(root / "CheXpert-v1.0" / image_id)
+        # data_root é o pai: tenta cada variante conhecida.
+        candidatos.extend(root / prefixo / image_id for prefixo in ROOT_PREFIXES)
 
     for c in candidatos:
         if c.is_file():
             return c
-    raise EvaluationError(f"imagem {image_id!r} não encontrada sob {root}")
+    raise EvaluationError(
+        f"imagem {image_id!r} não encontrada sob {root} (tentei {[str(c) for c in candidatos]})"
+    )

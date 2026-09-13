@@ -97,6 +97,14 @@ não serve** — e uma linha de base honesta tem que poder dizer isso.
 **Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb).
 O apêndice do notebook roda só a inferência, sem rebaixar o dataset.
 
+**Próxima medição, ainda não executada:** os rótulos do NIH são minerados por NLP
+dos laudos, então um AUROC baixo é ambíguo entre modelo fraco e rótulo ruidoso. O
+conjunto de validação do CheXpert (234 imagens, voto majoritário de 3 radiologistas
+olhando a imagem) desfaz essa ambiguidade para os achados que os dois datasets
+nomeiam — **fibrose não é um deles**, e continua dependendo do VinDr-CXR. O caminho
+está em [`notebooks/02_chexpert_e_credenciamento.ipynb`](notebooks/02_chexpert_e_credenciamento.ipynb);
+nenhum número do CheXpert foi medido até aqui.
+
 ## Referência técnica
 
 - **[ROADMAP.md](ROADMAP.md)** — diagnóstico do estado atual, arquitetura-alvo, decisão de framework, fases, trilha regulatória, orçamento e cronograma
