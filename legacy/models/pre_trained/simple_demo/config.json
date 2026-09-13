@@ -1,0 +1,22 @@
+{
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
+  "name": "simple_demo",
+  "version": "1.0",
+  "trained_on": "Synthetic ChestX-ray",
+  "classes": [
+    "No Finding",
+    "Pneumonia",
+    "Cardiomegaly",
+    "Effusion",
+    "Mass",
+    "Nodule"
+  ],
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "training_date": "2025-06-20T15:18:13.271504",
+  "epochs_trained": 5,
+  "best_val_auc": 0.625806450843811
+}
