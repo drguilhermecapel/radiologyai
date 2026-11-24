@@ -19,7 +19,7 @@ Conjunto documental em construção para a trajetória SaMD/ANVISA descrita em
 | 08 | [Lista SOUP](08-soup-list.md) | **gerada** por `scripts/soup.py`, verificada no CI |
 | 09 | [Plano e Protocolos de Verificação](09-verification-plan.md) | rascunho v0.1 (Fase 2) |
 | 10 | [Plano de Avaliação Clínica](10-clinical-evaluation-plan.md) | rascunho v0.1 — pré-especificado (Fase 3) |
-| 11 | Cibersegurança + LGPD/DPIA | pendente — Fase 3 |
+| 11 | [Cibersegurança + LGPD/DPIA](11-cybersecurity-and-lgpd-dpia.md) | rascunho v0.1 (Fase 3) |
 | 12 | Rotulagem / IFU (pt-BR) | pendente — Fase 5 |
 | 13 | [Matriz de Rastreabilidade](13-traceability.md) | **gerada** por `scripts/trace.py`, verificada no CI |
 | 14 | [Controle de Mudanças e Resolução de Problemas](14-change-control-and-problem-resolution.md) | rascunho v0.1 (Fase 2) |
