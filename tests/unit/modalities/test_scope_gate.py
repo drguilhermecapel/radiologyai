@@ -114,21 +114,21 @@ class TestXRLaterality:
         report = XRPlugin().validate(meta)
         assert report.accepted, report.reasons
 
-def test_conflicting_laterality_rejected(self, cr_dataset):
-    cr_dataset.Laterality = "L"
+        def test_conflicting_laterality_rejected(self, cr_dataset):
+        cr_dataset.Laterality = "L"
         cr_dataset.ImageLaterality = "R"
         report = XRPlugin().validate(extract_metadata(cr_dataset))
         assert not report.accepted
         assert any("conflito de lateralidade" in r for r in report.reasons)
 
-def test_invalid_laterality_rejected(self, cr_dataset):
-    cr_dataset.ImageLaterality = "X"
+    def test_invalid_laterality_rejected(self, cr_dataset):
+        cr_dataset.ImageLaterality = "X"
         report = XRPlugin().validate(extract_metadata(cr_dataset))
         assert not report.accepted
         assert any("lateralidade" in r for r in report.reasons)
 
-def test_preprocess_preserves_horizontal_orientation(self, cr_dataset):
-    import numpy as np
+    def test_preprocess_preserves_horizontal_orientation(self, cr_dataset):
+        import numpy as np
 
         img = np.zeros((256, 256), dtype=np.float32)
         img[:, :128] = 100.0
