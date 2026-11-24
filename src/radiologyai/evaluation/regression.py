@@ -136,7 +136,7 @@ def check_baseline_regression(
                 reasons.append(
                     f"current_metrics.dataset.leakage_status is disallowed: {leakage_status}"
                 )
-                
+
     return RegressionResult(
         passed=len(reasons) == 0,
         reasons=tuple(reasons),
