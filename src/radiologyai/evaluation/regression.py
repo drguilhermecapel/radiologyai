@@ -115,32 +115,21 @@ def check_baseline_regression(
             and reference_n_labels is not None
             and current_n_labels < reference_n_labels
         ):
-            reasons.append(
-                "n_labels_evaluated decreased from "
-                f"{reference_n_labels} to {current_n_labels}"
-            )
+            reasons.append(f"n_labels_evaluated decreased from {reference_n_labels} to {current_n_labels}")
 
     if require_external_dataset:
         dataset = current_metrics.get("dataset")
         if not isinstance(dataset, dict):
-            reasons.append(
-                "current_metrics.dataset must be an object when "
-                "require_external_dataset=True"
-            )
+            reasons.append("current_metrics.dataset must be an object when require_external_dataset=True")
         else:
             if dataset.get("external_to_training_data") is not True:
-                reasons.append(
-                    "current_metrics.dataset.external_to_training_data must be True"
-                )
+                reasons.append("current_metrics.dataset.external_to_training_data must be True")
             leakage_status = dataset.get("leakage_status")
             if (
                 isinstance(leakage_status, str)
                 and leakage_status.strip().lower() in _DISALLOWED_LEAKAGE_STATUSES
             ):
-                reasons.append(
-                    "current_metrics.dataset.leakage_status is disallowed: "
-                    f"{leakage_status}"
-                )
+                reasons.append(f"current_metrics.dataset.leakage_status is disallowed: {leakage_status}")
 
     return RegressionResult(
         passed=len(reasons) == 0,
