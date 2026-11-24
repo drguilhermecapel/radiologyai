@@ -1,0 +1,3 @@
+# Falsos positivos verificados: chave de cache do GitHub Actions (key: xrv-weights-v1 em actions/cache@v4), nao e segredo.
+299bb2441a6c5f6abb1a458c6a1b53e881912910:.github/workflows/ci.yml:generic-api-key:152
+14f7a4570f2d5e66c95ef0245954415060319082:.github/workflows/ci.yml:generic-api-key:101
