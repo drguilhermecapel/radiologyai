@@ -1,0 +1,6 @@
+# Catálogo de condições. Cada entrada segue radiologyai.catalog.schema.Condition.
+#
+# O nível de evidência NÃO é declarado aqui: ele é calculado por compute_level a
+# partir dos registros de evidência e gravado no arquivo gerado levels.json.
+# Lista vazia significa: nenhuma condição catalogada, nenhum achado na visão principal.
+conditions: []

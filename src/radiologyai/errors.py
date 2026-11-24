@@ -87,3 +87,18 @@ class PatientLeakageError(EvaluationError):
     Vazamento por paciente é a forma mais comum de um número publicado de IA
     radiológica estar errado. É erro fatal, nunca aviso.
     """
+
+
+# --- catálogo e evidência -------------------------------------------------
+
+
+class CatalogError(RadiologyAIError):
+    """Catálogo de condições, protocolo ou níveis ausente, malformado ou inconsistente."""
+
+
+class EvidenceError(RadiologyAIError):
+    """Registros de evidência inconsistentes para o cálculo de nível.
+
+    O nível de evidência é calculado, nunca digitado. Quando os registros não
+    permitem um cálculo bem definido, o sistema para em vez de escolher um nível.
+    """

@@ -1,0 +1,45 @@
+# Pre-registered evidence protocol.
+#
+# This file is committed BEFORE any measurement is run. Git history is the proof
+# of pre-registration: changing a threshold after seeing results requires a new
+# protocol_id, and every evidence record names the protocol it was judged under.
+# Human-readable version: docs/protocolo-evidencia.md
+protocol_id: "2026-11-v1"
+frozen_on: "2026-11-24"
+
+# A measured record is eligible only with enough cases on both sides.
+min_positive: 30
+min_negative: 30
+
+# Discrimination bar for levels A (external) and C (internal).
+auroc_min: 0.80
+auroc_ci_low_min: 0.75
+
+# Detection endpoints judged at a fixed, pre-specified threshold
+# (e.g. "any segmented haemorrhage volume > 0"): lower CI bound of both
+# sensitivity and specificity must reach this value.
+sens_spec_ci_low_min: 0.80
+
+# Continuous measurements compared with a clinical reference (e.g. ejection fraction).
+icc_min: 0.75
+
+# Statistics.
+ci_level: 0.95
+bootstrap_iterations: 2000
+bootstrap_cluster: patient
+random_seed: 20261124
+
+# Operating points are fitted on a patient-level calibration half and their
+# sensitivity / specificity are reported on the other half.
+calibration_fraction: 0.5
+rule_out_sensitivity_target: 0.90
+rule_in_specificity_target: 0.90
+
+# Bar for third-party published evidence (level B). The quote must be verified
+# at the source and the publication must be peer reviewed or a clinical guideline.
+published_auroc_min: 0.80
+published_sens_spec_min: 0.80
+published_min_positive: 30
+segmentation_dice_min: 0.85
+
+subgroups: [sex, age_band, view]

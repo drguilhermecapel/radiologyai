@@ -14,7 +14,7 @@ Conjunto documental em construção para a trajetória SaMD/ANVISA descrita em
 | 03 | Plano de Gestão de Risco (ISO 14971) | pendente — Fase 0 |
 | 04 | Arquivo de Risco / Análise de Perigos | pendente — Fase 0 (sementes H-01…H-10 em ROADMAP §6.3) |
 | 05 | Plano de Desenvolvimento de Software (62304 §5.1) | pendente — Fase 0 |
-| 06 | [Especificação de Requisitos](06-requirements/) | **12 requisitos**, todos verificados |
+| 06 | [Especificação de Requisitos](06-requirements/) | **25 requisitos**, todos verificados |
 | 07 | Descrição da Arquitetura (62304 §5.3) | pendente — Fase 2 (rascunho em [ROADMAP §4](../../ROADMAP.md)) |
 | 08 | [Lista SOUP](08-soup-list.md) | **gerada** por `scripts/soup.py`, verificada no CI |
 | 09 | Plano e Protocolos de Verificação | pendente — Fase 2 |
