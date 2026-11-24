@@ -1,0 +1,2 @@
+This file ensures the pre_trained directory structure is preserved in git.
+Model files (.h5) are downloaded automatically and should not be committed to the repository.

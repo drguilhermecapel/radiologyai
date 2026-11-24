@@ -1,0 +1,17 @@
+{
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
+  "No Finding": 0.5,
+  "Pneumonia": 0.3,
+  "Effusion": 0.25,
+  "Atelectasis": 0.35,
+  "Consolidation": 0.3,
+  "Pneumothorax": 0.2,
+  "Cardiomegaly": 0.4,
+  "Mass": 0.15,
+  "Nodule": 0.2,
+  "Infiltration": 0.3,
+  "Emphysema": 0.35,
+  "Fibrosis": 0.25,
+  "Pleural_Thickening": 0.3,
+  "Hernia": 0.15
+}

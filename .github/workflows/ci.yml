@@ -1,0 +1,180 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_LINK_MODE: copy
+
+jobs:
+  quality:
+    name: Lint, tipos e testes (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.11 é o alvo primário. O pyproject declara >=3.11,<3.14 — cada versão
+        # da faixa precisa ser testada, não só declarada. O Colab está em 3.13.
+        python: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Python ${{ matrix.python }}
+        run: uv python install ${{ matrix.python }}
+
+      - name: Instalar dependências
+        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging
+
+      - name: Lint (ruff)
+        run: uv run ruff check src/ tests/ scripts/
+
+      - name: Formatação (ruff)
+        run: uv run ruff format --check src/ tests/
+
+      - name: Tipos (mypy --strict)
+        run: uv run mypy src/radiologyai
+
+      - name: Testes com cobertura
+        run: uv run pytest --cov=radiologyai --cov-report=term-missing --cov-fail-under=85
+
+      # --- Portões específicos deste projeto (ROADMAP §8) ---
+
+      - name: Guardião de honestidade
+        run: uv run python scripts/check_honesty.py
+
+      - name: Lista SOUP atualizada (IEC 62304 §8.1.2)
+        run: uv run python scripts/soup.py --check
+
+      - name: Rastreabilidade RISCO→REQ→TESTE (IEC 62304 §5.7)
+        run: uv run python scripts/trace.py --check
+
+      - name: Núcleo não importa dependências pesadas
+        run: |
+          uv run python -c "
+          import sys, radiologyai
+          heavy = [m for m in ('torch','numpy','SimpleITK','cv2') if m in sys.modules]
+          assert not heavy, f'import pesado no __init__: {heavy}'
+          print('import limpo')
+          "
+
+      - name: Selftest falha alto, não em silêncio
+        run: uv run radiologyai selftest
+
+      - name: Nenhum dado de pixel commitado
+        run: |
+          if git ls-files | grep -E '\.(dcm|nii|nii\.gz|mhd|raw|nrrd)$'; then
+            echo "ERRO: dados de imagem médica commitados. Ver data/DATASET_CARD.md"
+            exit 1
+          fi
+          echo "nenhum pixel no repositório"
+
+  ml:
+    name: Backend de inferência (pesos reais)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.11
+
+      - name: Instalar com o extra [ml] (torch CPU)
+        run: |
+          uv sync --extra dev --extra eval --extra imaging
+          uv pip install --index-strategy unsafe-best-match \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch==2.5.1 torchvision==0.20.1 torchxrayvision
+
+      - name: Cache dos pesos torchxrayvision
+        uses: actions/cache@v4
+        with:
+          path: ~/.torchxrayvision
+          key: xrv-weights-v1
+
+      # Estes testes exercitam o caminho que produz a linha de base: ordem dos
+      # rótulos, cabeças não treinadas (REQ-021) e integridade do sha256 dos
+      # pesos publicados. Sem eles, REQ-021 ficaria apenas declarado.
+      - name: Testes do backend e da explicabilidade com pesos reais
+        run: uv run pytest tests/unit/models/test_xrv_backend.py tests/unit/explain -v
+
+      - name: Integridade do sha256 do model card distribuído
+        run: |
+          uv run python -c "
+          from radiologyai.models import get_card
+          from radiologyai.models.backends.xrv import weights_cache_path
+          card = get_card('xrv-densenet121-pc')
+          card.verify_weights(weights_cache_path('densenet121-res224-pc'))
+          print('sha256 dos pesos confere com o card')
+          "
+
+  colab:
+    # Espelha o ambiente do Colab: Python 3.13 e o torch MAIS RECENTE (o Colab
+    # traz o dele; o notebook não instala torch). O job "ml" cobre a combinação
+    # pinada no lockfile (3.11 + torch 2.5.1); este cobre a que o usuário
+    # encontra de fato no navegador. Se torch novo quebrar o carregamento dos
+    # pesos do torchxrayvision, é aqui que aparece — antes de aparecer no Colab.
+    name: Como no Colab (py3.13, torch mais recente)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.13
+      - name: Instalar como o notebook instala
+        run: |
+          uv venv --python 3.13 .venv313
+          VIRTUAL_ENV=.venv313 uv pip install --index-strategy unsafe-best-match \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch torchvision torchxrayvision \
+            "pydicom==2.4.4" "pydantic>=2.7" "pydantic-settings>=2.3" "typer>=0.12" PyYAML \
+            numpy scipy scikit-learn pillow pytest
+          VIRTUAL_ENV=.venv313 uv pip install --no-deps -e .
+      - uses: actions/cache@v4
+        with:
+          path: ~/.torchxrayvision
+          key: xrv-weights-v1
+      - name: selftest no 3.13
+        run: .venv313/bin/python -c "import radiologyai; print(radiologyai.selftest())"
+      - name: Backend, explicabilidade e linha de base com pesos reais
+        run: |
+          .venv313/bin/python -m pytest -q \
+            tests/unit/models/test_xrv_backend.py tests/unit/explain \
+            tests/unit/evaluation/test_baseline.py
+
+  build:
+    name: Build do pacote
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.11
+      - name: Build wheel e sdist
+        run: uv build
+      - name: Instalação limpa a partir do wheel
+        run: |
+          uv venv /tmp/clean
+          VIRTUAL_ENV=/tmp/clean uv pip install dist/*.whl
+          /tmp/clean/bin/radiologyai version
+          /tmp/clean/bin/radiologyai modalities
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

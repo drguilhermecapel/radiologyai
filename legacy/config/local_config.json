@@ -1,0 +1,28 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "debug": false
+  },
+  "ai_models": {
+    "default_architecture": "ensemble_model",
+    "confidence_threshold": 0.75,
+    "enable_gpu": true
+  },
+  "medical_settings": {
+    "sensitivity_mode": "high",
+    "pathology_focus": [
+      "pneumonia",
+      "pleural_effusion",
+      "fracture",
+      "tumor"
+    ],
+    "generate_reports": true
+  },
+  "data_paths": {
+    "models_dir": "models/",
+    "samples_dir": "data/samples/",
+    "reports_dir": "reports/",
+    "logs_dir": "logs/"
+  }
+}

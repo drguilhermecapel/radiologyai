@@ -1,177 +1,127 @@
 [build-system]
-requires = ["hatchling>=1.25"]
+requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "medai"
-version = "0.1.0"
-description = "MedAI Radiologia — research-only radiology AI platform with an evidence-graded condition catalog"
+name = "radiologyai"
+version = "2.0.0.dev0"
+description = "Plataforma de pesquisa em interpretação de imagens radiológicas por IA. Software de pesquisa — não é dispositivo médico."
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
+license = { text = "Proprietary" }
 authors = [{ name = "Guilherme Capel Pasqua" }]
+keywords = ["radiology", "dicom", "medical-imaging", "samd"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Science/Research",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
+
+# Núcleo deliberadamente leve: SEM torch. Isso mantém `import radiologyai`
+# abaixo de 200 ms e permite CI de CPU rápido. Ver ROADMAP §8.
 dependencies = [
-  # numerics / imaging
-  "numpy>=2.0",
-  "scipy>=1.13",
-  "pandas>=2.2",
-  "pyarrow>=17",
-  "scikit-learn>=1.5",
-  "scikit-image>=0.24",
-  "pillow>=10.4",
-  "SimpleITK>=2.4",
-  "nibabel>=5.2",
-  # DICOM
-  "pydicom>=3.0",
-  "pylibjpeg>=2.0",
-  "pylibjpeg-openjpeg>=2.4",
-  "pylibjpeg-rle>=2.0",
-  "pyjpegls>=1.4",
-  "highdicom>=0.25",
-  "dicomweb-client>=0.60",
-  # models
-  "torch>=2.5",
-  "torchvision>=0.20",
-  "torchxrayvision>=1.5.7",
-  "safetensors>=0.4.5",
-  # platform
-  "pydantic>=2.9",
-  "pydantic-settings>=2.6",
-  "pyyaml>=6.0.2",
-  "httpx>=0.27",
-  "typer>=0.12",
-  "fastapi>=0.115",
-  "uvicorn[standard]>=0.32",
-  "python-multipart>=0.0.12",
-  "sqlalchemy>=2.0.36",
-  "alembic>=1.14",
-  "argon2-cffi>=23.1",
-  "reportlab>=4.2",
-  "prometheus-client>=0.21",
+  "numpy>=1.26,<2.2",
+  "pydicom==2.4.4",
+  "pydantic>=2.7,<3",
+  "pydantic-settings>=2.3,<3",
+  "PyYAML>=6.0,<7",
+  "typer>=0.12,<0.16",
 ]
 
 [project.optional-dependencies]
-# Selects CPU-only PyTorch wheels (CI, Docker, laptops). Without this extra,
-# PyPI's default wheel is used (CUDA-enabled on Linux).
-cpu = ["torch>=2.5", "torchvision>=0.20"]
-# CT / MR whole-body and pathology segmentation (TotalSegmentator, nnU-Net).
-volumetric = ["TotalSegmentator>=2.10"]
-# Vision-language and foundation encoders (BiomedCLIP, RAD-DINO, mammography, echo).
-foundation = ["transformers>=4.46", "open-clip-torch>=2.29", "timm>=1.0.11"]
-# MONAI Model Zoo bundles.
-monai = ["monai>=1.4"]
-# Training extras for the owner's GPU workstation.
-train = ["timm>=1.0.11", "tensorboard>=2.18"]
-
-[project.scripts]
-medai = "medai.cli:app"
-
-[dependency-groups]
+imaging = [
+  "SimpleITK>=2.3,<3",
+  "Pillow>=10.0",
+]
+eval = [
+  "scikit-learn>=1.4,<2",
+  "scipy>=1.11,<2",
+]
+ml = [
+  "torch==2.5.1",
+  "torchvision==0.20.1",
+  "timm>=1.0",
+  "torchxrayvision>=1.2",
+  "monai>=1.3,<2",
+  "onnxruntime>=1.18",
+]
+api = [
+  "fastapi>=0.110,<1",
+  "uvicorn[standard]>=0.29",
+  "python-multipart>=0.0.9",
+]
 dev = [
-  "pytest>=8.3",
+  "pytest>=8.0",
   "pytest-cov>=5.0",
-  "pytest-timeout>=2.3",
-  "ruff>=0.7",
-  "mypy>=1.13",
-  "pypdf>=5.1",
-  "types-PyYAML>=6.0",
-  "pip-audit>=2.7",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "types-PyYAML",
+  # scripts/check_citi_report.py lê PDF; reportlab gera os PDFs sintéticos dos
+  # testes. Declarados aqui porque um teste que pula em silêncio por dependência
+  # ausente não é um teste — é a ausência de um.
+  "pypdf>=4.2,<7",
+  "reportlab>=4.1,<5",
 ]
 
+[project.scripts]
+radiologyai = "radiologyai.cli.main:app"
+
+# Ponto de extensão por modalidade (ROADMAP §4.1).
+# Uma modalidade pode futuramente ser distribuída como pacote separado.
+[project.entry-points."radiologyai.modalities"]
+xr = "radiologyai.modalities.xr:XRPlugin"
+ct = "radiologyai.modalities.ct:CTPlugin"
+mr = "radiologyai.modalities.mr:MRPlugin"
+us = "radiologyai.modalities.us:USPlugin"
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/medai"]
+packages = ["src/radiologyai"]
 
-[tool.uv.sources]
-torch = [{ index = "pytorch-cpu", extra = "cpu" }]
-torchvision = [{ index = "pytorch-cpu", extra = "cpu" }]
+# ---------------------------------------------------------------- ferramentas
 
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# norecursedirs casa pelo NOME BASE, em qualquer profundidade. "data" aqui
+# silenciava tests/unit/data/ inteiro — 66 testes que pareciam existir e nunca
+# rodavam. Como testpaths já limita a varredura a tests/, os diretórios da raiz
+# (legacy/, artifacts/, data/) nunca são visitados na execução padrão; as
+# entradas abaixo só valem para quem rodar `pytest .` na raiz, e nenhuma delas
+# pode ser o nome de um subdiretório de tests/. Ver test_collection.py.
+norecursedirs = ["legacy", ".git", "artifacts"]
+addopts = "-ra --strict-markers"
+markers = [
+  "requirement(id): vincula este teste a um requisito REQ-xxx (IEC 62304 §5.7)",
+  "slow: teste lento; excluído do CI rápido",
+]
 
-# --------------------------------------------------------------------------- #
-# Tooling
-# --------------------------------------------------------------------------- #
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src", "tests", "tools"]
+extend-exclude = ["legacy"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "PT", "RUF", "S", "N"]
-ignore = [
-  "E501",   # line length handled by the formatter
-  "S101",   # asserts are fine in tests and for internal invariants
-  "RUF001", # Portuguese text legitimately contains accented look-alikes
-  "RUF002",
-  "RUF003",
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S", "N802", "N806"]
-"tools/**" = ["S603", "S607"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["medai"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT", "RET", "SIM", "ARG", "PTH"]
+ignore = ["A005"]  # subpacote `io` sombreia o stdlib de propósito (nome de domínio)
 
 [tool.mypy]
 python_version = "3.11"
-packages = ["medai"]
-mypy_path = "src"
 strict = true
-warn_return_any = false
-disallow_untyped_calls = false
-disallow_subclassing_any = false
-plugins = ["pydantic.mypy"]
+exclude = ["^legacy/", "^tests/"]
+warn_unreachable = true
 
 [[tool.mypy.overrides]]
 module = [
-  "torchxrayvision.*",
   "SimpleITK.*",
-  "nibabel.*",
-  "skimage.*",
+  "pydicom.*",
   "sklearn.*",
   "scipy.*",
-  "highdicom.*",
-  "dicomweb_client.*",
-  "reportlab.*",
-  "totalsegmentator.*",
-  "open_clip.*",
-  "transformers.*",
+  "torchxrayvision.*",
   "timm.*",
   "monai.*",
-  "torchvision.*",
-  "safetensors.*",
-  "pandas.*",
-  "pyarrow.*",
-  "prometheus_client.*",
-  "yaml.*",
 ]
 ignore_missing_imports = true
-follow_imports = "skip"
-
-[tool.pytest.ini_options]
-minversion = "8.0"
-testpaths = ["tests"]
-addopts = "-ra --strict-markers --strict-config -m 'not weights and not network and not heavy'"
-timeout = 300
-markers = [
-  "weights: needs real pretrained weights in the local cache (medai models pull)",
-  "network: needs outbound network access",
-  "heavy: long-running or memory-hungry (serialised through tools/heavy)",
-  "orthanc: needs a running Orthanc DICOMweb server",
-]
-filterwarnings = [
-  "error::DeprecationWarning:medai.*",
-]
 
 [tool.coverage.run]
-source = ["medai"]
-branch = true
+source = ["src/radiologyai"]
+omit = ["*/cli/*"]

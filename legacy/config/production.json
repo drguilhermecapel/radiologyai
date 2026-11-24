@@ -1,0 +1,152 @@
+{
+  "environment": "production",
+  "deployment": {
+    "version": "4.0.0",
+    "build_date": "2025-06-11",
+    "deployment_type": "clinical",
+    "container_registry": "medai-registry",
+    "image_tag": "medai-radiologia:v4.0.0"
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "workers": 4,
+    "timeout": 300,
+    "max_requests": 1000,
+    "ssl_enabled": true,
+    "ssl_cert_path": "/etc/ssl/certs/medai.crt",
+    "ssl_key_path": "/etc/ssl/private/medai.key"
+  },
+  "database": {
+    "type": "postgresql",
+    "host": "${DB_HOST}",
+    "port": 5432,
+    "database": "medai_production",
+    "username": "${DB_USERNAME}",
+    "password": "${DB_PASSWORD}",
+    "ssl_mode": "require",
+    "connection_pool_size": 20,
+    "max_overflow": 30
+  },
+  "ai_models": {
+    "model_path": "/app/models/production",
+    "ensemble_config": "/app/models/advanced_ensemble_config.json",
+    "model_cache_size": "2GB",
+    "inference_timeout": 30,
+    "batch_size": 8,
+    "gpu_memory_fraction": 0.8,
+    "model_versions": {
+      "convnext": "v4.0.0",
+      "efficientnetv2": "v4.0.0",
+      "vision_transformer": "v4.0.0"
+    }
+  },
+  "clinical_monitoring": {
+    "enabled": true,
+    "dashboard_port": 8084,
+    "metrics_retention_days": 90,
+    "alert_email": "${CLINICAL_ALERT_EMAIL}",
+    "alert_webhook": "${CLINICAL_ALERT_WEBHOOK}",
+    "performance_thresholds": {
+      "sensitivity": 0.90,
+      "specificity": 0.85,
+      "auc": 0.80,
+      "ensemble_agreement": 0.70,
+      "clinical_confidence": 0.75
+    },
+    "retraining_triggers": {
+      "sensitivity_drop": 0.05,
+      "specificity_drop": 0.05,
+      "false_positive_increase": 0.10,
+      "ensemble_disagreement": 0.30,
+      "confidence_degradation": 0.15
+    }
+  },
+  "pacs_integration": {
+    "enabled": true,
+    "ae_title": "MEDAI_PROD",
+    "port": 11112,
+    "max_associations": 10,
+    "supported_sop_classes": [
+      "1.2.840.10008.5.1.4.1.1.1.2",
+      "1.2.840.10008.5.1.4.1.1.1.2.1",
+      "1.2.840.10008.5.1.4.1.1.2",
+      "1.2.840.10008.5.1.4.1.1.12.1"
+    ],
+    "storage_path": "/app/data/dicom_storage",
+    "auto_process": true,
+    "quality_checks": true
+  },
+  "security": {
+    "authentication_required": true,
+    "jwt_secret": "${JWT_SECRET}",
+    "jwt_expiration": 3600,
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst_size": 10
+    },
+    "cors": {
+      "enabled": true,
+      "allowed_origins": ["https://hospital.domain.com", "https://radiology.domain.com"],
+      "allowed_methods": ["GET", "POST", "PUT", "DELETE"],
+      "allowed_headers": ["Content-Type", "Authorization"]
+    },
+    "audit_logging": {
+      "enabled": true,
+      "log_level": "INFO",
+      "log_file": "/var/log/medai/audit.log",
+      "max_file_size": "100MB",
+      "backup_count": 10
+    }
+  },
+  "data_storage": {
+    "image_storage_path": "/app/data/images",
+    "report_storage_path": "/app/data/reports",
+    "backup_enabled": true,
+    "backup_schedule": "0 2 * * *",
+    "backup_retention_days": 365,
+    "encryption_enabled": true,
+    "compression_enabled": true
+  },
+  "performance": {
+    "max_concurrent_analyses": 10,
+    "image_preprocessing_workers": 4,
+    "model_inference_workers": 2,
+    "memory_limit": "8GB",
+    "cpu_limit": "4",
+    "gpu_memory_limit": "6GB",
+    "cache_size": "1GB",
+    "temp_cleanup_interval": 3600
+  },
+  "compliance": {
+    "hipaa_compliant": true,
+    "gdpr_compliant": true,
+    "fda_510k_ready": true,
+    "audit_trail_enabled": true,
+    "data_anonymization": true,
+    "patient_consent_required": true,
+    "clinical_validation_required": true
+  },
+  "monitoring": {
+    "health_check_endpoint": "/health",
+    "metrics_endpoint": "/metrics",
+    "prometheus_enabled": true,
+    "grafana_dashboard": true,
+    "log_aggregation": "elasticsearch",
+    "alerting": {
+      "slack_webhook": "${SLACK_WEBHOOK}",
+      "email_alerts": "${ADMIN_EMAIL}",
+      "pagerduty_key": "${PAGERDUTY_KEY}"
+    }
+  },
+  "deployment_pipeline": {
+    "ci_cd_enabled": true,
+    "automated_testing": true,
+    "staging_environment": "medai-staging",
+    "blue_green_deployment": true,
+    "rollback_enabled": true,
+    "health_check_timeout": 300,
+    "deployment_strategy": "rolling_update"
+  }
+}

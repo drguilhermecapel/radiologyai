@@ -1,0 +1,30 @@
+{
+  "_DISCLAIMER": "NAO E UMA MEDICAO VALIDA. Gerado por codigo legado sobre imagens sinteticas e/ou por np.random. Nenhum modelo foi treinado. Ver HONEST_STATUS.md.",
+  "training_summary": {
+    "total_models_attempted": 3,
+    "successful_models": 0,
+    "clinical_ready_models": 0,
+    "success_rate": 0.0,
+    "clinical_readiness_rate": 0
+  },
+  "model_performance": {},
+  "clinical_validation": {
+    "ready_for_clinical_use": [],
+    "validation_criteria": {
+      "minimum_sensitivity": 0.85,
+      "minimum_specificity": 0.8,
+      "minimum_accuracy": 0.85,
+      "minimum_auc": 0.85
+    }
+  },
+  "training_methodology": {
+    "approach": "progressive_training",
+    "phase_1": "classifier_only_5_epochs",
+    "phase_2": "full_model_fine_tuning",
+    "augmentation": "medical_specific",
+    "ensemble_method": "attention_weighted_fusion"
+  },
+  "recommendations": [
+    "CRÍTICO: Nenhum modelo atende critérios clínicos. Revisar dados e hiperparâmetros."
+  ]
+}

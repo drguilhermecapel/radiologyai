@@ -1,0 +1,4 @@
+Image Index,Finding Labels,Follow-up #,Patient ID,Patient Age,Patient Gender,View Position,OriginalImage[Width,Height],OriginalImagePixelSpacing[x,y],UN
+dummy_image_0001.png,No Finding,0,1,1,M,PA,1024,1024,0.143,0.143
+dummy_image_0002.png,Pneumonia,0,2,2,F,AP,1024,1024,0.143,0.143
+

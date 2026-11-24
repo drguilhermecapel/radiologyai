@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  medai-app:
+    build: .
+    ports:
+      - "8000:8000"  # FastAPI server
+      - "8080:8080"  # Flask server
+      - "8084:8084"  # Clinical dashboard
+    volumes:
+      - ./:/app
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - MEDAI_ENV=development
+      - DEBUG=true
+    command: ["python", "-m", "uvicorn", "src.medai_fastapi_server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    restart: unless-stopped
+
+  medai-db:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=medai_dev
+      - POSTGRES_USER=medai_dev
+      - POSTGRES_PASSWORD=medai_dev_password
+    volumes:
+      - medai-dev-db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - medai-dev-redis-data:/data
+
+volumes:
+  medai-dev-db-data:
+  medai-dev-redis-data:

@@ -1,0 +1,18 @@
+{
+    "app_settings": {
+        "theme": "dark",
+        "language": "pt-BR",
+        "auto_save": true,
+        "show_confidence": true
+    },
+    "model_settings": {
+        "use_gpu": true,
+        "precision": "mixed_float16",
+        "optimization_level": 2
+    },
+    "export_settings": {
+        "default_format": "pdf",
+        "include_metadata": true,
+        "anonymize": true
+    }
+}
