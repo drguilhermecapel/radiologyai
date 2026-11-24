@@ -62,7 +62,7 @@ class StudyMetadata(BaseModel):
     image_laterality: str | None = Field(
         default=None, description="DICOM (0020,0062) ImageLaterality, ex.: 'L', 'R', 'U', 'B'"
     )
-    
+
     @property
     def is_multiframe(self) -> bool:
         return self.number_of_frames > 1
