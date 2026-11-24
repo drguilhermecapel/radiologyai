@@ -30,11 +30,8 @@ class _FakeSession:
         outputs: Sequence[npt.NDArray[np.float32]] | None = None,
     ) -> None:
         self._inputs = list(inputs) if inputs is not None else [_FakeInput("input")]
-        self._outputs = (
-            list(outputs)
-            if outputs is not None
-            else [np.array([[0.2, 0.8]], dtype=np.float32)]
-        )
+        default_out = [np.array([[0.2, 0.8]], dtype=np.float32)]
+        self._outputs = list(outputs) if outputs is not None else default_out
         self.seen_shapes: list[tuple[int, ...]] = []
 
     def get_inputs(self) -> Sequence[_FakeInput]:
