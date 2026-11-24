@@ -69,7 +69,7 @@ def _make_card_and_weights(
         weights_uri="https://example.invalid/model.onnx",
         weights_sha256=sha256,
         weights_size_bytes=len(raw),
-        trained_on="synthetic",
+        trained_on=("synthetic",),
         license="MIT",
     )
     return card, weights_path
@@ -86,6 +86,12 @@ def test_onnx_backend_valid_flow(tmp_path: Path) -> None:
     )
 
     assert backend.labels == ("Atelectasis", "Cardiomegaly")
+
+    img_2d = np.zeros((8, 8), dtype=np.float32)
+    out_2d = backend.predict(img_2d)
+    assert out_2d.shape == (2,)
+    assert np.allclose(out_2d, [0.2, 0.8])
+    assert session.seen_shapes[-1] == (1, 1, 8, 8)
 
     img_3d = np.zeros((1, 8, 8), dtype=np.float32)
     out_3d = backend.predict(img_3d)
