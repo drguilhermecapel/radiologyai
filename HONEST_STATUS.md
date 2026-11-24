@@ -6,11 +6,18 @@
 
 **RadiologyAI / MedAI Radiologia é software de pesquisa. Não é um dispositivo médico.**
 
-- **Não existe nenhum modelo treinado neste repositório.** Zero arquivos de pesos.
-- **Todas as métricas de desempenho publicadas anteriormente neste repositório foram fabricadas.** Não correspondem a nenhuma medição.
-- **Não houve validação clínica.** Nenhuma.
-- **Não é aprovado, registrado ou notificado em nenhuma agência regulatória** (ANVISA, FDA, CE/MDR).
-- **Não deve ser usado para tomar, informar ou influenciar qualquer decisão diagnóstica ou terapêutica sobre um paciente real.**
+- **Não existe nenhum modelo treinado por este projeto.** O que roda são modelos abertos de
+  terceiros, com pesos verificados por sha256.
+- **Todas as métricas de desempenho publicadas pela versão legada (v1) deste repositório foram
+  fabricadas.** Não correspondiam a nenhuma medição.
+- **Existem hoje duas medições reais**, ambas do mesmo modelo de terceiros no mesmo dataset
+  público (ver abaixo). Nenhuma outra métrica deve ser lida neste repositório sem o caminho do
+  artefato que a sustenta.
+- **Não houve validação clínica.** Nenhuma. Nenhum dado de paciente brasileiro foi analisado.
+- **Não é aprovado, registrado ou notificado em nenhuma agência regulatória** (ANVISA, FDA,
+  CE/MDR).
+- **Não deve ser usado para tomar, informar ou influenciar qualquer decisão diagnóstica ou
+  terapêutica sobre um paciente real.** Toda saída é um *achado sugerido para confirmação médica*.
 
 ## O que foi retratado
 
@@ -29,7 +36,9 @@ As versões anteriores do `README.md`, `MODELS_LICENSE.md` e `docs/USER_GUIDE.md
 
 ## O que o código realmente fazia
 
-Estes são defeitos conhecidos do código legado (agora em processo de arquivamento). Estão documentados aqui porque quem usou ou leu este repositório precisa saber:
+Estes são defeitos conhecidos do código legado. O código legado foi **removido da árvore**
+(commit `c25f686`) e continua recuperável no histórico git (`16fdd47`). Os defeitos estão
+documentados aqui porque quem usou ou leu este repositório precisa saber:
 
 1. **Sem pesos, a "predição" era uma heurística de OpenCV.** `medai_inference_system.py:1510` calculava escores de patologia com expressões como `fracture_score = min(0.3, pneumonia_score * 0.5)`.
 
@@ -53,24 +62,38 @@ O repositório é público e assinado com o nome e o CRM de um médico. Alegar d
 
 Corrigir isso publicamente é o pré-requisito de tudo o mais.
 
-## Primeira medição real (2026-09-12)
+## As medições reais que existem (2026-09-12)
 
-Existe agora **um** número de desempenho neste repositório, e ele está lastreado:
-AUROC macro **0,664** de um modelo de terceiros (PadChest) no split oficial de
-teste do NIH ChestX-ray14 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
-Duas execuções independentes concordam (delta −0,0008), variando apenas o
-carregador de imagem.
+Duas execuções do modelo de terceiros `torchxrayvision densenet121-res224-pc` (treinado só em
+PadChest) sobre o split oficial de teste do NIH ChestX-ray14 (25.596 imagens, 2.797 pacientes),
+variando apenas o carregador de imagem:
 
-É uma medição retrospectiva de algoritmo isolado, sobre rótulos minerados por
-NLP, sem calibração. **Continua não havendo validação clínica.** O que mudou é
-que a frase "nenhuma métrica foi medida" deixou de ser verdadeira — e a única
-métrica existente é pior do que o README do v1 alegava (0,94) e pior do que a
-expectativa registrada no ROADMAP (0,72–0,82).
+- AUROC macro 0,6636 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`
+- AUROC macro 0,6644 — `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json`
+
+É uma medição retrospectiva de algoritmo isolado, sobre rótulos minerados por NLP, sem
+calibração. **Continua não havendo validação clínica.** A única métrica existente é pior do que o
+README do v1 alegava e pior do que a expectativa registrada antes de medir; relatório completo em
+[`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
+
+## Pendências que ainda não foram resolvidas
+
+- **`medai_security.db` continua no histórico git.** O arquivo SQLite do legado saiu da árvore,
+  mas está nos commits `3f5ae26`, `c80c22e` e `0b89c95`. O expurgo com `git filter-repo` (e a
+  rotação do que ele possa ter tocado) está pendente; até lá, trate seu conteúdo como exposto.
+  O mesmo vale para segredos do legado em `medai_config.json` e `docker-compose.yml` no histórico.
+- **O catálogo de condições está vazio.** O esquema, a regra de nível A–D e o protocolo
+  pré-registrado existem (`src/radiologyai/catalog/`), mas nenhuma condição tem nível calculado.
+- **Nenhum dado brasileiro.** Validar em população brasileira exige parceria institucional e
+  aprovação em CEP (portão G2 do roadmap).
 
 ## O que vem a seguir
 
-Veja [`ROADMAP.md`](ROADMAP.md). O primeiro marco técnico é publicar **um** número de desempenho real, medido, reproduzível, com intervalo de confiança — e não publicar nenhum outro até lá.
+Veja [`ROADMAP.md`](ROADMAP.md) (v2.0): catálogo de condições graduado por evidência, portões de
+evidência G0–G6 e amplitude multimodal com modelos abertos reais — cada condição entra como
+exploratória e só sobe de nível por medição que o próprio software calcula, sob o protocolo
+pré-registrado em [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md).
 
 ---
 
-*Última atualização: setembro de 2026.*
+*Última atualização: novembro de 2026.*

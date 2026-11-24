@@ -1,0 +1,52 @@
+id: xrv-view-xinario
+version: 1.5.7
+name: Classificador de incidência frontal x lateral (xinario, via TorchXRayVision)
+status: available
+adapter: radiologyai.analysis.adapters.xr_gates:XrvViewGateAdapter
+task: gate
+capabilities:
+- gate
+summary: Classificador de incidência frontal x lateral (xinario, via TorchXRayVision); portão a montante
+  dos classificadores de tórax.
+route: dependency
+source:
+  library: torchxrayvision
+  library_version: 1.5.7
+  repository: https://github.com/mlmed/torchxrayvision
+weights:
+- key: model
+  url: https://github.com/mlmed/torchxrayvision/releases/download/v1/xinario_chestViewSplit_resnet-50.pt
+  filename: xinario_chestViewSplit_resnet-50.pt
+  sha256: d2d63da3758006d85b962f439c8f59a10228babe8b2fcc158bfa59be7dab5bd6
+  bytes: 102548915
+  extract: none
+  unsafe_pickle: false
+  note: state_dict ResNet50
+license:
+  code: Apache-2.0
+  weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
+  training_data_terms: dados de treino do projeto xinario/chestViewSplit
+  commercial_use: unclear
+  evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0); os pesos são distribuídos
+    como assets de release do mesmo repositório sem licença própria declarada
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+training_data:
+- xinario-chestviewsplit
+limitations: []
+config:
+  decision: argmax(frontal, lateral)

@@ -22,13 +22,28 @@ from typing import TYPE_CHECKING, Any
 
 from radiologyai import __version__
 from radiologyai.errors import EvaluationError
+from radiologyai.evaluation.dataset import (
+    AGE_BANDS,
+    MISSING_LABEL,
+    age_band,
+    label_matrix_with_missing,
+    manifest_sha256_v2,
+)
 from radiologyai.evaluation.metrics import (
+    AUROCResult,
+    ClusterBootstrap,
     auroc_with_ci,
+    bootstrap_method,
+    cluster_bootstrap_samples,
     expected_calibration_error,
     operating_point_at_sensitivity,
+    percentile_ci,
+    weighted_auroc,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import numpy as np
     import numpy.typing as npt
 
@@ -108,21 +123,61 @@ def check_leakage(card: ModelCard, manifest: Manifest) -> str:
     return "externo"
 
 
+def cluster_auroc_with_ci(
+    y_true: npt.NDArray[np.integer[Any]],
+    y_score: npt.NDArray[np.floating[Any]],
+    patient_ids: Sequence[str],
+    *,
+    n_bootstrap: int,
+    seed: int,
+) -> AUROCResult:
+    """AUROC com IC95% por bootstrap de paciente (cluster), estratificado."""
+    import numpy as np
+
+    from radiologyai.evaluation.metrics import auroc
+
+    point = auroc(y_true, y_score)
+    resampler = ClusterBootstrap(list(patient_ids), seed=seed, strata=y_true)
+    samples = cluster_bootstrap_samples(
+        resampler, lambda w: weighted_auroc(y_true, y_score, w), n_bootstrap
+    )
+    low, high = percentile_ci(samples, 0.95)
+    return AUROCResult(
+        auroc=point,
+        ci95_low=low,
+        ci95_high=high,
+        n_pos=int((y_true == 1).sum()),
+        n_neg=int((np.asarray(y_true) == 0).sum()),
+        ci_method=bootstrap_method(n_bootstrap, seed),
+    )
+
+
 def evaluate_labelwise(
     y_true: npt.NDArray[np.integer[Any]],
     y_score: npt.NDArray[np.floating[Any]],
     label_names: tuple[str, ...],
     config: EvaluationConfig,
+    patient_ids: Sequence[str] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, str]]]:
-    """Calcula métricas por rótulo. Devolve ``(avaliados, não_avaliados)``."""
+    """Calcula métricas por rótulo. Devolve ``(avaliados, não_avaliados)``.
+
+    ``y_true`` pode conter :data:`~radiologyai.evaluation.dataset.MISSING_LABEL`
+    (``-1``): a imagem é excluída **daquele** rótulo, nunca contada como
+    negativa. Com ``patient_ids`` o IC é por bootstrap de paciente (protocolo
+    ``2026-11-v1``); sem eles, por imagem (compatibilidade).
+    """
     import numpy as np
 
     evaluated: dict[str, Any] = {}
     not_evaluated: list[dict[str, str]] = []
+    pids = None if patient_ids is None else np.asarray([str(p) for p in patient_ids])
 
     for i, name in enumerate(label_names):
-        truth = np.asarray(y_true[:, i], dtype=int)
-        score = np.asarray(y_score[:, i], dtype=float)
+        truth_all = np.asarray(y_true[:, i], dtype=int)
+        valid = truth_all != MISSING_LABEL
+        truth = truth_all[valid]
+        score = np.asarray(y_score[:, i], dtype=float)[valid]
+        n_missing = int((~valid).sum())
         n_pos, n_neg = int((truth == 1).sum()), int((truth == 0).sum())
 
         if n_pos < config.min_support or n_neg < config.min_support:
@@ -137,13 +192,23 @@ def evaluate_labelwise(
             )
             continue
 
-        result = auroc_with_ci(truth, score, n_bootstrap=config.n_bootstrap, seed=config.seed)
+        if pids is not None:
+            result = cluster_auroc_with_ci(
+                truth,
+                score,
+                pids[valid].tolist(),
+                n_bootstrap=config.n_bootstrap,
+                seed=config.seed,
+            )
+        else:
+            result = auroc_with_ci(truth, score, n_bootstrap=config.n_bootstrap, seed=config.seed)
         entry: dict[str, Any] = {
             "auroc": round(result.auroc, 4),
             "auroc_ci95": [round(result.ci95_low, 4), round(result.ci95_high, 4)],
             "ci_method": result.ci_method,
             "n_pos": result.n_pos,
             "n_neg": result.n_neg,
+            "n_missing_label": n_missing,
             "prevalence": round(n_pos / (n_pos + n_neg), 4),
         }
         try:
@@ -155,6 +220,10 @@ def evaluate_labelwise(
                 "specificity": round(op.specificity, 4),
                 "ppv": round(op.ppv, 4),
                 "npv": round(op.npv, 4),
+                "fitted_on": (
+                    "mesmo conjunto em que é reportado (otimista; o desenho do protocolo "
+                    "ajusta na metade de calibração: evaluation.protocol_eval)"
+                ),
             }
         except EvaluationError as exc:
             entry["operating_point"] = {"error": str(exc)}
@@ -188,18 +257,21 @@ def subgroup_analysis(
             return {"n": int(mask.sum()), "macro_auroc": None, "reason": "suporte insuficiente"}
         values = []
         for i in range(len(label_names)):
-            truth = np.asarray(y_true[mask, i], dtype=int)
+            truth_all = np.asarray(y_true[mask, i], dtype=int)
+            valid = truth_all != MISSING_LABEL
+            truth = truth_all[valid]
             if int((truth == 1).sum()) < config.min_support:
                 continue
             if int((truth == 0).sum()) < config.min_support:
                 continue
             values.append(
-                auroc_with_ci(
-                    truth,
-                    np.asarray(y_score[mask, i], dtype=float),
-                    n_bootstrap=200,
-                    seed=config.seed,
-                ).auroc
+                float(
+                    weighted_auroc(
+                        truth,
+                        np.asarray(y_score[mask, i], dtype=float)[valid],
+                        np.ones(truth.size),
+                    )[0]
+                )
             )
         return {
             "n": int(mask.sum()),
@@ -212,7 +284,7 @@ def subgroup_analysis(
 
     for key, values in (
         ("sex", sorted({r.patient_sex for r in rows if r.patient_sex})),
-        ("age_band", ["18-39", "40-59", "60-74", "75+"]),
+        ("age_band", list(AGE_BANDS)),
         ("view_position", sorted({r.view_position for r in rows if r.view_position})),
     ):
         groups[key] = {}
@@ -220,7 +292,7 @@ def subgroup_analysis(
             if key == "sex":
                 mask = np.array([r.patient_sex == value for r in rows])
             elif key == "age_band":
-                mask = np.array([r.age_band() == value for r in rows])
+                mask = np.array([age_band(r.patient_age_years) == value for r in rows])
             else:
                 mask = np.array([r.view_position == value for r in rows])
             groups[key][str(value)] = macro_auroc(mask)
@@ -254,13 +326,16 @@ def run_evaluation(
     shared = [name for name in model_labels if name in manifest.label_names]
     model_index = {name: i for i, name in enumerate(model_labels)}
 
-    truth_matrix = np.array(manifest.label_matrix(), dtype=int)
+    # Rótulo ausente (ex.: CheXpert incerto / não mencionado) = -1, nunca negativo.
+    truth_matrix = label_matrix_with_missing(manifest)
     manifest_index = {name: i for i, name in enumerate(manifest.label_names)}
 
     y_true = np.stack([truth_matrix[:, manifest_index[n]] for n in shared], axis=1)
     y_pred = np.stack([np.asarray(y_score)[:, model_index[n]] for n in shared], axis=1)
 
-    evaluated, not_evaluated = evaluate_labelwise(y_true, y_pred, tuple(shared), cfg)
+    evaluated, not_evaluated = evaluate_labelwise(
+        y_true, y_pred, tuple(shared), cfg, patient_ids=[r.patient_id for r in manifest.rows]
+    )
 
     for name in model_labels:
         if name in manifest.label_names:
@@ -307,7 +382,10 @@ def run_evaluation(
         "dataset": {
             "name": manifest.name,
             "split": manifest.split,
+            # v1 (só ids e rótulos) mantido para comparar com runs já commitados;
+            # v2 cobre todas as colunas, inclusive demografia e incidência.
             "manifest_sha256": manifest.sha256(),
+            "manifest_sha256_v2": manifest_sha256_v2(manifest),
             "n_images": len(manifest),
             "n_patients": len(manifest.patient_ids),
             "external_to_training_data": leakage == "externo",

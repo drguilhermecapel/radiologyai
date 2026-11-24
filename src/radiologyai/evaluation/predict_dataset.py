@@ -49,7 +49,10 @@ def load_png(path: Path) -> npt.NDArray[np.float32]:
             arr = np.asarray(img.convert("L"), dtype=np.float32)
             full_scale = 255.0
 
-    return np.clip(arr / np.float32(full_scale), 0.0, 1.0).astype(np.float32)
+    out: npt.NDArray[np.float32] = np.clip(arr / np.float32(full_scale), 0.0, 1.0).astype(
+        np.float32
+    )
+    return out
 
 
 def predict_manifest(

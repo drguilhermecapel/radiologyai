@@ -1,0 +1,93 @@
+id: xrv-pspnet-chestxdet
+version: 1.5.7-chestx_det
+name: PSPNet ChestX-Det (TorchXRayVision) + índice cardiotorácico
+status: available
+adapter: radiologyai.analysis.adapters.xr_anatomy:ChestXDetAnatomyAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+summary: Segmentação de coração e pulmões (PSPNet ChestX-Det) e índice cardiotorácico com geometria; abstém-se
+  em lateral, tórax cortado ou máscara vazia.
+route: main
+source:
+  library: torchxrayvision
+  library_version: 1.5.7
+  repository: https://github.com/mlmed/torchxrayvision
+  dataset: https://github.com/Deepwise-AILab/ChestX-Det-Dataset
+weights:
+- key: model
+  url: https://github.com/mlmed/torchxrayvision/releases/download/v1/pspnet_chestxray_best_model_4.pth
+  filename: pspnet_chestxray_best_model_4.pth
+  sha256: 019b167eac6b729fc1bb92bbbc185fc1730aaa65819f4e3fe718186cadc044fc
+  bytes: 272988989
+  extract: none
+  unsafe_pickle: false
+  note: state_dict DataParallel
+license:
+  code: Apache-2.0
+  weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
+  training_data_terms: ChestX-Det (Deepwise; subconjunto do NIH ChestX-ray14)
+  commercial_use: unclear
+  evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0); os pesos são distribuídos
+    como assets de release do mesmo repositório sem licença própria declarada
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001
+- xrv-view-xinario
+- xrv-ae-ood
+training_data:
+- chestx-det
+- nih-cxr14
+labels:
+- key: cardiomegaly_ctr
+  source_label: cardiothoracic_ratio_pa
+  condition_id: cxr.cardiomegaly_ctr
+  kind: derived
+  score_kind: measurement
+  measurement: cardiothoracic_ratio_pa
+  code:
+    scheme: 99MEDAI
+    value: cxr.cardiomegaly_ctr
+    meaning: enlarged cardiac silhouette by cardiothoracic ratio
+operating_points:
+- label: cardiomegaly_ctr
+  point:
+    name: ctr_gt_0_5_pa
+    role: guideline
+    threshold: 0.5
+    'on': measurement
+    direction: ge
+    source: 'Truszkiewicz et al., J Clin Med 2021, doi:10.3390/jcm10092016: CTR ''measured on a chest
+      PA radiograph ... with a cut-off value of 0.5. A value of >0.5 should be interpreted as enlargement
+      of the heart.'' (aplicado só em PA; >= no limiar exato)'
+limitations:
+- Sem medição própria de Dice nem de erro do ICT contra máscaras manuais (nível D até medir).
+- O limiar 0,5 vale só para PA ortostático; em AP o valor é mostrado sem veredito (cardiothoracic_ratio_pa
+  se abstém). A posição ortostática não é verificada.
+- ICT aumentado indica silhueta cardíaca aumentada, não disfunção cardíaca; derrame pericárdico também
+  aumenta a silhueta.
+references:
+- title: A Structure-Aware Relation Network for Thoracic Diseases Detection and Segmentation
+  identifier: arXiv:2104.10326
+  url: https://arxiv.org/abs/2104.10326
+- title: Cardiothoracic ratio (review)
+  identifier: doi:10.3390/jcm10092016
+  url: https://doi.org/10.3390/jcm10092016
+config:
+  gates: *id001
+  mask_threshold: 0.5

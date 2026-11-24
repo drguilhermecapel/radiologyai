@@ -1,674 +1,600 @@
-# Roadmap — RadiologyAI
+# Roadmap — RadiologyAI v2.0 (otimizado)
 
-**De protótipo com métricas fabricadas a plataforma multimodal com trajetória SaMD/ANVISA.**
+**O maior número possível de condições, cada uma com a confiabilidade científica que de fato tem.**
 
-Documento de planejamento. Versão 1.0 — setembro/2026.
+Documento de planejamento. Versão 2.0 — novembro/2026. Substitui a versão 1.0 (setembro/2026),
+que continua no histórico git.
 Autor do projeto: Dr. Guilherme Capel Pasqua (CRM-SP 175873).
 
----
-
-## 0. Por que este documento existe
-
-Este repositório **aparenta** ser uma plataforma clínica completa: 54 mil linhas de Python, 67 módulos, PACS/HL7/FHIR, *federated learning*, *global deployment orchestration*, *regulatory compliance*. O `README.md` afirma acurácia de 88–95% e "arquiteturas validadas clinicamente".
-
-Nada disso é verdade. O levantamento abaixo é factual e verificável comando a comando.
-
-Este roadmap parte desse diagnóstico e desenha o caminho até o objetivo declarado: **SaMD registrável na ANVISA, escopo multimodal (RX, TC, RM, US)**, com núcleo v2 limpo e legado arquivado.
+> **Software de pesquisa. Não é dispositivo médico.** Não é regularizado na ANVISA, não tem
+> clearance FDA nem marcação CE. Toda saída é um **achado sugerido para confirmação médica**,
+> nunca um diagnóstico. Estado real do projeto: [`HONEST_STATUS.md`](HONEST_STATUS.md).
 
 ---
 
-## 1. Diagnóstico do estado atual
+## 0. O critério que governa este roadmap
 
-### 1.1 Não existe nenhum modelo treinado
+O critério do dono do projeto é **diagnosticar o maior número possível de condições com
+confiabilidade científica**. As duas metades puxam em sentidos opostos — amplitude sem
+evidência é o que afundou o v1; evidência sem amplitude é um produto que não serve a ninguém.
+A v2.0 resolve a tensão com uma regra única:
 
-```bash
-find . -name "*.h5" -o -name "*.keras" -o -name "*.pt" -o -name "*.pth" \
-       -o -name "*.onnx" -o -name "*.pb" -o -name "*.tflite"
-# → vazio
-```
+> **Toda condição pode entrar no sistema. Nenhuma condição sobe de nível sem evidência que o
+> próprio software calcula.**
 
-`models/model_registry.json` declara três modelos com `accuracy: 0.92`, `auc: 0.94`, URLs de release inexistentes (o repositório tem **zero releases publicados**) e hashes fabricados:
+Em termos operacionais:
 
-```
-"sha256_hash": "a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4"
-```
+1. A unidade de progresso é a **condição catalogada com nível de evidência calculado** (§2),
+   não a funcionalidade entregue.
+2. O indicador principal (KPI) é o **número de condições em nível A e em nível B, por
+   modalidade**, gerado a partir de `levels.json` — nunca digitado.
+3. As fases por funcionalidade do v1.0 viram **portões de evidência G0–G6** (§4). Cada portão
+   tem critério de saída verificável e um artefato que o comprova.
+4. Amplitude multimodal **agora**, com modelos abertos reais (§5), porque o catálogo graduado
+   permite mostrar uma condição de nível D no modo pesquisa sem fingir que ela é A.
 
-Contém `g`, `h`, `i` — não é hexadecimal. É placeholder.
-
-### 1.2 O caminho real de predição é uma heurística OpenCV
-
-Sem pesos, `medai_inference_system.py:252` devolve `_create_dummy_model()` e a inferência cai em `_analyze_image_fallback()` (linha 1510):
-
-```python
-fracture_score = min(0.3, pneumonia_score * 0.5)          # Simple heuristic
-tumor_score    = min(0.3, pleural_effusion_score * 0.4)   # Simple heuristic
-```
-
-Com `print(f"DEBUG Pathology CLAHE input shape: ...")` no caminho de produção.
-
-### 1.3 A explicabilidade é falsa — e este é o defeito mais grave do repositório
-
-`src/medai_explainability.py:56` — `GradCAMExplainer.generate_heatmap()` **nunca referencia `self.model`**. Chama `_simulate_attention_map()`:
-
-```python
-edges = cv2.Canny(gray, 50, 150)
-heatmap = cv2.GaussianBlur(edges.astype(np.float32), (15, 15), 0)
-```
-
-Detecção de bordas Canny, borrada, com ruído gaussiano somado. `IntegratedGradientsExplainer` faz o equivalente em `_simulate_integrated_gradients()` (linha 194).
-
-Isso é servido a quem chama `POST /api/v1/explain` e `POST /api/v1/analyze?include_explanation=true`.
-
-**Um mapa de saliência fabricado sobreposto à radiografia real de um paciente é pior que um número de acurácia fabricado**, porque manufatura a *aparência* de um modelo raciocinando sobre anatomia. Um clínico que vê o "calor" sobre uma região vai atribuir significado a um contorno de Canny.
-
-### 1.4 A API fabrica métricas de validação clínica a cada requisição
-
-`src/medai_fastapi_server.py:340`:
-
-```python
-y_true = np.array([1])  # Mock ground truth
-...
-clinical_metrics = clinical_evaluator.evaluate_model_performance(y_true, y_pred)
-```
-
-O resultado vai no corpo da resposta como `clinical_metrics`. A API informa a **todo** cliente que o modelo foi clinicamente validado, calculando isso a partir de um array de um elemento inventado.
-
-### 1.5 O mapeamento de patologias do único caminho com pesos reais é clinicamente perigoso
-
-`src/torchxray_integration.py` é o único ponto do repositório que carrega pesos de verdade (`torchxrayvision densenet121-res224-all`). Ele colapsa as 18 saídas do modelo em 5 categorias:
-
-| Saída do modelo | Reportado como |
-|---|---|
-| **Pneumothorax** | **pneumonia** |
-| **Cardiomegaly** | **normal** |
-| **Edema** | **normal** |
-| Atelectasis | normal |
-| Emphysema | normal |
-| Fibrosis | normal |
-| Pleural_Thickening | pleural_effusion |
-
-Um pneumotórax reportado como pneumonia. Cardiomegalia com edema reportados como "Normal". O modelo detectou corretamente e a camada de tradução destruiu o achado.
-
-### 1.6 "Validação clínica" gerada por `np.random`
-
-164 chamadas a `np.random` em `src/` (236 no repositório), concentradas nos módulos de validação e monitoramento. O caso central, `src/medai_advanced_clinical_validation.py:357`:
-
-```python
-cv_scores = np.random.normal(base_accuracy, 0.02, n_folds)
-```
-
-Cross-validation **sintetizada**. `medai_clinical_monitoring_dashboard.py:270` faz default para `sensitivity=0.94, specificity=0.92` quando não há dado.
-
-E `medai_clinical_evaluation.py` contém `ClinicalValidationFramework.validate_for_clinical_use()` / `_determine_clinical_approval()` — **o software se autocertifica para uso clínico**.
-
-### 1.7 Todo artefato real de treino registra falha
-
-| Arquivo | Conteúdo |
-|---|---|
-| `models/comprehensive_training_report.json` | `successful_models: 0` · `"CRÍTICO: Nenhum modelo atende critérios clínicos"` |
-| `models/advanced_training_summary.json` | `failed_models: [EfficientNetV2, VisionTransformer, ConvNeXt]` |
-| `models/training_summary.json` | os 3 modelos com `accuracy: 0.3333` em 3 classes = acaso |
-| `models/pre_trained/simple_demo/validation_results.json` | `AUC_mean: 0.5000`, `AUC_Pneumonia: 0.0` |
-| `models/advanced_clinical_validation_study.json` | pneumonia `sensitivity: 0.325`, `auc_roc: 0.4333` — **abaixo do acaso** |
-| `NIH_CHEST_XRAY/models_trained/evaluation_report_*.json` | `mean_auc: NaN`, `test_samples: 1` |
-| `models/*_history.json` (6 arquivos) | `{}` |
-
-Os logs (`training_log_*.csv`) mostram `loss` fixo em 0.6931 (= ln 2, rede não treinada) por 50 épocas.
-
-### 1.8 Os dados são desenhos de OpenCV com nomes de arquivos do NIH
-
-`create_synthetic_dataset.py`:
-
-```python
-cv2.ellipse(img, (cx-80, cy), (60,120), 0, 0, 360, 80, -1)   # "Pulmão esquerdo"
-for i in range(8):                                            # "Costelas"
-    cv2.line(img, (cx-120, y), (cx+120, y), 100, 2)
-```
-
-As 120 imagens em `data/nih_chest_xray/images/` recebem nomes de arquivos reais do NIH (`00000001_000.png`). Isso não é apenas dado sintético — é **risco de proveniência**: qualquer pessoa que copie esse diretório passa a ter arquivos que se apresentam como NIH ChestX-ray14 e não são.
-
-Os quatro *loaders* de dataset em `medai_dataset_loaders.py` são stubs (`"CheXpert loader not fully implemented"`, idem LIDC-IDRI, BraTS, NIH).
-
-### 1.9 A anonimização não é anonimização
-
-`medai_dicom_processor.py:105` cobre 7 tags. Não cobre AccessionNumber, StudyDate/Time, InstitutionName/Address, StudyInstanceUID/SeriesInstanceUID/SOPInstanceUID, DeviceSerialNumber, OtherPatientIDs, tags privadas, nem anotação gravada no pixel. Não é o perfil DICOM PS3.15 Annex E.
-
-Pior, os pseudo-IDs usam o `hash()` builtin do Python (linhas 132–134), que é **salgado por processo** — o mesmo paciente recebe um `ANON_xxxx` diferente a cada execução. Isso impede até manter um split estável por paciente. E `self._fernet = Fernet(Fernet.generate_key())` cria uma chave que nada usa.
-
-Sob a LGPD isso é defeito de conformidade, não *code smell*.
-
-### 1.10 O caminho de TC descarta as Unidades Hounsfield que acabou de calcular
-
-`medai_modality_normalizer.normalize_ct()` é código bom: RescaleSlope/Intercept reais → HU → janela por órgão. Mas `dicom_to_array()` em seguida faz `(normalized_array * 255).astype(np.uint8)` e `preprocess_for_ai()` divide por 255. Uma única janela fixa de partes moles, quantizada em 8 bits, antes de qualquer modelo ver o dado. Correto para exibição; errado para um modelo de TC. Além disso, não há `apply_voi_lut` nem inversão de MONOCHROME1 no caminho principal.
-
-### 1.11 Overclaiming documental — o passivo pessoal
-
-O repositório é público e assinado com seu nome e CRM.
-
-`README.md`:
-> "arquiteturas ensemble state-of-the-art **validadas clinicamente**"
-> "**Alta Acurácia**: >95% para condições críticas, >90% para condições moderadas"
-> "**Análise de Viés**: ✅ Sistema validado sem viés detectado"
-> "**Pronto para Produção**: ✅ Sistema validado"
-
-`MODELS_LICENSE.md`: "**Acurácia Validada**: 92.3% (Sensibilidade: 90%, Especificidade: 89%)" — para modelos que não existem.
-
-`docs/USER_GUIDE.md`: "91% de acurácia" na linha 200 e "**Acurácia: 20% atual**" na linha 412. O mesmo documento se contradiz.
-
-`docs/CLINICAL_VALIDATION.md` é o único documento honesto: **"Overall Accuracy: 20% (1/5 correct predictions)"** — em 5 imagens sintéticas.
-
-`FINAL_DELIVERY_PACKAGE.md`: "✅ Todos os Testes Passaram (100%)".
-
-**Consequência:** a RDC 751/2022 e a Lei 6.437/77 tratam alegação de desempenho de dispositivo médico não registrado como infração sanitária. É também o primeiro achado de qualquer *due diligence* de investidor, parceiro ou comitê de ética. **Corrigir isso é P0 — antes de qualquer linha de código novo.**
-
-### 1.12 Dívida estrutural
-
-- **Nenhum `__init__.py`** no repositório, mas 37 imports relativos. Cada um envolto em `except ImportError: self.X = None` — 13 blocos só em `medai_integration_manager.py`. O sistema **sobe com todos os subsistemas em `None`** e não avisa.
-- Autenticação stubada para sempre aceitar: `type('MockSecurity', (), {'authenticate': lambda self,u,p: True})`.
-- 4 servidores, 2 launchers, 7 scripts de treino, 31 scripts `test_*.py` soltos na raiz (só 1 arquivo importa pytest), 5 READMEs, 8 scripts `fix_*`, `fix_syntax,py.txt` (vírgula no nome), `pasted_content.txt`.
-- **Zero CI** (não existe `.github/`), zero `pyproject.toml`, zero lockfile, zero `conftest.py`.
-- `requirements.txt` só com `>=`, faltando 11 pacotes efetivamente importados: `scipy`, `torch`, `psutil`, `h5py`, `PyYAML`, `reportlab`, `click`, `torchxrayvision`, `pynetdicom`, `hl7`, `plotly`.
-- Python inconsistente: README 3.12 · Dockerfile `python:3.9-slim` · instalador 3.7+.
-- Segredos commitados: `medai_config.json` (jwt_secret/encryption_key), `docker-compose.yml` (senhas default), `medai_security.db` (SQLite de 20 KB — e o `.gitignore` só tinha `db.sqlite3`, então não houve regra que pudesse pegá-lo).
-- Caminhos absolutos de outra máquina: `/home/ubuntu/repos/radiologyai/`, `/mnt/data/NIH_CHEST_XRAY`, `C:/Program Files/`.
-- `Dockerfile` roda `--workers 4`: quatro processos uvicorn, cada um com sua cópia do modelo — 4× RAM sem ganho no alvo CPU, e ordenação não-determinística do log de auditoria entre processos.
-
-### 1.13 Governança do repositório
-
-- **Não existe branch `main`.** O default remoto é `devin/1749325214-windows-radiology-ai-program`.
-- **35 branches remotos**, a maioria `codex/*` e `devin/*` abandonados.
-- **6 PRs abertos desde junho/2025.** O PR #3 é literalmente *"replace heavy TensorFlow-based code with lightweight stubs... ensure tests run without external data or heavy libraries"* — propõe passar nos testes removendo a IA.
-- **Zero releases**, confirmando que as `download_url` do registro apontam para o nada.
-
-### 1.14 O que vale salvar
-
-| Arquivo | Destino |
-|---|---|
-| `medai_dicom_processor.py` (501) | **Migrar e corrigir** — melhor código do repo, mas reescrever anonimização, remover cache MD5 ilimitado, remover a quantização uint8 |
-| `medai_modality_normalizer.py` (319) | **Migrar** — HU windowing correto; dividir por modalidade |
-| `medai_confidence_calibration.py` (384) | **Migrar** a parte numpy/sklearn (~250 LOC framework-agnósticas) |
-| `medai_clinical_evaluation.py` (1061) | **Migrar a matemática**; **deletar** `validate_for_clinical_use` e `_determine_clinical_approval` |
-| `medai_medical_augmentation.py` (235) | **Parcial** — `elastic_deformation`, `simulate_breathing_motion` |
-| `torchxray_integration.py` (376) | **Migrar o loader**; **deletar** `pathology_mapping` e `clinical_thresholds` |
-| `medai_report_generator.py` | **Migrar a estrutura** (reportlab) |
-| `docs/OPENAPI_SPEC.yaml` | **Manter** como contrato-alvo |
-| `docs/CLINICAL_VALIDATION.md` | **Manter e reetiquetar** — é o documento honesto |
-| `medai_explainability.py` | **ARQUIVAR** — falso; salvar só `overlay_heatmap` |
-| `medai_sota_models.py` / `_real.py` | **ARQUIVAR** — `timm` + MONAI substituem |
-| `medai_inference_system.py` | **ARQUIVAR** — é o que está sendo eliminado |
-| `medai_integration_manager.py` | **ARQUIVAR** — é o anti-padrão |
-| `medai_regulatory_compliance.py` | **ARQUIVAR** — conformidade é Markdown + QMS, nunca um enum Python |
-| demais ~45 `medai_*` + 59 arquivos da raiz | **ARQUIVAR** em `legacy/` |
+O que **não** muda do v1.0: a decisão PyTorch (§7.1), a Classe C (§8.1), os perigos H-01…H-10
+(§8.3), os documentos regulatórios baratos (§8.4), o portão do dinheiro (§8.6) e a regra de ouro.
 
 ---
 
-## 2. Escopo: multimodal em série, não em paralelo
+## 1. Diagnóstico — resumo
 
-O objetivo é SaMD ANVISA com RX, TC, RM e US.
+A versão 1.0 deste roadmap abria com um diagnóstico de 14 subseções do repositório legado:
+nenhum peso treinado, predição por heurística OpenCV, Grad-CAM falso (bordas Canny borradas),
+métricas de "validação clínica" geradas por `np.random`, *mock ground truth* devolvido pela API,
+pneumotórax reportado como pneumonia, dados sintéticos com nomes de arquivo do NIH,
+anonimização incompleta e não determinística, segredos commitados. O diagnóstico completo e a
+retratação pública estão em **[`HONEST_STATUS.md`](HONEST_STATUS.md)**; o texto integral da v1.0
+está no histórico git deste arquivo.
 
-Cada modalidade é, na prática, um dispositivo separado — pré-processamento, dataset, arquitetura, *ground truth*, validação e indicação de uso próprios. TC e RM exigem tratamento volumétrico 3D. Quatro modalidades em paralelo, por uma pessoa, produzem quatro protótipos rasos — que é exatamente o estado atual deste repositório.
-
-**A plataforma é multimodal desde a Fase 1** (o ponto de extensão existe e as quatro modalidades estão no sistema de tipos). **O escopo regulatório não é.** Registra-se uma indicação primeiro; cada modalidade seguinte é uma alteração/inclusão contra um QMS existente e uma plataforma já validada, e o custo marginal cai cerca de 5 a 10 vezes.
-
----
-
-## 3. Decisão de framework: PyTorch + MONAI
-
-**Abandonar TensorFlow/Keras. Reconstruir sobre PyTorch + MONAI + `timm`, exportando ONNX para inferência.**
-
-1. **O custo de migração do modelo é literalmente zero** — não existem pesos. `medai_sota_models.py` constrói grafos aleatoriamente inicializados. Não há nada treinado para portar. Este é o momento mais barato em que essa decisão estará disponível.
-2. **Os únicos pesos reais alcançáveis hoje já são PyTorch** (`torchxrayvision`). O marco de linha de base honesta é uma inferência torch de qualquer forma.
-3. **TC e RM são o argumento decisivo.** Exigem carregamento volumétrico com *spacing* correto, `Spacingd` para isotrópico, `ScaleIntensityRanged` sobre HU, `CropForegroundd`, treino por *patches* 3D que não cabem na VRAM e inferência por janela deslizante com mistura gaussiana nas bordas. MONAI entrega tudo isso testado e citável. Keras não entrega nada — por isso `medai_sota_models.py` tem `_extract_3d_patches` escrito à mão e sem teste.
-4. **Ecossistema**: nnU-Net, TotalSegmentator, MedSAM, `timm`, `captum`, MONAI Label, EchoNet — todos torch.
-5. **A explicabilidade passa a funcionar.** Grad-CAM real precisa de hook em camada nomeada: `register_full_backward_hook`, 30 linhas. O caminho TF produziu uma falsificação justamente porque extrair gradientes de um `tf.keras.Model` que você não construiu é incômodo — e ninguém se deu ao trabalho.
-6. **Reprodutibilidade para V&V**: `torch.use_deterministic_algorithms(True)` + seeds + `CUBLAS_WORKSPACE_CONFIG` dá execução bit-reprodutível, que é o que uma verificação exige demonstrar.
-7. **ONNX Runtime** dá alvo CPU sem dependência de torch, grafo fixo e sha256 estável — o artefato certo para release regulado. Atende "GPU, mas compatível com CPU".
-
-**Custo real da migração: ~1,5 dia, e você deleta mais do que escreve.** O único código que toca TF e vale a pena é um método de `medai_confidence_calibration.py` (~2 h) e `MedicalAugmentationTF` (~1 dia, substituído por `Compose` do MONAI).
-
-**Pinos:** `torch==2.5.1`, `monai==1.4.0`, `torchxrayvision==1.3.4`, `timm`, `pydicom==2.4.4` (2.x — a 3.x mudou a API de pixel handlers), `SimpleITK==2.4.x`, `onnxruntime==1.20.x`, Python `>=3.11,<3.14` (3.11 primário; o Colab já está em 3.13). Lockfile com `uv`. Cada versão entra literalmente na lista SOUP.
-
----
-
-## 4. Arquitetura-alvo
-
-`src`-layout, um pacote `radiologyai`. Não é preferência de estilo: torna impossível importar o pacote acidentalmente da raiz do repositório — exatamente a falha que permitiu 67 módulos planos se importarem de 37 maneiras diferentes.
-
-```
-pyproject.toml · uv.lock            # o lockfile é artefato regulatório (fonte da lista SOUP)
-src/radiologyai/
-├── __init__.py                     # só __version__; zero efeito colateral, zero import pesado
-├── errors.py                       # hierarquia própria; nenhum except nu no pacote
-├── config/                         # pydantic-settings; segredos só por env
-├── io/                             # camada DICOM, agnóstica de modalidade
-│   ├── reader.py                   # dcmread, VOI LUT, MONOCHROME1, RescaleSlope/Intercept
-│   ├── series.py                   # ordena por ImagePositionPatient → volume 3D
-│   ├── windowing.py                # presets WC/WW  ← migrar de medai_dicom_processor
-│   ├── deident.py                  # PS3.15 Annex E; pseudo-ID HMAC-SHA256 DETERMINÍSTICO
-│   └── metadata.py                 # StudyMetadata tipado (pydantic), não dict[str,str]
-├── modalities/                     # ★ PONTO DE EXTENSÃO
-│   ├── base.py                     # Protocol ModalityPlugin (§4.1)
-│   ├── registry.py                 # descoberta por entry-point
-│   └── xr/ · ct/ · mr/ · us/
-├── models/
-│   ├── card.py                     # sha256 VALIDADO (64 hex) — pegaria model_registry.json
-│   ├── registry.py · store.py      # resolve → baixa → verifica hash → cacheia
-│   ├── cards/*.yaml                # um por versão de modelo, commitado
-│   └── backends/{torch,onnx}.py
-├── inference/
-│   ├── types.py                    # Finding, Prediction, StudyResult (pydantic, frozen)
-│   └── engine.py                   # FALHA FECHADA. Sem fallback. Nunca.
-├── calibration/
-│   ├── temperature.py · metrics.py # ECE, MCE, diagrama de confiabilidade
-│   └── abstention.py               # banda "não avaliável" — controle de risco primário
-├── explain/gradcam.py              # REAL: hooks forward/backward em módulo torch nomeado
-├── evaluation/
-│   ├── metrics.py                  # AUROC/AUPRC + IC DeLong + bootstrap estratificado
-│   ├── operating_point.py          # threshold em sensibilidade-alvo, com IC
-│   ├── subgroup.py                 # sexo / faixa etária / incidência / fabricante
-│   └── runner.py · report.py       # escreve artifacts/eval/<run_id>/
-├── reporting/                      # laudo + PDF + disclaimers da IFU, versionados
-├── api/                            # FastAPI: create_app() factory, routers/, security por env
-├── persistence/
-│   ├── models.py                   # SQLAlchemy + alembic
-│   └── audit.py                    # append-only, encadeado por hash (prev_hash)
-└── cli/main.py                     # typer: ingest, predict, evaluate, calibrate, trace
-
-tests/{unit,integration,evaluation,requirements}/
-datasets/manifests/*.csv            # splits + sha256 por arquivo — COMMITADO. Pixel não.
-artifacts/                          # gitignored, exceto artifacts/eval/*/metrics.json
-docs/regulatory/ · docs/model-cards/ · docs/datasheets/
-legacy/                             # tudo o que sai; excluído de build, lint, CI e cobertura
-```
-
-### 4.1 O ponto de extensão de modalidade
-
-```python
-class ModalityPlugin(Protocol):
-    code: ClassVar[str]                     # DICOM (0008,0060): "DX","CR","CT","MR","US"
-    sop_classes: ClassVar[frozenset[str]]
-    dimensionality: ClassVar[Literal["2d", "3d", "cine"]]
-
-    def validate(self, study) -> ValidationReport: ...
-    def preprocess(self, study, card) -> torch.Tensor: ...
-    def postprocess(self, output, card) -> list[Finding]: ...
-    def explain(self, study, card, target) -> Explanation: ...
-```
-
-Registrado por entry-point em `pyproject.toml`. Três consequências:
-
-1. **Uma modalidade pode virar distribuição separada** (`radiologyai-ct`), com versão e relatório de validação próprios. Registra-se RX enquanto TC ainda é `0.x`.
-2. **`validate()` é controle de risco, não conveniência.** O maior modo de falha silenciosa de IA radiológica em produção é entrada fora de distribuição — incidência lateral num modelo PA, exame pediátrico, AP de leito, um *scout* de TC confundido com RX. Tornar a rejeição um método obrigatório do plugin dá ao arquivo de risco um gancho real. **É a correção direta de `_analyze_image_fallback`.**
-3. `dimensionality` força o caminho 3D a existir no sistema de tipos desde o primeiro dia, para que a implementação de RX não assente premissas 2D no código comum.
-
-### 4.2 Regra de ouro
-
-*Nenhum caminho de código produz um número que não veio de um modelo real medido.*
-
-Sem `_create_dummy_model`, sem `_analyze_image_fallback`, sem `np.random` em métrica, sem `except ImportError: self.X = None`, sem saliência simulada, sem *mock ground truth*. Dependência ausente ou hash divergente → erro alto e explícito.
-
----
-
-## 5. Roadmap por fases
-
-Premissa: **8–12 h/semana, solo.** Prazos em tempo decorrido real.
-
-### Fase 0 — Verdade e quarentena · 2–3 semanas (~25 h)
-
-1. Escrever `docs/regulatory/01-intended-use.md` e `02-software-safety-classification.md`. **Antes de qualquer código.**
-2. `HONEST_STATUS.md` na raiz, linkado do topo do README: nenhum modelo treinado existe; todas as métricas publicadas foram fabricadas; não é para uso clínico.
-3. Remover as alegações falsas de `README.md`, `MODELS_LICENSE.md`, `docs/USER_GUIDE.md`, `FINAL_DELIVERY_PACKAGE.md`, `testing_criteria.md` — **agora**, sem esperar o número da Fase 1.
-4. Deletar `models/model_registry.json`; marcar todo JSON de métrica como não-medição.
-5. Deletar `data/nih_chest_xray/` (PNGs sintéticos com nomes de arquivos NIH).
-6. Branch `v2`; `git mv` de tudo para `legacy/`.
-7. `git filter-repo` para expurgar `medai_security.db` do histórico; rotacionar o que ele tocava; remover segredos de `medai_config.json` e `docker-compose.yml`.
-8. `pyproject.toml` + `uv.lock` + `.github/workflows/ci.yml` verdes em pacote vazio.
-9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch.
-10. Iniciar credenciamento PhysioNet (curso CITI, ~6 h). A revisão sai em 24–48 h
-    depois do relatório enviado; o gargalo é o curso. Ver `docs/access/README.md`.
-11. Comprar HD externo de 4 TB; iniciar download do NIH ChestX-ray14.
-12. Rascunhar `03-risk-management-plan.md` e semear `04-risk-file.md` com H-01…H-10 (§6.3).
-
-**Saída:** zero alegação falsa em qualquer documento fora de `legacy/`; sem segredos no histórico; CI verde; credenciamento submetido.
-
-### Fase 1 — Esqueleto v2 + a linha de base honesta · 6–8 semanas (~70 h)
-
-O marco que muda a natureza do projeto.
-
-- `io/` completo com testes unitários contra DICOMs sintéticos construídos com pydicom em `conftest.py`: MONOCHROME1, RescaleSlope/Intercept, VOI LUT, WC/WW multivalorado, tags ausentes.
-- `modalities/base.py` + `registry.py` + plugin `xr`. Plugins `ct`/`mr`/`us` como *stubs* que levantam `NotImplementedError` — a interface fica provada multimodal desde o início.
-- `models/` com `ModelCard` de sha256 validado; `inference/engine.py` **falha fechada**.
-- `evaluation/` com IC de DeLong e análise de subgrupos.
-
-**A armadilha de vazamento — e como evitá-la.** O movimento óbvio é rodar `densenet121-res224-all` no NIH ChestX-ray14. **Não faça.** Os pesos `-all` foram treinados em NIH, PadChest, CheXpert, MIMIC-CXR, RSNA e OpenI. Avaliar no NIH seria *in-distribution* — uma nova fabricação, só que mais sutil.
-
-**Use `densenet121-res224-pc`** (só PadChest, Hospital San Juan / Alicante) **avaliado no split oficial `test_list.txt` do NIH** (25.596 imagens, disjunto por paciente). Países, equipamentos, populações e pipelines de rotulagem diferentes. Validação externa genuína, sem credenciamento, custo zero.
-
-Alinhamento de rótulos explícito em `modalities/xr/labels.py`, com teste unitário. As 4 saídas do xrv sem contrapartida no NIH (`Lung Lesion`, `Lung Opacity`, `Enlarged Cardiomediastinum`, `Fracture`) são reportadas como `evaluated: false`, nunca descartadas em silêncio.
-
-Um comando:
-```bash
-radiologyai evaluate --card xrv-densenet121-pc \
-  --manifest datasets/manifests/nih_cxr14_test.csv \
-  --bootstrap 2000 --seed 20260101 --out artifacts/eval/
-```
-
-`metrics.json` obrigatoriamente carrega: `git_sha`, `weights_sha256`, `manifest_sha256`, `seed`, versões de biblioteca, AUROC por patologia com IC95%, ponto de operação em sensibilidade-alvo, ECE, subgrupos, `not_evaluated[]` e `limitations[]`.
-
-**Expectativa registrada antes da medição: 0,72–0,82.** Medido: **0,664** (`artifacts/eval/xrv-densenet121-pc__20260912T202549Z/`). A expectativa estava errada — cardiomegalia (0,796) e derrame (0,752) ficaram abaixo do previsto, e fibrose (0,455) ficou abaixo do acaso, o que indica que "Fibrosis" no PadChest e no NIH não nomeiam o mesmo achado. A lacuna PA/AP prevista apareceu (0,696 vs 0,631). Registrar a previsão errada ao lado do número medido faz parte do método: o v1 alegava 0,94.
-
-Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/EVALUATION_*.md`.
-
-**Trava de regressão no CI:** `tests/evaluation/test_baseline_regression.py` roda o mesmo caminho de código sobre um subconjunto de 50 imagens commitado e exige AUROC macro dentro de ±0,02 de um valor dourado. CPU, ~40 s, em toda PR. Qualquer mudança de pré-processamento que degrade o modelo em silêncio passa a quebrar o build.
-
-**Saída:** AUROC por patologia, medido, com IC, reproduzível bit a bit por terceiro a partir de um checkout limpo. Cobertura ≥85% em `io/` e `evaluation/`.
-
-**Estado em setembro/2026 — infraestrutura concluída, execução pendente:**
+**Onde estamos em novembro/2026:**
 
 | Item | Estado |
 |---|---|
-| Pacote `radiologyai`, CI, 3 portões automatizados | concluído |
-| Backend torchxrayvision com verificação de sha256 | concluído |
-| Manifest do NIH (25.596 imagens, 2.797 pacientes, disjunção verificada) | **commitado** |
-| Executor de avaliação com IC, subgrupos e proveniência completa | concluído |
-| Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
-| Adaptador CheXpert + notebook de rótulo adjudicado | `notebooks/02_chexpert_e_credenciamento.ipynb` — executado ponta a ponta em kernel real; **ainda não rodado sobre dados reais do CheXpert** |
-| **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664; duas execuções isolam o efeito do pré-processamento (delta −0,0008) |
-
-**Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
-**não treinadas** (o PadChest não continha `Lung Lesion`, `Lung Opacity` nem
-`Enlarged Cardiomediastinum`). Usar a lista `default_pathologies` da biblioteca
-como se fosse a do modelo faria reportar AUROC de uma cabeça nunca treinada —
-mesma classe de defeito das métricas fabricadas do v1, por mecanismo mais sutil.
-Tratado em REQ-021. Os 14 rótulos do NIH têm cabeça treinada, então a linha de
-base é válida para todos eles.
-
-**Limite do segundo dataset, registrado antes de medir:** das 14 observações do
-CheXpert, nenhuma é fibrose — nem enfisema, nódulo, massa, infiltrado, espessamento
-pleural ou hérnia. Ou seja, o achado que motivou buscar rótulo adjudicado (fibrose,
-AUROC 0,448 com IC95 excluindo 0,5) é justamente o que o CheXpert **não** responde.
-O CheXpert cobre cardiomegalia, edema, consolidação, atelectasia, derrame e mais
-alguns; se o AUROC subir neles, o rótulo do NIH é parte do problema em geral, o que
-muda a leitura do 0,448 sem medi-lo. Medir fibrose contra consenso exige VinDr-CXR,
-e portanto credenciamento PhysioNet. Os dois caminhos estão no notebook 02.
-
-### Fase 2 — Produtizar o caminho de RX · 8–10 semanas (~90 h)
-
-- `calibration/` — *temperature scaling* em split retido; ECE e diagrama de confiabilidade em todo relatório.
-- **`calibration/abstention.py`** — três bandas: *achado provável* / *não avaliável* / *achado improvável*. Controle de risco primário para H-01/H-02; precisa existir antes de qualquer uso clínico-adjacente.
-- `explain/gradcam.py` real. Teste unitário: modelo com gradientes zerados na última conv produz mapa nulo — **o teste que o código v1 reprovaria**.
-- `api/` — factory FastAPI, `/api/v1/*` conforme `docs/OPENAPI_SPEC.yaml`, segredos por env. **Nenhum *mock ground truth* em lugar nenhum.**
-- `persistence/audit.py` — log append-only encadeado por hash (hash do exame, id do card, sha256 dos pesos, git sha, saída, timestamp, decisão do médico).
-- Dockerfile `python:3.11-slim`, caminho ONNX, `--workers 1`, non-root, healthcheck.
-- SRS em `docs/regulatory/06-requirements/`; `scripts/trace.py`; portão de rastreabilidade no CI.
-
-### Fase 3 — Modelo próprio de RX + validação externa · 10–14 semanas (~120 h)
-
-1. Escrever `10-clinical-evaluation-plan.md` **primeiro**, com critérios de aceitação fixados de antemão. Sem isso o resultado é exploratório, não confirmatório.
-2. Treinar em NIH ChestX-ray14 (split disjunto por paciente), MONAI + `timm` (DenseNet121 ou ConvNeXt-Tiny, init ImageNet, BCE multi-label, AMP). Meta: superar a linha de base zero-shot.
-3. **Validar externamente em VinDr-CXR** — 18.000 exames com **rótulo por consenso de radiologistas**, não minerado por NLP; conjunto de teste de 3.000 lido por 5 radiologistas. É o melhor conjunto de rótulos de RX de tórax gratuito que existe.
-4. Exportar ONNX; verificar paridade torch↔onnx < 1e-4; publicar pesos no Hugging Face com sha256 real.
-
-**Saída:** um modelo que você treinou, validado externamente contra rótulos adjudicados, com IC, subgrupos, calibração e política de abstenção, mais relatório de verificação assinado. **É o primeiro ponto em que o projeto é credível para alguém de fora — e o primeiro em que gastar dinheiro com empresa é racional.**
-
-### Fase 4 — Segunda modalidade: ecocardiografia · 12–16 semanas (~130 h)
-
-Plugin `us` (cine, amostragem de frames, classificação de janela); CAMUS + EchoNet-Dynamic; tarefa de FEVE ou qualidade de janela **adjudicada por você**.
-
-**Por que ecocardiografia antes de TC:** CAMUS + EchoNet somam **9 GB** e custam zero. Ecocardiografia é a única modalidade em que você tem expertise de domínio que um engenheiro solo não pode comprar — você adjudica rótulos, identifica artefatos, julga se uma FEVE é plausível e define um ponto de operação clinicamente significativo sem contratar um painel de leitores. Em todas as outras modalidades você compete com equipes bem financiadas sobre os mesmos dados públicos. Em eco, sua formação médica está no caminho crítico. TC/RM exigem parceria com radiologista para adjudicação — planeje isso.
-
-Prova do ponto de extensão: adicionar uma modalidade deve tocar apenas `modalities/us/` e `models/cards/`. **Um check de CI rejeita PR que mexa no núcleo junto.**
-
-### Fase 5 — TC e RM (3D) + endurecimento regulatório · 6–9 meses
-
-Plugin `ct` em LUNA16 (MONAI 3D: `Spacingd`, `ScaleIntensityRanged` sobre HU, `CropForegroundd`, inferência por janela deslizante) — é aqui que a GPU em nuvem é gasta. Plugin `mr` em BraTS. IFU pt-BR, cibersegurança, plano de vigilância pós-mercado. Opcionalmente PACS/DICOMweb. **Contratar consultoria regulatória brasileira para confirmar a classe de risco antes de comprometer o caminho.**
-
-### Fase 6 — Empresa, QMS, dossiê ANVISA · 12–24 meses, travado por dinheiro
-
-Empresa + AFE + Responsável Técnico; QMS ISO 13485 e certificação; BPF; dossiê; petição. **Travado por financiamento, não por engenharia.** O artefato da Fase 3 é o que você usa para levantá-lo.
+| Código legado | removido da árvore (commit `c25f686`); recuperável no histórico (`16fdd47`) |
+| Núcleo v2 `src/radiologyai/` | DICOM, des-identificação, plugins de modalidade, model cards com sha256, inferência falha-fechada, calibração, abstenção, Grad-CAM real, auditoria encadeada, API |
+| Requisitos rastreados | `REQ-NNN.md` em [`docs/regulatory/06-requirements/`](docs/regulatory/06-requirements/), cada um com teste verificador; contagem na [matriz gerada](docs/regulatory/13-traceability.md); portão `scripts/trace.py --check` no CI |
+| Medições de desempenho | **duas** execuções do mesmo modelo de terceiros no NIH ChestX-ray14; AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
+| Catálogo de condições | esquema, regra de nível e protocolo pré-registrado commitados (`src/radiologyai/catalog/`); `conditions.yaml` ainda **vazio** |
+| Validação clínica | **nenhuma** |
+| Pendência de governança | `medai_security.db` continua no **histórico** git (presente em `3f5ae26`, `c80c22e`, `0b89c95`); expurgo com `git filter-repo` pendente |
 
 ---
 
-## 6. Trilha regulatória (paralela, desde a Fase 0)
+## 2. O catálogo de condições graduado por evidência
 
-### 6.1 Classificação de segurança de software: adotar Classe C
+O catálogo (`src/radiologyai/catalog/`) responde a uma pergunta para o produto inteiro: *para
+esta condição, este modelo e este rótulo, qual é a força da evidência?* A resposta nunca é
+digitada: `compute_level()` em `schema.py` a deriva dos registros de evidência, e `levels.json` é
+um arquivo gerado (REQ-090).
 
-IEC 62304 §4.3: **A** = sem lesão possível; **B** = lesão não-séria possível; **C** = morte ou lesão séria possível.
+### 2.1 Níveis
 
-O argumento para **B** seria: o software é assistivo e não autônomo, um radiologista qualificado lê todo exame, e uma falha não alcança o paciente sem passar por julgamento humano independente.
-
-**Recomendação: Classe C.** Razões:
-
-1. **O uso pretendido inclui achados letais.** Pneumotórax em RX, hemorragia intracraniana em TC e nódulo pulmonar estão todos no escopo declarado. Um falso negativo que ancore o leitor é plausivelmente fatal. §4.3 pergunta se a morte é *possível*, não provável.
-2. **§4.3 só permite rebaixar a classe se o controle de risco for externo ao software E sua eficácia for justificada.** "O radiologista pega" é exatamente a alegação que a literatura de viés de automação contesta — leitores que veem uma saída negativa da IA demonstravelmente perdem achados que veriam sozinhos. Você teria de defender essa justificativa com evidência que não tem.
-3. **Custo assimétrico.** Ser questionado numa classificação B no meio da avaliação significa retrofitar documentação de projeto em nível de unidade sobre um código pronto. Construir para C a partir de um diretório vazio custa documentação que você deveria produzir de qualquer forma.
-4. **O delta é pequeno aqui.** C acrescenta sobre B: arquitetura detalhada com segregação de SOUP (§5.3.3–5.3.6), documentação de projeto de unidade (§5.4.2) e verificação de unidade com critérios de aceitação definidos (§5.5.3). Seu CI já precisa de testes unitários com portão de cobertura.
-5. **A saída existe.** Se depois você estreitar o uso pretendido — "segunda leitura apenas, achados não time-critical, sem alegação de triagem, exclui pneumotórax e hemorragia" — documenta-se o rebaixamento para B. Rebaixar depois é fácil; promover depois é reescrita.
-
-### 6.2 Enquadramento brasileiro
-
-- **RDC 751/2022** — classificação de risco (I–IV), notificação vs. registro. A classificação de SaMD se dá pela **Regra 11**, que transpõe a lógica do IMDRF.
-- **RDC 657/2022** — regulamento específico de SaMD.
-- Um CADx/CADt que informa diagnóstico de condições graves cai, na leitura mais provável, em **Classe III** → **registro** (não notificação), o que puxa **certificação BPF** e dossiê pesado. Classe IV se a alegação envolver condição com risco de morte sem revisão humana.
-- Pré-requisitos societários: **AFE**, **Responsável Técnico**, QMS alinhado a **ISO 13485** / RDC 665/2022.
-- Ver também **IN 190/2024** e **RDC 848/2024**, que alteraram partes do arcabouço.
-
-**Ressalva explícita:** o arcabouço regulatório brasileiro se moveu repetidamente. Trate cada número de RDC acima como ponto de partida a verificar contra o texto consolidado vigente no site da ANVISA, e contrate consultoria regulatória para confirmar a classificação antes de gastar dinheiro no caminho. **Não deixe essa incerteza atrasar a engenharia** — todo documento de §6.4 é exigido sob qualquer versão do arcabouço, e também sob IMDRF e MDR.
-
-**Um alívio relevante:** a RDC 657/2022 isenta de regularização SaMD desenvolvido internamente por serviço de saúde e de uso exclusivo desse serviço, nas classes I e II. Não cobre Classe III, mas abre caminho legítimo para uso interno restrito e coleta de evidência antes do registro. Confirmar com consultoria.
-
-### 6.3 Perigos-semente para o arquivo de risco
-
-Não os genéricos — estes saem do que existe neste código:
-
-| ID | Perigo | Controle | Corrige |
-|---|---|---|---|
-| H-01 | Falso negativo em achado crítico (pneumotórax, HIC) → tratamento tardio → morte | banda de abstenção; nunca exibir "Normal" como afirmação positiva; IFU proíbe uso para *rule-out* | — |
-| H-02 | Viés de automação — negativo confiante ancora o leitor | UI mostra incerteza; sem *top-1* único; leitura concorrente na IFU | — |
-| H-03 | Entrada fora de distribuição processada em silêncio (lateral, pediátrico, AP de leito, modalidade errada) | `ModalityPlugin.validate()` rejeita | §1.2 `_analyze_image_fallback` |
-| H-04 | Descasamento versão de pesos/código → modelo errado usado em silêncio | sha256 verificado na carga, falha fechada; versão em todo resultado e registro de auditoria | §1.1 hashes fabricados |
-| H-05 | Má interpretação de DICOM — MONOCHROME1 não invertido, RescaleSlope ignorado, VOI LUT errado | teste unitário por interpretação fotométrica | §1.10 |
-| H-06 | Erro de lateralidade em achado reportado | lateralidade propagada do DICOM e asserida, nunca inferida do pixel | — |
-| H-07 | Deriva de desempenho silenciosa pós-implantação | log de auditoria + monitoramento de distribuição de entrada + PMS | §1.6 |
-| H-08 | Explicabilidade enganosa — saliência que não reflete o modelo | explicação derivada de gradientes reais; teste de modelo nulo → mapa nulo | §1.3 |
-| H-09 | Vazamento de PHI por des-identificação incompleta, logs ou mensagens de erro | perfil PS3.15; redação de log | §1.9 |
-| H-10 | Confiança mal calibrada — 0,85 não significa 85% | *temperature scaling*; ECE reportado; IFU declara que escores não são probabilidade de doença | — |
-
-Cada um vira um `REQ-` e um `TEST-`. Essa cadeia é o que um avaliador realmente inspeciona.
-
-### 6.4 Documentos a escrever AGORA — baratos, alto retorno, sem empresa
-
-| # | Documento | Quando | Por que tem alavancagem |
-|---|---|---|---|
-| 01 | **Uso Pretendido / Indicações de Uso** | **antes de qualquer código v2** | A página mais densa em alavancagem do projeto. Fixa modalidade, região anatômica, população, usuário, cenário de cuidado, alegação assistivo-vs-autônomo e contraindicações. Determina a classe de risco, a classe de segurança, os requisitos de dados e o que `validate()` deve rejeitar. Escrevê-la primeiro previne a deriva de escopo que já afundou este repositório uma vez. ~3 páginas. |
-| 02 | Classificação de segurança do software | antes do código | §6.1 escrito. 2 páginas |
-| 03 | Plano de Gestão de Risco (ISO 14971 + ISO/TR 24971) | Fase 0 | 5 páginas |
-| 04 | Arquivo de Risco / Análise de Perigos | Fase 0, vivo | §6.3. Perigo → sequência → situação → dano → severidade/probabilidade → controle → verificação → risco residual |
-| 05 | Plano de Desenvolvimento (62304 §5.1) | Fase 0 | Descreve política de branch, revisão, portões de CI e release — que você constrói de qualquer forma. Transforma `.github/workflows/` em evidência regulatória |
-| 06 | SRS (`06-requirements/REQ-*.md`) | Fase 1→2, vivo | Cada requisito com id, tipo, `risk_controls:` e `verified_by:` |
-| 07 | Arquitetura (62304 §5.3) | Fase 2 | §4 é o primeiro rascunho; Classe C exige mostrar segregação de SOUP |
-| 08 | **Lista SOUP** | Fase 1, automatizada | Cada dependência: nome, versão, fabricante, propósito, lista de anomalias publicada (consulta CVE). **`scripts/soup.py` gera a partir de `uv.lock` + API do OSV.** É por isso que o lockfile é artefato regulatório e por isso que `requirements.txt` só com `>=` é defeito de conformidade, não desleixo |
-| 09 | Plano + Protocolos/Relatórios de Verificação | Fase 2→3 | Protocolo antes da execução, relatório depois. CI escreve `artifacts/verification/<git_sha>/` |
-| 10 | Plano de Avaliação Clínica | Fase 3 | Critérios de aceitação fixados **antes** da avaliação definitiva, senão ela não é confirmatória |
-| 11 | Cibersegurança + LGPD/DPIA | Fase 3 | Modelo de ameaças, SBOM CycloneDX, PHI em repouso/trânsito. Registra também a remediação de `medai_security.db`/`jwt_secret` |
-| 12 | Rotulagem / IFU (pt-BR) | Fase 5 | Advertências, limitações, tabela de desempenho com IC, "não substitui avaliação médica", significado da banda de abstenção |
-| 13 | Matriz de rastreabilidade | Fase 2, **gerada** | §6.5 |
-| 14 | Controle de Mudanças + Resolução de Problemas (§6, §9) | Fase 2 | Seu template de PR e de issue, descritos como processo |
-| 15 | Plano de Vigilância Pós-Mercado | Fase 5 | Inclui monitoramento de deriva — que é também requisito de projeto sobre `persistence/audit.py` |
-| 16 | Model Cards + Dataset Datasheets | Fase 1, por artefato | Alimentam diretamente a avaliação clínica |
-
-**Escreva 01 e 02 nesta semana, antes de tocar em código.** São duas tardes e restringem tudo a jusante.
-
-### 6.5 Rastreabilidade — barata e imposta pelo CI
-
-Requisitos em Markdown com frontmatter YAML:
-
-```markdown
----
-id: REQ-042
-type: safety
-risk_controls: [RISK-003]
-verified_by: [tests/requirements/test_req_042.py]
----
-O sistema DEVE rejeitar exame cuja tag DICOM (0008,0060) Modality ou
-(0018,5101) View Position não conste do conjunto aceito pelo ModalityPlugin
-ativo, e NÃO DEVE produzir predição para ele.
-```
-
-Testes declaram cobertura: `@pytest.mark.requirement("REQ-042")`.
-
-`scripts/trace.py` (~200 LOC) gera `13-traceability.md` e **quebra o CI** se: algum requisito não tem teste verificador, algum teste cita REQ inexistente, algum perigo não tem controle, ou algum controle não tem requisito.
-
-**Esse portão é o valor inteiro.** Uma matriz de rastreabilidade que pode divergir não vale nada; uma que bloqueia merge é evidência.
-
-### 6.6 O portão do dinheiro
-
-Tudo em §6.4 custa tempo. O que segue custa dinheiro que não está no orçamento:
-
-| Item | Ordem de grandeza |
-|---|---|
-| Implantação + certificação ISO 13485 | R$ 30.000 – 80.000+ |
-| AFE + registro de empresa + Responsável Técnico | recorrente |
-| Certificação BPF (exigida para registro Classe III/IV) | auditoria + prazo |
-| Taxas de petição ANVISA | reduzidas para EPP, ainda materiais |
-| Consultoria regulatória para dossiê Classe III | R$ 15.000 – 50.000 |
-| Estudo clínico prospectivo | CEP/CONEP + custos de centro |
-
-**Portanto: faça todo o §6.4 agora, a custo zero, e abra a empresa apenas quando um número de validação externa real justificar o gasto.** Um arquivo técnico registrável sem empresa é ativo financiável. Uma empresa sem modelo validado é conta mensal. Os documentos de §6.4 são também o que um parceiro, um investidor ou um comitê de ética pede para ver primeiro — então se pagam antes de a ANVISA entrar na conta.
-
----
-
-## 7. Dados e orçamento
-
-R$ 3.000 ≈ USD 550. **Armazenamento é o gargalo, não computação** — você tem GPU.
-
-| Item | Custo |
-|---|---|
-| HD externo USB 3.0 de 4 TB | R$ 700–900 — **comprar primeiro** |
-| Cloudflare R2, ~150 GB (artefatos, pesos ONNX) — egress zero | ~R$ 15/mês |
-| GPU sob demanda para 3D (Vast.ai/RunPod, A100 ~USD 1,0–1,5/h) | R$ 600 (~100 h), só a partir da Fase 5 |
-| VPS + domínio para a API de demonstração | R$ 40/mês, opcional até a Fase 3 |
-| Hugging Face Hub (repos públicos) | R$ 0 |
-| Reserva | R$ 800 |
-| **Total** | **≈ R$ 2.800** |
-
-### Datasets recomendados
-
-**RX de tórax (Fases 1–3)**
-
-| Dataset | Acesso | Tamanho | Uso |
-|---|---|---|---|
-| **NIH ChestX-ray14** | livre, sem registro | 42 GB | treino/val + split de teste da linha de base honesta |
-| **VinDr-CXR** | PhysioNet credenciado + DUA | 190 GB DICOM (~20 GB em PNG) | **seu conjunto de teste externo real** — 18.000 exames com consenso de radiologistas |
-| **CheXpert** | registro Stanford AIMI, grátis | `-small` 11 GB | segunda fonte externa; o `valid` de 234 exames é rotulado por especialista |
-| PadChest | registro livre | 1 TB | pular |
-| MIMIC-CXR-JPG | PhysioNet credenciado | 570 GB | pular — NIH+VinDr+CheXpert já cobrem três populações |
-
-**TC (Fase 5):** **LUNA16** (~60 GB, livre, subconjunto curado do LIDC-IDRI, tarefa definida e leaderboard estabelecido) → LIDC-IDRI completo (125 GB, TCIA) se precisar da anotação dos 4 radiologistas. RSNA Intracranial Hemorrhage (~180 GB, Kaggle) tem alto valor clínico mas é caro em disco.
-
-**RM (Fase 5):** **BraTS** (~15 GB, melhor porta de entrada — pequeno, pré-processado, co-registrado, com *skull-stripping*, 4 sequências e décadas de baselines publicados). IXI (~15 GB, cérebros saudáveis — ideal para testar normalização e rejeição OOD). fastMRI: pular, é dataset de reconstrução.
-
-**US (Fase 4):** **CAMUS** (~2 GB, 500 pacientes, A2C/A4C, segmentação ED/ES + FEVE) e **EchoNet-Dynamic** (~7 GB, 10.030 vídeos apicais 4 câmaras com FEVE).
-
-### Credenciamento PhysioNet — comece na semana 1
-
-VinDr-CXR exige conta credenciada: curso CITI "Data or Specimens Only Research" (grátis, ~6 h) mais referência. Como médico com CRM ativo é diretamente obtenível, e **a revisão da PhysioNet costuma sair em 24–48 h** depois do relatório CITI enviado — o gargalo é o curso, não a fila. (Versões anteriores deste roadmap diziam 2–6 semanas; estava errado.)
-
-**Há um caminho imediato para rótulos adjudicados, antes do VinDr:** o conjunto de validação do CheXpert — 234 imagens, voto majoritário de 3 radiologistas certificados — exige apenas registro na Stanford AIMI, sem credenciamento. É bem menor que o VinDr (234 imagens contra 3.000 exames), portanto com ICs largos, mas já responde à pergunta que a linha de base do NIH deixou aberta: fibrose em 0,448 é o modelo ou é o rótulo? Implementado em `radiologyai.data.chexpert`; instruções em `docs/access/README.md`.
-
-### Governança de dados (imposta pelo CI)
-
-1. Nenhum pixel no git, nunca. `.gitignore`: `data/`, `*.dcm`, `*.nii*`, `*.mhd`, `*.raw`. Exceção: fixtures sintéticas e o subconjunto de 50 imagens em `tests/data/`.
-2. Manifests com sha256 por arquivo são commitados. São o registro de reprodutibilidade e custam ~3 MB.
-3. Todo dataset ganha `docs/datasheets/<dataset>.md`: fonte, licença, termos de DUA, direito de redistribuição, população, **proveniência do rótulo (minerado por NLP vs. adjudicado)**, vieses conhecidos, citação.
-4. **Splits por paciente, sempre.** Um check de CI assere interseção zero de `patient_id` entre manifests. Vazamento por paciente é a forma mais comum de um número publicado de IA radiológica estar errado.
-
----
-
-## 8. Verificação
-
-### CI
-
-`ci.yml` — toda PR, CPU, ~5 min:
-```bash
-uv sync --frozen                       # lockfile precisa estar atualizado
-uv run ruff check src/ tests/ && uv run ruff format --check
-uv run mypy --strict src/radiologyai/
-uv run pytest tests/unit tests/integration --cov=radiologyai --cov-fail-under=85
-uv run pytest tests/evaluation/test_baseline_regression.py    # AUROC dourado ±0.02
-uv run python scripts/trace.py --check                        # REQ↔TEST↔RISK completos
-uv run python scripts/soup.py --check                         # SOUP bate com uv.lock
-uv run python scripts/check_honesty.py                        # §8.2
-```
-
-`security.yml` — semanal + PR: `bandit -r src/`, `pip-audit`, `gitleaks detect`, SBOM CycloneDX.
-
-`eval.yml` — manual/tag, GPU: avaliação completa, sobe `artifacts/eval/<run_id>/`, abre PR com o `reports/EVALUATION_*.md` regenerado. **Registros de verificação produzidos por máquina, não à mão.**
-
-### Portões por fase
-
-| Fase | Portão | Comando |
+| Nível | Significado | Onde aparece |
 |---|---|---|
-| 0 | segredos expurgados | `git log --all -- medai_security.db` → vazio; `gitleaks detect --log-opts="--all"` limpo |
-| 0 | sem alegação falsa | `grep -rniE "9[0-5]%\|acurácia validada\|validado clinicamente" --include=*.md . \| grep -v legacy/` → vazio |
-| 1 | inferência falha fechada | `pytest -k "missing_weights or hash_mismatch"` — deve levantar, nunca degradar |
-| 1 | sem aleatoriedade oculta | `grep -rn "np\.random" src/radiologyai/ \| grep -v augment` → vazio |
-| 1 | sem import silencioso | `grep -rn "except ImportError" src/` → vazio |
-| 1 | avaliação reprodutível | duas execuções, mesma seed → `metrics.json` idêntico byte a byte (menos timestamp) |
-| 1 | higiene de import | `python -X importtime -c "import radiologyai"` < 200 ms; torch não importado |
-| 2 | integridade da auditoria | `pytest -k audit_chain` — linha mutada deve ser detectada |
-| 2 | explicabilidade real | `pytest -k test_null_gradients_yield_null_map` |
-| 2 | rastreabilidade completa | `scripts/trace.py --check` exit 0 |
-| 3 | disjunção por paciente | `pytest -k patient_leakage` sobre todos os manifests |
-| 3 | paridade ONNX | diff máx. torch vs onnx < 1e-4 em 100 imagens |
-| 3 | validação externa | métricas VinDr reproduzem de checkout limpo, em CPU **e** GPU |
-| 4 | fronteira do plugin | CI rejeita PR que adiciona modalidade e mexe em `radiologyai/{io,inference,models}/` |
-| 5 | correção 3D | inferência por janela deslizante em volume sintético com lesão plantada recupera a lesão |
+| **A** | Validado externamente **por medição nossa**: dataset rotulado no qual o modelo não foi treinado, sem vazamento, aprovado no protocolo | visão principal e laudo |
+| **B** | Validação publicada revisada por pares, ou limiar de diretriz aplicado a medida validada; citação **conferida na fonte** e aprovada na barra de publicação | visão principal e laudo, com a citação |
+| **C** | Validado internamente por medição nossa (hold-out por paciente), ou medição externa com vazamento possível/conhecido | visão principal, com selo |
+| **D** | Exploratório: zero-shot, ou sem validação por condição | **somente no modo pesquisa**, nunca sozinho no laudo (REQ-091) |
 
-### 8.2 `scripts/check_honesty.py` — o guardião que mais importa
+Regras estruturais (pré-registradas em `compute_level`):
 
-Check de CI (~80 LOC) que quebra o build em qualquer um destes:
+- **Medição nossa prevalece.** Se existem medições externas limpas e todas reprovam, a condição
+  cai para D *mesmo com publicação favorável* (REQ-093). Um artigo não salva um modelo que
+  falhou no nosso dado.
+- **Sem campo de nível.** `Condition` e `EvidenceRecord` rejeitam chaves desconhecidas; não há
+  onde escrever "nível A" à mão.
+- **Medido exige proveniência.** Registro `measured_*` sem git sha, hash do manifesto do dataset
+  e sha256 dos pesos é rejeitado pelo esquema.
+- **Publicado exige citação conferida.** Registro `published` sem `verified_at_source` não
+  promove nada. Alegação de fornecedor e clearance de *outro* produto são contexto, nunca
+  evidência de nível B.
 
-1. Alegação numérica de desempenho (`\d{2,3}(\.\d+)?\s*%`, `AUC\s*[:=]\s*0\.\d+`) em Markdown fora de `legacy/` que não esteja em bloco gerado a partir de `artifacts/eval/`.
-2. `np.random` / `random.` fora de `modalities/*/augment.py` e `tests/`.
-3. Campo sha256 em model card que não seja 64 caracteres hex minúsculos. **Só isso já teria pegado `model_registry.json`.**
-4. `except ImportError` em `src/`.
-5. `# Mock`, `# Simulated`, `# TODO: real`, `_simulate_`, `_fallback_analysis` em `src/`.
-6. Model card sem artefato de avaliação vinculado.
+### 2.2 Decisão por ponto de operação com origem
 
-Este é o mecanismo que impede a recorrência do modo de falha que produziu o repositório atual. **O problema nunca foi falta de competência — foi que nada no sistema jamais objetou quando um número foi inventado. Torne a objeção automática.**
+Um escore só vira "positivo" ou "negativo" em relação a um `OperatingPoint` explícito
+(`src/radiologyai/calibration/decision.py`) que carrega papel (`rule_out`, `rule_in`,
+`balanced`, `guideline`) e **origem** (ajuste do protocolo, DOI de diretriz). Sem ponto de
+operação utilizável, a decisão é `score_only`: o escore aparece sem veredito, nunca com limiar
+inventado (REQ-092). Os pontos `rule_out`/`rule_in` são ajustados na metade de calibração e
+reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md)).
+
+### 2.3 O KPI
+
+> **KPI = número de condições em nível A e em nível B, por modalidade.**
+> Secundários: condições em C; condições em D (amplitude exploratória); condições **refutadas**
+> por medição própria (um número que deve ser publicado, não escondido).
+
+| Modalidade | A | B | C | D | Refutadas |
+|---|---:|---:|---:|---:|---:|
+| Todas | 0 | 0 | 0 | 0 | 0 |
+
+A tabela acima reflete o `conditions.yaml` vazio desta data. A partir do G1 ela deixa de ser
+escrita à mão: um script lê `levels.json` e a regenera, e o CI falha se o README ou este
+roadmap divergirem dela.
 
 ---
 
-## 9. Cronograma honesto
+## 3. O protocolo pré-registrado
 
-| Marco | Decorrido, solo, 8–12 h/sem |
+`src/radiologyai/catalog/protocol.yaml` (`protocol_id: "2026-11-v1"`, congelado em
+2026-11-24) fixa **antes de qualquer medição** os critérios de aceitação: elegibilidade mínima
+de casos, barras de discriminação, detecção, concordância e segmentação, bootstrap por
+paciente, separação calibração/teste, alvos de *rule-out*/*rule-in*, barra para evidência
+publicada e subgrupos obrigatórios. Mudar um limiar depois de ver resultado exige **novo
+`protocol_id`**, e cada registro de evidência nomeia o protocolo sob o qual foi julgado. A
+versão legível, com a política de vazamento, está em
+**[`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md)**.
+
+---
+
+## 4. Portões de evidência G0–G6
+
+As fases do v1.0 eram de funcionalidade ("produtizar RX", "segunda modalidade"). Os portões
+são de **evidência**: cada um responde "o que podemos afirmar a mais, e com que prova?".
+Engenharia acontece em paralelo, em todos eles.
+
+| Portão | Pergunta que responde | Critério de saída (verificável) | Estado |
+|---|---|---|---|
+| **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; expurgo de `medai_security.db` do histórico e governança de branches pendentes |
+| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — esquema e protocolo prontos; medições sendo produzidas |
+| **G2 — Modelo próprio + validação externa retrospectiva brasileira** | Funciona em dado brasileiro de vários centros, que nunca vimos? | Protocolo por condição aprovado em CEP (Lei 14.874/2024; dispensa de TCLE pela Res. CNS 466/2012 item IV.8 quando justificável); dados de ≥ 2 centros brasileiros des-identificados pelo controlador; relatório STARD-AI/CLAIM; conjunto de teste sequestrado | não iniciado — depende de parceria institucional |
+| **G3 — Estudo de leitores MRMC** | O médico assistido erra menos? | Estudo multi-leitor multi-caso com padrão de referência e desenho pré-especificado (Obuchowski & Bullen 2022, DOI 10.1148/radiol.211593) | não iniciado |
+| **G4 — Piloto prospectivo silencioso** | Funciona no fluxo real, sem influenciar o cuidado? | Execução em paralelo ao fluxo, saídas **ocultas** do médico assistente, comparação posterior; relato DECIDE-AI (DOI 10.1038/s41591-022-01772-9); protocolo CEP | não iniciado |
+| **G5 — Submissão regulatória** | Pode virar produto? | Empresa com AFE e Responsável Técnico; BPF (RDC 665/2022); dossiê conforme RDC 657/2022 Art. 12 e RDC 751/2022; requisitos essenciais RDC 848/2024 | travado por dinheiro (§8.6) |
+| **G6 — Pós-mercado** | Continua funcionando? | Plano de vigilância pós-mercado em operação, monitoramento de deriva, retorno do médico estruturado (perfil IHE AIRA) | não iniciado |
+
+**Por que G2 é o portão crítico:** G1 mede o que modelos de terceiros fazem em dados públicos,
+quase todos norte-americanos, europeus ou asiáticos. Nenhum número de G1 diz algo sobre a
+população brasileira. G2 é o primeiro ponto em que o projeto é credível para um hospital
+parceiro, um edital ou um investidor — e é o portão a tornar financiável (§11).
+
+**Regra de tamanho amostral para G2 (proposta, exige decisão do dono e novo `protocol_id`):**
+mínimo de 100 positivos e 100 negativos com padrão de referência por condição (Collins et al.
+2016, DOI 10.1002/sim.6787; Vergouwe et al. 2005, DOI 10.1016/j.jclinepi.2004.06.017), ou cálculo
+de Riley et al. 2021 (DOI 10.1002/sim.9025) quando a prevalência for baixa. São regras derivadas
+para modelos de predição; aplicá-las a classificadores de imagem é extrapolação declarada. O
+protocolo atual (`2026-11-v1`) exige menos (30/30) porque foi desenhado para G1.
+
+---
+
+## 5. Amplitude multimodal agora — com modelos abertos reais
+
+Princípio: **amplitude entra em D, sobe por medição**. Todo modelo abaixo roda de verdade
+(pesos reais com sha256), ou está como `planned` com o motivo. Nenhum stub. A coluna "caminho de
+nível" diz o que precisa acontecer para a condição sair de D; os dados de viabilidade vêm dos
+*spikes* de engenharia de novembro/2026 (execução real em CPU, 4 núcleos, sem GPU), e nenhum
+número de desempenho desses *spikes* é citado aqui porque eles não são avaliações (n pequeno,
+sem protocolo).
+
+### 5.1 Radiografia de tórax (RX)
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Classificador multirrótulo | TorchXRayVision DenseNet121 (código Apache-2.0), conjuntos de pesos `pc`, `chex`, `mimic_nb`, `mimic_ch`, `nih`, `all` | até 18 saídas por conjunto; cabeças não treinadas nunca reportadas (REQ-021) | **A** por avaliação externa com pares sem vazamento (§9.4); B só com validação revisada por pares do mesmo conjunto de pesos (a tabela `BENCHMARKS.md` do repositório não é revisada por pares e não conta) | pesos `pc` medidos no NIH (`artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`); demais em viabilidade |
+| Gate de distribuição (OOD) | autoencoder ResNet do TorchXRayVision + classificador de incidência | rejeita entrada que não é RX de tórax frontal antes do modelo (H-03) | requisito de segurança, verificado por teste — não é condição do catálogo | viabilidade demonstrada |
+| Índice cardiotorácico | segmentador PSPNet ChestX-Det (via TorchXRayVision) | razão coração/tórax a partir de máscaras | **D** até medirmos Dice e erro do ICT contra máscaras manuais; limiar 0,5 só em PA ortostático por metadado DICOM, senão "não interpretável contra 0,5" | viabilidade demonstrada |
+| Tuberculose | sonda linear sobre *embeddings* do TorchXRayVision; Shenzhen e Montgomery (NLM, termos próprios) | escore de TB | validação cruzada dentro do mesmo conjunto é **C**, nunca externa; treino num conjunto e teste no outro pode chegar a A se passar no protocolo | *embeddings* extraídos; sonda em implementação |
+| Fratura (RX musculoesquelético) | sonda linear sobre *embeddings*; FracAtlas e GRAZPEDWRI-DX (CC BY 4.0) | escore de fratura | mesmo raciocínio: externo só entre conjuntos | *embeddings* extraídos; sonda em implementação |
+
+### 5.2 Tomografia computadorizada (TC)
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Anatomia | TotalSegmentator `total` (Apache-2.0); "not a medical device" na própria documentação | 117 classes anatômicas | base para biomarcadores | viabilidade demonstrada em CPU |
+| Derrame pleural/pericárdico | TotalSegmentator `pleural_pericard_effusion` (Apache-2.0) | volume segmentado | **B** possível: Sexauer et al. 2022 (DOI 10.1097/RLI.0000000000000869), validação externa no NLST; pericárdio: Wilder-Smith et al. 2022 (DOI 10.3390/diagnostics12051045), interna; classificador simples-vs-complexo **não** exposto | viabilidade demonstrada |
+| Hemorragia intracerebral | TotalSegmentator `cerebral_bleed` (Apache-2.0) | volume segmentado | **D** — nenhuma acurácia de segmentação publicada para este modelo; caminho para A: medição externa no CQ500 (CC BY-NC-SA 4.0) | viabilidade demonstrada em casos do CQ500 |
+| Lesões hepáticas | TotalSegmentator `liver_lesions` (Apache-2.0) | lesões segmentadas | publicado com teste interno e externo (Nicoli et al., DOI 10.1007/s10278-025-01716-y), mas **não** é ferramenta de exclusão; nível a decidir pelo protocolo | planejado |
+| Nódulo pulmonar | TotalSegmentator `lung_nodules` | nódulos segmentados | **D** — sem artigo; treinado em parte no LIDC-IDRI, logo **não há conjunto de teste limpo** disponível | pesos baixados; sem caminho de nível no momento |
+| Cistos renais | TotalSegmentator `kidney_cysts` | cistos segmentados | **D** — sem artigo | pesos baixados; ainda não executado |
+| Biomarcadores em HU | máscaras do TotalSegmentator + HU | atenuação trabecular de L1 (osteoporose oportunista), atenuação hepática (esteatose), %LAA-950 (enfisema), diâmetro aórtico, volume esplênico, índice de Evans | **B** pelo limiar de diretriz ou estudo de validação do método, **somente** quando as pré-condições de aquisição são satisfeitas (fase de contraste, kVp, kernel, espessura, inspiração); senão **abstenção com motivo** | em implementação |
+| Escore de cálcio coronário | TotalSegmentator `coronary_arteries` | — | exige chave de licença do TotalSegmentator (gratuita só para uso não comercial) | **planejado** |
+| Sarcopenia / composição corporal | TotalSegmentator `tissue_types` | — | idem: tarefa com chave de licença | **planejado** |
+| Fase de contraste | classificador `totalseg_get_phase` | pré-condição dos biomarcadores | exige licença; enquanto isso, fase desconhecida ⇒ biomarcador **abstém** | **planejado** |
+
+### 5.3 Ressonância magnética (RM)
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Anatomia | TotalSegmentator `total_mr` (Apache-2.0) | classes anatômicas em RM | base | viabilidade demonstrada |
+| Glioma (subregiões) | bundle MONAI `brats_mri_segmentation` (licença a confirmar) | TC/WT/ET em glioma **já conhecido** | **D** — Dice do desenvolvedor no split de validação usado para seleção; exige T1c, T1, T2 e FLAIR co-registrados a 1 mm; **nunca** usar saída não vazia como "tumor presente" | planejado |
+| Lesões de substância branca | LST-AI (Wiltgen et al. 2024, DOI 10.1016/j.nicl.2024.103611; licença a confirmar) | carga lesional em T1w + FLAIR | publicado; saída é "carga lesional", **nunca** "esclerose múltipla" | planejado |
+| Lesões hepáticas em RM | TotalSegmentator `liver_lesions_mr` (Apache-2.0) | lesões segmentadas | mesmo artigo de Nicoli et al.; desempenho em RM inferior ao de TC | planejado |
+
+### 5.4 Mamografia
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Escore de câncer | `ianpan/mammoscreen` (Apache-2.0) + recorte `ianpan/mammo-crop` (Apache-2.0); exige VOI LUT | escore por mama (CC + MLO) | **D**: o cartão do modelo relata só hold-out interno, sem IC; CBIS-DDSM foi usado no pré-treino e **não** é externo; CMMD (CC BY 4.0) é externo, mas só tem doença biopsiada (benigno vs maligno), não rastreamento | viabilidade demonstrada em CMMD |
+| Densidade mamária | cabeça de densidade do mammoscreen; bundle MONAI `breast_density_classification` (Apache-2.0, "not to be used for diagnostic purposes") | categoria A–D | **D** — nenhuma métrica publicada com proveniência | viabilidade demonstrada |
+| Risco em 5 anos | Mirai (MIT; "not intended ... for any other clinical use") | risco futuro, **não** detecção | nenhum dado disponível tem seguimento para medir | **planejado** |
+
+### 5.5 Ultrassonografia
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Lesão mamária benigno/maligno | sondas lineares sobre *embeddings* de encoder aberto (se o encoder for BiomedCLIP, a sonda herda a restrição "só pesquisa" do cartão) | escore de malignidade | BUS-BRA (INCA, Rio de Janeiro; biópsia; CC BY 4.0) e BrEaST (CC BY 4.0) permitem treino num e teste noutro; BUSI tem ~19% de imagens duplicadas (carta de Pawłowska et al. 2023, DOI 10.1016/j.dib.2023.109247) e **nunca** é conjunto externo | planejado; dados baixados |
+| Segmentação interativa | MedSAM ViT-B (Apache-2.0) | máscara a partir de caixa **desenhada pelo usuário** | ferramenta de medição assistida; nível só para medidas derivadas, com Dice contra máscara de especialista | viabilidade demonstrada |
+| Esteatose hepática | sonda sobre *embeddings*; conjunto Byra (55 pacientes, biópsia) | escore | C/D: um centro, coorte bariátrica, n efetivo 55 | planejado |
+
+### 5.6 Ecocardiografia
+
+| Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
+|---|---|---|---|---|
+| Traçado assistido do VE + FE por Simpson biplanar | MedSAM2 `MedSAM2_US_Heart.pt` (código Apache-2.0; pesos com licença contraditória — metadado `cc-by-sa-4.0`, texto "research and education purposes" ⇒ tratado como **não comercial**) | contorno do VE em A2C/A4C, volumes e FE | **modo pesquisa**; o médico confirma ou corrige cada contorno; concordância com FE de referência julgada pela barra de ICC do protocolo; CAMUS (CC BY-NC-SA 4.0) como referência | viabilidade demonstrada em amostra CAMUS |
+| EchoPrime | licença acadêmica Cedars-Sinai: só pesquisador acadêmico, **proibida** transferência, uso comercial exige licença | — | é recuperação (kNN sobre 1,23 milhão de laudos de pacientes), não regressão; rodá-lo exige redistribuir esse corpus; FE ruim na amostra CAMUS do *spike* | **excluído** |
+| PanEcho | nenhuma licença publicada nos caminhos verificados | — | sem licença vale o direito autoral padrão | **excluído** até publicarem licença |
+
+### 5.7 Zero-shot — só modo pesquisa
+
+CheXzero (código MIT; pesos treinados em MIMIC-CXR, licença dos pesos a confirmar), BiomedCLIP
+(MIT; o cartão declara "**any** deployed use case ... is currently out of scope") e Merlin (TC 3D,
+MIT) entram em **D** e ficam no modo pesquisa. Servem para explorar amplitude e para priorizar o
+que medir. Uma condição zero-shot só sai de D pela mesma regra de qualquer outra: medição externa
+aprovada no protocolo. BiomedCLIP permanece em modo pesquisa mesmo se medido, pelo próprio termo
+de uso.
+
+### 5.8 Licenças — a regra
+
+- Pesos não comerciais ou só-pesquisa são **permitidos**, marcados `commercial_use: "no"`.
+- Código GPL/AGPL ligado ao pacote e espelhos de dataset que "lavam" licença (redistribuição sem
+  o DUA original) são **excluídos**.
+- Sem licença publicada ⇒ não carrega, não avalia, não distribui (PanEcho).
+- Inventário completo: [`MODEL_LICENSES.md`](MODEL_LICENSES.md).
+
+---
+
+## 6. A plataforma web
+
+O catálogo só tem valor se o médico vê, no fluxo, cada achado com seu nível, sua fonte e sua
+incerteza. Componentes (todos sob a regra de ouro):
+
+| Componente | O que faz | Controle de risco |
+|---|---|---|
+| Lista de trabalho | exames ingeridos, estado da análise, abstenções com motivo | H-03 (entrada fora do escopo visível, nunca silenciosa) |
+| Visualizador com sobreposições | imagem + máscaras e mapas calculados pelo modelo real; mapa só existe se veio de gradiente/máscara real | H-08 |
+| Laudo estruturado preliminar | PDF, DICOM SR (TID 1500), FHIR `DiagnosticReport` com status preliminar; cada achado com nível, fonte e ponto de operação | H-01, H-02, H-10 |
+| Revisão e assinatura do médico | aceitar / editar / rejeitar cada achado; assinatura **vinculada ao hash do conteúdo** analisado e exibido | H-02, H-04 |
+| Controle de acesso por papel (RBAC) | pesquisador, médico revisor, administrador | H-09 |
+| Trilha de auditoria encadeada | hash da entrada, modelo, sha256 dos pesos, git sha, saída, decisão do médico; adulteração detectável (REQ-070, REQ-071) | H-04, H-07 |
+| Interoperabilidade | DICOMweb (QIDO/WADO/STOW) com Orthanc; saída alinhada ao perfil IHE AI Results (AIR) | — |
+| Modo pesquisa | interruptor explícito que revela nível D com marca d'água; nunca ativo por padrão | REQ-091 |
+
+**O que a plataforma não faz:** triagem, priorização de fila, notificação de achado crítico,
+laudo autônomo, comunicação ao paciente. Qualquer um deles reclassifica o software (§8.2) e
+contraria a Resolução CFM nº 2.454/2026 (Art. 5 §2, vedação de delegar à IA a comunicação de
+diagnóstico sem mediação humana).
+
+---
+
+## 7. Arquitetura
+
+### 7.1 Decisão de framework: PyTorch + MONAI (mantida)
+
+Abandonar TensorFlow/Keras foi decidido no v1.0 e continua certo, por razões que só ficaram mais
+fortes: (1) o custo de migração era zero, não havia pesos; (2) **todos** os modelos abertos que o
+§5 usa são PyTorch — TorchXRayVision, TotalSegmentator/nnU-Net, MONAI, MedSAM/MedSAM2,
+mammoscreen, CheXzero, Merlin; (3) TC e RM exigem o carregamento volumétrico e a inferência por
+janela deslizante que o MONAI entrega testados; (4) Grad-CAM real exige *hooks* em módulo nomeado;
+(5) `torch.use_deterministic_algorithms(True)` dá a reprodutibilidade que a verificação exige;
+(6) ONNX Runtime continua sendo o alvo de release em CPU.
+
+### 7.2 Camadas
+
+Detalhada em [`docs/regulatory/07-architecture.md`](docs/regulatory/07-architecture.md). Resumo:
+
+```
+núcleo (sem torch)   io/ · modalities/ · models/ (cards, registry, backends) · inference/ ·
+                     calibration/ (temperature, abstention, decision) · catalog/ · evaluation/ ·
+                     audit/ · explain/ · config/ · errors.py
+análise              analysis/: manifestos de modelo, registro com verificação de pesos,
+                     adaptadores por modelo, roteamento por tipo de exame, pipeline
+                     (qualidade → predição → calibração → ponto de operação → decisão → nível),
+                     biomarcadores com pré-condições, sondas lineares, medidas assistidas —
+                     dependências pesadas atrás de extras opcionais, importadas sob demanda
+plataforma           api/ · persistência · fila de trabalho · laudo/interoperabilidade · frontend
+```
+
+O ponto de extensão por modalidade continua sendo o `ModalityPlugin`
+(`src/radiologyai/modalities/base.py`), registrado por *entry point*: `validate()` rejeita a
+entrada fora do escopo **antes** do modelo — controle de risco, não conveniência — e
+`dimensionality` (`2d`, `3d`, `cine`) mantém o caminho volumétrico no sistema de tipos.
+
+### 7.3 Regra de ouro
+
+*Nenhum caminho de código produz predição, métrica, mapa de calor ou alegação regulatória que
+um modelo ou algoritmo real não tenha calculado sobre a entrada real.* Falha ⇒ exceção explícita
+ou abstenção com motivo. Modelo que não roda de verdade fica `planned`, sem stub. Sem
+`_create_dummy_model`, sem *fallback* heurístico, sem saliência simulada, sem *mock ground truth*.
+
+Regras de arquitetura (impostas pelo CI): `import radiologyai` não importa torch, numpy,
+SimpleITK nem cv2; dependência ausente ⇒ erro que nomeia o extra, nunca `except ImportError`;
+nenhum `np.random`/`random` fora da estatística de avaliação; todo resultado é pydantic congelado
+com `extra="forbid"`.
+
+---
+
+## 8. Trilha regulatória (paralela, desde já)
+
+### 8.1 Classe de segurança de software: **C** (mantida)
+
+IEC 62304 §4.3: A = nenhuma lesão possível; B = lesão não séria; C = morte ou lesão séria
+possível. A versão 2.0 só reforça a escolha: o escopo multimodal inclui hemorragia intracraniana,
+derrame pericárdico e câncer de mama. Um falso negativo que ancore o leitor é plausivelmente
+fatal, e o controle externo "o radiologista pega" é exatamente o que a literatura de viés de
+automação contesta. Rebaixar depois é fácil; promover depois é reescrita. Argumento completo em
+[`docs/regulatory/02-software-safety-classification.md`](docs/regulatory/02-software-safety-classification.md).
+
+### 8.2 Enquadramento brasileiro (identificadores conferidos na fonte)
+
+- **RDC 657/2022** (DOU 30/03/2022; vigente desde 1º/07/2022) — software como dispositivo médico.
+  Art. 5: isenção *in house* só para classes I e II, com registros completos de validação
+  guardados por 10 anos. Art. 12: relatório técnico para classes III/IV. Art. 13: declarar
+  conformidade com IEC 62304, IEC 62366-1 e ISO 14971 (versões mais atuais permitidas). Art. 16:
+  modificação que afete desempenho exige petição — não há mecanismo tipo PCCP. A revisão da RDC
+  657 consta da lista preliminar da Agenda Regulatória 2026-2027 (situação "Em andamento").
+- **RDC 751/2022** (vigente desde 1º/03/2023) — classificação; **Regra 11**: software que informa
+  decisão diagnóstica é classe II, III se a decisão pode causar deterioração grave ou cirurgia,
+  IV se pode causar morte ou deterioração irreversível. Classes I/II: notificação; III/IV:
+  registro, com certificado de BPF. Art. 2 §8: dispositivo destinado a investigação clínica é
+  isento, proibidos comercialização e outros usos.
+- **RDC 665/2022** — boas práticas de fabricação (controle de projeto, validação de software).
+- **RDC 848/2024** (DOU 08/03/2024) — requisitos essenciais; Arts. 49–53 exigem ciclo de vida,
+  gestão de risco, V&V e cibersegurança para qualquer SaMD; revogou a RDC 546/2021.
+- **LGPD** (Lei 13.709/2018) — dado de saúde é sensível (Art. 5 II); a base de pesquisa do Art. 11
+  II c é de **órgão de pesquisa** (Art. 5 XVIII), o que uma pessoa física não é: dados
+  hospitalares entram pelo parceiro institucional.
+- **Ética em pesquisa** — Lei 14.874/2024, Decreto 12.651/2025, Res. CNS 466/2012 (dispensa de
+  TCLE, item IV.8) e Res. CNS 738/2024 (bancos de dados).
+- **Resolução CFM nº 2.454/2026** — IA como ferramenta de apoio, médico responsável final, uso
+  registrado no prontuário, vedada comunicação de diagnóstico pela IA sem mediação humana.
+
+**Posição de trabalho:** o produto, quando e se for produto, é classe III pela Regra 11 (os
+achados de maior risco puxam a classe) — **a confirmar com consultoria regulatória** antes de
+gastar dinheiro. Hoje ele é software de pesquisa e não deve exibir linguagem de finalidade
+clínica ("detecta", "diagnostica", "triagem").
+
+### 8.3 Perigos — arquivo de risco
+
+Os perigos-semente H-01…H-10 do v1.0 viraram `RISK-001`…`RISK-010` no arquivo de risco
+([`docs/regulatory/04-risk-file.md`](docs/regulatory/04-risk-file.md)), com os mesmos números
+(H-0N ↔ RISK-00N) e os requisitos que os controlam:
+
+| ID | Perigo | Controles principais |
+|---|---|---|
+| RISK-001 (H-01) | Falso negativo em achado crítico | abstenção; nunca "Normal" (REQ-062, REQ-063); nível D fora da visão principal (REQ-091) |
+| RISK-002 (H-02) | Viés de automação | incerteza visível; sem *top-1* isolado; revisão obrigatória |
+| RISK-003 (H-03) | Entrada fora de distribuição processada em silêncio | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) |
+| RISK-004 (H-04) | Descasamento pesos/código | sha256 verificado (REQ-020); falha fechada (REQ-030) |
+| RISK-005 (H-05) | Má interpretação DICOM | Modality LUT, MONOCHROME1 (REQ-005, REQ-006) |
+| RISK-006 (H-06) | Erro de lateralidade | lateralidade do DICOM, nunca do pixel |
+| RISK-007 (H-07) | Desempenho real diverge do declarado | avaliação reprodutível, nível calculado, auditoria (REQ-050, REQ-090, REQ-093, REQ-070) |
+| RISK-008 (H-08) | Explicabilidade enganosa | Grad-CAM de gradiente real (REQ-060) |
+| RISK-009 (H-09) | Vazamento de dado pessoal | des-identificação PS3.15 (REQ-010, REQ-011) |
+| RISK-010 (H-10) | Confiança mal calibrada | calibração preserva ordenação (REQ-061); escore não é probabilidade |
+
+A multimodalidade acrescenta `RISK-011`…`RISK-020` (biomarcador sem pré-condição, zero-shot lido
+como validado, medida assistida aceita sem revisão, licença não comercial violada, vazamento
+treino/teste em evidência, entre outros) — ver o arquivo de risco.
+
+### 8.4 Documentos regulatórios
+
+| # | Documento | Estado |
+|---|---|---|
+| 01 | [Uso pretendido](docs/regulatory/01-intended-use.md) | v0.2 — escopo multimodal de pesquisa, sem alegação clínica |
+| 02 | [Classificação de segurança](docs/regulatory/02-software-safety-classification.md) | v0.1 — Classe C |
+| 03 | [Plano de gestão de risco](docs/regulatory/03-risk-management-plan.md) | v0.1 |
+| 04 | [Arquivo de risco](docs/regulatory/04-risk-file.md) | v0.1 — RISK-001…RISK-020 |
+| 05 | [Plano de desenvolvimento](docs/regulatory/05-development-plan.md) | v0.1 |
+| 06 | [Requisitos](docs/regulatory/06-requirements/) | todos com teste verificador (portão de CI) |
+| 07 | [Arquitetura](docs/regulatory/07-architecture.md) | v0.1 |
+| 08 | [Lista SOUP](docs/regulatory/08-soup-list.md) | gerada por `scripts/soup.py` |
+| 09 | [Plano de verificação](docs/regulatory/09-verification-plan.md) | v0.1 |
+| 10 | [Plano de avaliação clínica](docs/regulatory/10-clinical-evaluation-plan.md) | v0.1 — critérios = protocolo |
+| 11 | [Cibersegurança e LGPD](docs/regulatory/11-cybersecurity-lgpd.md) | v0.1 |
+| 12 | [Rotulagem / IFU](docs/regulatory/12-labeling-ifu.md) | rascunho pt-BR, uso em pesquisa |
+| 13 | [Rastreabilidade](docs/regulatory/13-traceability.md) | gerada por `scripts/trace.py` |
+| 14 | [Controle de mudanças](docs/regulatory/14-change-control.md) | v0.1 |
+| 15 | [Vigilância pós-mercado](docs/regulatory/15-post-market-surveillance.md) | v0.1 — plano para G6 |
+| 16 | Model cards e datasheets | `docs/model-cards/`, `docs/datasheets/` — por artefato |
+
+### 8.5 Rastreabilidade imposta pelo CI
+
+Requisitos em Markdown com frontmatter (`id`, `type`, `risk_controls`, `verified_by`), testes
+marcados com `@pytest.mark.requirement("REQ-NNN")`, e `scripts/trace.py --check` quebra o build
+se um requisito ficar sem teste, um teste citar requisito inexistente ou um requisito não
+declarar controle de risco. **Uma matriz que pode divergir não vale nada; uma que bloqueia merge
+é evidência.**
+
+### 8.6 O portão do dinheiro (mantido)
+
+Tudo em §8.4 custa tempo. G5 custa dinheiro que não está no orçamento: empresa, AFE, Responsável
+Técnico, QMS ISO 13485 e certificação BPF, consultoria regulatória para dossiê classe III, taxas
+de petição, estudo clínico com custos de centro. As ordens de grandeza do v1.0 (dezenas de
+milhares de reais para QMS e para consultoria) continuam como estimativa a refazer com
+orçamentos reais.
+
+**Portanto: faça G0–G1 e toda a documentação agora, a custo zero; abra a empresa só quando G2
+produzir um número de validação externa brasileira que justifique o gasto.** Um arquivo técnico
+registrável sem empresa é ativo financiável. Uma empresa sem modelo validado é conta mensal.
+
+---
+
+## 9. Dados e acesso
+
+### 9.1 Plano de acesso
+
+| Fonte | Acesso | Uso | Estado |
+|---|---|---|---|
+| NIH ChestX-ray14 (split oficial de teste) | livre | avaliação externa de pesos sem NIH | em uso; manifest commitado |
+| Open-i (Indiana) | livre; laudos CC BY-NC-ND 4.0 | avaliação externa RX | baixado |
+| Shenzhen / Montgomery (NLM) | livre, termos próprios | TB | baixado |
+| FracAtlas, GRAZPEDWRI-DX | CC BY 4.0 | fratura | baixado |
+| CQ500 | CC BY-NC-SA 4.0 | hemorragia intracraniana (externo ao TotalSegmentator) | baixado (subconjunto) |
+| CMMD | CC BY 4.0 (TCIA) | mamografia, externo ao mammoscreen | amostra baixada |
+| BUS-BRA, BrEaST | CC BY 4.0 | lesão mamária em US | baixado |
+| CAMUS | CC BY-NC-SA 4.0, só pesquisa não comercial | eco, FE por Simpson | amostra baixada |
+| **CheXpert** (validação, rótulo por 3 radiologistas) | registro Stanford AIMI + Research Use Agreement | primeira medição contra consenso | carregador pronto; dado não baixado — ver [`docs/access/README.md`](docs/access/README.md) |
+| **VinDr-CXR**, MIMIC-CXR | credenciamento PhysioNet (curso CITI "Data or Specimens Only Research" + referência) | teste externo com rótulo de radiologistas; pares MIMIC do TorchXRayVision | credenciamento pendente — depende do dono, é pessoal e intransferível |
+| **Parceiros brasileiros** (InCor como porta natural) | protocolo CEP, dados des-identificados pelo controlador, acordo de uso | **G2** | a negociar |
+
+### 9.2 Governança de dados (imposta pelo CI)
+
+1. Nenhum pixel no git. Manifests com sha256 por arquivo são commitados.
+2. Todo dataset ganha `docs/datasheets/<dataset>.md`: fonte, licença/DUA, proveniência do rótulo
+   (NLP vs. adjudicado vs. histologia), perfil de des-identificação, vieses conhecidos.
+3. **Splits por paciente, sempre**; bootstrap agrupado por paciente.
+4. Espelho não oficial de dataset que exige DUA não é usado.
+
+### 9.3 Dado brasileiro sob LGPD e CEP
+
+Rodar modelos sobre o PACS de um hospital, mesmo retrospectivamente e des-identificado, é
+pesquisa com seres humanos (Lei 14.874/2024 Art. 2 XXXIV) e exige protocolo aprovado em CEP. A
+des-identificação é feita pelo **controlador** (o hospital) antes da saída, com o perfil DICOM
+PS3.15 Annex E e as opções registradas no datasheet. Imagem com chave de reidentificação é dado
+pseudonimizado — ainda dado pessoal sensível — e não sai do ambiente do parceiro.
+
+### 9.4 Vazamento entre treino e teste — fatos verificados
+
+- Os desafios SIIM-ACR (pneumotórax) e RSNA (pneumonia) são **anotações de imagens do NIH**
+  (Filice et al. 2020, DOI 10.1007/s10278-019-00299-9; Shih et al. 2019, DOI 10.1148/ryai.2019180041).
+  Nenhum modelo treinado em NIH pode ser avaliado neles como externo.
+- O TorchXRayVision separa treino e teste por `GroupShuffleSplit` 80/20 aleatório por paciente
+  (semente 0), não pelo split oficial do NIH. A reprodução desse split mostrou que cerca de 20,7
+  mil das 25.596 imagens do teste oficial do NIH caem na parte de **treino** dos pesos `nih` e
+  `all`. Logo, para o teste oficial do NIH, os únicos pares externos são `pc`, `chex`,
+  `mimic_nb` e `mimic_ch`.
+
+---
+
+## 10. Verificação
+
+Toda PR roda, em CPU: `ruff check` + `ruff format --check`, `mypy --strict`, pytest (unitário e
+integração; testes que precisam de pesos reais pulam de forma limpa quando os pesos não estão
+presentes, mas são executados onde estão), `scripts/trace.py --check`, `scripts/soup.py --check`
+e `scripts/check_honesty.py`.
+
+`scripts/check_honesty.py` é o guardião que mais importa. Quebra o build em: alegação numérica de
+desempenho em Markdown sem proveniência na mesma linha; `np.random`/`random` fora da avaliação;
+campo sha256 que não seja 64 hex minúsculos; `except ImportError` em `src/`; marcadores de
+simulação; model card com campo de desempenho. **O problema do v1 nunca foi falta de
+competência — foi que nada no sistema objetava quando um número era inventado.**
+
+Plano completo: [`docs/regulatory/09-verification-plan.md`](docs/regulatory/09-verification-plan.md).
+
+---
+
+## 11. O que foi cortado ou adiado, e por quê
+
+O documento de arquitetura legado (`src/medai_architecture_doc.md`, histórico `16fdd47`)
+prometia uma v1.2 e uma v2.0; o código legado tinha módulos de *global deployment*.
+
+| Item do roadmap antigo | Decisão | Motivo |
+|---|---|---|
+| Aprendizado federado | **cortado** | resolve um problema (dados que não podem sair do hospital) que só existe depois de G2 com vários parceiros; antes disso é complexidade sem dado |
+| AutoML | **cortado** | o gargalo é rótulo confiável e validação externa, não busca de hiperparâmetro |
+| Integração com robótica médica | **cortado** | fora de qualquer uso pretendido defensável |
+| Realidade aumentada | **cortado** | idem |
+| *Global deployment orchestration* | **cortado** | não há o que implantar; implantação vem depois de G5 |
+| Análise em tempo real (*streaming*) | **cortado** | radiologia é exame armazenado; latência não é o problema |
+| SHAP/LIME | **cortado** | só explicação derivada do modelo real e verificada por teste (REQ-060) |
+| Modelos 3D nativos | **mantido** | via TotalSegmentator/nnU-Net e MONAI (§5.2–5.3) |
+| DICOM SR nativo | **mantido** | TID 1500 no laudo preliminar (§6) |
+| Integração com EHR | **reduzido** | FHIR `DiagnosticReport` preliminar; HL7 v2 só se um parceiro exigir |
+| Dashboard de monitoramento | **adiado para G6** | sem uso real não há deriva a monitorar |
+| Análise temporal de progressão | **adiado** | exige exames prévios pareados e protocolo próprio |
+| Multi-tenancy | **adiado** | um parceiro por vez até G4 |
+| Triagem / priorização / notificação | **fora de escopo** | reclassifica o dispositivo (Regra 11) e exige outro programa de evidência |
+
+---
+
+## 12. Cronograma honesto e estratégia
+
+### 12.1 O que mudou desde o v1.0
+
+O v1.0 supunha um médico sozinho, 8–12 h/semana. Parte da engenharia agora é feita por agentes,
+e por isso G0 e G1 andam muito mais rápido do que o v1.0 previa. **Isso não acelera nada do que
+importa a partir de G2:** credenciamento pessoal, aprovação em CEP, acordo com hospital, tempo de
+leitores para MRMC, dinheiro para G5. Os prazos abaixo são estimativas de tempo decorrido, não
+compromissos, e serão revistos a cada portão.
+
+| Marco | Dependência real | Estimativa |
+|---|---|---|
+| G0 completo (inclui expurgo do histórico) | uma operação de `git filter-repo` coordenada | semanas |
+| G1 — KPI publicado para todas as modalidades do §5 | CPU e disco; credenciamento PhysioNet para os pares MIMIC/VinDr | 2–4 meses |
+| G2 — protocolo aprovado em CEP | parceiro institucional, pesquisador responsável vinculado | 6–12 meses a partir do contato |
+| G2 — relatório de validação externa brasileira | dados des-identificados de ≥ 2 centros | 12–18 meses |
+| G3 — MRMC | leitores recrutados, financiamento | depois de G2 |
+| G4 — piloto silencioso | CEP + integração no hospital | depois de G3 |
+| G5 — registro ANVISA de uma indicação | empresa, QMS, BPF, consultoria | anos; travado por dinheiro |
+
+### 12.2 Tornar G2 financiável
+
+A aritmética do v1.0 continua valendo: sozinho, G5 não é alcançável. A estratégia é chegar a G2
+com o pacote que um hospital parceiro, um edital (FAPESP/FINEP) ou um cofundador precisa ver:
+
+1. **Catálogo G1 público e reproduzível** — o KPI por modalidade, com cada A reproduzível de
+   checkout limpo e cada B com citação conferida. É a prova de método.
+2. **Protocolo pré-registrado** ([`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md)) e
+   plano de avaliação clínica ([`docs/regulatory/10-clinical-evaluation-plan.md`](docs/regulatory/10-clinical-evaluation-plan.md))
+   prontos para virar projeto de CEP.
+3. **Dossiê documental em formato de QMS** (§8.4) — o que um comitê de ética e um investidor
+   pedem primeiro.
+4. **Uma indicação estreita para G2**, escolhida pelo KPI de G1: a condição com melhor evidência
+   pública *e* relevância clínica no parceiro. Candidatas naturais pela formação do dono:
+   ecocardiografia (FE assistida) e RX de tórax (cardiomegalia/derrame).
+
+Os aceleradores reais continuam não sendo código: (a) parceria com radiologista para
+adjudicação, (b) vínculo institucional para dados e ética — o InCor é a porta natural, (c)
+financiamento que compre tempo de leitores e de regulatório.
+
+---
+
+## Apêndice — correspondência de seções v1.0 → v2.0
+
+Código, testes e documentos citam seções da v1.0. Até serem atualizados, use esta tabela:
+
+| Citação v1.0 | Onde está agora |
 |---|---|
-| Repositório honesto e governado | **1 mês** |
-| Um número externamente válido e reproduzível no repositório | **2–3 meses** |
-| API de RX implantável, com calibração, abstenção, explicabilidade real e auditoria | **5–7 meses** |
-| Modelo próprio validado externamente contra rótulos adjudicados | **9–12 meses** |
-| Duas modalidades sobre plataforma de plugin comprovada | **13–17 meses** |
-| Quatro modalidades + arquivo técnico completo de RX | **20–28 meses** |
-| Registro ANVISA concedido, uma modalidade | **3–4 anos**, travado por dinheiro |
-| Registro ANVISA, quatro modalidades | **5–7 anos solo** |
-
-**A aritmética desconfortável:** a 10 h/semana, a Fase 6 não é alcançável sozinho. A estratégia realista é **tornar a Fase 3 financiável** — um modelo genuinamente validado, com relatório de validação externa honesto, um conjunto documental em formato de QMS e uma base de código limpa é exatamente o que um hospital parceiro, um edital (FAPESP/FINEP) ou um cofundador precisa ver.
-
-**Otimize o plano para chegar à Fase 3 em ~12 meses, não para chegar à ANVISA sozinho.**
-
-Os aceleradores reais são: (a) parceria com radiologista para adjudicação, (b) vínculo institucional para dados e ética — o InCor é sua porta natural, (c) financiamento que compre horas de engenharia. Nenhum deles é código.
+| §1, §1.x (diagnóstico do legado) | [`HONEST_STATUS.md`](HONEST_STATUS.md); resumo em §1 |
+| §2 (escopo em série) | §0 e §5 (amplitude em D, nível por medição) |
+| §3 (PyTorch + MONAI) | §7.1 |
+| §4, §4.1 (arquitetura, `ModalityPlugin`) | §7.2 e [`docs/regulatory/07-architecture.md`](docs/regulatory/07-architecture.md) |
+| §4.2 (regra de ouro) | §7.3 |
+| §5 (fases 0–6) | §4 (portões G0–G6) e §5 (modalidades) |
+| §6.1 (Classe C) | §8.1 |
+| §6.2 (enquadramento brasileiro) | §8.2 |
+| §6.3 (perigos H-01…H-10) | §8.3 e [`docs/regulatory/04-risk-file.md`](docs/regulatory/04-risk-file.md) |
+| §6.4 (documentos) | §8.4 |
+| §6.5 (rastreabilidade) | §8.5 |
+| §6.6 (portão do dinheiro) | §8.6 |
+| §7 (dados e orçamento) | §9 |
+| §8, §8.2 (verificação, `check_honesty.py`) | §10 e [`docs/regulatory/09-verification-plan.md`](docs/regulatory/09-verification-plan.md) |
+| §9 (cronograma) | §12 |
 
 ---
 
-## Referências regulatórias
+## Referências
 
-- ANVISA — [RDC 657/2022](https://anvisalegis.datalegis.net/action/ActionDatalegis.php?acao=abrirTextoAto&tipo=RDC&numeroAto=00000657&seqAto=000&valorAno=2022&orgao=RDC%2FDC%2FANVISA%2FMS), software como dispositivo médico
-- ANVISA — [RDC 751/2022](https://anvisalegis.datalegis.net/action/ActionDatalegis.php?acao=abrirTextoAto&tipo=RDC&numeroAto=00000751&seqAto=000&valorAno=2022&orgao=RDC%2FDC%2FANVISA%2FMS), classificação de risco, notificação e registro (Regra 11 para SaMD)
-- ANVISA — [Perguntas e Respostas RDC 657/2022](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas/perguntas-respostas-rdc-657-de-2022-v1-01-09-2022.pdf)
-- ANVISA — [Manual para regularização de equipamentos médicos](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2025/anvisa-publica-nova-versao-de-manual-para-regularizacao-de-equipamentos-medicos)
-- IEC 62304 — ciclo de vida de software de dispositivo médico
-- ISO 14971:2019 + ISO/TR 24971 — gestão de risco
-- ISO 13485 — sistema de gestão da qualidade
-- IMDRF — framework de categorização de SaMD
-- [Project MONAI](https://github.com/Project-MONAI/MONAI) — framework de imagem médica em PyTorch
+Regulatórias (identificadores e datas conferidos na fonte em 2026-11-24):
+
+- ANVISA RDC 657/2022 (SaMD); RDC 751/2022 (classificação, Regra 11); RDC 665/2022 (BPF);
+  RDC 848/2024 (requisitos essenciais)
+- Lei 13.709/2018 (LGPD); Lei 14.874/2024 e Decreto 12.651/2025 (ética em pesquisa);
+  Res. CNS 466/2012, 738/2024; Resolução CFM nº 2.454/2026
+- IEC 62304:2006+AMD1:2015 (Ed. 1.1); ISO 14971:2019; IEC 62366-1 Ed. 1.1; IEC 81001-5-1:2021;
+  AAMI CR34971:2022; DICOM PS3.15 Annex E
+
+Diretrizes de relato e desenho:
+
+- STARD-AI — Sounderajah et al., Nat Med 2025, DOI 10.1038/s41591-025-03953-8
+- CLAIM 2024 — Tejani et al., Radiol Artif Intell 2024, DOI 10.1148/ryai.240300
+- TRIPOD+AI — Collins et al., BMJ 2024, DOI 10.1136/bmj-2023-078378
+- DECIDE-AI — Vasey et al., Nat Med 2022, DOI 10.1038/s41591-022-01772-9
+- PROBAST+AI — Moons et al., BMJ 2025, DOI 10.1136/bmj-2024-082505
+- MRMC — Obuchowski & Bullen, Radiology 2022, DOI 10.1148/radiol.211593
+- Tamanho amostral — Collins et al. 2016, DOI 10.1002/sim.6787; Vergouwe et al. 2005,
+  DOI 10.1016/j.jclinepi.2004.06.017; Riley et al. 2021, DOI 10.1002/sim.9025
+
+Modelos e dados: ver [`MODEL_LICENSES.md`](MODEL_LICENSES.md) e `docs/datasheets/`.

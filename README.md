@@ -1,115 +1,126 @@
 # RadiologyAI (MedAI Radiologia)
 
-Plataforma de pesquisa em interpretação de imagens radiológicas por inteligência artificial.
+Plataforma de **pesquisa** em interpretação de imagens radiológicas por inteligência artificial,
+construída em torno de um **catálogo de condições graduado por evidência**: cada achado sugerido
+mostra a força da evidência que o sustenta.
 
 > ## ⚠️ Software de pesquisa — não é dispositivo médico
 >
-> **Não existe nenhum modelo treinado neste repositório. Nenhuma métrica de desempenho foi medida. Não houve validação clínica. Não use para nenhuma decisão sobre um paciente real.**
+> **Não existe modelo treinado por este projeto. Não houve validação clínica. Não é regularizado
+> na ANVISA, nem tem clearance FDA ou marcação CE. Não use para nenhuma decisão sobre um paciente
+> real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um diagnóstico.
 >
-> Versões anteriores deste README alegavam acurácia de 88–95% e "validação clínica". **Essas alegações eram fabricadas e estão retratadas.** Ver **[HONEST_STATUS.md](HONEST_STATUS.md)** para a retratação completa e a lista de defeitos conhecidos do código legado.
+> Existem hoje **duas** medições de desempenho, ambas de um modelo de terceiros num dataset
+> público (abaixo). Versões anteriores deste README alegavam acurácia de 88–95% e "validação
+> clínica": **essas alegações eram fabricadas e estão retratadas** — ver
+> **[HONEST_STATUS.md](HONEST_STATUS.md)**.
 >
-> O plano para transformar isto em algo real está em **[ROADMAP.md](ROADMAP.md)**.
+> O plano está em **[ROADMAP.md](ROADMAP.md)** (v2.0).
 
 ---
 
+## A ideia central
+
+O objetivo é detectar e quantificar **o maior número possível de condições, cada uma com a
+confiabilidade científica que de fato tem**, em RX, TC, RM, mamografia, ultrassom e
+ecocardiografia, usando modelos abertos reais.
+
+| Nível | Significado | Onde aparece |
+|---|---|---|
+| **A** | validado externamente por medição nossa, sem vazamento, aprovado no protocolo | visão principal |
+| **B** | validação publicada revisada por pares ou limiar de diretriz, citação conferida na fonte | visão principal |
+| **C** | validado internamente por medição nossa | visão principal, com selo |
+| **D** | exploratório (zero-shot ou sem validação por condição) | **só no modo pesquisa** |
+
+O nível é **calculado** a partir de registros de evidência com proveniência (`compute_level` em
+`src/radiologyai/catalog/schema.py`), nunca digitado. Os critérios foram pré-registrados antes de
+qualquer medição: [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md).
+
 ## O que existe hoje
 
-O núcleo v2 (`src/radiologyai/`) está em construção. O código v1 foi removido da
-árvore; continua recuperável no histórico git (commit `16fdd47`).
+O código legado (v1) foi removido da árvore e continua recuperável no histórico git (commit
+`16fdd47`). O núcleo v2 fica em `src/radiologyai/`.
 
 | Camada | Estado |
 |---|---|
-| Leitura DICOM — VOI LUT, MONOCHROME1, RescaleSlope/Intercept, sem quantização | **funcional, testada** |
-| Des-identificação PS3.15 (subconjunto) com pseudo-IDs determinísticos HMAC | **funcional, testada** |
-| Janelamento por modalidade (presets de TC em HU) | **funcional, testada** |
-| Plugin de modalidade + gate de escopo (o controle de risco H-03) | **funcional, testada** |
-| Modalidades TC / RM / US | **declaradas**, não implementadas — levantam `NotImplementedError` |
-| Model card com sha256 validado e verificação de integridade | **funcional, testada** |
-| Motor de inferência falha-fechada | **funcional** — sem backend de pesos ainda |
-| Métricas (AUROC com IC bootstrap, ponto de operação, ECE, vazamento) | **funcional, testada** |
-| CLI (`radiologyai version / selftest / modalities / inspect / cards`) | **funcional** |
-| Backend torchxrayvision (pesos reais, integridade sha256) | **funcional, testada** |
-| Manifest do NIH ChestX-ray14 + detecção de vazamento | **funcional, testada** |
-| Carregador do CheXpert (validação, rótulos por 3 radiologistas) | **funcional, testada** — ver [`docs/access/`](docs/access/README.md) |
-| Executor de avaliação (AUROC com IC, subgrupos, proveniência) | **funcional, testada** |
-| Calibração por temperatura (preserva ordenação, logo AUROC) | **funcional, testada** |
-| Política de abstenção em 3 bandas, mais larga para achado crítico | **funcional, testada** |
-| Grad-CAM **real** por hooks de gradiente | **funcional, testada** |
-| Trilha de auditoria encadeada por hash, adulteração detectável | **funcional, testada** |
-| API FastAPI — gate de escopo por HTTP, sem métrica fabricada | **funcional, testada** |
-| Laudo estruturado em PDF, PACS, frontend | Fase 4 |
+| Leitura DICOM — VOI LUT, MONOCHROME1, RescaleSlope/Intercept, sem quantização | funcional, testada |
+| Des-identificação PS3.15 (subconjunto) com pseudo-IDs determinísticos HMAC | funcional, testada |
+| Plugin de modalidade + gate de escopo antes do modelo (controle do perigo RISK-003) | funcional para RX; TC/RM/US declarados no sistema de tipos |
+| Model card com sha256 validado; inferência falha-fechada | funcional, testada |
+| Backend TorchXRayVision (pesos reais, integridade sha256) | funcional, testada |
+| Avaliação: AUROC com IC bootstrap, ponto de operação, ECE, subgrupos, vazamento | funcional, testada |
+| Calibração por temperatura; abstenção em 3 bandas; decisão por ponto de operação com origem | funcional, testada |
+| Grad-CAM **real** por hooks de gradiente | funcional, testada |
+| Trilha de auditoria encadeada por hash | funcional, testada |
+| API FastAPI — gate de escopo por HTTP, sem métrica fabricada | funcional, testada |
+| Catálogo de condições: esquema, regra de nível, protocolo pré-registrado | funcional, testado; **nenhuma condição catalogada ainda** |
+| Camada de análise multimodal (`src/radiologyai/analysis/`) | em construção |
+| Plataforma web (lista de trabalho, visualizador, laudo preliminar, assinatura) | em construção |
 | **Modelo próprio treinado** | **nenhum** |
-| **Métricas de desempenho medidas** | **duas** — AUROC macro 0,664 em validação externa; a segunda isola o pré-processamento |
 | **Validação clínica** | **nenhuma** |
 
-## Linha de base honesta — o primeiro número real
+Requisitos rastreados até risco e teste: [`docs/regulatory/13-traceability.md`](docs/regulatory/13-traceability.md)
+(gerada e verificada no CI).
 
-Medido no Google Colab (T4) em 2026-09-12, sobre o **split oficial de teste do
-NIH ChestX-ray14**: 25.596 imagens, 2.797 pacientes, disjunto por paciente.
-Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em
-PadChest (Espanha) — validação externa genuína, sem vazamento.
+## As duas medições reais
 
-| | |
-|---|---|
-| **AUROC macro** | **0,664** sobre 14 achados — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
-| Melhores | Hérnia 0,829 (n+=86, IC largo) · Cardiomegalia 0,796 · Derrame 0,752 · Edema 0,744 |
-| Piores | Fibrose **0,448**, IC95 [0,421, 0,473] — abaixo do acaso com IC que exclui 0,5 |
-| Incidência | PA 0,692 vs AP 0,630 — a lacuna prevista apareceu |
-| Calibração | ECE 0,18–0,51: os escores **não** são probabilidade de doença |
-| Ponto de operação | Especificidade a 90% de sensibilidade entre 0,12 e 0,48 — tabela completa em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) |
+Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em PadChest
+(Espanha), avaliado no **split oficial de teste do NIH ChestX-ray14** (25.596 imagens, 2.797
+pacientes, disjunto por paciente) — validação externa ao treino do modelo, em Google Colab (T4),
+em 2026-09-12.
 
-Relatório completo: [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
-
-**Fibrose abaixo do acaso** não diz que o modelo erra fibrose: diz que o rótulo
-"Fibrosis" do PadChest e o do NIH não nomeiam o mesmo achado. É um resultado
-sobre rótulos, não sobre o modelo.
-
-### Duas medições isolam o efeito do pré-processamento
-
-O mesmo modelo, o mesmo split (manifest `39f31d78…`), variando só o carregador
-de imagem:
-
-| Run | Normalização | AUROC macro |
+| Execução | Normalização | AUROC macro (14 achados) |
 |---|---|---|
-| [`xrv-densenet121-pc__20260912T202549Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T202549Z.md) | min-max por imagem | 0,6644 |
-| [`xrv-densenet121-pc__20260912T215742Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) | fundo de escala (canônica do torchxrayvision) | 0,6636 |
+| [`xrv-densenet121-pc__20260912T202549Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T202549Z.md) | min-max por imagem | 0,6644 — `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` |
+| [`xrv-densenet121-pc__20260912T215742Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) | fundo de escala (canônica do torchxrayvision) | 0,6636 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
 
-**Delta: −0,0008.** Nenhum achado mudou mais que 0,01; todos os IC95 se
-sobrepõem. Eu previa melhora ao alinhar com o pré-processamento de treino —
-errei: o modelo é robusto a essa diferença de contraste. A hipótese mais
-provável, **não testada**, é que radiografias do NIH já ocupam quase todo o
-intervalo dinâmico, tornando as duas normalizações quase equivalentes.
+Destaques do relatório (todos de `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`):
 
-Os dois artefatos ficam versionados. Medir a diferença custou uma execução e
-substituiu uma suposição por um número.
+- Melhores achados: hérnia 0,829 (86 positivos, IC largo), cardiomegalia 0,796, derrame 0,752 — fonte `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
+- Fibrose 0,448, IC95 [0,421, 0,473], abaixo do acaso com IC que exclui 0,5 — fonte `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`. É um resultado sobre rótulos: "Fibrosis" no PadChest e no NIH não nomeiam o mesmo achado.
+- Incidência: PA 0,692 vs AP 0,630 — fonte `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
+- Calibração: ECE entre 0,20 e 0,51; os escores **não** são probabilidade de doença — fonte `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
+- Especificidade a sensibilidade 0,90 entre 0,11 e 0,48: **como triagem esta linha de base não serve** — tabela em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
 
-**Sobre a expectativa.** O ROADMAP registrava 0,72–0,82 antes da medição. O
-medido é 0,664, e a previsão errada fica ao lado do número. O README do v1
-alegava 0,94 sem ter medido nada.
+O delta entre as duas execuções (−0,0008) mostra que o modelo é robusto a essa diferença de
+contraste. O ROADMAP registrava 0,72–0,82 antes de medir (expectativa errada, mantida ao lado do
+número); o README do v1 alegava 0,94 sem ter medido nada.
 
-**O que estes números não são:** validação clínica, evidência de utilidade, ou
-desempenho do modelo do produto. É um modelo de referência de terceiros, sem
-calibração, sobre rótulos minerados por NLP. Pela especificidade a 90% de
-sensibilidade medida em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md), **como triagem esta linha de base
-não serve** — e uma linha de base honesta tem que poder dizer isso.
+**O que estes números não são:** validação clínica, evidência de utilidade, desempenho em
+população brasileira, ou desempenho de um modelo do produto. É um modelo de referência de
+terceiros, sem calibração, sobre rótulos minerados por NLP.
 
 **Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb).
-O apêndice do notebook roda só a inferência, sem rebaixar o dataset.
+**Próxima medição contra rótulo de radiologistas:** CheXpert (validação, 3 radiologistas) —
+[`notebooks/02_chexpert_e_credenciamento.ipynb`](notebooks/02_chexpert_e_credenciamento.ipynb) e
+[`docs/access/README.md`](docs/access/README.md). Nenhum número do CheXpert foi medido até aqui.
 
-**Próxima medição, ainda não executada:** os rótulos do NIH são minerados por NLP
-dos laudos, então um AUROC baixo é ambíguo entre modelo fraco e rótulo ruidoso. O
-conjunto de validação do CheXpert (234 imagens, voto majoritário de 3 radiologistas
-olhando a imagem) desfaz essa ambiguidade para os achados que os dois datasets
-nomeiam — **fibrose não é um deles**, e continua dependendo do VinDr-CXR. O caminho
-está em [`notebooks/02_chexpert_e_credenciamento.ipynb`](notebooks/02_chexpert_e_credenciamento.ipynb);
-nenhum número do CheXpert foi medido até aqui.
+## Documentos
 
-## Referência técnica
-
-- **[ROADMAP.md](ROADMAP.md)** — diagnóstico do estado atual, arquitetura-alvo, decisão de framework, fases, trilha regulatória, orçamento e cronograma
-- **[HONEST_STATUS.md](HONEST_STATUS.md)** — retratação das alegações anteriores e defeitos conhecidos
+- **[ROADMAP.md](ROADMAP.md)** — v2.0: catálogo graduado por evidência, portões G0–G6,
+  amplitude multimodal com modelos abertos, plataforma, trilha regulatória, cronograma
+- **[HONEST_STATUS.md](HONEST_STATUS.md)** — retratação das alegações do v1, defeitos do legado,
+  pendências abertas
+- **[docs/protocolo-evidencia.md](docs/protocolo-evidencia.md)** — protocolo pré-registrado
+- **[docs/regulatory/](docs/regulatory/README.md)** — uso pretendido, classificação, risco,
+  desenvolvimento, arquitetura, verificação, avaliação clínica, cibersegurança/LGPD, IFU,
+  mudanças, vigilância
+- **[MODEL_LICENSES.md](MODEL_LICENSES.md)** — licença de cada modelo de terceiros usado ou
+  planejado
+- **[docs/access/README.md](docs/access/README.md)** — acesso a datasets (CheXpert, PhysioNet)
+- **[docs/datasheets/](docs/datasheets/)** — datasheets de datasets
 - `docs/OPENAPI_SPEC.yaml` — contrato de API alvo
-- `docs/CLINICAL_VALIDATION.md` — relatório da v1; é o único documento historicamente honesto do repositório (registra 20% de acurácia em 5 imagens sintéticas)
+
+## Desenvolvimento
+
+```bash
+uv sync --extra dev --extra eval --extra api --extra imaging
+uv run ruff check src/ tests/ scripts/ && uv run ruff format --check src/ tests/
+uv run mypy src/radiologyai
+uv run pytest
+uv run python scripts/check_honesty.py
+uv run python scripts/trace.py --check
+```
 
 ## Licença e contato
 

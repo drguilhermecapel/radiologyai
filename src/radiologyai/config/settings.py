@@ -10,6 +10,7 @@ Nenhum segredo tem valor default. Ausente significa erro, não modo inseguro.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,6 +25,29 @@ class Settings(BaseSettings):
     models_dir: Path = Field(default=Path("./models"))
     artifacts_dir: Path = Field(default=Path("./artifacts"))
     logs_dir: Path = Field(default=Path("./logs"))
+
+    # --- pipeline de análise (radiologyai.analysis) ----------------------
+    weights_dir: Path = Field(
+        default=Path("./models/weights"),
+        description="Raiz dos pesos verificados: <weights_dir>/<model_id>/ (MEDAI_WEIGHTS_DIR).",
+    )
+    store_dir: Path = Field(
+        default=Path("./artifacts/store"),
+        description="Repositório de artefatos endereçado por conteúdo (MEDAI_STORE_DIR).",
+    )
+    device: Literal["auto", "cpu", "cuda", "mps"] = Field(
+        default="auto", description="Dispositivo de inferência (MEDAI_DEVICE)."
+    )
+    max_loaded_models: int = Field(
+        default=4, ge=1, description="Adaptadores mantidos carregados (LRU)."
+    )
+    allow_noncommercial_models: bool = Field(
+        default=True,
+        description="Permite pesos com licença não comercial (uso exclusivo em pesquisa).",
+    )
+    research_mode_default: bool = Field(
+        default=False, description="Nível D só aparece quando o modo pesquisa é pedido."
+    )
 
     deident_key: str | None = Field(
         default=None,

@@ -1,0 +1,98 @@
+# GERADO por scripts/evidence_ingest_published.py - não edite à mão.
+# Regere com: python scripts/evidence_ingest_published.py
+# Registros publicados anexados a modelos que rodamos com os mesmos pesos.
+generator: scripts/evidence_ingest_published.py
+input:
+  file: evidence-echo-mg-us.verified.md
+  sha256: 179d71632a1831aba3cc5770b80aab4bce143f07f2c7ecc663dd740d7990812b
+protocol_id: 2026-11-v1
+records:
+- caveats:
+  - Autorrelato do desenvolvedor no cartão do modelo (não revisado por pares).
+  - 'nota do verificador: Developer self-report, not peer reviewed; bracket is SD over 3 splits, not a
+    CI'
+  - 'Derivado da mesma citação conferida (''Split 1: 0.9464''); o cartão diz ''The provided weights are
+    from the first data split''.'
+  - 'tipo de validação na fonte: internal'
+  - 'padrão de referência (fonte): RSNA challenge cancer label (definition not fetched)'
+  - 'origem: evidence-echo-mg-us.verified.md#mammoscreen_cancer_auroc'
+  condition_id: mg.breast_cancer
+  dataset: RSNA Screening Mammography (hold-out)
+  endpoint: discrimination
+  failure_reasons:
+  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
+    revisada por pares ou diretriz
+  - n do conjunto de teste não publicado
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - IC 95% de AUROC não publicado
+  id: pub.mammoscreen_cancer_auroc_split1
+  kind: published
+  label: cancer
+  leakage: possible
+  leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
+    em relação aos pesos distribuídos não verificável por nós'
+  metrics:
+    auroc:
+      ci_high: null
+      ci_low: null
+      value: 0.9464
+  model_id: mammoscreen
+  n_positive: null
+  n_total: null
+  passes_protocol: false
+  population: RSNA Screening Mammography Breast Cancer Detection challenge data, 10% hold-out, 3 repeated
+    splits (n not stated)
+  provenance: null
+  reference_standard: other
+  source:
+    identifier: huggingface.co/ianpan/mammoscreen (model card; no DOI)
+    peer_reviewed: false
+    quote: 'Split 1: 0.9464 Split 2: 0.9467 Split 3: 0.9422 Mean (std.): 0.9451 (0.002)'
+    title: ianpan/mammoscreen (3x EfficientNetV2-S ensemble) - Breast cancer on screening mammogram (huggingface.co/ianpan/mammoscreen
+      (model card; no DOI))
+    url: https://huggingface.co/ianpan/mammoscreen/raw/main/README.md
+    verified_at_source: true
+- caveats:
+  - Única métrica é 'accuracy' em metadata.json do bundle, sem dataset, n ou split; o bundle declara 'not
+    to be used for diagnostic purposes'.
+  - 'nota do verificador: Accuracy from metadata.json only; bundle states intended_use "This is an example,
+    not to be used for diagnostic purposes"'
+  - 'tipo de validação na fonte: internal'
+  - 'padrão de referência (fonte): Not described in bundle'
+  - 'origem: evidence-echo-mg-us.verified.md#monai_breast_density_accuracy'
+  condition_id: mg.breast_density
+  dataset: Mayo Clinic (não descrito)
+  endpoint: discrimination
+  failure_reasons:
+  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
+    revisada por pares ou diretriz
+  - n do conjunto de teste não publicado
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - AUROC não publicado(a) neste registro
+  - métrica publicada (accuracy) não tem barra no protocolo
+  id: pub.monai_breast_density_accuracy
+  kind: published
+  label: density
+  leakage: possible
+  leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
+    em relação aos pesos distribuídos não verificável por nós'
+  metrics:
+    accuracy:
+      ci_high: null
+      ci_low: null
+      value: 0.96
+  model_id: monai-breast-density
+  n_positive: null
+  n_total: null
+  passes_protocol: false
+  population: Mayo Clinic data (dataset, n and split not described)
+  provenance: null
+  reference_standard: other
+  source:
+    identifier: arXiv:2202.08238 (method reference cited by bundle)
+    peer_reviewed: false
+    quote: '"accuracy": 0.96'
+    title: MONAI breast_density_classification bundle (InceptionV3) - Mammographic breast density category
+      (BI-RADS A-D) (arXiv:2202.08238 (method reference cited by bundle))
+    url: https://raw.githubusercontent.com/Project-MONAI/model-zoo/dev/models/breast_density_classification/configs/metadata.json
+    verified_at_source: true

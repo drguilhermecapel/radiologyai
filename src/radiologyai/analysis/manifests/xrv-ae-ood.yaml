@@ -1,0 +1,11 @@
+id: xrv-ae-ood
+version: 1.5.7-101-elastic
+name: TorchXRayVision ResNetAE 101-elastic (portão fora de distribuição)
+status: planned
+task: gate
+capabilities: [gate]
+summary: Autoencoder do TorchXRayVision usado como portão fora de distribuição.
+route: dependency
+license: {code: Apache-2.0, weights: sem licença própria declarada, commercial_use: unclear}
+applicability: {exam_types: [cxr], modalities: [CR, DX], image_kinds: [projection]}
+planned_reason: limiar do portão ainda não medido

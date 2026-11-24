@@ -1,123 +1,145 @@
 ---
 doc_id: REG-01
 title: Declaração de Uso Pretendido / Indicações de Uso
-status: RASCUNHO — v0.1
-date: 2026-09
+status: RASCUNHO — v0.2
+date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
-supersedes: —
+supersedes: v0.1 (2026-09)
 ---
 
 # Uso Pretendido / Indicações de Uso
 
-> **Estado atual: o dispositivo descrito neste documento NÃO EXISTE.** Este é o documento-alvo
-> que define o que será construído e validado. Nenhum modelo foi treinado; nenhuma indicação
-> pode ser alegada hoje. Ver [`HONEST_STATUS.md`](../../HONEST_STATUS.md).
+> **Estado atual: software de pesquisa. Não é dispositivo médico.** Não é regularizado na
+> ANVISA, não tem clearance FDA nem marcação CE. Nenhuma indicação clínica é alegada. Ver
+> [`HONEST_STATUS.md`](../../HONEST_STATUS.md).
 
-Este é o documento fundador do arquivo técnico. Ele fixa modalidade, região anatômica, população,
-usuário, cenário de cuidado, a natureza da alegação e as contraindicações. Dele derivam:
-a classe de risco ANVISA (RDC 751/2022, Regra 11), a classe de segurança de software
-(IEC 62304 §4.3), os requisitos de dados de validação, e o que o `ModalityPlugin.validate()`
-deve rejeitar em tempo de execução.
+Este é o documento fundador do arquivo técnico. Ele fixa o que o software faz, para quem, sobre
+quais imagens, e o que ele **não** faz. Dele derivam a classe de risco ANVISA (RDC 751/2022,
+Regra 11), a classe de segurança de software (IEC 62304 §4.3, ver REG-02), os requisitos de
+dados de validação ([`../protocolo-evidencia.md`](../protocolo-evidencia.md)) e o que os plugins
+de modalidade devem rejeitar em tempo de execução.
 
-**Nenhuma alteração neste documento é trivial.** Toda mudança de uso pretendido reabre a
-classificação de risco, a análise de perigos e o plano de avaliação clínica.
+**Nenhuma alteração neste documento é trivial.** Toda mudança reabre a classificação de risco, a
+análise de perigos ([`04-risk-file.md`](04-risk-file.md)) e o plano de avaliação clínica
+([`10-clinical-evaluation-plan.md`](10-clinical-evaluation-plan.md)).
 
 ---
 
-## 1. Uso pretendido (intended use)
+## 1. Uso pretendido atual — pesquisa
 
-O RadiologyAI é um software autônomo (SaMD) destinado a **auxiliar profissionais médicos
-qualificados na interpretação de imagens radiológicas**, fornecendo informação de suporte
-à decisão sob a forma de escores de probabilidade por achado, mapas de saliência e um
-rascunho de laudo estruturado.
+O RadiologyAI é uma **plataforma de pesquisa** que executa modelos abertos de análise de imagem
+sobre exames **de pesquisa** (datasets públicos ou dados des-identificados obtidos sob protocolo
+aprovado em CEP) e apresenta, para cada condição de um catálogo, um **achado sugerido para
+confirmação médica** acompanhado do seu **nível de evidência** (A, B, C ou D), da fonte dessa
+evidência e da incerteza.
 
-O software **não produz diagnóstico**. Produz informação que um médico qualificado
-interpreta, aceita, edita ou rejeita.
+Finalidades permitidas:
 
-## 2. Indicações de uso — por versão
+1. medir e publicar a força da evidência de modelos abertos por condição (portão G1 do roadmap);
+2. conduzir estudos retrospectivos aprovados em CEP (G2), estudos de leitores (G3) e pilotos
+   silenciosos (G4) — cada um sob o seu protocolo;
+3. desenvolver e verificar o software segundo IEC 62304 Classe C, como preparação de um eventual
+   dossiê regulatório.
 
-O escopo é liberado em série. Cada indicação abaixo só passa a valer quando sustentada por
-um relatório de validação externa em `artifacts/eval/` e por um ciclo de verificação concluído.
+## 2. Escopo multimodal de pesquisa (indicações de pesquisa)
 
-### v1 — Radiografia de tórax (a primeira indicação a buscar)
+| Grupo | Modalidade DICOM | Região / exame | Exemplos de condições do catálogo | Restrições de entrada |
+|---|---|---|---|---|
+| RX de tórax | `CR`, `DX` | tórax, incidência frontal (PA/AP) | achados do TorchXRayVision, índice cardiotorácico, tuberculose | adulto; perfil e incidências especiais rejeitados; gate de distribuição |
+| RX musculoesquelético | `CR`, `DX` | extremidades | fratura | adulto e pediátrico **somente** quando o conjunto de validação da condição incluir a faixa |
+| TC | `CT` | crânio, tórax, abdome | hemorragia intracerebral, derrame pleural/pericárdico, lesões hepáticas, biomarcadores em HU | pré-condições de aquisição por biomarcador (fase, kVp, kernel, espessura); senão abstenção |
+| RM | `MR` | encéfalo, abdome | subregiões de glioma **conhecido**, carga lesional de substância branca, lesões hepáticas | sequências exigidas presentes e co-registradas; nunca usado como detector de tumor |
+| Mamografia | `MG` | mama, CC + MLO | escore de malignidade, densidade | VOI LUT aplicado; recorte; rastreamento **fora** do escopo |
+| Ultrassonografia | `US` | mama, fígado | lesão mamária, esteatose, segmentação interativa | imagem B-mode; anotações gravadas no pixel tratadas como risco de vazamento |
+| Ecocardiografia | `US` | apical 2 e 4 câmaras | traçado assistido do VE e FE por Simpson | **somente modo pesquisa**; contorno confirmado pelo médico |
 
-| Campo | Definição |
-|---|---|
-| **Modalidade** | Radiografia computadorizada/digital de tórax (DICOM Modality `CR` ou `DX`) |
-| **Região anatômica** | Tórax |
-| **Incidência** | Frontal (PA e AP). **Perfil e incidências especiais estão FORA do escopo** |
-| **População** | Adultos (≥ 18 anos). **População pediátrica está FORA do escopo** |
-| **Usuário pretendido** | Médico radiologista ou médico com competência em interpretação de radiografia de tórax. Não se destina a leigos, pacientes ou profissionais não médicos |
-| **Cenário de cuidado** | Ambiente ambulatorial e hospitalar, em fluxo de leitura **concorrente** (o médico lê o exame; o software oferece informação adicional) |
-| **Achados no escopo** | A serem fixados a partir do conjunto de rótulos validado, dentro de: atelectasia, cardiomegalia, consolidação, derrame pleural, edema, enfisema, fibrose, hérnia, infiltrado, massa, nódulo, espessamento pleural, pneumonia, pneumotórax |
-| **Natureza da alegação** | **Assistiva e concorrente.** Não é triagem, não é priorização de fila, não é notificação automática, não é leitura autônoma, não é *rule-out* |
+Condições de nível **D** (zero-shot ou sem validação por condição) aparecem **somente no modo
+pesquisa**, nunca sozinhas no laudo (REQ-091).
 
-### v2 — Ecocardiografia (planejada)
-### v3 — Tomografia computadorizada (planejada)
-### v4 — Ressonância magnética (planejada)
+### 2.1 Usuário pretendido
 
-Cada uma exige seu próprio ciclo completo de dados, treino, validação externa, análise de
-risco e verificação, e sua própria adição a este documento antes de qualquer alegação.
+Médico (radiologista, cardiologista ecocardiografista ou médico com competência na modalidade)
+atuando como **pesquisador** ou **leitor de estudo**, e engenheiros/pesquisadores no papel de
+avaliação técnica. Não se destina a leigos, pacientes ou profissionais não médicos para
+interpretação.
 
-## 3. Contraindicações e limitações declaradas
+## 3. Contraindicações e o que o software NÃO faz
+
+### 3.1 O que o software não é e não faz
+
+- **Não produz diagnóstico.** Produz achados sugeridos que um médico interpreta, confirma, edita
+  ou rejeita.
+- **Não se destina ao cuidado de pacientes.** Não deve informar, tomar ou influenciar decisão
+  diagnóstica ou terapêutica sobre paciente real fora de um protocolo de pesquisa aprovado — e,
+  mesmo dentro de um, no piloto silencioso (G4) as saídas ficam **ocultas** do médico assistente.
+- **Não faz triagem, priorização de fila, notificação de achado crítico, rastreamento, laudo
+  autônomo nem exclusão de doença (*rule-out*).**
+- **Não se comunica com o paciente** (Resolução CFM nº 2.454/2026, Art. 5 §2).
+- **Não afirma normalidade.** Ausência de achado sugerido ≠ exame normal (REQ-063).
+
+Linguagem vedada em interface, documentação e divulgação: "detecta", "diagnostica", "exclui",
+"triagem", "rastreia", "prioriza", "auxilia o radiologista no cuidado", "validado",
+"clinicamente validado", "aprovado", "certificado", "equivalente a radiologista".
+
+### 3.2 Contraindicações
 
 O software **não deve ser usado**:
 
-1. **Para excluir doença** (*rule-out*). Um escore baixo não é evidência de ausência de achado.
-2. **Como única base de qualquer decisão clínica.** Toda saída exige revisão médica.
-3. **Em população pediátrica.**
-4. **Em incidências fora do escopo declarado** (perfil, decúbito lateral, incidências especiais).
-5. **Em modalidade fora da declarada** para a versão em uso.
-6. **Para priorização de fila ou notificação de achado crítico**, salvo se e quando uma
-   indicação de triagem for separadamente validada e registrada — o que implica reclassificação.
-7. **Em imagens de qualidade insuficiente**, rotação significativa, artefato relevante ou
-   penetração inadequada. O software deve rejeitar esses casos, não degradar silenciosamente.
+1. em imagem identificável de paciente atendido na rotina, fora de protocolo CEP aprovado;
+2. para excluir doença, ainda que o ponto de operação de exclusão exista no catálogo;
+3. como única base de qualquer conclusão — toda saída exige revisão médica;
+4. fora das restrições de entrada do §2; o software deve rejeitar, não degradar;
+5. com pesos de licença não comercial em qualquer contexto comercial
+   ([`MODEL_LICENSES.md`](../../MODEL_LICENSES.md));
+6. em imagem de qualidade insuficiente, artefato relevante, ou modalidade/sequência fora da
+   declarada para a condição.
 
 ## 4. Controles de risco embutidos no uso pretendido
 
-Estes não são recursos opcionais. São condições do uso pretendido e requisitos de projeto
-rastreáveis (ver `04-risk-file.md` e `06-requirements/`):
-
-| Controle | Descrição |
-|---|---|
-| **Rejeição de entrada fora de distribuição** | `ModalityPlugin.validate()` rejeita modalidade, incidência, idade ou qualidade fora do escopo. Falha fechada, sem predição |
-| **Banda de abstenção** | Saída em três bandas: *achado provável* / **não avaliável** / *achado improvável*. A banda intermediária é uma resposta legítima, não uma falha |
-| **Proibição de afirmar normalidade** | O software nunca exibe "Normal" como afirmação positiva. Ausência de achado provável ≠ exame normal |
-| **Incerteza sempre visível** | Escores calibrados com intervalo; nunca um rótulo *top-1* isolado |
-| **Verificação de integridade do modelo** | sha256 dos pesos verificado na carga; divergência → falha, nunca fallback |
-| **Explicabilidade real** | Mapa de saliência derivado de gradientes do modelo efetivamente usado. Saliência simulada é proibida por verificação de CI |
-| **Trilha de auditoria** | Todo resultado registra hash da entrada, versão do modelo, sha256 dos pesos, git sha, saída, e a decisão do médico |
+| Controle | Descrição | Requisitos |
+|---|---|---|
+| Gate de escopo antes do modelo | modalidade, incidência, idade ou qualidade fora do escopo ⇒ rejeição com motivo, sem predição | REQ-031, REQ-042 |
+| Nível de evidência calculado | A–D derivado de registros com proveniência; nunca digitado | REQ-090, REQ-093 |
+| Visão principal sem nível D | exploratório só no modo pesquisa | REQ-091 |
+| Decisão só com ponto de operação de origem declarada | sem ponto ⇒ escore sem veredito | REQ-092 |
+| Banda de abstenção | *provável* / **não avaliável** / *improvável*; a banda intermediária é resposta legítima | REQ-062 |
+| Proibição de afirmar normalidade | — | REQ-063 |
+| Integridade do modelo | sha256 dos pesos verificado na carga; divergência ⇒ falha | REQ-020, REQ-030 |
+| Explicabilidade real | mapa só de gradiente ou máscara do modelo efetivamente usado | REQ-060 |
+| Trilha de auditoria | entrada, modelo, pesos, git sha, saída, decisão do médico, encadeados por hash | REQ-070, REQ-071 |
 
 ## 5. O que NÃO é alegado
 
-- Não se alega desempenho equivalente ou superior ao de radiologista.
-- Não se alega redução de tempo de leitura.
-- Não se alega desempenho em populações, equipamentos ou instituições não representados
-  nos conjuntos de validação, e a composição desses conjuntos é declarada no relatório
-  de avaliação.
-- Não se alega funcionamento em modalidade, incidência ou faixa etária fora de §2.
+- Nenhum desempenho clínico. Números de desempenho existem apenas como registros de evidência do
+  catálogo, cada um com dataset, n, IC e proveniência.
+- Nenhuma equivalência ou superioridade a médico.
+- Nenhum desempenho em população, equipamento ou instituição não representados no conjunto de
+  avaliação — em particular, nenhum desempenho em população brasileira antes do portão G2.
 
-## 6. Fronteira que reclassifica o dispositivo
+## 6. Fronteira que reclassifica o software
 
-Qualquer uma das mudanças abaixo **altera a classe de risco e a classe de segurança de
-software** e exige reabrir todo o arquivo técnico:
+Qualquer uma das mudanças abaixo transforma o software em dispositivo com finalidade clínica e
+reabre todo o arquivo técnico:
 
-- passar de leitura concorrente para **triagem, priorização de fila ou notificação automática**;
-- passar de assistivo para **autônomo** (laudo sem revisão médica);
-- alegar uso para **exclusão** de achado;
-- incluir **população pediátrica**;
-- incluir achados com risco imediato de morte sob alegação de detecção sem revisão humana.
+- uso sobre paciente real com retorno do resultado ao cuidado (sai da isenção de investigação
+  clínica da RDC 751/2022 Art. 2 §8 e passa a exigir regularização);
+- triagem, priorização ou notificação automática;
+- laudo autônomo, sem revisão médica;
+- alegação de exclusão de achado.
 
-Ver `02-software-safety-classification.md` §4.
+Ver [`02-software-safety-classification.md`](02-software-safety-classification.md) §4.
+A numeração das seções 2 (escopo), 4 (controles) e 6 (fronteira) é citada no código e em REG-02; mantê-la estável.
 
-## 7. Enquadramento regulatório pretendido
+## 7. Enquadramento regulatório pretendido, se um dia for produto
 
-- **Brasil (ANVISA):** software como dispositivo médico sob a RDC 657/2022, classificado
-  pela Regra 11 da RDC 751/2022. Posição de trabalho: **Classe III**, sujeita a **registro**
-  (não notificação). A confirmar com consultoria regulatória antes de comprometer o caminho.
-- **Classe de segurança de software:** **IEC 62304 Classe C** (ver `02-...`).
-- **Gestão de risco:** ISO 14971:2019 + ISO/TR 24971.
-- **QMS:** ISO 13485 / RDC 665/2022 — a ser implementado quando houver veículo societário.
+- **Brasil:** SaMD sob a RDC 657/2022, classificado pela Regra 11 da RDC 751/2022. Posição de
+  trabalho: **classe III** (registro), porque os achados de maior risco do catálogo puxam a
+  classe — **a confirmar com consultoria regulatória**. A indicação seria liberada por condição,
+  sustentada por G2–G4.
+- **Classe de segurança de software:** IEC 62304 **Classe C** (REG-02).
+- **Gestão de risco:** ISO 14971:2019 com AAMI CR34971:2022 para os modos de falha de
+  aprendizado de máquina ([`03-risk-management-plan.md`](03-risk-management-plan.md)).
+- **QMS:** ISO 13485 / RDC 665/2022, quando houver pessoa jurídica.
 
 ---
 
@@ -125,4 +147,5 @@ Ver `02-software-safety-classification.md` §4.
 
 | Versão | Data | Alteração |
 |---|---|---|
-| v0.1 | 2026-09 | Criação. Rascunho inicial, pré-desenvolvimento do núcleo v2 |
+| v0.1 | 2026-09 | Criação. Escopo-alvo: RX de tórax assistivo e concorrente; demais modalidades planejadas |
+| v0.2 | 2026-11 | Escopo reescrito como **pesquisa multimodal** sem alegação clínica; catálogo A–D; linguagem vedada; contraindicação de pesos não comerciais; fronteira de reclassificação atualizada |

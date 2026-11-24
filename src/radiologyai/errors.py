@@ -28,6 +28,14 @@ class MissingTagError(IngestionError):
     """Tag DICOM obrigatória ausente para a operação pedida."""
 
 
+class UnsupportedInputError(IngestionError):
+    """Entrada decodificável, mas fora do que o sistema sabe tratar sem adivinhar.
+
+    Exemplos: série com espaçamento entre cortes irregular, diretório com mais
+    de uma série sem escolha explícita, multiframe enhanced sem geometria.
+    """
+
+
 # --- escopo / uso pretendido ----------------------------------------------
 
 
@@ -38,6 +46,21 @@ class OutOfScopeError(RadiologyAIError):
     fora do que a versão em uso foi validada para processar. É um controle de
     risco, não uma conveniência: o sistema recusa, nunca degrada.
     """
+
+
+class ExamTypeUnknownError(OutOfScopeError):
+    """Tipo de exame não pôde ser estabelecido pelos metadados; um humano deve escolher."""
+
+
+# --- configuração ---------------------------------------------------------
+
+
+class ConfigurationError(RadiologyAIError):
+    """Configuração, roteamento ou armazenamento de artefatos inválido."""
+
+
+class ArtifactStoreError(ConfigurationError):
+    """Artefato ausente, corrompido ou referência que escapa do repositório."""
 
 
 # --- modelos --------------------------------------------------------------
@@ -57,6 +80,27 @@ class WeightsIntegrityError(ModelError):
 
 class ModelCardError(ModelError):
     """Model card malformado ou inconsistente."""
+
+
+class ManifestError(ModelCardError):
+    """Manifesto de modelo (``radiologyai.analysis``) malformado ou que viola regra do registro."""
+
+
+class ModelUnavailableError(ModelError):
+    """Modelo não pode ser usado: planejado, pesos ausentes ou integridade reprovada.
+
+    Nunca deve ser engolida e substituída por um resultado. A API a mapeia para
+    HTTP 503; o pipeline a registra em ``ModelRun.status == "unavailable"``.
+    """
+
+    def __init__(self, model_id: str, reason: str) -> None:
+        super().__init__(f"modelo {model_id!r} indisponível: {reason}")
+        self.model_id = model_id
+        self.reason = reason
+
+
+class IntegrityCheckError(ModelUnavailableError, WeightsIntegrityError):
+    """Arquivo de pesos (ou membro de arquivo compactado) não confere com o sha256 fixado."""
 
 
 # --- inferência -----------------------------------------------------------
