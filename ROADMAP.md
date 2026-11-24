@@ -315,7 +315,7 @@ Premissa: **8–12 h/semana, solo.** Prazos em tempo decorrido real.
 
 ### Fase 0 — Verdade e quarentena · 2–3 semanas (~25 h)
 
-1. Escrever `docs/regulatory/01-intended-use.md` e `02-software-safety-classification.md`. **Antes de qualquer código.**
+1. Escrever `docs/regulatory/01-intended-use.md` e `02-software-safety-classification.md`. **Antes de qualquer código.** *(concluído — documentação regulatória completa)*
 2. `HONEST_STATUS.md` na raiz, linkado do topo do README: nenhum modelo treinado existe; todas as métricas publicadas foram fabricadas; não é para uso clínico.
 3. Remover as alegações falsas de `README.md`, `MODELS_LICENSE.md`, `docs/USER_GUIDE.md`, `FINAL_DELIVERY_PACKAGE.md`, `testing_criteria.md` — **agora**, sem esperar o número da Fase 1.
 4. Deletar `models/model_registry.json`; marcar todo JSON de métrica como não-medição.
@@ -323,11 +323,11 @@ Premissa: **8–12 h/semana, solo.** Prazos em tempo decorrido real.
 6. Branch `v2`; `git mv` de tudo para `legacy/`.
 7. `git filter-repo` para expurgar `medai_security.db` do histórico; rotacionar o que ele tocava; remover segredos de `medai_config.json` e `docker-compose.yml`.
 8. `pyproject.toml` + `uv.lock` + `.github/workflows/ci.yml` verdes em pacote vazio.
-9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch.
+9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch. *(6 PRs obsoletos fechados — concluído)*
 10. Iniciar credenciamento PhysioNet (curso CITI, ~6 h). A revisão sai em 24–48 h
     depois do relatório enviado; o gargalo é o curso. Ver `docs/access/README.md`.
 11. Comprar HD externo de 4 TB; iniciar download do NIH ChestX-ray14.
-12. Rascunhar `03-risk-management-plan.md` e semear `04-risk-file.md` com H-01…H-10 (§6.3).
+12. Rascunhar `03-risk-management-plan.md` e semear `04-risk-file.md` com H-01…H-10 (§6.3). *(concluído — documentação regulatória completa + REQ-043 / RISK-006)*
 
 **Saída:** zero alegação falsa em qualquer documento fora de `legacy/`; sem segredos no histórico; CI verde; credenciamento submetido.
 
