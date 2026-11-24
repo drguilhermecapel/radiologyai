@@ -1,0 +1,19 @@
+# Which models run for each exam type. Owned by the lead; adapters are added
+# here only after their manifest is pinned and their real-weights test passes.
+#   main        - models whose conditions can reach evidence levels A-C
+#   research    - exploratory models, run only when research mode is requested
+#   interactive - models that need a user prompt (e.g. a box) to run
+exam_types:
+  cxr: {main: [], research: [], interactive: []}
+  msk_xr: {main: [], research: [], interactive: []}
+  ct_head: {main: [], research: [], interactive: []}
+  ct_chest: {main: [], research: [], interactive: []}
+  ct_abdomen: {main: [], research: [], interactive: []}
+  ct_other: {main: [], research: [], interactive: []}
+  mr_brain: {main: [], research: [], interactive: []}
+  mr_body: {main: [], research: [], interactive: []}
+  mg: {main: [], research: [], interactive: []}
+  us_breast: {main: [], research: [], interactive: []}
+  us_abdomen: {main: [], research: [], interactive: []}
+  us_other: {main: [], research: [], interactive: []}
+  echo: {main: [], research: [], interactive: []}

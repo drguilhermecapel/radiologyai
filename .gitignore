@@ -161,3 +161,21 @@ mlruns/
 *.msi
 *.lnk
 dist/
+
+# --- MedAI ---
+.venv/
+node_modules/
+frontend/dist/
+*.db
+*.sqlite3
+*.pt
+*.pth
+*.onnx
+*.h5
+*.tflite
+*.ckpt
+/var/
+/data/
+/.medai/
+playwright-report/
+test-results/
