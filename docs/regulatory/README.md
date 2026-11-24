@@ -14,7 +14,7 @@ Conjunto documental em construção para a trajetória SaMD/ANVISA descrita em
 | 03 | [Plano de Gestão de Risco (ISO 14971)](03-risk-management-plan.md) | rascunho v0.1 (Fase 0) |
 | 04 | [Arquivo de Risco / Análise de Perigos](04-risk-file.md) | rascunho v0.1 — FMEA H-01…H-10 (Fase 0) |
 | 05 | [Plano de Desenvolvimento de Software (62304 §5.1)](05-software-development-plan.md) | rascunho v0.1 (Fase 0) |
-| 06 | [Especificação de Requisitos](06-requirements/) | **21 requisitos**, todos verificados |
+| 06 | [Especificação de Requisitos](06-requirements/) | **22 requisitos**, **27 verificações** (todos verificados) |
 | 07 | [Descrição da Arquitetura (62304 §5.3)](07-software-architecture.md) | rascunho v0.1 (Fase 2) |
 | 08 | [Lista SOUP](08-soup-list.md) | **gerada** por `scripts/soup.py`, verificada no CI |
 | 09 | [Plano e Protocolos de Verificação](09-verification-plan.md) | rascunho v0.1 (Fase 2) |
