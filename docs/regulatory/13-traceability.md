@@ -28,6 +28,7 @@ requisito inexistente.
 | **REQ-030** Inferência falha fechada | safety | RISK-004 | implemented | `TestFailClosed` |
 | **REQ-031** Gate de escopo antes do modelo | safety | RISK-003 | implemented | `TestScopeGateOverHTTP`<br>`TestScopeGateRunsBeforeModel` |
 | **REQ-042** Limites do uso pretendido em radiografia | safety | RISK-003 | implemented | `TestXRScopeGate` |
+| **REQ-043** Preservação e validação de lateralidade DICOM | safety | RISK-006 | implemented | `TestXRLaterality` |
 | **REQ-050** Avaliação reprodutível | functional | RISK-007 | implemented | `test_same_seed_is_bit_reproducible`<br>`test_records_full_provenance`<br>`test_same_seed_is_reproducible` |
 | **REQ-051** Ausência de vazamento por paciente | safety | RISK-007 | implemented | `TestPatientLeakage` |
 | **REQ-060** Explicabilidade derivada do modelo real | safety | RISK-008 | implemented | `test_null_gradients_yield_null_map` |
@@ -38,7 +39,7 @@ requisito inexistente.
 | **REQ-071** Reconstrução completa da decisão | safety | RISK-007 | implemented | `TestDecisionReconstruction` |
 | **REQ-080** API não fabrica métricas | safety | RISK-004 | implemented | `TestMetricsNeverFabricated` |
 
-**21 requisitos · 26 verificações.**
+**22 requisitos · 27 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.
