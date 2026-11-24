@@ -323,7 +323,7 @@ Premissa: **8–12 h/semana, solo.** Prazos em tempo decorrido real.
 6. Branch `v2`; `git mv` de tudo para `legacy/`.
 7. `git filter-repo` para expurgar `medai_security.db` do histórico; rotacionar o que ele tocava; remover segredos de `medai_config.json` e `docker-compose.yml`.
 8. `pyproject.toml` + `uv.lock` + `.github/workflows/ci.yml` verdes em pacote vazio.
-9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch. *(6 PRs obsoletos fechados — concluído)*
+9. Governança: criar `main` como default, fechar os 6 PRs obsoletos, podar os ~30 branches mortos, proteção de branch. *(100% concluído — `main` como default, proteção de branch ativa, 6 PRs obsoletos fechados, PR #40 mesclado e 36 branches podadas)*
 10. Iniciar credenciamento PhysioNet (curso CITI, ~6 h). A revisão sai em 24–48 h
     depois do relatório enviado; o gargalo é o curso. Ver `docs/access/README.md`.
 11. Comprar HD externo de 4 TB; iniciar download do NIH ChestX-ray14.
@@ -399,7 +399,7 @@ e portanto credenciamento PhysioNet. Os dois caminhos estão no notebook 02.
 - `explain/gradcam.py` real. Teste unitário: modelo com gradientes zerados na última conv produz mapa nulo — **o teste que o código v1 reprovaria**.
 - `api/` — factory FastAPI, `/api/v1/*` conforme `docs/OPENAPI_SPEC.yaml`, segredos por env. **Nenhum *mock ground truth* em lugar nenhum.**
 - `persistence/audit.py` — log append-only encadeado por hash (hash do exame, id do card, sha256 dos pesos, git sha, saída, timestamp, decisão do médico).
-- Dockerfile `python:3.11-slim`, caminho ONNX, `--workers 1`, non-root, healthcheck.
+- Dockerfile `python:3.11-slim`, caminho ONNX, `--workers 1`, non-root, healthcheck. *(entregue — `Dockerfile` e `.dockerignore` na raiz)*
 - SRS em `docs/regulatory/06-requirements/`; `scripts/trace.py`; portão de rastreabilidade no CI.
 
 ### Fase 3 — Modelo próprio de RX + validação externa · 10–14 semanas (~120 h)
