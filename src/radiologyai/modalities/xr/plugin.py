@@ -69,7 +69,7 @@ class XRPlugin(ModalityPlugin):
 
         if lat in VALID_LATERALITY and img_lat in VALID_IMAGE_LATERALITY and lat != img_lat:
             reasons.append(f"conflito de lateralidade DICOM: {lat!r} vs {img_lat!r}")
-            
+
         return ValidationReport(accepted=not reasons, modality=self.code, reasons=tuple(reasons))
 
     def preprocess(
