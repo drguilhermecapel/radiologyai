@@ -1,237 +1,118 @@
-# MedAI Radiologia - Advanced AI Medical Imaging System
+# RadiologyAI (MedAI Radiologia)
 
-Sistema avançado de análise de imagens radiológicas médicas utilizando **inteligência artificial de última geração** com arquiteturas ensemble state-of-the-art validadas clinicamente.
+Plataforma de pesquisa em interpretação de imagens radiológicas por inteligência artificial.
 
-## Descrição
+> ## ⚠️ Software de pesquisa — não é dispositivo médico
+>
+> **Não existe nenhum modelo treinado neste repositório. Nenhuma métrica de desempenho foi medida. Não houve validação clínica. Não use para nenhuma decisão sobre um paciente real.**
+>
+> Versões anteriores deste README alegavam acurácia de 88–95% e "validação clínica". **Essas alegações eram fabricadas e estão retratadas.** Ver **[HONEST_STATUS.md](HONEST_STATUS.md)** para a retratação completa e a lista de defeitos conhecidos do código legado.
+>
+> O plano para transformar isto em algo real está em **[ROADMAP.md](ROADMAP.md)**.
 
-Este repositório contém um sistema completo de análise médica com IA que inclui um programa Windows standalone e uma API REST completa para interpretação de exames radiológicos. O sistema combina múltiplas arquiteturas de IA avançadas para diagnóstico médico de alta precisão, utilizando modelos ensemble com fusão baseada em atenção para máxima confiabilidade clínica, com validação clínica abrangente implementada.
+---
 
-## Funcionalidades
+## O que existe hoje
 
-### Análise de IA de Última Geração
-- **Modelos SOTA**: EfficientNetV2, Vision Transformer, ConvNeXt, ResNet
-- **Ensemble Inteligente**: Combinação de múltiplos modelos para máxima precisão
-- **Alta Acurácia**: >95% para condições críticas, >90% para condições moderadas
-- **Múltiplas Modalidades**: Suporte para CR, CT, MR, US, MG
+O núcleo v2 (`src/radiologyai/`) está em construção. O código v1 foi arquivado
+em `legacy/` — está preservado, mas nada o importa e ele é excluído de build,
+lint, tipos e CI.
 
-### Interface e Integração
-- Interface gráfica intuitiva (PyQt5)
-- **API REST Completa**: FastAPI com documentação OpenAPI/Swagger
-- Suporte para múltiplos formatos de imagem (DICOM, PNG, JPEG, etc.)
-- Integração com sistemas hospitalares (PACS, HL7, FHIR)
+| Camada | Estado |
+|---|---|
+| Leitura DICOM — VOI LUT, MONOCHROME1, RescaleSlope/Intercept, sem quantização | **funcional, testada** |
+| Des-identificação PS3.15 (subconjunto) com pseudo-IDs determinísticos HMAC | **funcional, testada** |
+| Janelamento por modalidade (presets de TC em HU) | **funcional, testada** |
+| Plugin de modalidade + gate de escopo (o controle de risco H-03) | **funcional, testada** |
+| Modalidades TC / RM / US | **declaradas**, não implementadas — levantam `NotImplementedError` |
+| Model card com sha256 validado e verificação de integridade | **funcional, testada** |
+| Motor de inferência falha-fechada | **funcional** — sem backend de pesos ainda |
+| Métricas (AUROC com IC bootstrap, ponto de operação, ECE, vazamento) | **funcional, testada** |
+| CLI (`radiologyai version / selftest / modalities / inspect / cards`) | **funcional** |
+| Backend torchxrayvision (pesos reais, integridade sha256) | **funcional, testada** |
+| Manifest do NIH ChestX-ray14 + detecção de vazamento | **funcional, testada** |
+| Carregador do CheXpert (validação, rótulos por 3 radiologistas) | **funcional, testada** — ver [`docs/access/`](docs/access/README.md) |
+| Executor de avaliação (AUROC com IC, subgrupos, proveniência) | **funcional, testada** |
+| Calibração por temperatura (preserva ordenação, logo AUROC) | **funcional, testada** |
+| Política de abstenção em 3 bandas, mais larga para achado crítico | **funcional, testada** |
+| Grad-CAM **real** por hooks de gradiente | **funcional, testada** |
+| Trilha de auditoria encadeada por hash, adulteração detectável | **funcional, testada** |
+| API FastAPI — gate de escopo por HTTP, sem métrica fabricada | **funcional, testada** |
+| Laudo estruturado em PDF, PACS, frontend | Fase 4 |
+| **Modelo próprio treinado** | **nenhum** |
+| **Métricas de desempenho medidas** | **duas** — AUROC macro 0,664 em validação externa; a segunda isola o pré-processamento |
+| **Validação clínica** | **nenhuma** |
 
-### Recursos Avançados
-- Geração de relatórios estruturados
-- Processamento em lote de alta performance
-- Visualização avançada com mapas de calor e explicabilidade
-- Validação clínica automatizada
-- Monitoramento de performance em tempo real
+## Linha de base honesta — o primeiro número real
 
-### 🏆 **Ensemble Model com Fusão por Atenção Multi-Head**
-- **EfficientNetV2-L**: Arquitetura mais eficiente para detecção de detalhes finos (nódulos pequenos, lesões sutis)
-  - Resolução: 384x384 pixels para máxima precisão
-  - Especialização: Análise de texturas médicas complexas
-- **Vision Transformer (ViT-B/16)**: Reconhecimento de padrões globais baseado em atenção
-  - Patch size: 16x16 para análise detalhada
-  - Especialização: Padrões globais (cardiomegalia, consolidações)
-- **ConvNeXt-XL**: Arquitetura moderna para análise robusta de texturas
-  - Resolução: 256x256 com processamento hierárquico
-  - Especialização: Infiltrados, efusões, estruturas anatômicas
-- **Fusão Inteligente**: Sistema de atenção com 8 cabeças para combinação otimizada
-  - Pesos adaptativos baseados em confiança clínica
-  - Calibração de temperatura para incerteza quantificada
+Medido no Google Colab (T4) em 2026-09-12, sobre o **split oficial de teste do
+NIH ChestX-ray14**: 25.596 imagens, 2.797 pacientes, disjunto por paciente.
+Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em
+PadChest (Espanha) — validação externa genuína, sem vazamento.
 
-### 📊 **Validação Clínica Avançada Implementada**
-- **Framework de Validação**: Sistema completo de métricas clínicas
-- **Thresholds Clínicos Configurados**:
-  - **Condições Críticas**: Sensibilidade >95%, Especificidade >90%
-  - **Condições Moderadas**: Sensibilidade >90%, Especificidade >85%
-  - **Condições Padrão**: Sensibilidade >85%, Especificidade >92%
-- **Monitoramento em Tempo Real**: Dashboard clínico para acompanhamento de performance
-- **Análise de Viés**: Sistema validado sem viés de pneumonia detectado
+| | |
+|---|---|
+| **AUROC macro** | **0,664** sobre 14 achados — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
+| Melhores | Hérnia 0,829 (n+=86, IC largo) · Cardiomegalia 0,796 · Derrame 0,752 · Edema 0,744 |
+| Piores | Fibrose **0,448**, IC95 [0,421, 0,473] — abaixo do acaso com IC que exclui 0,5 |
+| Incidência | PA 0,692 vs AP 0,630 — a lacuna prevista apareceu |
+| Calibração | ECE 0,18–0,51: os escores **não** são probabilidade de doença |
+| Ponto de operação | Especificidade a 90% de sensibilidade entre 0,12 e 0,48 — tabela completa em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) |
 
-### 🎯 **Detecção de Patologias**
-- **Pneumonia**: Detecção com 90% de sensibilidade
-- **Derrame Pleural**: Identificação de linhas de fluido
-- **Fraturas**: Análise óssea especializada
-- **Tumores**: Detecção de massas e nódulos
-- **Normalidade**: Classificação com alta especificidade
+Relatório completo: [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
 
-## API REST
+**Fibrose abaixo do acaso** não diz que o modelo erra fibrose: diz que o rótulo
+"Fibrosis" do PadChest e o do NIH não nomeiam o mesmo achado. É um resultado
+sobre rótulos, não sobre o modelo.
 
-O MedAI Radiologia inclui uma **API REST completa** implementada com FastAPI, permitindo integração perfeita com sistemas hospitalares e aplicações de terceiros.
+### Duas medições isolam o efeito do pré-processamento
 
-### Endpoints Principais
-- `POST /api/v1/analyze` - Análise de imagens médicas
-- `GET /api/v1/models` - Lista de modelos disponíveis
-- `GET /api/v1/health` - Status do sistema
-- `GET /api/v1/metrics` - Métricas de performance
-- `POST /api/v1/explain` - Explicabilidade da IA
+O mesmo modelo, o mesmo split (manifest `39f31d78…`), variando só o carregador
+de imagem:
 
-### Características da API
-- **Autenticação**: Suporte para tokens JWT
-- **Rate Limiting**: Controle de taxa de requisições
-- **Documentação**: OpenAPI/Swagger automática
-- **Validação**: Schemas Pydantic para entrada/saída
-- **CORS**: Configurado para integração web
+| Run | Normalização | AUROC macro |
+|---|---|---|
+| [`xrv-densenet121-pc__20260912T202549Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T202549Z.md) | min-max por imagem | 0,6644 |
+| [`xrv-densenet121-pc__20260912T215742Z`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md) | fundo de escala (canônica do torchxrayvision) | 0,6636 |
 
-Consulte o [Guia do Usuário](docs/USER_GUIDE.md) para instruções detalhadas de uso da API.
+**Delta: −0,0008.** Nenhum achado mudou mais que 0,01; todos os IC95 se
+sobrepõem. Eu previa melhora ao alinhar com o pré-processamento de treino —
+errei: o modelo é robusto a essa diferença de contraste. A hipótese mais
+provável, **não testada**, é que radiografias do NIH já ocupam quase todo o
+intervalo dinâmico, tornando as duas normalizações quase equivalentes.
 
-## Estrutura do Projeto
+Os dois artefatos ficam versionados. Medir a diferença custou uma execução e
+substituiu uma suposição por um número.
 
-```
-radiologyai/
-├── src/                          # Código fonte principal
-│   ├── medai_fastapi_server.py     # Servidor API REST FastAPI
-│   ├── medai_inference_system.py   # Sistema de inferência principal
-│   ├── medai_sota_models.py        # Modelos state-of-the-art
-│   ├── medai_clinical_evaluation.py # Avaliação clínica
-│   ├── medai_ml_pipeline.py        # Pipeline de treinamento
-│   ├── web_server.py               # Servidor web Flask
-│   └── medai_integration_manager.py # Gerenciador de integração
-├── models/                       # Modelos e configurações
-│   ├── model_config.json           # Configurações dos modelos
-│   └── *.h5                        # Modelos treinados
-├── data/samples/                 # Dados de exemplo DICOM
-├── docs/                         # Documentação completa
-├── templates/                    # Interface web
-├── config/                       # Configurações de produção
-├── train_models.py              # Script de treinamento
-└── test_*.py                    # Suíte de testes abrangente
-```
+**Sobre a expectativa.** O ROADMAP registrava 0,72–0,82 antes da medição. O
+medido é 0,664, e a previsão errada fica ao lado do número. O README do v1
+alegava 0,94 sem ter medido nada.
 
-## Validação e Testes
+**O que estes números não são:** validação clínica, evidência de utilidade, ou
+desempenho do modelo do produto. É um modelo de referência de terceiros, sem
+calibração, sobre rótulos minerados por NLP. Pela especificidade a 90% de
+sensibilidade medida em [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md), **como triagem esta linha de base
+não serve** — e uma linha de base honesta tem que poder dizer isso.
 
-### ✅ **Validação Clínica Completa Implementada**
-- **Validação do Sistema AI**: ✅ Todos os módulos SOTA validados
-- **Framework de Validação Clínica**: ✅ Thresholds clínicos configurados
-- **Preprocessamento Médico**: ✅ CLAHE, windowing DICOM, segmentação
-- **Ensemble com Atenção**: ✅ Fusão multi-head validada
-- **Detecção de Patologias**: ✅ Pneumonia, derrame, fraturas, tumores
-- **Dashboard de Monitoramento**: ✅ Métricas em tempo real
-- **Otimizações de Performance**: ✅ Quantização e pruning implementados
-- **Análise de Viés**: ✅ Sistema validado sem viés detectado
+**Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb).
+O apêndice do notebook roda só a inferência, sem rebaixar o dataset.
 
-### Executável Windows
-O programa é distribuído como um executável Windows standalone (.exe) que não requer instalação adicional.
+**Próxima medição, ainda não executada:** os rótulos do NIH são minerados por NLP
+dos laudos, então um AUROC baixo é ambíguo entre modelo fraco e rótulo ruidoso. O
+conjunto de validação do CheXpert (234 imagens, voto majoritário de 3 radiologistas
+olhando a imagem) desfaz essa ambiguidade para os achados que os dois datasets
+nomeiam — **fibrose não é um deles**, e continua dependendo do VinDr-CXR. O caminho
+está em [`notebooks/02_chexpert_e_credenciamento.ipynb`](notebooks/02_chexpert_e_credenciamento.ipynb);
+nenhum número do CheXpert foi medido até aqui.
 
-### Servidor API
-```bash
-pip install -r requirements.txt
-python src/medai_fastapi_server.py
-```
+## Referência técnica
 
-### Docker
-```bash
-docker-compose up -d
-```
+- **[ROADMAP.md](ROADMAP.md)** — diagnóstico do estado atual, arquitetura-alvo, decisão de framework, fases, trilha regulatória, orçamento e cronograma
+- **[HONEST_STATUS.md](HONEST_STATUS.md)** — retratação das alegações anteriores e defeitos conhecidos
+- `docs/OPENAPI_SPEC.yaml` — contrato de API alvo
+- `docs/CLINICAL_VALIDATION.md` — relatório da v1; é o único documento historicamente honesto do repositório (registra 20% de acurácia em 5 imagens sintéticas)
 
-### 📈 **Status de Validação Atual**
-- **Arquitetura SOTA**: ✅ EfficientNetV2, ViT, ConvNeXt integrados
-- **Sistema Ensemble**: ✅ Fusão por atenção multi-head funcional
-- **Validação Clínica**: ✅ Framework completo implementado
-- **Servidor Web**: ✅ API REST com dashboard clínico operacional
-- **Endpoints API**: ✅ Análise, métricas, visualização funcionais
-- **Pronto para Produção**: ✅ Sistema validado para treinamento real
+## Licença e contato
 
-## Instalação e Uso
-
-### Interface Desktop
-1. Execute o arquivo `MedAI_Radiologia.exe`
-2. Carregue uma imagem radiológica
-3. Selecione o modelo de IA apropriado
-4. Visualize os resultados e gere relatórios
-
-### **Instalação de Dependências**
-```bash
-pip install -r requirements.txt
-```
-
-### API REST
-```python
-import requests
-
-# Análise de imagem
-with open('chest_xray.dcm', 'rb') as f:
-    response = requests.post(
-        'http://localhost:8000/api/v1/analyze',
-        files={'file': f},
-        data={'model': 'ensemble'}
-    )
-    
-result = response.json()
-print(f"Diagnóstico: {result['analysis']['predicted_class']}")
-print(f"Confiança: {result['analysis']['confidence']:.2f}")
-```
-
-### **Iniciar Servidor Web**
-```bash
-python src/web_server.py
-```
-
-### **Treinamento de Modelos**
-```bash
-python train_models.py --data_dir data/samples/ --epochs 50
-```
-
-### **Executar Testes**
-```bash
-python test_ai_system_validation.py
-python test_comprehensive_pathology_detection.py
-python test_web_server_functionality.py
-```
-
-## Desenvolvimento e Tecnologias
-
-### **Tecnologias Principais**
-- **Backend**: Python 3.12, FastAPI, TensorFlow/Keras
-- **Frontend**: PyQt5, HTML/CSS/JavaScript
-- **IA**: EfficientNetV2, Vision Transformer, ConvNeXt
-- **Dados**: PyDICOM, NumPy, OpenCV
-- **Deploy**: Docker, PyInstaller
-
-### **Modelos de IA Implementados**
-- **EfficientNetV2-L**: Análise de raio-X torácico (92% acurácia)
-- **Vision Transformer**: CT cerebral (91% acurácia)  
-- **ConvNeXt-XL**: Detecção de fraturas (90% acurácia)
-- **ResNet-50**: Análise geral (88% acurácia)
-- **Ensemble**: Combinação inteligente (95% acurácia)
-
-### **Frameworks de IA**
-- **TensorFlow/Keras**: Implementação dos modelos
-- **Transformers**: Vision Transformer implementation
-- **OpenCV**: Processamento de imagens médicas
-- **PyDICOM**: Manipulação de arquivos DICOM
-- **Scikit-learn**: Métricas e validação
-
-### **Interface e Integração**
-- **Flask**: Servidor web para API REST
-- **PyQt5**: Interface gráfica desktop
-- **NumPy/Pandas**: Processamento de dados
-- **Matplotlib**: Visualizações e relatórios
-
-## Conformidade Clínica
-
-### **Padrões Médicos**
-- Processamento DICOM conforme padrão médico
-- Windowing específico por modalidade de imagem
-- Anonimização automática de dados do paciente
-- Logs de auditoria para rastreabilidade
-
-### **Validação Regulatória**
-- Documentação completa de decisões de design
-- Rastreabilidade de dados de treinamento
-- Métricas clínicas validadas
-- Sistema preparado para validação FDA/CE
-
-## Contribuição e Suporte
-
-Para desenvolvimento e suporte técnico:
-- **Repositório**: https://github.com/drguilhermecapel/radiologyai
-- **Documentação**: Consulte `/docs/USER_GUIDE.md`
-- **Contato**: drguilhermecapel@gmail.com
-
-## Status do Projeto
-
-**Fase Atual**: ✅ Arquitetura Validada - Pronto para Treinamento de Modelos  
-**Próximos Passos**: Treinamento com datasets médicos reais para atingir padrões clínicos (>85% acurácia)
+- Repositório: https://github.com/drguilhermecapel/radiologyai
+- Autor: Dr. Guilherme Capel Pasqua — CRM-SP 175873

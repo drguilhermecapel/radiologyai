@@ -1,61 +1,58 @@
-# MedAI Radiologia - Production Docker Container
-FROM python:3.9-slim
+# RadiologyAI — imagem de inferência em CPU.
+#
+# Diferenças em relação ao Dockerfile do v1 (agora em legacy/):
+#   - python:3.11-slim, não 3.9. O pacote exige >=3.11,<3.12; a imagem do v1
+#     não conseguiria sequer instalá-lo.
+#   - --workers 1, não 4. Cada worker uvicorn carrega sua própria cópia do
+#     modelo: 4 workers custam 4x a RAM sem ganho no alvo CPU, e tornam a
+#     ordenação do log de auditoria não-determinística entre processos.
+#   - usuário não-root.
+#   - nenhum segredo embutido; tudo vem do ambiente.
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV DEBIAN_FRONTEND=noninteractive
+FROM python:3.11-slim AS builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libgdcm-tools \
-    dcmtk \
-    curl \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
-# Create application directory
-WORKDIR /app
-
-# Copy requirements first for better caching
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
+WORKDIR /build
+COPY pyproject.toml README.md ./
 COPY src/ ./src/
-COPY models/ ./models/
-COPY config/ ./config/
-COPY templates/ ./templates/
-COPY data/ ./data/
 
-# Create necessary directories
-RUN mkdir -p /app/data/images /app/data/reports /app/models /app/logs /app/temp /app/uploads /var/log/medai
+# Torch de CPU: a imagem de GPU é ~5x maior e não serve ao alvo de implantação.
+RUN pip install --no-cache-dir --upgrade pip build \
+ && pip install --no-cache-dir \
+      --extra-index-url https://download.pytorch.org/whl/cpu \
+      ".[api,imaging,eval,ml]" \
+ && pip install --no-cache-dir --no-deps .
 
-# Set permissions
-RUN chmod +x src/*.py
+FROM python:3.11-slim AS runtime
 
-# Create non-root user for security
-RUN useradd -m -u 1000 medai && \
-    chown -R medai:medai /app /var/log/medai
-USER medai
+LABEL org.opencontainers.image.title="RadiologyAI" \
+      org.opencontainers.image.description="Software de pesquisa. NAO e dispositivo medico." \
+      org.opencontainers.image.source="https://github.com/drguilhermecapel/radiologyai"
 
-# Expose ports for both FastAPI and legacy servers
-EXPOSE 8000 8080 8084 11112
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    MEDAI_ARTIFACTS_DIR=/app/artifacts
 
-# Health check for FastAPI server
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || curl -f http://localhost:8080/health || exit 1
+RUN groupadd --system --gid 1001 radiologyai \
+ && useradd --system --uid 1001 --gid radiologyai --create-home radiologyai
 
-# Run FastAPI server by default with fallback to legacy server
-CMD ["python", "-m", "uvicorn", "src.medai_fastapi_server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin/radiologyai /usr/local/bin/radiologyai
+
+WORKDIR /app
+RUN mkdir -p /app/artifacts && chown -R radiologyai:radiologyai /app
+
+USER radiologyai
+
+# Falha alto se o núcleo estiver incompleto — nunca sobe degradado.
+RUN radiologyai selftest
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health').read()"
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "--factory", "radiologyai.api:create_app", \
+     "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

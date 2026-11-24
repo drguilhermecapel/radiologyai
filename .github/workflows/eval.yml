@@ -1,0 +1,63 @@
+name: Avaliação Reproduzível
+
+on:
+  workflow_dispatch:
+    inputs:
+      card:
+        description: "ID do model card (ex.: xrv-densenet121-pc)"
+        required: true
+        default: "xrv-densenet121-pc"
+        type: string
+      manifest:
+        description: "Caminho do manifest CSV"
+        required: true
+        default: "datasets/manifests/nih_cxr14_test.csv"
+        type: string
+      bootstrap:
+        description: "Numero de reamostragens bootstrap para IC95"
+        required: true
+        default: "2000"
+        type: string
+      seed:
+        description: "Semente deterministica"
+        required: true
+        default: "20260101"
+        type: string
+
+jobs:
+  evaluate:
+    name: Execucao reproduzivel (radiologyai evaluate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Instalar Python 3.11 e dependencias
+        run: |
+          uv python install 3.11
+          uv sync --python 3.11 --extra eval --extra imaging
+          uv pip install --index-strategy unsafe-best-match \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch==2.5.1 torchvision==0.20.1 torchxrayvision
+      - name: Verificar pre-requisitos e manifest
+        run: |
+          uv run radiologyai selftest
+          test -f "${{ inputs.manifest }}" || { echo "Manifest nao encontrado: ${{ inputs.manifest }}"; exit 1; }
+      - name: Executar avaliacao
+        run: |
+          uv run radiologyai evaluate \
+            --card "${{ inputs.card }}" \
+            --manifest "${{ inputs.manifest }}" \
+            --bootstrap "${{ inputs.bootstrap }}" \
+            --seed "${{ inputs.seed }}" \
+            --out artifacts/eval/
+      - name: Publicar artefatos de avaliacao
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-${{ inputs.card }}-${{ github.run_id }}
+          path: artifacts/eval/

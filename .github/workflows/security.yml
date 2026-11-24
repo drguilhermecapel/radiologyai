@@ -1,0 +1,47 @@
+name: Segurança
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+  schedule:
+    # Segunda-feira 06:00 UTC — monitoramento de anomalias em SOUP (IEC 62304 §7.4)
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: Segredos, dependências e SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Varredura de segredos (histórico completo)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.11
+      - run: uv sync --extra dev --extra eval
+
+      - name: Análise estática de segurança (bandit)
+        run: uv run --with bandit bandit -r src/ -ll
+
+      - name: Anomalias publicadas em SOUP (pip-audit / OSV)
+        run: uv run --with pip-audit pip-audit --strict || true
+
+      - name: SBOM CycloneDX
+        run: |
+          uv run --with cyclonedx-bom cyclonedx-py environment \
+            -o sbom.cdx.json --output-format JSON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
