@@ -1,0 +1,90 @@
+id: totalseg-body
+version: 2.18.0-body-default
+name: TotalSegmentator body (1,5 mm)
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: segmentation
+capabilities:
+- segment
+summary: Contorno do corpo (tronco e extremidades) em TC, 1,5 mm.
+route: none
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: body
+  mode: default
+weights:
+- key: d299_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset299_body_1559subj.zip
+  filename: Dataset299_body_1559subj__checkpoint_final.pth
+  sha256: a7383a312864522a8796e677569c73fdf73adca5ddc2b08613596db9c96d794d
+  bytes: 250110587
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset299_body_1559subj/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 d51d68e7f183fed966c122b0cb3dece7bebcdb685d28aeecc62202168e431674,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d299_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset299_body_1559subj.zip
+  filename: Dataset299_body_1559subj__plans.json
+  sha256: dea1187d1a9b96859b06b828e3cffc74d41fae5fd4c3e2227e617a3579c813c2
+  bytes: 11157
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset299_body_1559subj/nnUNetTrainer__nnUNetPlans__3d_fullres/plans.json do zip de release
+    (zip com sha256 d51d68e7f183fed966c122b0cb3dece7bebcdb685d28aeecc62202168e431674, baixado e extraído
+    em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d299_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset299_body_1559subj.zip
+  filename: Dataset299_body_1559subj__dataset.json
+  sha256: e0b704e61fe7d3a38dadff40d3b1712633a965429a10b313efbe705b3b769510
+  bytes: 406
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset299_body_1559subj/nnUNetTrainer__nnUNetPlans__3d_fullres/dataset.json do zip de
+    release (zip com sha256 d51d68e7f183fed966c122b0cb3dece7bebcdb685d28aeecc62202168e431674, baixado
+    e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_head
+  - ct_chest
+  - ct_abdomen
+  - ct_other
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on: []
+training_data:
+- totalsegmentator-ct-v2
+labels: []
+operating_points: []
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+config:
+  task: body
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset299_body_1559subj
+    trainer_dir: nnUNetTrainer__nnUNetPlans__3d_fullres
+    checkpoint: d299_checkpoint
+    plans: d299_plans
+    dataset: d299_dataset
+  timeout_s: 3600

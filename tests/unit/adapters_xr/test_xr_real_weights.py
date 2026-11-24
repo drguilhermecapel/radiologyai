@@ -112,9 +112,7 @@ def test_logits_equal_library_output_before_op_norm(registry: Any, model_id: str
 @pytest.mark.requirement("REQ-121")
 def test_untrained_heads_are_never_emitted(registry: Any) -> None:
     adapter = registry.load("xrv-densenet121-res224-pc")
-    out = adapter.predict(
-        ModelInputs(images=(_png("00000001_000.png"),), exam_type=ExamType.CXR)
-    )
+    out = adapter.predict(ModelInputs(images=(_png("00000001_000.png"),), exam_type=ExamType.CXR))
     labels = {s.label for s in out.scores}
     assert "lung_lesion" not in labels  # cabeça sem treino no conjunto PadChest
     assert "enlarged_cardiomediastinum" not in labels
@@ -143,7 +141,7 @@ def test_cam_is_exact_and_fails_model_randomisation(registry: Any) -> None:
     cam = adapter.cam(batch, head)
     # CAM exato: média espacial + viés == logit da cabeça
     logit = float(adapter.logits(batch)[0, head])
-    bias = float(adapter._model.classifier.bias[head])
+    bias = float(adapter._model.classifier.bias[head].detach())
     assert float(cam.mean()) + bias == pytest.approx(logit, abs=1e-3)
     # teste de sanidade por randomização (Adebayo et al. 2018): pesos aleatórios => mapa diferente
     original = adapter._model
@@ -173,22 +171,36 @@ def test_cam_is_exact_and_fails_model_randomisation(registry: Any) -> None:
     assert maps[0].placement.type == "bbox"
 
 
+def _openi_laterals(n: int) -> list[Path]:
+    import pandas as pd
+
+    index = DATA / "openi" / "openi_index.csv"
+    if not index.is_file():
+        return []
+    d = pd.read_csv(index).sort_values("imageid")
+    d = d[d["View Position"].isin(["LL", "LATERAL"])].head(n)
+    return [DATA / "openi" / "png" / f"{i}.png" for i in d["imageid"]]
+
+
 @pytest.mark.requirement("REQ-122")
 def test_view_gate_on_real_frontal_and_lateral(registry: Any) -> None:
     adapter = registry.load("xrv-view-xinario")
-    frontal = adapter.predict(ModelInputs(images=(_png("00000001_000.png"),), exam_type=ExamType.CXR))
-    lateral = adapter.predict(
-        ModelInputs(images=(_png("00027426_000.png", view="PA"),), exam_type=ExamType.CXR)
+    frontal = adapter.predict(
+        ModelInputs(images=(_png("00000001_000.png"),), exam_type=ExamType.CXR)
     )
     assert frontal.extras["gate"]["passed"] is True
-    # cabeçalho diz PA, o modelo vê uma lateral: o portão reprova
-    assert lateral.extras["gate"]["passed"] is False
-    assert lateral.extras["gate"]["reason"] == AbstentionReason.VIEW.value
+    laterals = _openi_laterals(5)
+    if not laterals:
+        pytest.skip("Open-i ausente")
+    for path in laterals:
+        # cabeçalho declarado PA; o modelo vê uma lateral: o portão reprova
+        image = load_raster(path, modality=Modality.DX, view_position="PA", patient_age_years=50.0)
+        out = adapter.predict(ModelInputs(images=(image,), exam_type=ExamType.CXR))
+        assert out.extras["gate"]["passed"] is False, path.name
+        assert out.extras["gate"]["reason"] == AbstentionReason.VIEW.value
 
 
-@pytest.mark.skipif(
-    not (WEIGHTS / "xrv-ae-ood").is_dir(), reason="portão OOD sem pesos"
-)
+@pytest.mark.skipif(not (WEIGHTS / "xrv-ae-ood").is_dir(), reason="portão OOD sem pesos")
 @pytest.mark.requirement("REQ-122")
 def test_ood_gate_accepts_chest_and_rejects_noise(registry: Any) -> None:
     from radiologyai.analysis.manifest import load_manifest
@@ -287,3 +299,25 @@ def test_full_pipeline_on_real_dicom(registry: Any, tmp_path: Path) -> None:
         assert findings
         assert findings[0].raw_score is not None
         assert findings[0].score_kind == "logit"
+
+
+@pytest.mark.skipif(
+    not (WEIGHTS / "xr-probe-tb" / "probe.safetensors").is_file(), reason="sonda de TB ausente"
+)
+@pytest.mark.requirement("REQ-125")
+def test_tb_probe_adapter_reproduces_saved_held_out_score(registry: Any) -> None:
+    import pandas as pd
+
+    preds = Path("/root/medai-cache/eval-preds/xr-probe-tb/tb-montgomery/tuberculosis.parquet")
+    if not preds.is_file():
+        pytest.skip("predições da sonda ausentes")
+    row = pd.read_parquet(preds).iloc[0]
+    path = DATA / "tb-montgomery" / "raw" / "CXR_png" / f"{row.image_id}.png"
+    image = load_raster(path, modality=Modality.DX, view_position="PA", patient_age_years=40.0)
+    assert image.sha256 == row.image_sha256
+    adapter = registry.load("xr-probe-tb")
+    out = adapter.predict(ModelInputs(images=(image,), exam_type=ExamType.CXR))
+    (score,) = out.scores
+    assert score.kind == "logit"
+    assert score.value == pytest.approx(float(row.y_score), abs=1e-3)
+    registry.unload_all()

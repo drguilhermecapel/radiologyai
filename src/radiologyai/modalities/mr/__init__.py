@@ -1,4 +1,4 @@
-"""Modalidade MR — declarada, ainda não implementada (ROADMAP §5)."""
+"""Modalidade RM — séries de cortes (plugin implementado; ver plugin.py)."""
 
 from __future__ import annotations
 

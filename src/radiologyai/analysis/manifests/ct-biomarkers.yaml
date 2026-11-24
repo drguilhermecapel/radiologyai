@@ -1,0 +1,240 @@
+id: ct-biomarkers
+version: 1.0.0
+name: Biomarcadores oportunistas de TC
+status: available
+adapter: radiologyai.analysis.adapters.ct_biomarkers:CTBiomarkerAdapter
+task: measurement
+capabilities:
+- measure
+summary: Atenuação trabecular de L1, atenuação hepática (sem contraste e portal), diferença fígado-baço,
+  %LAA-950, diâmetros aórticos perpendiculares à linha central e volumes de baço/fígado/coração, a partir
+  do mapa 'total' e das HU, com pré-condições de aquisição e abstenção explícita.
+route: main
+source:
+  algorithm: radiologyai.analysis.biomarkers.ct
+  evidence: /root/medai-cache/research/evidence-ct-mr.verified.md
+weights: []
+license:
+  code: Proprietary (este repositório)
+  weights: sem pesos (algoritmo)
+  commercial_use: 'yes'
+  evidence: algoritmo próprio; depende de totalseg-total-3mm (Apache-2.0)
+applicability:
+  exam_types:
+  - ct_chest
+  - ct_abdomen
+  - ct_other
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on:
+- totalseg-total-3mm
+training_data: []
+labels:
+- key: osteoporosis_l1
+  source_label: l1_trabecular_hu
+  condition_id: ct.osteoporosis
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.osteoporosis
+    meaning: low L1 trabecular attenuation
+  measurement: l1_trabecular_hu
+- key: steatosis_unenhanced
+  source_label: liver_attenuation_unenhanced_hu
+  condition_id: ct.hepatic_steatosis
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.hepatic_steatosis
+    meaning: hepatic steatosis by unenhanced liver attenuation
+  measurement: liver_attenuation_unenhanced_hu
+- key: steatosis_liver_spleen
+  source_label: liver_spleen_difference_unenhanced_hu
+  condition_id: ct.hepatic_steatosis
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.hepatic_steatosis
+    meaning: hepatic steatosis by liver-spleen attenuation difference
+  measurement: liver_spleen_difference_unenhanced_hu
+- key: steatosis_portal_venous
+  source_label: liver_attenuation_portal_venous_hu
+  condition_id: ct.hepatic_steatosis
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.hepatic_steatosis
+    meaning: hepatic steatosis by portal venous liver attenuation
+  measurement: liver_attenuation_portal_venous_hu
+- key: emphysema_laa950
+  source_label: lung_laa950_percent
+  condition_id: ct.emphysema
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.emphysema
+    meaning: emphysema by %LAA-950
+  measurement: lung_laa950_percent
+- key: abdominal_aortic_aneurysm
+  source_label: aorta_abdominal_max_diameter_mm
+  condition_id: ct.abdominal_aortic_aneurysm
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.abdominal_aortic_aneurysm
+    meaning: abdominal aortic diameter >= 3.0 cm
+  measurement: aorta_abdominal_max_diameter_mm
+- key: ascending_aorta_dilation
+  source_label: aorta_ascending_max_diameter_mm
+  condition_id: ct.thoracic_aortic_dilation
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.thoracic_aortic_dilation
+    meaning: ascending aorta diameter >= 4.0 cm
+  measurement: aorta_ascending_max_diameter_mm
+- key: splenomegaly
+  source_label: spleen_volume_ml
+  condition_id: ct.splenomegaly
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.splenomegaly
+    meaning: splenic volume above 314.47 mL
+  measurement: spleen_volume_ml
+operating_points:
+- label: osteoporosis_l1
+  point:
+    name: l1_le_110hu_specific
+    role: rule_in
+    threshold: 110.0
+    'on': measurement
+    direction: le
+    source: 'Pickhardt et al., Ann Intern Med 2013, doi:10.7326/0003-4819-158-8-201304160-00003, Tabela
+      1 (2040 pares TC-DXA): ''≤110'' com especificidade ''91.3 (89.8–92.6)'' para osteoporose por DXA;
+      evidence-ct-mr id l1_hu_110_spec. Medido aqui por método automatizado (ver limitações).'
+- label: osteoporosis_l1
+  point:
+    name: l1_le_160hu_sensitive
+    role: rule_out
+    threshold: 160.0
+    'on': measurement
+    direction: le
+    source: 'Pickhardt et al., Ann Intern Med 2013, doi:10.7326/0003-4819-158-8-201304160-00003, Tabela
+      1 (2040 pares TC-DXA): ''≤160'' com sensibilidade ''90.0 (86.9–92.4)''; acima de 160 HU = negativo;
+      evidence-ct-mr id l1_hu_160_sens.'
+- label: steatosis_unenhanced
+  point:
+    name: unenhanced_liver_le_40hu
+    role: guideline
+    threshold: 40.0
+    'on': measurement
+    direction: le
+    source: 'Pickhardt et al., Eur Radiol 2024, doi:10.1007/s00330-024-10816-2: ''Unenhanced liver attenuation
+      < 40.0 HU, corresponding to > 15% MRI-based proton density fat, served as the reference standard
+      for moderate steatosis.'' (<= no limiar exato); evidence-ct-mr id steat_unenh40_pdff15'
+- label: steatosis_liver_spleen
+  point:
+    name: liver_minus_spleen_le_minus7hu
+    role: balanced
+    threshold: -7.0
+    'on': measurement
+    direction: le
+    source: 'Park et al., Radiology 2006, doi:10.1148/radiol.2391050361: ''Cutoff values of 0.9, -7, and
+      58 were determined for CT(L)(/S), CT(L)(-S), and CT(LP), respectively, and provided a balance between
+      sensitivity and specificity'' (esteatose macrovesicular >= 30%); evidence-ct-mr id steat_ls_diff_balanced'
+- label: steatosis_portal_venous
+  point:
+    name: pv_liver_lt_80hu
+    role: rule_in
+    threshold: 80.0
+    'on': measurement
+    direction: le
+    source: 'Pickhardt et al., Eur Radiol 2024, doi:10.1007/s00330-024-10816-2: ''Portal venous phase
+      liver thresholds of 80 and 90 HU had a sensitivity/specificity for moderate steatosis of 85.6%/89.6%,
+      and 94.9%/74.7%''; 80 HU = ponto de inclusão; evidence-ct-mr ids steat_pv80_sens/steat_pv80_spec'
+- label: steatosis_portal_venous
+  point:
+    name: pv_liver_lt_90hu
+    role: rule_out
+    threshold: 90.0
+    'on': measurement
+    direction: le
+    source: 'Pickhardt et al., Eur Radiol 2024, doi:10.1007/s00330-024-10816-2 (mesma citação): 90 HU
+      com sensibilidade 94,9%; acima de 90 HU = negativo; evidence-ct-mr id steat_pv90_sens'
+- label: emphysema_laa950
+  point:
+    name: laa950_ge_5pct
+    role: guideline
+    threshold: 5.0
+    'on': measurement
+    direction: ge
+    source: 'COPDGene, Int J COPD 2021, doi:10.2147/COPD.S284477: ''QCT emphysema is defined as ≥5% of
+      lung volume occupied by low attenuation areas ≤−950 Hounsfield units (LAA-950).'' (convenção de
+      coorte, não acurácia diagnóstica); evidence-ct-mr id emph_positivity_5pct'
+- label: abdominal_aortic_aneurysm
+  point:
+    name: aaa_ge_30mm
+    role: guideline
+    threshold: 30.0
+    'on': measurement
+    direction: ge
+    source: 'USPSTF 2019, Abdominal Aortic Aneurysm: Screening: ''An AAA is typically defined as aortic
+      enlargement with a diameter of 3.0 cm or larger.'' (ACC/AHA 2022 usa ''>3.0 cm''; o catálogo usa
+      >= 3,0 cm); evidence-ct-mr id aaa_3cm_uspstf'
+- label: ascending_aorta_dilation
+  point:
+    name: ascending_ge_40mm_dilated
+    role: guideline
+    threshold: 40.0
+    'on': measurement
+    direction: ge
+    source: 'ACC/AHA 2022, doi:10.1161/CIR.0000000000001106: ''the increase in risk at 4.0 cm to 4.4 cm
+      justifies defining an aorta of this size “dilated,”'' (limiar de borda interna, com ECG; aqui borda
+      externa sem ECG: superestima); evidence-ct-mr id asc_aorta_dilated_4cm'
+- label: splenomegaly
+  point:
+    name: spleen_volume_ge_314_47ml
+    role: guideline
+    threshold: 314.47
+    'on': measurement
+    direction: ge
+    source: 'Linguraru et al., Acad Radiol 2013, doi:10.1016/j.acra.2013.01.011: ''Volumetric thresholds
+      of 314.47/430.84 mL were used to define mild/massive splenomegaly'' (TC com contraste; regra por
+      peso de Perez 2023 não aplicada: peso indisponível); evidence-ct-mr id spleen_vol_mild'
+limitations:
+- Fase de contraste só conta quando confirmada (ImageMeta.contrast_phase); tag DICOM ausente não prova
+  exame sem contraste. Sem classificador de fase licenciado, os índices que dependem de fase se abstêm.
+- 'L1: núcleo trabecular automatizado; a ROI validada é manual e o viés deste método não foi medido; exige
+  120 kV e idade >= 18 conhecida.'
+- '%LAA-950: inspiração não verificável; espessura <= 1,5 mm e classificação de kernel são regras de engenharia.'
+- 'Aorta: borda externa da máscara 3 mm; raiz e arco não medidos; enxerto, stent e dissecção não detectados.'
+- Cardiomegalia NÃO é inferida do volume cardíaco (sem limiar verificado em TC).
+- 'Volumes hepático/cardíaco: descritivos (sem peso/altura não há limiar aplicável).'
+- Máscaras do modelo 3 mm (--fast).
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+config:
+  anatomy_model: totalseg-total-3mm
+  biomarkers:
+  - l1_trabecular
+  - liver_unenhanced
+  - liver_portal_venous
+  - emphysema
+  - aorta
+  - organ_volumes

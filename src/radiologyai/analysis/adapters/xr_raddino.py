@@ -20,7 +20,6 @@ Pesos (chaves fixas no manifesto): ``encoder_weights`` (``model.safetensors``),
 
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 
 from radiologyai.analysis.adapters.xr_common import read_verified, require_backend, to_gray
@@ -110,20 +109,33 @@ def raddino_tensor(canonical: npt.NDArray[np.uint8]) -> torch.Tensor:
 def build_raddino(config_bytes: bytes, weights_bytes: bytes) -> torch.nn.Module:
     """``Dinov2Model`` a partir dos bytes verificados (sem acesso ao Hugging Face Hub).
 
+    Os bytes já conferidos são gravados num diretório temporário e carregados com
+    ``from_pretrained(..., local_files_only=True)``, que aplica a conversão de nomes
+    de chaves da versão instalada do ``transformers`` (o checkpoint usa os nomes
+    antigos ``attention.attention.query``).
+
     Raises:
         ManifestError: pesos não casam com a configuração.
     """
-    from safetensors.torch import load as load_safetensors
-    from transformers import Dinov2Config, Dinov2Model
+    import tempfile
+    from pathlib import Path
 
-    config = Dinov2Config.from_dict(json.loads(config_bytes.decode("utf-8")))
-    model = Dinov2Model(config)
-    state = load_safetensors(weights_bytes)
-    result = model.load_state_dict(state, strict=False)
-    if result.missing_keys or result.unexpected_keys:
+    from transformers import Dinov2Model
+
+    with tempfile.TemporaryDirectory(prefix="raddino-") as tmp:
+        (Path(tmp) / "config.json").write_bytes(config_bytes)
+        (Path(tmp) / "model.safetensors").write_bytes(weights_bytes)
+        try:
+            loaded: Any = Dinov2Model.from_pretrained(
+                tmp, local_files_only=True, output_loading_info=True
+            )
+        except (OSError, ValueError, RuntimeError) as exc:
+            raise ManifestError(f"pesos RAD-DINO ilegíveis: {exc}") from exc
+    model, info = loaded[0], loaded[1]
+    if info.get("missing_keys") or info.get("unexpected_keys") or info.get("mismatched_keys"):
         raise ManifestError(
-            f"pesos RAD-DINO incompatíveis: faltando {result.missing_keys[:5]}, "
-            f"sobrando {result.unexpected_keys[:5]}"
+            f"pesos RAD-DINO incompatíveis: faltando {list(info.get('missing_keys', []))[:5]}, "
+            f"sobrando {list(info.get('unexpected_keys', []))[:5]}"
         )
     module: torch.nn.Module = model
     module.eval()

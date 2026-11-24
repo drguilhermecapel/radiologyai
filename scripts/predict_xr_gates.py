@@ -101,7 +101,11 @@ def sources() -> Iterator[tuple[str, str, str, str, ImageData]]:
     # --- RX não tórax
     fa = sorted((D / "fracatlas" / "raw" / "FracAtlas" / "images").glob("*/*.jpg"))
     for p in fa[:: max(1, len(fa) // PER_SOURCE)][:PER_SOURCE]:
-        yield ("fracatlas", "msk_xr", p.name, f"fa:{p.name}", raster_image(p.read_bytes()))
+        try:
+            image = raster_image(p.read_bytes())
+        except OSError:  # JPEG truncado do FracAtlas: fica fora da amostra
+            continue
+        yield ("fracatlas", "msk_xr", p.name, f"fa:{p.name}", image)
     gz = sorted((D / "grazpedwri" / "images_sample").glob("*.png"))
     for p in gz[:: max(1, len(gz) // PER_SOURCE)][:PER_SOURCE]:
         yield (

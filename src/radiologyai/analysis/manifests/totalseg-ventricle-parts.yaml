@@ -1,0 +1,172 @@
+id: totalseg-ventricle-parts
+version: 2.18.0-ventricle_parts-default
+name: TotalSegmentator ventricle_parts + índice de Evans
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+summary: Partes dos ventrículos cerebrais em TC de crânio; volume ventricular e índice de Evans (cornos
+  frontais / largura intracraniana no mesmo corte).
+route: main
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: ventricle_parts
+  mode: default
+weights:
+- key: d552_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset552_ventricle_parts_38subj.zip
+  filename: Dataset552_ventricle_parts_38subj__checkpoint_final.pth
+  sha256: 54fd40a8deec522b75b8b1c69c14046498e1332edb65bf020ce1534d07ecaff3
+  bytes: 250174331
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset552_ventricle_parts_38subj/nnUNetTrainerNoMirroring__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 41e1193e8dc905971244fbb2555d4ccf619febd5f0f5ec41b168b48a74409e80,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d552_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset552_ventricle_parts_38subj.zip
+  filename: Dataset552_ventricle_parts_38subj__plans.json
+  sha256: f0e4e25cee41140d5eb9220f31566a9e019330dbae2c4d9fb3660f0dfe0bb228
+  bytes: 11214
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset552_ventricle_parts_38subj/nnUNetTrainerNoMirroring__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 41e1193e8dc905971244fbb2555d4ccf619febd5f0f5ec41b168b48a74409e80,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d552_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset552_ventricle_parts_38subj.zip
+  filename: Dataset552_ventricle_parts_38subj__dataset.json
+  sha256: cf549a338a703472bebac56a96c10733c705254686bb73c13a1b750a7bdffeea
+  bytes: 817
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset552_ventricle_parts_38subj/nnUNetTrainerNoMirroring__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 41e1193e8dc905971244fbb2555d4ccf619febd5f0f5ec41b168b48a74409e80,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__checkpoint_final.pth
+  sha256: 3489323a4b759506ab46b489eb78b72142f2143aea6e6d828604d754bd7a9270
+  bytes: 164951587
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__plans.json
+  sha256: bfd9ab6cfc0e094ced3aff7d7ad23e00e4d50376110b9fdfce0fbca5564c8ca8
+  bytes: 6898
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__dataset.json
+  sha256: e804e08ad8912e3a6f541741c8c78799d75acbd3f4f3f18ff5f211bbd3da961a
+  bytes: 3796
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_head
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on:
+- totalseg-total-3mm
+training_data:
+- totalseg-ventricle-parts-38
+labels:
+- key: ventriculomegaly_evans
+  source_label: evans_index
+  condition_id: ct.ventriculomegaly
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.ventriculomegaly
+    meaning: ventriculomegaly by Evans index
+  measurement: evans_index
+operating_points:
+- label: ventriculomegaly_evans
+  point:
+    name: evans_index_gt_0_3
+    role: guideline
+    threshold: 0.3
+    'on': measurement
+    direction: ge
+    source: 'Diretriz japonesa de HPN, 3a ed. (Nakajima et al., Neurol Med Chir 2021, doi:10.2176/nmc.st.2020-0292):
+      ''Hydrocephalus is defined as EI >0.3.'' A mesma diretriz usa ''EI ≥0.3'' em outro trecho; aplicado
+      >= no limiar exato. evidence-ct-mr id evans_index_03 (/root/medai-cache/research/evidence-ct-mr.verified.md)'
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+- 'Tarefa marcada com ''*'' no README: ''not trained on the full totalsegmentator dataset but on some
+  small other datasets. Therefore, expect them to work less robustly.'''
+- Treinado em 38 sujeitos.
+- 'Índice de Evans: ventriculomegalia, não ''hidrocefalia'' nem ''HPN''; exige idade >= 18 conhecida e
+  crânio inteiro no plano axial; alinhamento AC-PC não verificado.'
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+config:
+  task: ventricle_parts
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset552_ventricle_parts_38subj
+    trainer_dir: nnUNetTrainerNoMirroring__nnUNetPlans__3d_fullres
+    checkpoint: d552_checkpoint
+    plans: d552_plans
+    dataset: d552_dataset
+  - folder: Dataset298_TotalSegmentator_total_6mm_1559subj
+    trainer_dir: nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres
+    checkpoint: d298_checkpoint
+    plans: d298_plans
+    dataset: d298_dataset
+  timeout_s: 3600
+  volumes:
+  - key: ventricular_system_volume_ml
+    labels:
+    - ventricle_frontal_horn_left
+    - ventricle_occipital_horn_left
+    - ventricle_body_left
+    - ventricle_temporal_horn_left
+    - ventricle_trigone_left
+    - ventricle_frontal_horn_right
+    - ventricle_occipital_horn_right
+    - ventricle_body_right
+    - ventricle_temporal_horn_right
+    - ventricle_trigone_right
+    - third_ventricle
+    - fourth_ventricle
+  upstream_gate:
+    model: totalseg-total-3mm
+    any_of:
+    - brain
+    min_ml: 100.0
+  postprocess:
+  - evans_index

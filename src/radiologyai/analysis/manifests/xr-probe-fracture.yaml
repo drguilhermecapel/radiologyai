@@ -1,0 +1,107 @@
+id: xr-probe-fracture
+version: probe-20261124-rad-dino-110cbc18
+name: Sonda linear (fracture) sobre RAD-DINO congelado
+status: available
+adapter: radiologyai.analysis.adapters.xr_raddino:RadDinoLinearProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de fratura em radiografia musculoesquelética: sonda linear sobre embeddings da RAD-DINO
+  treinada no FracAtlas.'
+route: main
+source:
+  encoder: microsoft/rad-dino@110cbc18d5133582e320b43d53bf5c44e410c936
+  encoder_repository: https://huggingface.co/microsoft/rad-dino
+  fit_script: scripts/probe_fit_xr_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+  encoder_selection: scripts/probe_fit_xr_compare_encoders.py
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/model.safetensors
+  filename: model.safetensors
+  sha256: dbfb9f54459c38773505de64a6ab7807bdcb392610fe1e697166342e43fb91ae
+  bytes: 346345912
+  note: RAD-DINO (Dinov2Model) congelado
+- key: encoder_config
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/config.json
+  filename: config.json
+  sha256: 89daf9751d9576d586dedf9543c1083211611fa3a36908db7a799b3ce7c68ede
+  bytes: 879
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/xr-probe-fracture/probe.safetensors
+  filename: probe.safetensors
+  sha256: 964a64cf06e87e1b031cb2910876d7143b96a16126c3f204cb105c56f2b165d3
+  bytes: 18768
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/xr-probe-fracture/probe.json
+  filename: probe.json
+  sha256: af7ccc49c9aa329a826cdb05625594d02509e84046cdda122825051f6ddb7a52
+  bytes: 1163
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+license:
+  code: MIT (RAD-DINO) + Apache-2.0 (este projeto)
+  weights: 'RAD-DINO: MIT; cartão: ''shared for research purposes only ... not meant to be used for clinical
+    practice''; sonda: este projeto'
+  training_data_terms: FracAtlas (CC BY 4.0)
+  commercial_use: 'no'
+  evidence: cartão e LICENSE de microsoft/rad-dino no Hugging Face (revisão 110cbc18d5133582e320b43d53bf5c44e410c936);
+    DATASET.json dos dados de treino
+applicability:
+  exam_types:
+  - msk_xr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  min_pixels: 224
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001 []
+training_data:
+- fracatlas
+labels:
+- key: fracture
+  source_label: fracture
+  condition_id: msk_xr.fracture
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: msk_xr.fracture
+    meaning: bone fracture (suggested)
+operating_points:
+- label: fracture
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: -0.8850790282242005
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra FracAtlas (xr-probe-fracture); sensibilidade-alvo 0.9 nas predições fora-da-dobra
+      do treino
+- label: fracture
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: 0.6498868777409305
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra FracAtlas (xr-probe-fracture); especificidade-alvo 0.9 nas predições
+      fora-da-dobra do treino
+limitations:
+- Codificador RAD-DINO pré-treinado só em RX de tórax; sonda treinada no FracAtlas.
+- 'FracAtlas não publica id de paciente: o ajuste interno pode ter vazamento intrapaciente.'
+- Não localiza a fratura.
+references:
+- title: Exploring scalable medical image encoders beyond text supervision (RAD-DINO)
+  identifier: doi:10.1038/s42256-024-00965-w
+  url: https://doi.org/10.1038/s42256-024-00965-w
+config:
+  square: pad
+  gates: *id001
+  exam: msk_xr

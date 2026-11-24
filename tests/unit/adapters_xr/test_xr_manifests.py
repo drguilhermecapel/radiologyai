@@ -1,4 +1,4 @@
-"""Manifestos do front de RX: fixados, sem métrica, rótulos = cabeças treinadas, pontos com origem."""
+"""Manifestos do front de RX: fixados, rótulos = cabeças treinadas, pontos com origem."""
 
 from __future__ import annotations
 
@@ -47,7 +47,9 @@ def test_operating_points_have_sources(path: Path) -> None:
 
 @pytest.mark.skipif(not HAS_XRV, reason="torchxrayvision ausente (extra ml)")
 @pytest.mark.parametrize(
-    "path", [p for p in OWN if p.stem.startswith(("xrv-densenet", "xrv-resnet"))], ids=lambda p: p.stem
+    "path",
+    [p for p in OWN if p.stem.startswith(("xrv-densenet", "xrv-resnet"))],
+    ids=lambda p: p.stem,
 )
 @pytest.mark.requirement("REQ-121")
 def test_xrv_labels_are_trained_heads_with_library_thresholds(path: Path) -> None:

@@ -1,11 +1,66 @@
 id: xrv-ae-ood
 version: 1.5.7-101-elastic
 name: TorchXRayVision ResNetAE 101-elastic (portão fora de distribuição)
-status: planned
+status: available
+adapter: radiologyai.analysis.adapters.xr_gates:XrvAutoencoderGateAdapter
 task: gate
-capabilities: [gate]
-summary: Autoencoder do TorchXRayVision usado como portão fora de distribuição.
+capabilities:
+- gate
+summary: Autoencoder ResNet101 do TorchXRayVision como portão fora de distribuição; portão a montante
+  dos modelos de tórax.
 route: dependency
-license: {code: Apache-2.0, weights: sem licença própria declarada, commercial_use: unclear}
-applicability: {exam_types: [cxr], modalities: [CR, DX], image_kinds: [projection]}
-planned_reason: limiar do portão ainda não medido
+source:
+  library: torchxrayvision
+  library_version: 1.5.7
+  repository: https://github.com/mlmed/torchxrayvision
+weights:
+- key: model
+  url: https://github.com/mlmed/torchxrayvision/releases/download/v1/nihpcrsnamimic_ch-resnet101-2-ae-test2-elastic-e250.pt
+  filename: nihpcrsnamimic_ch-resnet101-2-ae-test2-elastic-e250.pt
+  sha256: 877ded430383a2bbce756737b316d76de42defed3079eebf2cce305f7be34df9
+  bytes: 125341920
+  extract: none
+  unsafe_pickle: false
+  note: state_dict ResNetAE101
+license:
+  code: Apache-2.0
+  weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
+  training_data_terms: NIH, PadChest, RSNA, MIMIC-CXR e CheXpert (termos próprios; CheXpert não comercial)
+  commercial_use: unclear
+  evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0)
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+training_data:
+- nih-cxr14
+- padchest
+- rsna-pneumonia
+- mimic-cxr
+- chexpert
+limitations:
+- Limiar escolhido para aceitar 99,5% das radiografias de tórax frontais de calibração (regra pré-especificada
+  em scripts/predict_xr_gates.py).
+- Sozinho, o erro de reconstrução aceita boa parte de mamografias, RX musculoesquelético e laterais de
+  tórax; a recusa dessas entradas depende do portão de incidência combinado (ver ood_rule_evidence).
+- Não detecta má qualidade dentro do domínio (rotação, inspiração ruim).
+references:
+- title: Cohen et al., 2021 (citado na docstring de torchxrayvision.autoencoders.ResNetAE)
+  identifier: arXiv:2102.09475
+  url: https://arxiv.org/abs/2102.09475
+config:
+  ood_mae_max: 0.029835
+  ood_rule: limiar = percentil 99.5 do ae_mae no tórax frontal de calibração
+  ood_rule_evidence: /root/medai-cache/eval-preds/_gates/summary.json (scripts/predict_xr_gates.py)

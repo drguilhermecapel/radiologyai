@@ -1,0 +1,164 @@
+id: totalseg-cerebral-bleed
+version: 2.18.0-cerebral_bleed-default
+name: TotalSegmentator cerebral_bleed
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+summary: Hemorragia intracerebral segmentada em TC de crânio sem contraste; volume (mL) e achado derivado
+  por regra de volume pré-especificada.
+route: main
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: cerebral_bleed
+  mode: default
+weights:
+- key: d150_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset150_icb_v0.zip
+  filename: Dataset150_icb_v0__checkpoint_final.pth
+  sha256: ec3631e060dd08e5602093531915e9095a09fe4783b9739603d183ec3ea71033
+  bytes: 348723347
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset150_icb_v0/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth do
+    zip de release (zip com sha256 cd9a41917f134dd20f1aba877c7af4cabedf144f0f7aa1c1d16d6376b2425bb4, baixado
+    e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d150_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset150_icb_v0.zip
+  filename: Dataset150_icb_v0__plans.json
+  sha256: a398431826ee81d8715f4ab380c26512615180e831b8e57d9d54ae590c95750a
+  bytes: 11708
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset150_icb_v0/nnUNetTrainer__nnUNetPlans__3d_fullres/plans.json do zip de release (zip
+    com sha256 cd9a41917f134dd20f1aba877c7af4cabedf144f0f7aa1c1d16d6376b2425bb4, baixado e extraído em
+    2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d150_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset150_icb_v0.zip
+  filename: Dataset150_icb_v0__dataset.json
+  sha256: 21996c4158b757f97a446cbf681a3239a2cc21a4ca0e762a2582a902761164d8
+  bytes: 383
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset150_icb_v0/nnUNetTrainer__nnUNetPlans__3d_fullres/dataset.json do zip de release
+    (zip com sha256 cd9a41917f134dd20f1aba877c7af4cabedf144f0f7aa1c1d16d6376b2425bb4, baixado e extraído
+    em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__checkpoint_final.pth
+  sha256: 3489323a4b759506ab46b489eb78b72142f2143aea6e6d828604d754bd7a9270
+  bytes: 164951587
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__plans.json
+  sha256: bfd9ab6cfc0e094ced3aff7d7ad23e00e4d50376110b9fdfce0fbca5564c8ca8
+  bytes: 6898
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__dataset.json
+  sha256: e804e08ad8912e3a6f541741c8c78799d75acbd3f4f3f18ff5f211bbd3da961a
+  bytes: 3796
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_head
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on:
+- totalseg-total-3mm
+training_data:
+- rusche-2023-ich-inhouse
+labels:
+- key: intracranial_hemorrhage
+  source_label: intracerebral_hemorrhage
+  condition_id: ct.intracranial_hemorrhage
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.intracranial_hemorrhage
+    meaning: intracranial hemorrhage (segmented volume)
+  measurement: intracerebral_hemorrhage_volume_ml
+operating_points:
+- label: intracranial_hemorrhage
+  point:
+    name: any_volume_ge_0_1ml
+    role: balanced
+    threshold: 0.1
+    'on': measurement
+    direction: ge
+    source: 'regra de detecção PRÉ-ESPECIFICADA do projeto (manifesto, 2026-11-24; protocolo 2026-11-v1,
+      ''detection endpoints judged at a fixed, pre-specified threshold''): positivo quando o volume segmentado
+      total é >= 0,1 mL; limiar de engenharia para ignorar voxels isolados, NÃO ajustado a dados e SEM
+      validação publicada'
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+- 'Tarefa marcada com ''*'' no README: ''not trained on the full totalsegmentator dataset but on some
+  small other datasets. Therefore, expect them to work less robustly.'''
+- Nenhuma acurácia de segmentação ou detecção publicada para este modelo (o artigo citado não traz Dice);
+  nível D até medição própria (CQ500).
+- 'Rótulo único ''intracerebral_hemorrhage'': subtipos (HSA, HSD, HED, HIV) não são separados; o achado
+  derivado é ''hemorragia intracraniana segmentada''.'
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+- title: Machine learning for onset prediction of ICH (Rusche et al. 2023)
+  identifier: doi:10.3390/jcm12072631
+  url: https://doi.org/10.3390/jcm12072631
+config:
+  task: cerebral_bleed
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset150_icb_v0
+    trainer_dir: nnUNetTrainer__nnUNetPlans__3d_fullres
+    checkpoint: d150_checkpoint
+    plans: d150_plans
+    dataset: d150_dataset
+  - folder: Dataset298_TotalSegmentator_total_6mm_1559subj
+    trainer_dir: nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres
+    checkpoint: d298_checkpoint
+    plans: d298_plans
+    dataset: d298_dataset
+  timeout_s: 3600
+  volumes:
+  - key: intracerebral_hemorrhage_volume_ml
+    labels:
+    - intracerebral_hemorrhage
+  upstream_gate:
+    model: totalseg-total-3mm
+    any_of:
+    - brain
+    min_ml: 100.0

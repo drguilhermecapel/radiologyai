@@ -1,0 +1,162 @@
+id: totalseg-liver-lesions
+version: 2.18.0-liver_lesions-default
+name: TotalSegmentator liver_lesions
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+summary: Lesões hepáticas segmentadas em TC; volume total.
+route: main
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: liver_lesions
+  mode: default
+weights:
+- key: d591_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset591_ct_liver_lesions_842subj.zip
+  filename: Dataset591_ct_liver_lesions_842subj__checkpoint_final.pth
+  sha256: a9cd19c9199663152ace71a32b212b2d8846cff865f9f7654891ee71bf523194
+  bytes: 246761278
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset591_ct_liver_lesions_842subj/nnUNetTrainer__nnUNetPlans__3d_fullres_high/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 b3bdd53de65dc64a46264edfdeb491b18e8f95973a691eeccfa530d1da1678a0,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d591_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset591_ct_liver_lesions_842subj.zip
+  filename: Dataset591_ct_liver_lesions_842subj__plans.json
+  sha256: 9812c80a650e8533e74ddb32fab2ce82631907ea12b89903642dbdfbdc5fd5ce
+  bytes: 11462
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset591_ct_liver_lesions_842subj/nnUNetTrainer__nnUNetPlans__3d_fullres_high/plans.json
+    do zip de release (zip com sha256 b3bdd53de65dc64a46264edfdeb491b18e8f95973a691eeccfa530d1da1678a0,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d591_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset591_ct_liver_lesions_842subj.zip
+  filename: Dataset591_ct_liver_lesions_842subj__dataset.json
+  sha256: 17a5e21d8b72369f326a8a3819678f6d7089da6e0ed70f911903d6da8220bc09
+  bytes: 376
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset591_ct_liver_lesions_842subj/nnUNetTrainer__nnUNetPlans__3d_fullres_high/dataset.json
+    do zip de release (zip com sha256 b3bdd53de65dc64a46264edfdeb491b18e8f95973a691eeccfa530d1da1678a0,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d297_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset297_TotalSegmentator_total_3mm_1559subj.zip
+  filename: Dataset297_TotalSegmentator_total_3mm_1559subj__checkpoint_final.pth
+  sha256: 1e38e40356adc2706a662e365405a97f862d62a7da65f6bf81d025aee1b979ac
+  bytes: 164939235
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset297_TotalSegmentator_total_3mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 0baa2c8de2975600eb31801dd5c1825cd2b356f794498659cf3348714c073394,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d297_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset297_TotalSegmentator_total_3mm_1559subj.zip
+  filename: Dataset297_TotalSegmentator_total_3mm_1559subj__plans.json
+  sha256: d1cb3c15f53dc36fdb618e0f9082573d1f50b74a9b5fa73094ac8680845839f1
+  bytes: 7110
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset297_TotalSegmentator_total_3mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 0baa2c8de2975600eb31801dd5c1825cd2b356f794498659cf3348714c073394,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d297_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset297_TotalSegmentator_total_3mm_1559subj.zip
+  filename: Dataset297_TotalSegmentator_total_3mm_1559subj__dataset.json
+  sha256: e804e08ad8912e3a6f541741c8c78799d75acbd3f4f3f18ff5f211bbd3da961a
+  bytes: 3796
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset297_TotalSegmentator_total_3mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 0baa2c8de2975600eb31801dd5c1825cd2b356f794498659cf3348714c073394,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_abdomen
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on:
+- totalseg-total-3mm
+training_data:
+- totalseg-liver-lesions-842
+labels:
+- key: liver_lesion
+  source_label: liver_lesions
+  condition_id: ct.liver_lesion
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.liver_lesion
+    meaning: liver lesion (segmented volume)
+  measurement: liver_lesions_volume_ml
+operating_points:
+- label: liver_lesion
+  point:
+    name: any_volume_ge_0_1ml
+    role: balanced
+    threshold: 0.1
+    'on': measurement
+    direction: ge
+    source: 'regra de detecção PRÉ-ESPECIFICADA do projeto (manifesto, 2026-11-24; protocolo 2026-11-v1,
+      ''detection endpoints judged at a fixed, pre-specified threshold''): positivo quando o volume segmentado
+      total é >= 0,1 mL; limiar de engenharia para ignorar voxels isolados, NÃO ajustado a dados e SEM
+      validação publicada'
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+- 'Tarefa marcada com ''*'' no README: ''not trained on the full totalsegmentator dataset but on some
+  small other datasets. Therefore, expect them to work less robustly.'''
+- 'Não é ferramenta de exclusão: na fonte, uma em cada quatro lesões de TC foi perdida internamente e
+  uma em cada três externamente (evidence-ct-mr §1.3).'
+- Não caracteriza a lesão (benigna x maligna).
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+- title: Nicoli et al., liver lesions, J Imaging Inform Med 2025
+  identifier: doi:10.1007/s10278-025-01716-y
+  url: https://doi.org/10.1007/s10278-025-01716-y
+config:
+  task: liver_lesions
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset591_ct_liver_lesions_842subj
+    trainer_dir: nnUNetTrainer__nnUNetPlans__3d_fullres_high
+    checkpoint: d591_checkpoint
+    plans: d591_plans
+    dataset: d591_dataset
+  - folder: Dataset297_TotalSegmentator_total_3mm_1559subj
+    trainer_dir: nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres
+    checkpoint: d297_checkpoint
+    plans: d297_plans
+    dataset: d297_dataset
+  timeout_s: 5400
+  volumes:
+  - key: liver_lesions_volume_ml
+    labels:
+    - liver_lesions
+  upstream_gate:
+    model: totalseg-total-3mm
+    any_of:
+    - liver
+    min_ml: 100.0

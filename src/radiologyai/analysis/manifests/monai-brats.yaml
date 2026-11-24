@@ -1,0 +1,48 @@
+id: monai-brats
+version: brats_mri_segmentation-hf-main
+name: MONAI brats_mri_segmentation (SegResNet, BraTS 2018)
+status: planned
+task: segmentation
+capabilities:
+- segment
+summary: 'Subregiões de glioma (TC, WT, ET) a partir de T1c, T1, T2 e FLAIR co-registrados a 1 mm. Planejado:
+  não roda de verdade neste ambiente.'
+route: none
+source:
+  repository: https://huggingface.co/MONAI/brats_mri_segmentation
+  library: monai
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (LICENSE do bundle)
+  training_data_terms: BraTS 2018 (uso em pesquisa com citação obrigatória)
+  commercial_use: unclear
+  evidence: huggingface.co/MONAI/brats_mri_segmentation/raw/main/LICENSE (Apache License 2.0) e docs/data_license.txt
+    (termos BraTS 2018), lidos em 2026-11-24
+applicability:
+  exam_types:
+  - mr_brain
+  modalities:
+  - MR
+  image_kinds:
+  - volume
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - t1
+  - t1c
+  - t2
+  - flair
+training_data:
+- brats-2018
+limitations:
+- Ferramenta de segmentação de glioma JÁ conhecido; saída não vazia nunca é sinal de 'tumor presente'
+  (evidence-ct-mr §7.1).
+references:
+- title: MONAI brats_mri_segmentation bundle (documentação do desenvolvedor, não revisada por pares)
+  url: https://huggingface.co/MONAI/brats_mri_segmentation
+planned_reason: 'Não roda de verdade aqui: (1) o bundle exige as 4 sequências co-registradas, sem crânio,
+  a 1 mm no pré-processamento BraTS (co-registro SRI24 + remoção de crânio), que não está implementado
+  — rodar sem ele seria entrada fora do contrato do modelo; (2) não há caso BraTS/MSD Task01 no cache
+  (o MSD Task01 tem ~7 GB, acima do orçamento de disco) para verificar a execução real. Nível D mesmo
+  quando rodar: Dice só da divisão de validação do desenvolvedor.'

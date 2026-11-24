@@ -228,7 +228,7 @@ def embed(dataset: str, reuse: bool) -> None:
         keep = rows
         record["mode"] = "computed"
     emb = np.stack(embs).astype(np.float32)
-    ids = d["image_id"].astype(str).to_numpy()[keep]
+    ids = d["image_id"].astype(str).to_numpy()[keep].astype(str)
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(".tmp.npz")
     np.savez(tmp, image_id=ids, image_sha256=np.array(image_sha), emb=emb)

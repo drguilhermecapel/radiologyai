@@ -1,0 +1,108 @@
+id: xr-probe-grazpedwri-osteopenia
+version: probe-20261124-rad-dino-110cbc18
+name: Sonda linear (osteopenia) sobre RAD-DINO congelado
+status: available
+adapter: radiologyai.analysis.adapters.xr_raddino:RadDinoLinearProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de osteopenia em radiografia de punho pediátrica: sonda linear sobre embeddings do RAD-DINO
+  (GRAZPEDWRI-DX).'
+route: research
+source:
+  encoder: microsoft/rad-dino@110cbc18d5133582e320b43d53bf5c44e410c936
+  encoder_repository: https://huggingface.co/microsoft/rad-dino
+  fit_script: scripts/probe_fit_xr_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+  encoder_selection: scripts/probe_fit_xr_compare_encoders.py
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/model.safetensors
+  filename: model.safetensors
+  sha256: dbfb9f54459c38773505de64a6ab7807bdcb392610fe1e697166342e43fb91ae
+  bytes: 346345912
+  note: RAD-DINO (Dinov2Model) congelado
+- key: encoder_config
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/config.json
+  filename: config.json
+  sha256: 89daf9751d9576d586dedf9543c1083211611fa3a36908db7a799b3ce7c68ede
+  bytes: 879
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/xr-probe-grazpedwri-osteopenia/probe.safetensors
+  filename: probe.safetensors
+  sha256: 9031d9e9e535779818c00269e1a6d76363a98d2c73bf73da8739cb5e3e82f207
+  bytes: 18768
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/xr-probe-grazpedwri-osteopenia/probe.json
+  filename: probe.json
+  sha256: c4f9e4a8d052a5f74660d9337801d2df02b6fed2af44a4cb2ae7100154e345a0
+  bytes: 1251
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+license:
+  code: MIT (RAD-DINO) + Apache-2.0 (este projeto)
+  weights: 'RAD-DINO: MIT; cartão: ''shared for research purposes only ... not meant to be used for clinical
+    practice''; sonda: este projeto'
+  training_data_terms: GRAZPEDWRI-DX (CC BY 4.0)
+  commercial_use: 'no'
+  evidence: cartão e LICENSE de microsoft/rad-dino no Hugging Face (revisão 110cbc18d5133582e320b43d53bf5c44e410c936);
+    DATASET.json dos dados de treino
+applicability:
+  exam_types:
+  - msk_xr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  min_pixels: 224
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001 []
+training_data:
+- grazpedwri-dx
+labels:
+- key: osteopenia
+  source_label: osteopenia
+  condition_id: msk_xr.osteopenia
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: msk_xr.osteopenia
+    meaning: osteopenia (suggested)
+operating_points:
+- label: osteopenia
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: -5.931871247270435
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra GRAZPEDWRI-DX (treino 70% por paciente) (xr-probe-grazpedwri-osteopenia);
+      sensibilidade-alvo 0.9 nas predições fora-da-dobra do treino
+- label: osteopenia
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: -1.9627408283948922
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra GRAZPEDWRI-DX (treino 70% por paciente) (xr-probe-grazpedwri-osteopenia);
+      especificidade-alvo 0.9 nas predições fora-da-dobra do treino
+limitations:
+- Treinada e avaliada só em punho pediátrico de um centro (Graz); fora disso não foi medida.
+- 'Avaliação interna (divisão por paciente): no máximo nível C.'
+- 'Roteada só no modo pesquisa: o manifesto não consegue restringir região anatômica nem faixa etária
+  pediátrica.'
+references:
+- title: Exploring scalable medical image encoders beyond text supervision (RAD-DINO)
+  identifier: doi:10.1038/s42256-024-00965-w
+  url: https://doi.org/10.1038/s42256-024-00965-w
+config:
+  square: pad
+  gates: *id001
+  exam: msk_xr
