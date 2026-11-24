@@ -114,7 +114,7 @@ class TestXRLaterality:
         report = XRPlugin().validate(meta)
         assert report.accepted, report.reasons
 
-        def test_conflicting_laterality_rejected(self, cr_dataset):
+    def test_conflicting_laterality_rejected(self, cr_dataset):
         cr_dataset.Laterality = "L"
         cr_dataset.ImageLaterality = "R"
         report = XRPlugin().validate(extract_metadata(cr_dataset))
