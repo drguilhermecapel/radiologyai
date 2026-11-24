@@ -75,7 +75,12 @@ class OnnxBackend(InferenceBackend):
         if not np.isfinite(arr).all():
             raise ValueError("Input image contains NaN or Inf values.")
 
-        batch = np.expand_dims(arr, axis=0) if arr.ndim == 3 else arr
+        if arr.ndim == 2:
+            batch = arr[np.newaxis, np.newaxis, ...]
+        elif arr.ndim == 3:
+            batch = np.expand_dims(arr, axis=0)
+        else:
+            batch = arr
         outputs = self._session.run(None, {self._input_name: batch})
         if not outputs:
             raise RuntimeError("ONNX session returned no outputs.")
