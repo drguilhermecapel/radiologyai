@@ -49,7 +49,7 @@ jobs:
         run: uv run mypy src/radiologyai
 
       - name: Testes com cobertura
-        run: uv run pytest --cov=radiologyai --cov-report=term-missing --cov-fail-under=85
+        run: uv run --with httpx2 pytest --cov=radiologyai --cov-report=term-missing --cov-fail-under=85
 
       # --- Portões específicos deste projeto (ROADMAP §8) ---
 
