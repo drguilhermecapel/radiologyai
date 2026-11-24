@@ -14,9 +14,8 @@ Plataforma de pesquisa em interpretação de imagens radiológicas por inteligê
 
 ## O que existe hoje
 
-O núcleo v2 (`src/radiologyai/`) está em construção. O código v1 foi arquivado
-em `legacy/` — está preservado, mas nada o importa e ele é excluído de build,
-lint, tipos e CI.
+O núcleo v2 (`src/radiologyai/`) está em construção. O código v1 foi removido da
+árvore; continua recuperável no histórico git (commit `16fdd47`).
 
 | Camada | Estado |
 |---|---|
