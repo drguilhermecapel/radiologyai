@@ -374,7 +374,8 @@ Na mesma PR: `models/model_registry.json` deletado, README citando só `reports/
 | Notebook do Colab | `notebooks/01_baseline_nih_cxr14_colab.ipynb` |
 | Adaptador CheXpert + notebook de rótulo adjudicado | `notebooks/02_chexpert_e_credenciamento.ipynb` — executado ponta a ponta em kernel real; **ainda não rodado sobre dados reais do CheXpert** |
 | **Executar sobre as 25.596 imagens** | **concluído em 2026-09-12** — AUROC macro 0,664; duas execuções isolam o efeito do pré-processamento (delta −0,0008) |
-
+| Backend ONNX (`src/radiologyai/models/backends/onnx.py`) | **concluído** — inferência ONNX Runtime + verificação de sha256; **execução sobre dados reais do CheXpert/NIH pendente** |
+| Trava de regressão (`src/radiologyai/evaluation/regression.py` + `tests/evaluation/test_baseline_regression.py`) | **concluído** — portão determinístico de AUROC macro, rótulos e dataset externo; **execução sobre dados reais do CheXpert/NIH pendente** |
 **Achado durante a implementação:** os pesos `-pc` têm 3 das 18 cabeças de saída
 **não treinadas** (o PadChest não continha `Lung Lesion`, `Lung Opacity` nem
 `Enlarged Cardiomediastinum`). Usar a lista `default_pathologies` da biblioteca
