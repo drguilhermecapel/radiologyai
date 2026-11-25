@@ -106,9 +106,7 @@ def fit_platt_scaler(
     n_pos = int(np.sum(y == 1.0))
     n_neg = int(np.sum(y == 0.0))
     if n_pos == 0 or n_neg == 0:
-        raise ValueError(
-            "labels must contain at least one positive and one negative sample."
-        )
+        raise ValueError("labels must contain at least one positive and one negative sample.")
 
     p_clipped = np.clip(probs, EPS, 1.0 - EPS)
     logits = np.log(p_clipped / (1.0 - p_clipped))
