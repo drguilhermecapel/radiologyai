@@ -544,7 +544,7 @@ export function Viewer(props: ViewerProps): ReactNode {
         />
         <svg className="overlay-svg" width={size.w} height={size.h} aria-hidden="true">
           {geometry.map(({ key, g, m }) =>
-            shape(g, key, "measure", m.value !== null ? `${m.value.toFixed(2)} ${m.unit}` : m.name),
+            shape(g, key, "measure", m.value !== null ? `${m.value.toFixed(2)}${m.unit && m.unit !== "1" ? ` ${m.unit}` : ""}` : m.name),
           )}
           {promptsHere.map((p, i) => shape(p, `prompt-${i}`, "prompt"))}
           {dragBox}

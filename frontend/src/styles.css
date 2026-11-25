@@ -849,3 +849,14 @@ textarea {
   align-items: flex-start;
   margin: 4px 0;
 }
+
+.overlay-group .field.inline {
+  flex-wrap: wrap;
+  margin: 4px 0;
+}
+.overlay-group select {
+  max-width: 100%;
+}
+.overlay-group {
+  min-width: 0;
+}

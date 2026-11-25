@@ -272,6 +272,9 @@ async function main() {
       segShown = true;
     }
     log(`sobreposições: mapa de calor=${heatmapShown} segmentação=${segShown}`);
+    // Fecha o seletor de modelos e enquadra o visualizador para a captura.
+    await page.evaluate(() => document.querySelector("details.model-chooser")?.removeAttribute("open"));
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
     await page.screenshot({ path: join(screens, "01-visualizador-achados.png"), fullPage: false });
     if (researchFindings > 0) {
