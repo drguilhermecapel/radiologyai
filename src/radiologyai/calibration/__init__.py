@@ -9,7 +9,7 @@ from radiologyai.calibration.abstention import (
     summarize,
 )
 from radiologyai.calibration.platt import (
-    PlattScaler, 
+    PlattScaler,
     fit_platt_scaler,
     load_platt_calibrators,
     save_platt_calibrators,
