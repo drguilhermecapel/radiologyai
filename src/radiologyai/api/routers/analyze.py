@@ -108,9 +108,7 @@ async def analyze(
             modality=plugin.code,
             user_id=request.headers.get("x-user-id", "anonymous"),
             findings=findings,
-            abstained=any(
-                f.get("band") in {"inconclusivo", "nao_avaliavel"} for f in findings
-            ),
+            abstained=any(f.get("band") in {"inconclusivo", "nao_avaliavel"} for f in findings),
         )
 
     return {
