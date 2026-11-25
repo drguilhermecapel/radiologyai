@@ -381,7 +381,7 @@ export function Viewer(props: ViewerProps): ReactNode {
     ? measurements.flatMap((m) =>
         m.geometry
           .filter((g) => count === 1 || g.frame === frameIndex)
-          .map((g, j) => ({ key: `${m.name}-${j}`, g, m })),
+          .map((g, j) => ({ key: `${m.name}-${j}`, g, m, first: j === 0 })),
       )
     : [];
 
@@ -543,9 +543,13 @@ export function Viewer(props: ViewerProps): ReactNode {
           data-seg-drawn={segCanvases.length > 0 ? "true" : "false"}
         />
         <svg className="overlay-svg" width={size.w} height={size.h} aria-hidden="true">
-          {geometry.map(({ key, g, m }) =>
-            shape(g, key, "measure", m.value !== null ? `${m.value.toFixed(2)}${m.unit && m.unit !== "1" ? ` ${m.unit}` : ""}` : m.name),
-          )}
+          {geometry.map(({ key, g, m, first }) => {
+            // Rótulo da primitiva (ex.: "coração", "tórax"); o valor vai só na primeira.
+            const value =
+              first && m.value !== null ? `${m.name}: ${m.value.toFixed(2)}${m.unit && m.unit !== "1" ? ` ${m.unit}` : ""}` : null;
+            const text = [g.label ?? null, value].filter((x): x is string => Boolean(x)).join(" · ");
+            return shape(g, key, "measure", text || undefined);
+          })}
           {promptsHere.map((p, i) => shape(p, `prompt-${i}`, "prompt"))}
           {dragBox}
         </svg>

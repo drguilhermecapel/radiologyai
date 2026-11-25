@@ -306,8 +306,9 @@ async function main() {
     await page.getByTestId("sign-submit").click();
     await page.getByTestId("report-signed").waitFor({ timeout: 60_000 });
     log("laudo assinado");
-    await page.getByTestId("report-panel").scrollIntoViewIfNeeded();
-    await page.screenshot({ path: join(screens, "02-revisao-laudo-assinado.png"), fullPage: true });
+    await page.getByTestId("report-card").first().evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: join(screens, "02-revisao-laudo-assinado.png"), fullPage: false });
 
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-pdf").click()]);
     const pdfPath = join(work, "laudo.pdf");
