@@ -31,10 +31,10 @@ Quando aplicável em etapa futura pós-validação e submissão regulatória, a 
 
 1. **Entrada aceita:** imagens radiográficas em formato compatível conforme especificação da API (`/api/v1/*` em `docs/OPENAPI_SPEC.yaml`), com verificação de metadados DICOM quando aplicável (incluindo lateralidade, conforme REQ-043).
 2. **Interpretação das saídas:**
-   - **Achado provável / Achado improvável:** escores calibrados por *temperature scaling* (`calibration/temperature.py`), sujeitos a incerteza estatística.
+   - **Achado provável / Achado improvável:** no estágio atual de pesquisa (comportamento implementado), o endpoint `/api/v1/analyze` retorna **escores brutos não calibrados** (`calibrated=False`), não devendo ser interpretados como probabilidades clínicas; no comportamento planejado pós-calibração, os escores serão calibrados por *temperature scaling* e avaliados quanto à confiabilidade com `calibration/temperature.py` e `calibration/reliability.py`, mantendo-se sujeitos a incerteza estatística.
    - **Não avaliável (abstenção):** acionado por `calibration/abstention.py` quando a confiança não atinge o limiar definido; exige avaliação humana integral sem apoio do escore.
    - **Mapa Grad-CAM:** visualização auxiliar gerada por `explain/gradcam.py`; não delimita lesões com precisão anatômica diagnóstica.
-3. **Trilha de auditoria:** toda execução registra evento *append-only* encadeado por hash em `persistence/audit.py` (hash do exame, card, SHA-256 dos pesos, git SHA, saída e timestamp).
+3. **Trilha de auditoria:** o repositório dispõe do componente isolado de trilha de auditoria *append-only* encadeada por hash em `src/radiologyai/audit/trail.py` (`AuditTrail`, registrando hash do exame, card, SHA-256 dos pesos, git SHA, saída e timestamp); contudo, a integração automática desse registro no endpoint `/api/v1/analyze` ainda está **pendente**, de modo que as execuções atuais da API não persistem eventos de auditoria automaticamente.
 
 ## 4. Limitações Conhecidas e Riscos Residuais
 
