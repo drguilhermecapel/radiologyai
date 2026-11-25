@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 
 import { api, postForm, unwrap, type Schemas } from "../api/client";
+import type { operations } from "../api/schema";
 import { ErrorBox, Loading, Pill } from "../components/common";
 import { useI18n } from "../i18n/i18n";
 import type { MessageKey } from "../i18n/messages";
@@ -220,7 +221,7 @@ export function WorklistPage(): ReactNode {
   const [offset, setOffset] = useState(0);
 
   const list = useAsync(async () => {
-    const query: NonNullable<Parameters<typeof api.GET<"/api/v1/studies">>[1]>["params"] = {
+    const query: { query: NonNullable<operations["worklist_api_v1_studies_get"]["parameters"]["query"]> } = {
       query: {
         limit: PAGE,
         offset,

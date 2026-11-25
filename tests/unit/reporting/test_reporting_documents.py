@@ -268,9 +268,13 @@ class TestStructuredOutputs:
                 if "ContentSequence" in item:
                     walk(item.ContentSequence)
 
-        walk(pydicom.dcmread(io.BytesIO(data)).ContentSequence)
+        ds = pydicom.dcmread(io.BytesIO(data))
+        walk(ds.ContentSequence)
         assert any("NÃO significa exame normal" in t for t in texts)
         assert b"decision." not in data
+        # texto em português gravado em UTF-8 declarado, sem caracteres de substituição
+        assert ds.SpecificCharacterSet == "ISO_IR 192"
+        assert "NÃO significa exame normal".encode() in data
 
     def test_sr_without_dicom_evidence_refused(self):
         from radiologyai.reporting.dicom_sr import ReportFormatError, build_sr
@@ -298,6 +302,10 @@ class TestStructuredOutputs:
         )
         seg = pydicom.dcmread(io.BytesIO(data))
         assert seg.Modality == "SEG"
+        assert seg.SpecificCharacterSet == "ISO_IR 192"
+        (item,) = [s for s in seg.SegmentSequence if s.SegmentNumber == 1]
+        meaning = item.SegmentedPropertyTypeCodeSequence[0].CodeMeaning
+        assert meaning == "região"
         assert seg.SegmentationType == "LABELMAP"
         with pytest.raises(ReportFormatError, match="vazio"):
             build_seg(

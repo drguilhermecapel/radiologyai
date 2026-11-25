@@ -7,9 +7,17 @@
  */
 import createClient, { type Middleware } from "openapi-fetch";
 
+import type { Readable } from "openapi-typescript-helpers";
+
 import type { components, paths } from "./schema";
 
-export type Schemas = components["schemas"];
+type RawSchemas = components["schemas"];
+/**
+ * Tipos como o openapi-fetch os ENTREGA nas respostas (``Readable``): tuplas
+ * como ``[number, number]`` viram ``number[]``. Usar estes tipos (e não os
+ * crus) evita conversões inseguras entre resposta e componentes.
+ */
+export type Schemas = { [K in keyof RawSchemas]: Readable<RawSchemas[K]> };
 export type UserOut = Schemas["UserOut"];
 
 const TOKEN_KEY = "radiologyai.token";

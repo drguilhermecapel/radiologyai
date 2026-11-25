@@ -35,7 +35,9 @@ import {
   dragWindow,
   fullRangeWindow,
   normalizeWindow,
+  rangeFromPair,
   storedRange,
+  windowFromPair,
   type WindowLevel,
 } from "../lib/windowLevel";
 import { getHeatmap, getSegmentationFrame, getSeriesFrame, type HeatmapBitmap } from "./data";
@@ -148,9 +150,9 @@ export function Viewer(props: ViewerProps): ReactNode {
   // Janela inicial: a do DICOM, se houver; senão automática pelos pixels reais.
   useEffect(() => {
     if (!frame || wl !== null || frame.channels === 3) return;
-    const dicomWindow = meta.data?.window;
-    if (dicomWindow && meta.data) {
-      setWl(normalizeWindow({ center: dicomWindow[0], width: dicomWindow[1] }));
+    const dicomWindow = windowFromPair(meta.data?.window);
+    if (dicomWindow) {
+      setWl(dicomWindow);
       setPresetId("dicom");
     } else {
       setWl(autoWindow(frame.pixels, frame.rescaleSlope, frame.rescaleIntercept));
@@ -326,7 +328,8 @@ export function Viewer(props: ViewerProps): ReactNode {
     const dy = p.y - drag.start.y;
     if (tool === "pan") setPan({ x: drag.pan0.x + dx, y: drag.pan0.y + dy });
     if (tool === "wl" && drag.wl0) {
-      const range = meta.data ? meta.data.value_range[1] - meta.data.value_range[0] : 1000;
+      const vr = rangeFromPair(meta.data?.value_range);
+      const range = vr ? vr[1] - vr[0] : 1000;
       setWl(dragWindow(drag.wl0, dx, dy, Math.max(0.1, range / 800)));
       setPresetId("custom");
     }
@@ -359,9 +362,13 @@ export function Viewer(props: ViewerProps): ReactNode {
     setPresetId(id);
     if (!frame) return;
     if (id === "auto") setWl(autoWindow(frame.pixels, frame.rescaleSlope, frame.rescaleIntercept));
-    else if (id === "full" && meta.data) setWl(fullRangeWindow(meta.data.value_range[0], meta.data.value_range[1]));
-    else if (id === "dicom" && meta.data?.window) setWl(normalizeWindow({ center: meta.data.window[0], width: meta.data.window[1] }));
-    else {
+    else if (id === "full") {
+      const vr = rangeFromPair(meta.data?.value_range);
+      if (vr) setWl(fullRangeWindow(vr[0], vr[1]));
+    } else if (id === "dicom") {
+      const w = windowFromPair(meta.data?.window);
+      if (w) setWl(w);
+    } else {
       const p = CT_PRESETS.find((x) => x.id === id);
       if (p) setWl(p.window);
     }
@@ -378,7 +385,7 @@ export function Viewer(props: ViewerProps): ReactNode {
       )
     : [];
 
-  const toScreen = (xy: readonly [number, number]): Point => sourceToScreen({ x: xy[0], y: xy[1] }, transform);
+  const toScreen = (xy: readonly number[]): Point => sourceToScreen({ x: xy[0] ?? 0, y: xy[1] ?? 0 }, transform);
   const shape = (g: Primitive, key: string, cls: string, label?: string): ReactNode => {
     const pts = g.xy.map(toScreen);
     const first = pts[0];

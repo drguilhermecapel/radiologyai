@@ -61,6 +61,16 @@ def _concept(scheme: str, value: str, meaning: str) -> Any:
     return CodedConcept(value=value, scheme_designator=scheme, meaning=meaning[:64])
 
 
+def _declare_utf8(ds: Any) -> None:
+    """Declara UTF-8 (``ISO_IR 192``) antes de codificar.
+
+    O texto do laudo é em português (acentos, "NÃO", travessões); sem
+    ``SpecificCharacterSet`` o repertório padrão do DICOM é ASCII e o pydicom
+    gravaria caracteres de substituição, alterando o texto que o médico assinou.
+    """
+    ds.SpecificCharacterSet = "ISO_IR 192"
+
+
 def _uid(*parts: str) -> str:
     from pydicom.uid import generate_uid
 
@@ -224,6 +234,7 @@ def build_sr(
         verifying_organization="RadiologyAI - uso exclusivo em pesquisa" if signed else None,
     )
     sr.SeriesDescription = "RadiologyAI - relatorio preliminar de pesquisa (nao diagnostico)"
+    _declare_utf8(sr)
     del hd
     buf = io.BytesIO()
     sr.save_as(buf, enforce_file_format=True)
@@ -305,6 +316,7 @@ def build_seg(
         )
     except (ValueError, TypeError, AttributeError) as exc:
         raise ReportFormatError(f"SEG não pôde ser gerado: {exc}") from exc
+    _declare_utf8(seg)
     buf = io.BytesIO()
     seg.save_as(buf, enforce_file_format=True)
     return buf.getvalue()

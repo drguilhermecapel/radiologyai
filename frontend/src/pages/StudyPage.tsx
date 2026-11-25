@@ -21,7 +21,6 @@ import { useSession } from "../session";
 import { Viewer } from "../viewer/Viewer";
 import { stateTone } from "./WorklistPage";
 
-type AnalysisOut = Schemas["AnalysisOut"];
 type Primitive = Schemas["Primitive"];
 
 const POLL_MS = 1500;
@@ -48,7 +47,7 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
   // Sem análise escolhida na rota: a mais recente.
   const selectedId = analysisId ?? analyses[0]?.id ?? null;
 
-  const analysis = useAsync<AnalysisOut | null>(
+  const analysis = useAsync(
     async () =>
       selectedId
         ? unwrap(
