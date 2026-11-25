@@ -104,7 +104,7 @@ E2E_SCREENS_DIR=/caminho/capturas node tests/e2e/run-e2e.mjs
 
 Sem DICOM, sem pesos ou sem `playwright`, o script sai com código 77
 (pulado) — nunca finge sucesso. Variáveis: `E2E_DICOM`, `E2E_MODELS`
-(ids separados por vírgula ou `auto`), `E2E_WORKDIR`, `E2E_BACKEND_PORT`,
+(ids separados por vírgula ou `auto`; padrão: os modelos principais de tórax), `E2E_PATIENT_AGE` (idade informada no envio; o DICOM de exemplo não traz idade e os modelos de adulto se abstêm sem ela), `E2E_WORKDIR`, `E2E_BACKEND_PORT`,
 `E2E_UI_PORT`, `E2E_ANALYSIS_TIMEOUT_MS`, `E2E_VERBOSE`.
 
 ## Estrutura
@@ -117,3 +117,8 @@ src/viewer/     visualizador em canvas e carga de quadros/mapas
 src/components/ painel de achados, laudo, componentes comuns
 src/pages/      login, lista de trabalho, estudo, catálogo/modelos, auditoria
 ```
+
+> Estado atual do catálogo: enquanto nenhuma condição tiver evidência A–C, a
+> visão principal mostra "nenhum achado de nível A–C" e o teste de ponta a
+> ponta confere os achados calculados ligando o modo pesquisa (nível D); a
+> revisão por achado só se aplica a A–C.
