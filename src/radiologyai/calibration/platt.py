@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -10,11 +13,16 @@ if TYPE_CHECKING:
     import numpy.typing as npt
 
 EPS = 1e-7
+_OUTPUT_EPS = 1e-12
 _LOGIT_BOUND = 500.0
 _PARAM_BOUNDS = ((-50.0, 50.0), (-50.0, 50.0))
 
 
-def _sigmoid(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+def _sigmoid(
+    x: npt.NDArray[np.float64],
+    *,
+    eps: float = EPS,
+) -> npt.NDArray[np.float64]:
     import numpy as np
 
     clipped = np.clip(x, -_LOGIT_BOUND, _LOGIT_BOUND)
@@ -23,7 +31,7 @@ def _sigmoid(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         1.0 / (1.0 + np.exp(-clipped)),
         np.exp(clipped) / (1.0 + np.exp(clipped)),
     )
-    out: npt.NDArray[np.float64] = np.clip(raw, EPS, 1.0 - EPS).astype(np.float64)
+    out: npt.NDArray[np.float64] = np.clip(raw, eps, 1.0 - eps).astype(np.float64)
     return out
 
 
@@ -69,7 +77,7 @@ class PlattScaler:
         probs = _validate_probabilities(probabilities)
         p_clipped = np.clip(probs, EPS, 1.0 - EPS)
         logits = np.log(p_clipped / (1.0 - p_clipped))
-        return _sigmoid(self.slope * logits + self.intercept)
+        return _sigmoid(self.slope * logits + self.intercept, eps=_OUTPUT_EPS)
 
     def to_dict(self) -> dict[str, Any]:
         """Serializa os parâmetros e métricas do calibrador."""
@@ -80,6 +88,17 @@ class PlattScaler:
             "pre_nll": float(self.pre_nll),
             "post_nll": float(self.post_nll),
         }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> PlattScaler:
+        """Reconstrói um calibrador a partir de um dicionário serializado."""
+        return cls(
+            slope=float(data["slope"]),
+            intercept=float(data["intercept"]),
+            n_samples=int(data["n_samples"]),
+            pre_nll=float(data["pre_nll"]),
+            post_nll=float(data["post_nll"]),
+        )
 
 
 def fit_platt_scaler(
@@ -145,3 +164,30 @@ def fit_platt_scaler(
         pre_nll=pre_nll,
         post_nll=post_nll,
     )
+
+
+def save_platt_calibrators(
+    calibrators: Mapping[str, PlattScaler],
+    path: Path | str,
+) -> None:
+    """Persiste calibradores Platt por achado em JSON."""
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = {name: scaler.to_dict() for name, scaler in calibrators.items()}
+    target.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def load_platt_calibrators(path: Path | str) -> dict[str, PlattScaler]:
+    """Carrega calibradores Platt por achado a partir de um arquivo JSON."""
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("Arquivo de calibradores Platt deve conter um objeto JSON.")
+    result: dict[str, PlattScaler] = {}
+    for name, entry in raw.items():
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"Entrada inválida para calibrador {name!r}.")
+        result[str(name)] = PlattScaler.from_dict(entry)
+    return result
