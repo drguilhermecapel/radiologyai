@@ -20,9 +20,13 @@ Diferenças estruturais em relação ao v1:
 from __future__ import annotations
 
 import importlib.util
+import os
+import tempfile
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from radiologyai import __version__
+from radiologyai.audit.trail import AuditTrail
 from radiologyai.errors import BackendUnavailableError
 
 if TYPE_CHECKING:
@@ -45,8 +49,25 @@ def require_fastapi() -> None:
             f"API indisponível: faltam {missing}. Instale com: pip install 'radiologyai[api]'"
         )
 
+def _resolve_audit_trail(
+    audit_trail: AuditTrail | None,
+    audit_log_path: str | Path | None,
+) -> AuditTrail:
+    if audit_trail is not None:
+        return audit_trail
+    resolved_path = audit_log_path or os.environ.get("RADIOLOGYAI_AUDIT_LOG_PATH")
+    if resolved_path:
+        return AuditTrail(Path(resolved_path))
+    default_dir = Path(tempfile.mkdtemp(prefix="radiologyai_audit_"))
+    return AuditTrail(default_dir / "audit.jsonl")
 
-def create_app(*, artifacts_dir: str | None = None) -> FastAPI:
+
+def create_app(
+    *,
+        artifacts_dir: str | None = None,
+        audit_trail: AuditTrail | None = None,
+        audit_log_path: str | Path | None = None,
+) -> FastAPI:
     """Constrói a aplicação.
 
     Args:
@@ -67,6 +88,7 @@ def create_app(*, artifacts_dir: str | None = None) -> FastAPI:
         openapi_url=f"{API_PREFIX}/openapi.json",
     )
     app.state.artifacts_dir = artifacts_dir or "artifacts/eval"
+    app.state.audit_trail = _resolve_audit_trail(audit_trail, audit_log_path)
 
     app.add_middleware(
         CORSMiddleware,
