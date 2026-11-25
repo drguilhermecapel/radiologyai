@@ -168,6 +168,7 @@ def test_rejects_negative_max_auroc_drop() -> None:
     with pytest.raises(ValueError, match="max_auroc_drop"):
         check_baseline_regression(current, reference, max_auroc_drop=-0.01)
 
+
 def test_cli_check_regression_passes(tmp_path: Path) -> None:
     reference_file = tmp_path / "reference.json"
     current_file = tmp_path / "current.json"
