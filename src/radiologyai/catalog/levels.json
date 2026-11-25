@@ -1,0 +1,456 @@
+{
+  "entries": [
+    {
+      "basis": [],
+      "condition_id": "ct.focal_liver_lesion",
+      "headline": null,
+      "label": "liver_lesions",
+      "level": "D",
+      "model_id": "totalseg-liver_lesions",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "ct.pericardial_effusion",
+      "headline": null,
+      "label": "pericardial_effusion",
+      "level": "D",
+      "model_id": "totalseg-pleural_pericard_effusion",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "ct.pleural_effusion",
+      "headline": null,
+      "label": "pleural_effusion",
+      "level": "D",
+      "model_id": "totalseg-pleural_pericard_effusion",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.atelectasis",
+      "headline": null,
+      "label": "Atelectasis",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.atelectasis",
+      "headline": null,
+      "label": "Atelectasis",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.cardiomegaly",
+      "headline": null,
+      "label": "Cardiomegaly",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.cardiomegaly",
+      "headline": null,
+      "label": "Cardiomegaly",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.consolidation",
+      "headline": null,
+      "label": "Consolidation",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.consolidation",
+      "headline": null,
+      "label": "Consolidation",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.emphysema",
+      "headline": null,
+      "label": "Emphysema",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.emphysema",
+      "headline": null,
+      "label": "Emphysema",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.enlarged_cardiomediastinum",
+      "headline": null,
+      "label": "Enlarged Cardiomediastinum",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.enlarged_cardiomediastinum",
+      "headline": null,
+      "label": "Enlarged Cardiomediastinum",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.fracture",
+      "headline": null,
+      "label": "Fracture",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.fracture",
+      "headline": null,
+      "label": "Fracture",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "headline": null,
+      "label": "Hernia",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "headline": null,
+      "label": "Hernia",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.infiltration",
+      "headline": null,
+      "label": "Infiltration",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.infiltration",
+      "headline": null,
+      "label": "Infiltration",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_lesion",
+      "headline": null,
+      "label": "Lung Lesion",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_lesion",
+      "headline": null,
+      "label": "Lung Lesion",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_mass",
+      "headline": null,
+      "label": "Mass",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_mass",
+      "headline": null,
+      "label": "Mass",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_nodule",
+      "headline": null,
+      "label": "Nodule",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_nodule",
+      "headline": null,
+      "label": "Nodule",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_opacity",
+      "headline": null,
+      "label": "Lung Opacity",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_opacity",
+      "headline": null,
+      "label": "Lung Opacity",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_effusion",
+      "headline": null,
+      "label": "Effusion",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_effusion",
+      "headline": null,
+      "label": "Effusion",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_thickening",
+      "headline": null,
+      "label": "Pleural_Thickening",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_thickening",
+      "headline": null,
+      "label": "Pleural_Thickening",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumonia",
+      "headline": null,
+      "label": "Pneumonia",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumonia",
+      "headline": null,
+      "label": "Pneumonia",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumothorax",
+      "headline": null,
+      "label": "Pneumothorax",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumothorax",
+      "headline": null,
+      "label": "Pneumothorax",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_edema",
+      "headline": null,
+      "label": "Edema",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_edema",
+      "headline": null,
+      "label": "Edema",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "headline": null,
+      "label": "Fibrosis",
+      "level": "D",
+      "model_id": "xrv-densenet121-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "headline": null,
+      "label": "Fibrosis",
+      "level": "D",
+      "model_id": "xrv-resnet50-512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mg.breast_cancer",
+      "headline": null,
+      "label": "cancer",
+      "level": "D",
+      "model_id": "mammoscreen",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mg.breast_density",
+      "headline": null,
+      "label": "density",
+      "level": "D",
+      "model_id": "monai-breast-density",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "headline": null,
+      "label": "ET",
+      "level": "D",
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "headline": null,
+      "label": "TC",
+      "level": "D",
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "headline": null,
+      "label": "WT",
+      "level": "D",
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.white_matter_lesions",
+      "headline": null,
+      "label": "lesion",
+      "level": "D",
+      "model_id": "lst-ai",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    }
+  ],
+  "evidence_digest": "de1a11d70d789305454841570019e1988bcd4c3f28fd46a631c716d7cedb9f8d",
+  "protocol_id": "2026-11-v1"
+}

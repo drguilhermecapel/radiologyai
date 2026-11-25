@@ -3,4 +3,729 @@
 # O nível de evidência NÃO é declarado aqui: ele é calculado por compute_level a
 # partir dos registros de evidência e gravado no arquivo gerado levels.json.
 # Lista vazia significa: nenhuma condição catalogada, nenhum achado na visão principal.
-conditions: []
+#
+# Origem: evidence/published/conditions_proposed.yaml (gerado por
+# scripts/evidence_ingest_published.py), incluindo as condições citadas só como contexto.
+conditions:
+- code:
+    meaning: Atelectasis
+    scheme: 99MEDAI
+    value: cxr.atelectasis
+  description_pt: Perda de volume pulmonar sugerida na radiografia de tórax. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J98.1
+  id: cxr.atelectasis
+  name_en: Atelectasis
+  name_pt: Atelectasia
+  system: pulmão
+- code:
+    meaning: Cardiomegaly
+    scheme: 99MEDAI
+    value: cxr.cardiomegaly
+  description_pt: Silhueta cardíaca aumentada na radiografia de tórax; não equivale a disfunção. Achado
+    sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: I51.7
+  id: cxr.cardiomegaly
+  name_en: Cardiomegaly
+  name_pt: Cardiomegalia (silhueta cardíaca aumentada)
+  system: coração
+- code:
+    meaning: Consolidation
+    scheme: 99MEDAI
+    value: cxr.consolidation
+  description_pt: Opacidade com preenchimento alveolar sugerida na radiografia de tórax. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.consolidation
+  name_en: Consolidation
+  name_pt: Consolidação pulmonar
+  system: pulmão
+- code:
+    meaning: Pulmonary edema
+    scheme: 99MEDAI
+    value: cxr.pulmonary_edema
+  description_pt: Padrão radiográfico sugestivo de edema pulmonar. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J81
+  id: cxr.pulmonary_edema
+  name_en: Pulmonary edema
+  name_pt: Edema pulmonar
+  system: pulmão
+- code:
+    meaning: Pleural effusion
+    scheme: 99MEDAI
+    value: cxr.pleural_effusion
+  description_pt: Líquido pleural sugerido na radiografia de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J90
+  id: cxr.pleural_effusion
+  name_en: Pleural effusion
+  name_pt: Derrame pleural
+  system: pleura
+- code:
+    meaning: Emphysema
+    scheme: 99MEDAI
+    value: cxr.emphysema
+  description_pt: Sinais radiográficos sugestivos de enfisema pulmonar. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J43
+  id: cxr.emphysema
+  name_en: Emphysema
+  name_pt: Enfisema
+  system: pulmão
+- code:
+    meaning: Pulmonary fibrosis
+    scheme: 99MEDAI
+    value: cxr.pulmonary_fibrosis
+  description_pt: Padrão radiográfico sugestivo de fibrose pulmonar. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J84.1
+  id: cxr.pulmonary_fibrosis
+  name_en: Pulmonary fibrosis
+  name_pt: Fibrose pulmonar
+  system: pulmão
+- code:
+    meaning: Hernia (hiatal/diaphragmatic)
+    scheme: 99MEDAI
+    value: cxr.hernia
+  description_pt: Imagem sugestiva de hérnia de hiato ou diafragmática na radiografia de tórax. Achado
+    sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: K44
+  id: cxr.hernia
+  name_en: Hernia (hiatal/diaphragmatic)
+  name_pt: Hérnia diafragmática ou de hiato
+  system: mediastino
+- code:
+    meaning: Infiltration
+    scheme: 99MEDAI
+    value: cxr.infiltration
+  description_pt: Opacidade pulmonar inespecífica (rótulo do NIH). Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.infiltration
+  name_en: Infiltration
+  name_pt: Infiltrado pulmonar (opacidade inespecífica)
+  system: pulmão
+- code:
+    meaning: Lung mass
+    scheme: 99MEDAI
+    value: cxr.lung_mass
+  description_pt: Lesão pulmonar com mais de 3 cm sugerida na radiografia de tórax. Achado sugerido para
+    confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.lung_mass
+  name_en: Lung mass
+  name_pt: Massa pulmonar
+  system: pulmão
+- code:
+    meaning: Lung nodule
+    scheme: 99MEDAI
+    value: cxr.lung_nodule
+  description_pt: Nódulo pulmonar sugerido na radiografia de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.lung_nodule
+  name_en: Lung nodule
+  name_pt: Nódulo pulmonar
+  system: pulmão
+- code:
+    meaning: Pleural thickening
+    scheme: 99MEDAI
+    value: cxr.pleural_thickening
+  description_pt: Espessamento pleural sugerido na radiografia de tórax. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.pleural_thickening
+  name_en: Pleural thickening
+  name_pt: Espessamento pleural
+  system: pleura
+- code:
+    meaning: Pneumonia
+    scheme: 99MEDAI
+    value: cxr.pneumonia
+  description_pt: Padrão radiográfico compatível com pneumonia; não confirma etiologia. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J18
+  id: cxr.pneumonia
+  name_en: Pneumonia
+  name_pt: Pneumonia (padrão radiográfico)
+  system: pulmão
+- code:
+    meaning: Pneumothorax
+    scheme: 99MEDAI
+    value: cxr.pneumothorax
+  description_pt: Ar no espaço pleural sugerido na radiografia de tórax. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  icd10: J93
+  id: cxr.pneumothorax
+  name_en: Pneumothorax
+  name_pt: Pneumotórax
+  system: pleura
+- code:
+    meaning: Lung opacity
+    scheme: 99MEDAI
+    value: cxr.lung_opacity
+  description_pt: Opacidade pulmonar de qualquer natureza na radiografia de tórax. Achado sugerido para
+    confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.lung_opacity
+  name_en: Lung opacity
+  name_pt: Opacidade pulmonar
+  system: pulmão
+- code:
+    meaning: Fracture on chest radiograph
+    scheme: 99MEDAI
+    value: cxr.fracture
+  description_pt: Fratura óssea visível na radiografia de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.fracture
+  name_en: Fracture on chest radiograph
+  name_pt: Fratura (arcos costais, clavícula ou úmero) na radiografia de tórax
+  system: esqueleto
+- code:
+    meaning: Enlarged cardiomediastinum
+    scheme: 99MEDAI
+    value: cxr.enlarged_cardiomediastinum
+  description_pt: Silhueta cardiomediastinal alargada na radiografia de tórax. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.enlarged_cardiomediastinum
+  name_en: Enlarged cardiomediastinum
+  name_pt: Alargamento da silhueta cardiomediastinal
+  system: mediastino
+- code:
+    meaning: Lung lesion
+    scheme: 99MEDAI
+    value: cxr.lung_lesion
+  description_pt: Lesão pulmonar focal (nódulo ou massa) na radiografia de tórax. Achado sugerido para
+    confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.lung_lesion
+  name_en: Lung lesion
+  name_pt: Lesão pulmonar
+  system: pulmão
+- code:
+    meaning: Pleural effusion (CT)
+    scheme: 99MEDAI
+    value: ct.pleural_effusion
+  description_pt: Líquido pleural segmentado na TC de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: J90
+  id: ct.pleural_effusion
+  name_en: Pleural effusion (CT)
+  name_pt: Derrame pleural (TC)
+  system: pleura
+- code:
+    meaning: Pericardial effusion (CT)
+    scheme: 99MEDAI
+    value: ct.pericardial_effusion
+  description_pt: Líquido pericárdico segmentado na TC de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: I31.3
+  id: ct.pericardial_effusion
+  name_en: Pericardial effusion (CT)
+  name_pt: Derrame pericárdico (TC)
+  system: coração
+- code:
+    meaning: Focal liver lesion (CT)
+    scheme: 99MEDAI
+    value: ct.focal_liver_lesion
+  description_pt: Lesão focal hepática segmentada na TC. Achado sugerido para confirmação médica, nunca
+    diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  id: ct.focal_liver_lesion
+  name_en: Focal liver lesion (CT)
+  name_pt: Lesão hepática focal (TC)
+  system: fígado
+- code:
+    meaning: Glioma sub-region segmentation (MR)
+    scheme: 99MEDAI
+    value: mr.glioma_segmentation
+  description_pt: Segmentação de sub-regiões de glioma já conhecido; não é detector de tumor. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - mr_brain
+  group: mr
+  id: mr.glioma_segmentation
+  name_en: Glioma sub-region segmentation (MR)
+  name_pt: 'Glioma: sub-regiões tumorais (RM)'
+  system: sistema nervoso
+- code:
+    meaning: White-matter lesions (multiple sclerosis pattern)
+    scheme: 99MEDAI
+    value: mr.white_matter_lesions
+  description_pt: Carga de lesões hiperintensas em FLAIR; não diagnostica esclerose múltipla. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - mr_brain
+  group: mr
+  id: mr.white_matter_lesions
+  name_en: White-matter lesions (multiple sclerosis pattern)
+  name_pt: Lesões de substância branca (padrão de esclerose múltipla)
+  system: sistema nervoso
+- code:
+    meaning: Breast cancer (suspicious mammographic finding)
+    scheme: 99MEDAI
+    value: mg.breast_cancer
+  description_pt: Escore de suspeição de malignidade na mamografia de rastreamento. Achado sugerido para
+    confirmação médica, nunca diagnóstico.
+  exam_types:
+  - mg
+  group: mg
+  icd10: C50
+  id: mg.breast_cancer
+  name_en: Breast cancer (suspicious mammographic finding)
+  name_pt: Câncer de mama (achado suspeito na mamografia)
+  system: mama
+- code:
+    meaning: Breast density (BI-RADS category A-D)
+    scheme: 99MEDAI
+    value: mg.breast_density
+  description_pt: Categoria de densidade do parênquima mamário. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - mg
+  group: mg
+  id: mg.breast_density
+  name_en: Breast density (BI-RADS category A-D)
+  name_pt: Densidade mamária (categoria BI-RADS A-D)
+  system: mama
+- code:
+    meaning: Pulmonary tuberculosis (radiographic pattern)
+    scheme: 99MEDAI
+    value: cxr.tuberculosis
+  description_pt: Padrão radiográfico sugestivo de tuberculose; não substitui teste bacteriológico. Achado
+    sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - cxr
+  group: cxr
+  id: cxr.tuberculosis
+  name_en: Pulmonary tuberculosis (radiographic pattern)
+  name_pt: Tuberculose pulmonar (padrão radiográfico)
+  system: pulmão
+- code:
+    meaning: Low L1 trabecular attenuation (probable osteoporosis)
+    scheme: 99MEDAI
+    value: ct.osteoporosis_l1
+  description_pt: Atenuação trabecular de L1 abaixo de limiar publicado; não substitui DXA. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  - ct_chest
+  group: ct
+  id: ct.osteoporosis_l1
+  name_en: Low L1 trabecular attenuation (probable osteoporosis)
+  name_pt: Baixa atenuação trabecular de L1 (osteoporose provável)
+  system: esqueleto
+- code:
+    meaning: Hepatic steatosis (CT)
+    scheme: 99MEDAI
+    value: ct.hepatic_steatosis
+  description_pt: Atenuação hepática compatível com esteatose ao menos moderada. Achado sugerido para
+    confirmação médica, nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  icd10: K76.0
+  id: ct.hepatic_steatosis
+  name_en: Hepatic steatosis (CT)
+  name_pt: Esteatose hepática (TC)
+  system: fígado
+- code:
+    meaning: Emphysema (CT quantification)
+    scheme: 99MEDAI
+    value: ct.emphysema
+  description_pt: Área pulmonar de baixa atenuação acima de limiar. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: J43
+  id: ct.emphysema
+  name_en: Emphysema (CT quantification)
+  name_pt: Enfisema (quantificação por TC)
+  system: pulmão
+- code:
+    meaning: Abdominal aortic aneurysm
+    scheme: 99MEDAI
+    value: ct.abdominal_aortic_aneurysm
+  description_pt: Diâmetro da aorta abdominal acima do limiar de diretriz. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  icd10: I71.4
+  id: ct.abdominal_aortic_aneurysm
+  name_en: Abdominal aortic aneurysm
+  name_pt: Aneurisma da aorta abdominal
+  system: vascular
+- code:
+    meaning: Ascending aorta dilation or aneurysm
+    scheme: 99MEDAI
+    value: ct.ascending_aorta_dilation
+  description_pt: Diâmetro da raiz ou da aorta ascendente acima do limiar de diretriz. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  id: ct.ascending_aorta_dilation
+  name_en: Ascending aorta dilation or aneurysm
+  name_pt: Dilatação ou aneurisma da aorta ascendente
+  system: vascular
+- code:
+    meaning: Splenomegaly (CT volume)
+    scheme: 99MEDAI
+    value: ct.splenomegaly
+  description_pt: Volume esplênico acima de limiar publicado. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  icd10: R16.1
+  id: ct.splenomegaly
+  name_en: Splenomegaly (CT volume)
+  name_pt: Esplenomegalia (volumetria por TC)
+  system: baço
+- code:
+    meaning: Hepatomegaly (CT volume)
+    scheme: 99MEDAI
+    value: ct.hepatomegaly
+  description_pt: Volume hepático acima de limiar publicado. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  icd10: R16.0
+  id: ct.hepatomegaly
+  name_en: Hepatomegaly (CT volume)
+  name_pt: Hepatomegalia (volumetria por TC)
+  system: fígado
+- code:
+    meaning: Ventriculomegaly (Evans index)
+    scheme: 99MEDAI
+    value: ct.ventriculomegaly
+  description_pt: Índice de Evans acima de 0,3; não distingue hidrocefalia de atrofia. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - ct_head
+  group: ct
+  id: ct.ventriculomegaly
+  name_en: Ventriculomegaly (Evans index)
+  name_pt: Ventriculomegalia (índice de Evans)
+  system: sistema nervoso
+- code:
+    meaning: Vertebral compression fracture (CT)
+    scheme: 99MEDAI
+    value: ct.vertebral_compression_fracture
+  description_pt: Perda de altura do corpo vertebral sugerida na reformatação sagital. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - ct_abdomen
+  - ct_chest
+  group: ct
+  id: ct.vertebral_compression_fracture
+  name_en: Vertebral compression fracture (CT)
+  name_pt: Fratura vertebral por compressão (TC)
+  system: esqueleto
+- code:
+    meaning: Focal liver lesion (MR)
+    scheme: 99MEDAI
+    value: mr.focal_liver_lesion
+  description_pt: Lesão focal hepática segmentada na RM. Achado sugerido para confirmação médica, nunca
+    diagnóstico.
+  exam_types:
+  - mr_body
+  group: mr
+  id: mr.focal_liver_lesion
+  name_en: Focal liver lesion (MR)
+  name_pt: Lesão hepática focal (RM)
+  system: fígado
+- code:
+    meaning: Hepatic steatosis (ultrasound)
+    scheme: 99MEDAI
+    value: us.hepatic_steatosis
+  description_pt: Padrão ultrassonográfico sugestivo de esteatose hepática. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - us_abdomen
+  group: us
+  icd10: K76.0
+  id: us.hepatic_steatosis
+  name_en: Hepatic steatosis (ultrasound)
+  name_pt: Esteatose hepática (ultrassom)
+  system: fígado
+- code:
+    meaning: Reduced left ventricular ejection fraction
+    scheme: 99MEDAI
+    value: echo.reduced_lvef
+  description_pt: Estimativa de fração de ejeção do ventrículo esquerdo abaixo do normal. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.reduced_lvef
+  name_en: Reduced left ventricular ejection fraction
+  name_pt: Fração de ejeção do VE reduzida
+  system: coração
+- code:
+    meaning: Aortic stenosis (moderate or severe)
+    scheme: 99MEDAI
+    value: echo.aortic_stenosis
+  description_pt: Estenose valvar aórtica moderada ou importante. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: I35.0
+  id: echo.aortic_stenosis
+  name_en: Aortic stenosis (moderate or severe)
+  name_pt: Estenose aórtica (moderada ou importante)
+  system: coração
+- code:
+    meaning: Aortic regurgitation (moderate or severe)
+    scheme: 99MEDAI
+    value: echo.aortic_regurgitation
+  description_pt: Regurgitação valvar aórtica moderada ou importante. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: I35.1
+  id: echo.aortic_regurgitation
+  name_en: Aortic regurgitation (moderate or severe)
+  name_pt: Insuficiência aórtica (moderada ou importante)
+  system: coração
+- code:
+    meaning: Mitral regurgitation (moderate or severe)
+    scheme: 99MEDAI
+    value: echo.mitral_regurgitation
+  description_pt: Regurgitação valvar mitral moderada ou importante. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: I34.0
+  id: echo.mitral_regurgitation
+  name_en: Mitral regurgitation (moderate or severe)
+  name_pt: Insuficiência mitral (moderada ou importante)
+  system: coração
+- code:
+    meaning: Tricuspid regurgitation (moderate or severe)
+    scheme: 99MEDAI
+    value: echo.tricuspid_regurgitation
+  description_pt: Regurgitação valvar tricúspide moderada ou importante. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: I36.1
+  id: echo.tricuspid_regurgitation
+  name_en: Tricuspid regurgitation (moderate or severe)
+  name_pt: Insuficiência tricúspide (moderada ou importante)
+  system: coração
+- code:
+    meaning: Mitral stenosis
+    scheme: 99MEDAI
+    value: echo.mitral_stenosis
+  description_pt: Estenose valvar mitral. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.mitral_stenosis
+  name_en: Mitral stenosis
+  name_pt: Estenose mitral
+  system: coração
+- code:
+    meaning: Pericardial effusion (echocardiography)
+    scheme: 99MEDAI
+    value: echo.pericardial_effusion
+  description_pt: Derrame pericárdico moderado ou importante ao ecocardiograma. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: I31.3
+  id: echo.pericardial_effusion
+  name_en: Pericardial effusion (echocardiography)
+  name_pt: Derrame pericárdico (ecocardiograma)
+  system: coração
+- code:
+    meaning: Right ventricular systolic dysfunction
+    scheme: 99MEDAI
+    value: echo.rv_systolic_dysfunction
+  description_pt: Função sistólica do ventrículo direito reduzida. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.rv_systolic_dysfunction
+  name_en: Right ventricular systolic dysfunction
+  name_pt: Disfunção sistólica do VD
+  system: coração
+- code:
+    meaning: Right ventricular dilation
+    scheme: 99MEDAI
+    value: echo.rv_dilation
+  description_pt: Ventrículo direito dilatado. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.rv_dilation
+  name_en: Right ventricular dilation
+  name_pt: Dilatação do VD
+  system: coração
+- code:
+    meaning: Left atrial dilation
+    scheme: 99MEDAI
+    value: echo.la_dilation
+  description_pt: Átrio esquerdo dilatado. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.la_dilation
+  name_en: Left atrial dilation
+  name_pt: Dilatação do átrio esquerdo
+  system: coração
+- code:
+    meaning: Right atrial dilation
+    scheme: 99MEDAI
+    value: echo.ra_dilation
+  description_pt: Átrio direito dilatado. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.ra_dilation
+  name_en: Right atrial dilation
+  name_pt: Dilatação do átrio direito
+  system: coração
+- code:
+    meaning: Bicuspid aortic valve
+    scheme: 99MEDAI
+    value: echo.bicuspid_aortic_valve
+  description_pt: Valva aórtica com dois folhetos. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  icd10: Q23.1
+  id: echo.bicuspid_aortic_valve
+  name_en: Bicuspid aortic valve
+  name_pt: Valva aórtica bicúspide
+  system: coração
+- code:
+    meaning: Mitral annular calcification
+    scheme: 99MEDAI
+    value: echo.mitral_annular_calcification
+  description_pt: Calcificação do anel valvar mitral. Achado sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.mitral_annular_calcification
+  name_en: Mitral annular calcification
+  name_pt: Calcificação do anel mitral
+  system: coração
+- code:
+    meaning: Aortic root dilation (echocardiography)
+    scheme: 99MEDAI
+    value: echo.aortic_root_dilation
+  description_pt: Raiz da aorta dilatada ao ecocardiograma. Achado sugerido para confirmação médica, nunca
+    diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.aortic_root_dilation
+  name_en: Aortic root dilation (echocardiography)
+  name_pt: Dilatação da raiz aórtica (ecocardiograma)
+  system: vascular
+- code:
+    meaning: Dilated inferior vena cava
+    scheme: 99MEDAI
+    value: echo.dilated_ivc
+  description_pt: Veia cava inferior dilatada ao ecocardiograma. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.dilated_ivc
+  name_en: Dilated inferior vena cava
+  name_pt: Veia cava inferior dilatada
+  system: vascular
+- code:
+    meaning: Left ventricular diastolic dysfunction
+    scheme: 99MEDAI
+    value: echo.diastolic_dysfunction
+  description_pt: Disfunção diastólica do ventrículo esquerdo. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.diastolic_dysfunction
+  name_en: Left ventricular diastolic dysfunction
+  name_pt: Disfunção diastólica do VE
+  system: coração
+- code:
+    meaning: Elevated pulmonary artery pressure (estimate)
+    scheme: 99MEDAI
+    value: echo.elevated_pa_pressure
+  description_pt: Estimativa ecocardiográfica de pressão sistólica da artéria pulmonar. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - echo
+  group: echo
+  id: echo.elevated_pa_pressure
+  name_en: Elevated pulmonary artery pressure (estimate)
+  name_pt: Pressão arterial pulmonar elevada (estimativa)
+  system: coração

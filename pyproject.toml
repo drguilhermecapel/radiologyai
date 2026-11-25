@@ -141,6 +141,7 @@ xr = "radiologyai.modalities.xr:XRPlugin"
 ct = "radiologyai.modalities.ct:CTPlugin"
 mr = "radiologyai.modalities.mr:MRPlugin"
 us = "radiologyai.modalities.us:USPlugin"
+mg = "radiologyai.modalities.mg:MGPlugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/radiologyai"]

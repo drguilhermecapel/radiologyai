@@ -14,8 +14,6 @@ from radiologyai.io.metadata import StudyMetadata
 from radiologyai.modalities.us import USPlugin
 from radiologyai.modalities.us.qa import exam_qa, overlay_mask
 
-pytestmark = pytest.mark.requirement("REQ-149")
-
 
 def meta(**kw: object) -> StudyMetadata:
     base: dict[str, object] = {"modality": "US", "rows": 480, "columns": 640}
@@ -23,6 +21,7 @@ def meta(**kw: object) -> StudyMetadata:
     return StudyMetadata.model_validate(base)
 
 
+@pytest.mark.requirement("REQ-149")
 def test_plugin_is_implemented_cine() -> None:
     p = USPlugin()
     assert p.implemented is True
@@ -38,17 +37,20 @@ def test_plugin_is_implemented_cine() -> None:
         ({"patient_age_years": 9.0}, "pediátrica"),
     ],
 )
+@pytest.mark.requirement("REQ-149")
 def test_plugin_rejects_out_of_scope(kw: dict[str, object], needle: str) -> None:
     report = USPlugin().validate(meta(**kw))
     assert not report.accepted
     assert any(needle in r for r in report.reasons)
 
 
+@pytest.mark.requirement("REQ-149")
 def test_plugin_accepts_cine_and_still() -> None:
     assert USPlugin().validate(meta(number_of_frames=60)).accepted
     assert USPlugin().validate(meta()).accepted
 
 
+@pytest.mark.requirement("REQ-149")
 def test_preprocess_shapes_and_finiteness() -> None:
     p = USPlugin()
     assert p.preprocess(np.zeros((8, 8)), meta()).dtype == np.float32
@@ -63,6 +65,7 @@ def test_preprocess_shapes_and_finiteness() -> None:
 
 
 @pytest.mark.skipif(not have("scipy"), reason="scipy ausente (extra eval)")
+@pytest.mark.requirement("REQ-149")
 def test_overlay_detects_text_outside_sector_and_color_marks() -> None:
     gray = sector_frame()
     rgb = np.repeat(gray[..., None], 3, axis=2)
@@ -78,6 +81,7 @@ def test_overlay_detects_text_outside_sector_and_color_marks() -> None:
 
 
 @pytest.mark.skipif(not have("scipy"), reason="scipy ausente (extra eval)")
+@pytest.mark.requirement("REQ-149")
 def test_exam_qa_reports_cine_spacing_and_rejects_heavy_overlay() -> None:
     clip = np.stack([sector_frame()] * 4)
     ok = exam_qa(us_image(clip, kind=ImageKind.CINE, frame_time_ms=20.0))
@@ -125,6 +129,7 @@ def _us_multiframe(path: object) -> None:
     ds.save_as(path, enforce_file_format=True)
 
 
+@pytest.mark.requirement("REQ-149")
 def test_dicom_multiframe_us_loads_as_cine_with_region_spacing(tmp_path: object) -> None:
     from pathlib import Path
 

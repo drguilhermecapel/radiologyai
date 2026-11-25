@@ -80,19 +80,32 @@ def test_packaged_protocol_states_every_threshold_explicitly() -> None:
 
 
 @pytest.mark.requirement("REQ-091")
-def test_packaged_catalog_loads_empty_and_unknown_triple_is_level_d() -> None:
+def test_packaged_catalog_loads_and_unknown_triple_is_level_d() -> None:
     catalog = Catalog.load()
-    assert catalog.conditions() == []
-    assert catalog.entries() == []
-    assert catalog.levels_file is None
+    ids = [c.id for c in catalog.conditions()]
+    assert ids, "o catálogo empacotado não pode estar vazio"
+    assert len(ids) == len(set(ids))
     assert not catalog.has("does.not.exist")
     assert catalog.entry("does.not.exist", "m", "x") is None
     assert catalog.level("does.not.exist", "m", "x") is EvidenceLevel.D
     assert catalog.visibility("does.not.exist", "m", "x") == "research"
 
 
-def test_no_generated_levels_are_committed_by_hand() -> None:
-    assert not (PACKAGE_DIR / LEVELS_FILE).exists()
+def test_packaged_levels_are_generated_not_typed() -> None:
+    """levels.json é saída de scripts/evidence_build_levels.py; à mão, o --check falha."""
+    repo = Path(__file__).resolve().parents[3]
+    if (PACKAGE_DIR / LEVELS_FILE).exists():
+        result = subprocess.run(
+            [sys.executable, str(repo / "scripts" / "evidence_build_levels.py"), "--check"],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=repo,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+    catalog = Catalog.load()
+    known = {c.id for c in catalog.conditions()}
+    assert all(e.condition_id in known for e in catalog.entries())
 
 
 def test_import_is_light() -> None:
