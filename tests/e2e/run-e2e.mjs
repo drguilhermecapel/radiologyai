@@ -236,8 +236,25 @@ async function main() {
     const resultText = await page.locator(".analysis-state").innerText();
     const nFindings = await page.locator('[data-testid^="finding-"]').count();
     log(`resultado: ${resultText.replace(/\s+/g, " ")}; achados exibidos: ${nFindings}`);
-    if (!process.env.E2E_ALLOW_ABSTAIN && (/abstenção/.test(resultText) || nFindings === 0)) {
-      throw new Error("nenhum modelo produziu achado (abstenção total): o fluxo não exercitou inferência real");
+    if (/abstenção/.test(resultText)) {
+      throw new Error("abstenção total: o fluxo não exercitou inferência real");
+    }
+    // Achados de nível D só aparecem no modo pesquisa (papel com research:view).
+    const hidden = page.getByTestId("hidden-research");
+    let researchFindings = 0;
+    if ((await hidden.count()) > 0) {
+      log(`visão principal: ${(await hidden.innerText()).replace(/\s+/g, " ")}`);
+      await page.getByTestId("research-toggle").check();
+      await page.getByTestId("research-banner").waitFor();
+      await page.locator(".group-level-d").first().waitFor({ timeout: 30_000 });
+      researchFindings = await page.locator('.group-level-d [data-testid^="finding-"]').count();
+      log(`modo pesquisa: ${researchFindings} achado(s) de nível D exibidos sob a faixa de pesquisa`);
+      if (await page.locator('.group-level-d [data-testid^="review-"]').count()) {
+        throw new Error("achado de nível D com controles de revisão");
+      }
+    }
+    if (nFindings + researchFindings === 0) {
+      throw new Error("nenhum achado calculado: o fluxo não exercitou inferência real");
     }
 
     // 4. Sobreposições: mapa de calor (se o modelo gerou) e segmentação (se houver).
@@ -257,6 +274,10 @@ async function main() {
     log(`sobreposições: mapa de calor=${heatmapShown} segmentação=${segShown}`);
     await page.waitForTimeout(300);
     await page.screenshot({ path: join(screens, "01-visualizador-achados.png"), fullPage: false });
+    if (researchFindings > 0) {
+      await page.getByTestId("research-toggle").uncheck();
+      await page.getByTestId("research-banner").waitFor({ state: "detached" });
+    }
 
     // 5. Revisão: aceita cada achado pendente (o servidor exige o hash do resultado).
     let reviewed = 0;
