@@ -8,13 +8,21 @@ from radiologyai.calibration.abstention import (
     BandThresholds,
     summarize,
 )
+from radiologyai.calibration.reliability import (
+    ReliabilityBin,
+    ReliabilityDiagram,
+    compute_reliability_diagram,
+)
 from radiologyai.calibration.temperature import TemperatureCalibrator, fit_temperature
 
 __all__ = [
     "CRITICAL_FINDINGS",
     "AbstentionPolicy",
     "BandThresholds",
+    "ReliabilityBin",
+    "ReliabilityDiagram",
     "TemperatureCalibrator",
+    "compute_reliability_diagram",
     "fit_temperature",
     "summarize",
 ]
