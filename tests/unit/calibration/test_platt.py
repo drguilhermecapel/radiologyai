@@ -124,20 +124,28 @@ def test_transform_validation_errors(probs: object) -> None:
     with pytest.raises(ValueError, match="probabilities must"):
         scaler.transform(probs)  # type: ignore[arg-type]
 
+
 def test_platt_preserves_low_probability_ranking_consolidation() -> None:
     scaler = PlattScaler(
-        slope=4.7173, intercept=-3.8501, n_samples=250,
-        pre_nll=0.5, post_nll=0.1,
+        slope=4.7173,
+        intercept=-3.8501,
+        n_samples=250,
+        pre_nll=0.5,
+        post_nll=0.1,
     )
     probs = np.array([0.02, 0.03, 0.04, 0.05, 0.10], dtype=np.float64)
     calibrated = scaler.transform(probs)
     assert np.all(calibrated[:4] < 1e-7)
     assert np.all(np.diff(calibrated) > 0.0)
 
+
 def test_platt_json_round_trip(tmp_path: Path) -> None:
     scaler_a = PlattScaler(
-        slope=4.7173, intercept=-3.8501, n_samples=250,
-        pre_nll=0.5, post_nll=0.1,
+        slope=4.7173,
+        intercept=-3.8501,
+        n_samples=250,
+        pre_nll=0.5,
+        post_nll=0.1,
     )
     assert PlattScaler.from_dict(scaler_a.to_dict()) == scaler_a
     output_path = tmp_path / "platt_calibrators.json"
