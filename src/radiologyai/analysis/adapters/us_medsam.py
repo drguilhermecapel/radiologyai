@@ -70,7 +70,9 @@ class MedSAMSegmenter:
         from transformers import SamModel
 
         self.device = device
-        model: Any = SamModel.from_pretrained(str(model_dir), local_files_only=True)
+        model: Any = SamModel.from_pretrained(  # nosec B615 - diretório local com SHA-256 verificado
+            str(model_dir), local_files_only=True
+        )
         self.model: Any = model.to(device)
         self.model.eval()
 

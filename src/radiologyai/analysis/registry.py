@@ -484,12 +484,13 @@ def safe_extract(archive: Path, dest: Path, kind: str, *, model_id: str = "?") -
 
     if kind == "zip":
         with zipfile.ZipFile(archive) as zf:
-            for info in zf.infolist():
+            members = zf.infolist()
+            for info in members:
                 check(info.filename)
                 mode = (info.external_attr >> 16) & 0o170000
                 if mode == 0o120000:
                     raise IntegrityCheckError(model_id, f"arquivo contém link: {info.filename!r}")
-            zf.extractall(root)  # noqa: S202 - membros validados acima
+            zf.extractall(root, members=members)  # noqa: S202  # nosec B202 - membros validados acima
     elif kind == "tar":
         with tarfile.open(archive) as tf:
             for member in tf.getmembers():

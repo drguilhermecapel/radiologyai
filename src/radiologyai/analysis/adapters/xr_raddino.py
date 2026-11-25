@@ -126,7 +126,7 @@ def build_raddino(config_bytes: bytes, weights_bytes: bytes) -> torch.nn.Module:
         (Path(tmp) / "config.json").write_bytes(config_bytes)
         (Path(tmp) / "model.safetensors").write_bytes(weights_bytes)
         try:
-            loaded: Any = Dinov2Model.from_pretrained(
+            loaded: Any = Dinov2Model.from_pretrained(  # nosec B615 - arquivos locais verificados
                 tmp, local_files_only=True, output_loading_info=True
             )
         except (OSError, ValueError, RuntimeError) as exc:

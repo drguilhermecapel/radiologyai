@@ -115,7 +115,10 @@ def load_torch_verified(weights: ResolvedWeights, key: str, *, allow_pickle: boo
             key, "desserialização completa exige unsafe_pickle: true no manifesto"
         )
     data = read_verified(weights, key)
-    return torch.load(io.BytesIO(data), map_location="cpu", weights_only=not allow_pickle)
+    # nosec B614: bytes com SHA-256 verificado; pickle completo só com unsafe_pickle no manifesto.
+    return torch.load(  # nosec B614
+        io.BytesIO(data), map_location="cpu", weights_only=not allow_pickle
+    )
 
 
 def to_gray(image: ImageData) -> npt.NDArray[np.float32]:
