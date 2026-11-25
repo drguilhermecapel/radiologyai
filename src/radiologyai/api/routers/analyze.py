@@ -1,4 +1,10 @@
-"""Análise de exame — gate de escopo primeiro, falha fechada sempre."""
+"""Análise legada de UM DICOM por UM model card — gate de escopo primeiro, falha fechada.
+
+Obsoleta: o fluxo da plataforma é ``POST /studies`` + ``POST /studies/{id}/analyses``
+(pipeline multimodelo com níveis de evidência). Mantida, autenticada, porque
+cobre o gate de escopo por HTTP (REQ-031) e os limiares vindos de artefato
+medido (REQ-062).
+"""
 
 from __future__ import annotations
 
@@ -7,28 +13,54 @@ import tempfile
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from pydantic import BaseModel, ConfigDict
 
 from radiologyai import __version__
 from radiologyai.api.app import DISCLAIMER
+from radiologyai.api.deps import Principal, perm, require
 from radiologyai.errors import (
     BackendUnavailableError,
     IngestionError,
     ModelNotFoundError,
     OutOfScopeError,
 )
+from radiologyai.persistence.security import Permission
 
-router = APIRouter(tags=["analyze"])
+router = APIRouter(tags=["analyze (legado)"])
 
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 
 
-@router.post("/analyze")
+class LegacyAnalyzeOut(BaseModel):
+    """Resposta do endpoint legado. Sem ``clinical_metrics`` — o v1 as fabricava."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", protected_namespaces=())
+
+    input_sha256: str
+    code_version: str
+    card_id: str
+    weights_sha256: str
+    modality: str
+    metadata: dict[str, Any]
+    findings: list[dict[str, Any]]
+    normality_asserted: bool
+    requires_physician_review: bool
+    disclaimer: str
+
+
+@router.post(
+    "/analyze",
+    response_model=LegacyAnalyzeOut,
+    deprecated=True,
+    openapi_extra=perm(Permission.LEGACY_ANALYZE),
+)
 async def analyze(
+    principal: Annotated[Principal, Depends(require(Permission.LEGACY_ANALYZE))],
     request: Request,
     file: Annotated[UploadFile, File(description="Arquivo DICOM")],
     card_id: Annotated[str, Form()] = "xrv-densenet121-pc",
-) -> dict[str, Any]:
+) -> LegacyAnalyzeOut:
     """Analisa um exame DICOM.
 
     Ordem obrigatória: ler cabeçalho, aplicar o gate de escopo da modalidade,
@@ -98,18 +130,19 @@ async def analyze(
                 },
             ) from exc
 
-    return {
-        "input_sha256": input_sha256,
-        "code_version": __version__,
-        "card_id": card.card_id,
-        "weights_sha256": card.weights_sha256,
-        "modality": plugin.code,
-        "metadata": metadata.model_dump(),
-        "findings": findings,
-        "normality_asserted": False,
-        "requires_physician_review": True,
-        "disclaimer": DISCLAIMER,
-    }
+    del principal
+    return LegacyAnalyzeOut(
+        input_sha256=input_sha256,
+        code_version=__version__,
+        card_id=card.card_id,
+        weights_sha256=card.weights_sha256,
+        modality=plugin.code,
+        metadata=metadata.model_dump(),
+        findings=findings,
+        normality_asserted=False,
+        requires_physician_review=True,
+        disclaimer=DISCLAIMER,
+    )
 
 
 def _run_inference(

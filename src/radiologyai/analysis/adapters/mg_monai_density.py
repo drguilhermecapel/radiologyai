@@ -60,7 +60,9 @@ def build_inception(state: dict[str, Any]) -> torch.nn.Module:
         weights=None, aux_logits=True, transform_input=True, init_weights=False
     )
     net.fc = torch.nn.Linear(2048, len(DENSITY_CLASSES))
-    renamed = {(k[len("features.") :] if k.startswith("features.") else k): v for k, v in state.items()}
+    renamed = {
+        (k[len("features.") :] if k.startswith("features.") else k): v for k, v in state.items()
+    }
     net.load_state_dict(renamed, strict=True)
     module: torch.nn.Module = net.eval()
     return module

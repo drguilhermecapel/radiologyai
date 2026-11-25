@@ -1,0 +1,80 @@
+id: medsam2-echo-lv
+version: medsam2-us-heart-e4a6f35
+name: MedSAM2 US Heart — traçado assistido do VE + Simpson (VDF, VSF, FE)
+status: available
+adapter: radiologyai.analysis.adapters.echo_medsam2:MedSAM2EchoLVAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+- prompt
+summary: Traçado ASSISTIDO da cavidade do VE em clipes apicais (A4C obrigatório, A2C opcional) a partir
+  de caixas do usuário em ED e ES; volumes e FE pelo método dos discos (biplanar ou monoplanar). Medida
+  geométrica dos contornos exibidos, só no modo pesquisa. Achado sugerido para confirmação médica.
+visibility_default: research
+route: interactive
+source:
+  repository: https://huggingface.co/wanglab/MedSAM2
+  revision: e4a6f35edd7e091619cbc0750f462f1574e23955
+  code: radiologyai.analysis.vendor.sam2 (sam2 1.1.0, Apache-2.0, vendorizado sem hydra)
+  config: sam2.1_hiera_t512.yaml de bowang-lab/MedSAM2 (transcrito em vendor/sam2/build.py)
+  simpson: radiologyai.analysis.adapters.echo_simpson (implementação própria do método dos discos)
+  evaluation_script: scripts/predict_echo_camus.py
+weights:
+- key: checkpoint
+  url: https://huggingface.co/wanglab/MedSAM2/resolve/e4a6f35edd7e091619cbc0750f462f1574e23955/MedSAM2_US_Heart.pt
+  filename: MedSAM2_US_Heart.pt
+  extract: none
+  unsafe_pickle: false
+  note: dict com a chave model; torch.load(weights_only=True) e load_state_dict(strict=True)
+  sha256: 295c0ff8912c99947c364287bbecd1cd36963f0c0ac67a042d292f0dedf8d933
+  bytes: 156041079
+license:
+  code: Apache-2.0 (bowang-lab/MedSAM2; sam2 1.1.0)
+  weights: 'contraditória: metadados do cartão no Hugging Face dizem cc-by-sa-4.0, mas o texto do cartão
+    diz "The model weights can only be used for research and education purposes" — tratada como só pesquisa/ensino'
+  training_data_terms: dados de treino do MedSAM2 incluem bases públicas de eco; não se sabe se pacientes
+    do CAMUS (CC BY-NC-SA 4.0) entraram no treino deste checkpoint
+  commercial_use: 'no'
+  evidence: cartão de wanglab/MedSAM2 no Hugging Face (revisão e4a6f35edd7e091619cbc0750f462f1574e23955)
+    e LICENSE de bowang-lab/MedSAM2 (Apache License Version 2.0)
+applicability:
+  exam_types:
+  - echo
+  modalities:
+  - US
+  image_kinds:
+  - cine
+  views:
+  - A4C
+  - A2C
+  min_pixels: 128
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - a4c
+  optional_roles:
+  - a2c
+  prompts: required
+training_data:
+- medsam2-training-corpus
+limitations:
+- Assistido, não automático. Exige corte (A4C/A2C), quadros ED e ES e uma caixa do VE em cada um, informados
+  pelo usuário; a variante sem prompt (atlas) existe só na avaliação.
+- Segmentação quadro a quadro no modo imagem; a propagação temporal do SAM 2 não é usada (subestimou a
+  FE na avaliação preliminar por superestimar a cavidade em ES).
+- Sem espaçamento físico (DICOM SequenceOfUltrasoundRegions ou NIfTI) volumes e FE se abstêm.
+- Nenhum limiar de FE com origem verificada foi registrado; a FE não vira achado de disfunção.
+- CAMUS pode ter sido usado no treino do MedSAM2 (não declarado); a medição no CAMUS pode ser otimista.
+- Pesos com licença contraditória; só pesquisa e ensino.
+references:
+- title: 'MedSAM2: Segment Anything in 3D Medical Images and Videos'
+  identifier: arXiv:2504.03600
+  url: https://arxiv.org/abs/2504.03600
+- title: Deep Learning for Segmentation Using an Open Large-Scale Dataset in 2D Echocardiography (CAMUS)
+  identifier: doi:10.1109/TMI.2019.2900516
+config:
+  n_discs: 20
+  prompt_convention: Primitive bbox com frame = índice do quadro e label <corte>:<instante> (a4c:ed, a4c:es,
+    a2c:ed, a2c:es)

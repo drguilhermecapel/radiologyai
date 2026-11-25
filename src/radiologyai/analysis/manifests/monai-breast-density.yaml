@@ -1,0 +1,81 @@
+id: monai-breast-density
+version: 0.1.9-hf-eb746b7
+name: MONAI breast_density_classification (InceptionV3, densidade A-D)
+status: available
+adapter: radiologyai.analysis.adapters.mg_monai_density:MonaiBreastDensityAdapter
+task: classification
+capabilities:
+- classify
+summary: Densidade mamária A-D por incidência (InceptionV3 do bundle MONAI); segunda opinião de densidade,
+  só no modo pesquisa. O bundle declara não ser para uso diagnóstico.
+visibility_default: research
+route: research
+source:
+  bundle: breast_density_classification
+  bundle_version: 0.1.9
+  hub: huggingface
+  repository: https://huggingface.co/MONAI/breast_density_classification
+  revision: eb746b7590d830bef92137ac632a4abe34a64f3d
+  runtime: torchvision inception_v3 (sem MONAI em tempo de execução; mesma arquitetura do TorchVisionFCModel)
+weights:
+- key: model
+  url: https://huggingface.co/MONAI/breast_density_classification/resolve/eb746b7590d830bef92137ac632a4abe34a64f3d/models/model.pt
+  filename: model.pt
+  extract: none
+  unsafe_pickle: false
+  note: state_dict (torch.load weights_only=True); md5 4a474db59cc1cc85411cb4bdcbc3efd7 confere com large_files.yml
+    do model-zoo
+  sha256: 710a49172243ea9972bec5dc717382c294ed77310596b6ad0df9bb83f7ceafce
+  bytes: 100826617
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (bundle MONAI model-zoo)
+  training_data_terms: dados da Mayo Clinic (não públicos)
+  commercial_use: unclear
+  evidence: raw.githubusercontent.com/Project-MONAI/model-zoo/dev/models/breast_density_classification/docs/README.md
+    ("Licensed under the Apache License, Version 2.0") e configs/metadata.json intended_use "This is an
+    example, not to be used for diagnostic purposes"
+applicability:
+  exam_types:
+  - mg
+  modalities:
+  - MG
+  image_kinds:
+  - projection
+  views:
+  - CC
+  - MLO
+  min_pixels: 299
+  adult_only: true
+inputs:
+  mode: single
+training_data:
+- mayo-clinic-breast-density
+labels:
+- key: density
+  source_label: density A/B/C/D (one-hot do bundle)
+  condition_id: mg.breast_density
+  kind: categorical
+  score_kind: sigmoid
+  classes:
+  - A
+  - B
+  - C
+  - D
+  code:
+    scheme: 99MEDAI
+    value: mg.breast_density
+    meaning: breast density category
+limitations:
+- O bundle declara "This is an example, not to be used for diagnostic purposes"; a métrica do metadata.json
+  não tem dataset, n nem IC e não é exibida.
+- Entrada do bundle é JPEG 8 bits; para DICOM os 8 bits vêm da conversão VOI + min-max do mammoscreen
+  (o bundle não especifica a conversão de DICOM).
+- Pós-processamento do bundle é sigmoide por classe (não softmax); a categoria é o argmax.
+- O pipeline roda modelos de entrada única só na primeira incidência aplicável do exame.
+references:
+- title: MONAI model-zoo breast_density_classification (bundle 0.1.9)
+  url: https://huggingface.co/MONAI/breast_density_classification
+- title: A multi-reconstruction study of breast density estimation using Deep Learning (Gupta et al.)
+  identifier: arXiv:2202.08238
+  url: https://arxiv.org/abs/2202.08238

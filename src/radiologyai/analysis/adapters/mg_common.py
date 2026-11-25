@@ -170,13 +170,17 @@ def _content_checks(image: ImageData, idx: int) -> tuple[list[QACheck], list[Abs
             name=f"presentation_intent[{idx}]",
             passed=ok_intent,
             value=image.meta.presentation_intent,
-            detail=None if ok_intent else "imagem FOR PROCESSING (crua); modelo usa FOR PRESENTATION",
+            detail=None
+            if ok_intent
+            else "imagem FOR PROCESSING (crua); modelo usa FOR PRESENTATION",
         )
     )
     if not ok_intent:
         reasons.append(AbstentionReason.ACQUISITION)
     fmt = image.meta.source_format
-    ok_voi = fmt == "raster" or (fmt == "dicom" and isinstance(image.extra.get(VOI_EXTRA_KEY), Mapping))
+    ok_voi = fmt == "raster" or (
+        fmt == "dicom" and isinstance(image.extra.get(VOI_EXTRA_KEY), Mapping)
+    )
     checks.append(
         QACheck(
             name=f"voi_parameters[{idx}]",

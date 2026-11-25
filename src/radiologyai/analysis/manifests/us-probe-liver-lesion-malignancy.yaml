@@ -1,0 +1,102 @@
+id: us-probe-liver-lesion-malignancy
+version: probe-20261124-biomedclip-9f341de
+name: Sonda linear (liver_lesion_malignant) sobre BiomedCLIP congelado
+status: available
+adapter: radiologyai.analysis.adapters.us_probe:USProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de malignidade de massa hepática na região de uma caixa do usuário em US abdominal: sonda
+  linear sobre BiomedCLIP. Exploratório, só modo pesquisa.'
+visibility_default: research
+route: interactive
+source:
+  encoder: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224@9f341de24bfb00180f1b847274256e9b65a3a32e
+  encoder_repository: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  fit_script: scripts/probe_fit_us_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/open_clip_pytorch_model.bin
+  filename: open_clip_pytorch_model.bin
+  note: checkpoint open_clip completo; só as chaves visual.* são usadas (torch.load weights_only=True,
+    strict=True)
+  sha256: 52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be
+  bytes: 783705670
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/us-probe-liver-lesion-malignancy/probe.safetensors
+  filename: probe.safetensors
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: ce51b124638413f8c5a03276d900b468a53a04e0349460086680787124f835f7
+  bytes: 12624
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/us-probe-liver-lesion-malignancy/probe.json
+  filename: probe.json
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: ad8b5cb196402be43aee67039708e9eeb98258274260edb2879b8946523ff8c3
+  bytes: 1346
+license:
+  code: MIT (BiomedCLIP/open_clip) + Apache-2.0 (este projeto)
+  weights: 'BiomedCLIP: MIT (LICENSE.md do repositório); cartão restringe a pesquisa; sonda: este projeto'
+  training_data_terms: liver-lesion-us-7272660 (CC BY 4.0, Zenodo 7272660)
+  commercial_use: 'no'
+  evidence: LICENSE.md e README.md de microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224 (revisão
+    9f341de24bfb00180f1b847274256e9b65a3a32e); DATASET.json dos dados
+applicability:
+  exam_types:
+  - us_abdomen
+  modalities:
+  - US
+  image_kinds:
+  - projection
+  min_pixels: 64
+  adult_only: false
+inputs:
+  mode: single
+  prompts: required
+training_data:
+- liver-lesion-us-7272660
+labels:
+- key: liver_lesion_malignant
+  source_label: liver_lesion_malignant
+  condition_id: us.liver_lesion_malignancy
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: us.liver_lesion_malignancy
+    meaning: liver mass malignancy (suggested)
+operating_points:
+- label: liver_lesion_malignant
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: -0.4686231854334877
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Zenodo 7272660 deduplicado (us-probe-liver-lesion-malignancy); sensibilidade-alvo
+      0.9 nas predições fora-da-dobra do treino
+- label: liver_lesion_malignant
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: 0.955080360835395
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Zenodo 7272660 deduplicado (us-probe-liver-lesion-malignancy); especificidade-alvo
+      0.9 nas predições fora-da-dobra do treino
+limitations:
+- Dataset sem id de paciente, sem histologia e sem metadados de aparelho; rótulo = pasta.
+- Avaliação só interna; vazamento intrapaciente possível.
+- Região de treino = caixa do polígono de referência + 25%.
+references:
+- title: 'BiomedCLIP: a multimodal biomedical foundation model pretrained from fifteen million scientific
+    image-text pairs'
+  identifier: arXiv:2303.00915
+  url: https://arxiv.org/abs/2303.00915
+config:
+  roi: box
+  margin: 0.25
+  max_frames: 10

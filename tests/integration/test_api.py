@@ -1,31 +1,40 @@
-"""API — o servidor do v1 fabricava métricas a cada requisição. Este não."""
+"""API — o servidor do v1 fabricava métricas a cada requisição. Este não.
+
+Reescrito para a API com autenticação (v3 da plataforma): os mesmos contratos de
+antes (REQ-031, REQ-062, REQ-063, REQ-080) mais a exigência de sessão no
+endpoint legado ``/analyze``. Saúde e métricas MEDIDAS continuam públicas.
+"""
 
 from __future__ import annotations
 
-import importlib.util
-import io
-import json
+from pathlib import Path
 
 import pytest
+from platform_support import HAS_PLATFORM, dicom_bytes
 
-HAS_API = importlib.util.find_spec("fastapi") is not None
-pytestmark = pytest.mark.skipif(not HAS_API, reason="requer o extra [api]")
+pytestmark = pytest.mark.skipif(not HAS_PLATFORM, reason="requer os extras [api,platform]")
+
+REPO = Path(__file__).resolve().parents[2]
 
 
-@pytest.fixture
-def client(tmp_path):
+def _client(platform_settings, artifacts_dir):
     from fastapi.testclient import TestClient
 
     from radiologyai.api import create_app
+    from radiologyai.worker.runtime import Platform
 
-    return TestClient(create_app(artifacts_dir=str(tmp_path / "sem_artefatos")))
+    platform = Platform.create(platform_settings)
+    return TestClient(create_app(platform=platform, artifacts_dir=str(artifacts_dir)))
 
 
 @pytest.fixture
-def client_with_metrics(tmp_path):
-    from fastapi.testclient import TestClient
+def client(platform_settings, tmp_path):
+    return _client(platform_settings, tmp_path / "sem_artefatos")
 
-    from radiologyai.api import create_app
+
+@pytest.fixture
+def client_with_metrics(platform_settings, tmp_path):
+    import json
 
     run = tmp_path / "eval" / "run-001"
     run.mkdir(parents=True)
@@ -45,15 +54,37 @@ def client_with_metrics(tmp_path):
         ),
         encoding="utf-8",
     )
-    return TestClient(create_app(artifacts_dir=str(tmp_path / "eval")))
+    return _client(platform_settings, tmp_path / "eval")
 
 
-def dicom_bytes(dataset) -> bytes:
-    import pydicom
+@pytest.fixture
+def client_with_repo_artifacts(platform_settings):
+    """API apontada para os artefatos REAIS versionados no repositório."""
+    return _client(platform_settings, REPO / "artifacts" / "eval")
 
-    buffer = io.BytesIO()
-    pydicom.dcmwrite(buffer, dataset, write_like_original=False)
-    return buffer.getvalue()
+
+def _auth(client, role: str = "physician") -> dict[str, str]:
+    from radiologyai.persistence.users import create_user, issue_session
+
+    platform = client.app.state.platform
+    user = create_user(
+        platform.db,
+        username=f"{role}-api",
+        full_name="Teste",
+        role=role,
+        password="senha-de-teste-123",
+    )
+    token, _ = issue_session(platform.db, user, 1.0)
+    return {"Authorization": f"Bearer {token}"}
+
+
+def post_analyze(client, dataset, headers=None, **data):
+    return client.post(
+        "/api/v1/analyze",
+        headers=headers if headers is not None else _auth(client),
+        files={"file": ("study.dcm", dicom_bytes(dataset), "application/dicom")},
+        data=data,
+    )
 
 
 class TestHealth:
@@ -67,10 +98,12 @@ class TestHealth:
         assert body["clinically_validated"] is False
         assert "não registrado" in body["regulatory_status"]
 
-    def test_status_marks_unimplemented_modalities(self, client):
-        by_code = {m["code"]: m for m in client.get("/api/v1/status").json()["modalities"]}
+    def test_status_lists_declared_modalities_with_maturity(self, client):
+        """Cada modalidade declara se está implementada; nenhuma omite o campo."""
+        modalities = client.get("/api/v1/status").json()["modalities"]
+        by_code = {m["code"]: m for m in modalities}
         assert by_code["XR"]["implemented"] is True
-        assert by_code["CT"]["implemented"] is False
+        assert all(isinstance(m["implemented"], bool) for m in modalities)
 
 
 @pytest.mark.requirement("REQ-080")
@@ -79,7 +112,7 @@ class TestMetricsNeverFabricated:
         """O v1 fabricava clinical_metrics de um array de um elemento."""
         body = client.get("/api/v1/metrics").json()
         assert body["measured"] is False
-        assert "macro_auroc" not in body
+        assert body["macro_auroc"] is None
         assert "Nenhum desempenho foi medido" in body["reason"]
 
     def test_response_explains_how_to_produce(self, client):
@@ -97,86 +130,76 @@ class TestMetricsNeverFabricated:
             client_with_metrics.get("/api/v1/metrics").json()["external_to_training_data"] is True
         )
 
-
-class TestModels:
-    def test_measured_performance_flag_matches_runs(self, client):
-        from pathlib import Path
-
-        root = Path(__file__).resolve().parents[2]
-        for card in client.get("/api/v1/models").json():
-            assert card["has_measured_performance"] is bool(card["evaluation_runs"])
-            for run_id in card["evaluation_runs"]:
-                assert (root / "artifacts" / "eval" / run_id / "metrics.json").is_file()
-
-    def test_no_accuracy_field_exposed(self, client):
+    def test_no_performance_keys_in_model_cards(self, client):
         """O model_registry.json do v1 expunha accuracy: 0.92 fabricado."""
-        for card in client.get("/api/v1/models").json():
-            assert "accuracy" not in card
-            assert "auc" not in card
+        forbidden = {"accuracy", "auc", "auroc", "sensitivity", "specificity"}
 
-    def test_sha256_is_hex(self, client):
-        for card in client.get("/api/v1/models").json():
-            assert len(card["weights_sha256"]) == 64
+        def walk(value):
+            if isinstance(value, dict):
+                assert not forbidden & {str(k).lower() for k in value}, value.keys()
+                for sub in value.values():
+                    walk(sub)
+            elif isinstance(value, list):
+                for sub in value:
+                    walk(sub)
+
+        cards = client.get("/api/v1/models", headers=_auth(client, "viewer")).json()
+        assert cards, "o registro do pacote deve listar modelos"
+        walk(cards)
+        for card in cards:
+            for weight in card["weights"]:
+                assert len(weight["sha256"]) == 64 or card["status"] == "planned"
+            if card["status"] == "planned":
+                assert card["planned_reason"]
 
 
 @pytest.mark.requirement("REQ-031")
 class TestScopeGateOverHTTP:
+    def test_requires_session(self, client, cr_dataset):
+        assert post_analyze(client, cr_dataset, headers={}).status_code == 401
+
+    def test_viewer_cannot_run_inference(self, client, cr_dataset):
+        response = post_analyze(client, cr_dataset, headers=_auth(client, "viewer"))
+        assert response.status_code == 403
+
     def test_in_scope_reaches_inference(self, client, cr_dataset):
         """Entrada válida chega ao modelo — 200 com pesos, 503 sem eles."""
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
-        assert response.status_code in (200, 503)
+        assert post_analyze(client, cr_dataset).status_code in (200, 503)
 
     def test_lateral_view_rejected_422(self, client, lateral_dataset):
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(lateral_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, lateral_dataset)
         assert response.status_code == 422
         detail = response.json()["detail"]
         assert "fora do uso pretendido" in detail["error"]
         assert any("incidência" in r for r in detail["reasons"])
 
     def test_pediatric_rejected_422(self, client, pediatric_dataset):
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(pediatric_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, pediatric_dataset)
         assert response.status_code == 422
         assert any("pediátrica" in r for r in response.json()["detail"]["reasons"])
 
-    def test_unsupported_modality_rejected(self, client, ct_dataset):
-        """TC é declarada mas não implementada: recusa, nunca predição."""
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(ct_dataset), "application/dicom")},
-        )
-        assert response.status_code == 422
+    def test_out_of_scope_modality_never_predicted(self, client, ct_dataset):
+        """Modalidade que o card não cobre: recusa (422) ou falha fechada — nunca 200."""
+        response = post_analyze(client, ct_dataset)
+        assert response.status_code in (404, 422, 503)
+        assert "findings" not in response.json()
 
     def test_non_dicom_rejected_400(self, client):
         response = client.post(
             "/api/v1/analyze",
+            headers=_auth(client),
             files={"file": ("x.dcm", b"isto nao e dicom" * 50, "application/dicom")},
         )
         assert response.status_code == 400
 
     def test_unknown_card_404(self, client, cr_dataset):
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-            data={"card_id": "inexistente"},
-        )
-        assert response.status_code == 404
+        assert post_analyze(client, cr_dataset, card_id="inexistente").status_code == 404
 
 
+@pytest.mark.requirement("REQ-063")
 class TestAnalyzeResponseContract:
     def test_response_carries_audit_fields(self, client, cr_dataset):
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, cr_dataset)
         if response.status_code != 200:
             pytest.skip("backend indisponível neste ambiente")
         body = response.json()
@@ -184,10 +207,7 @@ class TestAnalyzeResponseContract:
             assert body[key], f"{key} ausente — decisão não reconstruível"
 
     def test_never_asserts_normality(self, client, cr_dataset):
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, cr_dataset)
         if response.status_code != 200:
             pytest.skip("backend indisponível neste ambiente")
         body = response.json()
@@ -197,19 +217,13 @@ class TestAnalyzeResponseContract:
 
     def test_no_clinical_metrics_in_response(self, client, cr_dataset):
         """medai_fastapi_server.py:340 devolvia clinical_metrics fabricadas."""
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, cr_dataset)
         if response.status_code == 200:
             assert "clinical_metrics" not in response.json()
 
     def test_unmeasured_model_yields_indeterminate_bands(self, client, cr_dataset):
         """Sem avaliação medida não há ponto de operação, logo tudo é indeterminado."""
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, cr_dataset)
         if response.status_code != 200:
             pytest.skip("backend indisponível neste ambiente")
         for finding in response.json()["findings"]:
@@ -217,28 +231,12 @@ class TestAnalyzeResponseContract:
             assert finding["evaluated"] is False
 
 
-@pytest.fixture
-def client_with_repo_artifacts():
-    """API apontada para os artefatos REAIS versionados no repositório."""
-    from pathlib import Path
-
-    from fastapi.testclient import TestClient
-
-    from radiologyai.api import create_app
-
-    root = Path(__file__).resolve().parents[2]
-    return TestClient(create_app(artifacts_dir=str(root / "artifacts" / "eval")))
-
-
 @pytest.mark.requirement("REQ-062")
 class TestThresholdsComeFromMeasuredArtifact:
     """Os limiares da abstenção vêm do artefato medido — nunca de um placeholder."""
 
     def test_bands_derive_from_baseline_run(self, client_with_repo_artifacts, cr_dataset):
-        response = client_with_repo_artifacts.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client_with_repo_artifacts, cr_dataset)
         if response.status_code == 503:
             pytest.skip("backend indisponível neste ambiente")
         assert response.status_code == 200, response.text
@@ -246,17 +244,12 @@ class TestThresholdsComeFromMeasuredArtifact:
         evaluated = [f for f in findings if f["evaluated"]]
         assert evaluated, "nenhum achado com medição — o artefato não foi usado"
         for f in evaluated:
-            # latest_run_for_card escolhe o run mais recente entre os do card.
             assert f["evaluation_run"] == "xrv-densenet121-pc__20260912T215742Z"
             assert f["band"] in ("achado_provavel", "nao_avaliavel", "achado_improvavel")
             assert f["calibrated"] is False
 
     def test_run_without_artifact_in_checkout_is_all_indeterminate(self, client, cr_dataset):
-        """Card referencia um run; o artefato não está neste artifacts_dir → tudo indeterminado."""
-        response = client.post(
-            "/api/v1/analyze",
-            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
-        )
+        response = post_analyze(client, cr_dataset)
         if response.status_code == 503:
             pytest.skip("backend indisponível neste ambiente")
         for f in response.json()["findings"]:

@@ -127,7 +127,7 @@ def apply_voi(
             desconhecida, ou LUT com valores fora do descritor.
     """
     import numpy as np
-    from pydicom.pixels import apply_voi_lut
+    from pydicom.pixels.processing import apply_voi_lut
 
     if voi.get("photometric") not in ("MONOCHROME1", "MONOCHROME2"):
         raise UnsupportedInputError(

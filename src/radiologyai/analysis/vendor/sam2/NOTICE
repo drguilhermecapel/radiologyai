@@ -1,0 +1,25 @@
+Vendorizado (cópia reduzida, revisada) de:
+
+  sam2 1.1.0 — distribuição sdist no PyPI
+    https://files.pythonhosted.org/packages/ce/11/d07fc96688f731a85de6d5260e98b709051eded2b7b5667ae292530bcf90/sam2-1.1.0.tar.gz
+    sha256 do sdist: 7e0ea252d43c10d853e3acfce0b5770ac683c30481bd6de311300e9d44f45b74
+    (o sdist é uma republicação de terceiros do código SAM 2 de Meta Platforms;
+     metadados do PyPI: "License: Apache 2.0")
+  configuração sam2.1_hiera_t512.yaml de bowang-lab/MedSAM2 (Apache-2.0),
+    https://raw.githubusercontent.com/bowang-lab/MedSAM2/main/sam2/configs/sam2.1_hiera_t512.yaml
+
+Autores originais: Meta Platforms, Inc. and affiliates (SAM 2); Bo Wang lab (MedSAM2).
+Licença: Apache License, Version 2.0 — texto completo em LICENSE neste diretório.
+
+Modificações (seção 4(b) da Apache-2.0):
+  * Importações reescritas de ``sam2.`` para ``radiologyai.analysis.vendor.sam2.``.
+  * Removidos: inicialização hydra (``sam2/__init__.py``, ``build_sam.py``), preditores
+    de vídeo, gerador automático de máscaras, código de treino e benchmark.
+  * ``hieradet.py``: removido o carregamento de pesos parciais via iopath
+    (``weights_path`` agora levanta ValueError).
+  * ``utils/misc.py``: removidos os carregadores de quadros de vídeo (tqdm, threads).
+  * Cabeçalho ``# ruff: noqa`` / ``# mypy: ignore-errors`` em cada arquivo copiado e
+    reformatação automática com ``ruff format`` (só leiaute; lógica inalterada).
+  * ``build.py`` (novo, deste projeto): constrói ``SAM2Base`` a partir da configuração
+    hiera-t 512 embutida, sem hydra, e carrega o checkpoint com
+    ``torch.load(weights_only=True)`` e ``load_state_dict(strict=True)``.

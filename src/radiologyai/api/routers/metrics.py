@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
+
+from radiologyai.api.deps import PUBLIC, perm
+from radiologyai.api.schemas import MetricsOut
 
 router = APIRouter(tags=["metrics"])
 
 
-@router.get("/metrics")
-def metrics(request: Request) -> dict[str, Any]:
+@router.get("/metrics", response_model=MetricsOut, openapi_extra=perm(PUBLIC))
+def metrics(request: Request) -> MetricsOut:
     """Métricas medidas, lidas de ``artifacts/eval/``.
 
     Quando não há artefato, devolve ``measured: false`` — e não um número.
@@ -21,36 +23,32 @@ def metrics(request: Request) -> dict[str, Any]:
     """
     root = Path(request.app.state.artifacts_dir)
     runs = sorted(root.glob("*/metrics.json")) if root.is_dir() else []
-
     if not runs:
-        return {
-            "measured": False,
-            "reason": (
-                "Nenhum artefato de avaliação em "
-                f"{root}. Nenhum desempenho foi medido, portanto nenhum é reportado."
+        return MetricsOut(
+            measured=False,
+            reason=(
+                f"Nenhum artefato de avaliação em {root}. "
+                "Nenhum desempenho foi medido, portanto nenhum é reportado."
             ),
-            "how_to_produce": (
-                "radiologyai evaluate --card <id> --manifest <csv> --data-root <dir>"
-            ),
-        }
-
+            how_to_produce="radiologyai evaluate --card <id> --manifest <csv> --data-root <dir>",
+        )
     latest = json.loads(runs[-1].read_text(encoding="utf-8"))
-    return {
-        "measured": True,
-        "run_id": latest["run_id"],
-        "model": latest["model"]["card_id"],
-        "dataset": latest["dataset"]["name"],
-        "external_to_training_data": latest["dataset"]["external_to_training_data"],
-        "macro_auroc": latest["macro_auroc"],
-        "per_label": latest["per_label"],
-        "not_evaluated": latest["not_evaluated"],
-        "subgroups": latest["subgroups"],
-        "limitations": latest["limitations"],
-        "provenance": latest["environment"],
-    }
+    return MetricsOut(
+        measured=True,
+        run_id=latest["run_id"],
+        model=latest["model"]["card_id"],
+        dataset=latest["dataset"]["name"],
+        external_to_training_data=latest["dataset"]["external_to_training_data"],
+        macro_auroc=latest["macro_auroc"],
+        per_label=latest["per_label"],
+        not_evaluated=latest["not_evaluated"],
+        subgroups=latest["subgroups"],
+        limitations=latest["limitations"],
+        provenance=latest["environment"],
+    )
 
 
-@router.get("/metrics/runs")
+@router.get("/metrics/runs", response_model=list[str], openapi_extra=perm(PUBLIC))
 def runs(request: Request) -> list[str]:
     """Todos os run_ids disponíveis."""
     root = Path(request.app.state.artifacts_dir)

@@ -56,8 +56,8 @@ ENSEMBLE_PAD_TO_ASPECT: tuple[bool, ...] = (True, True, False)
 
 def resize_u8(img: U8Array, height: int, width: int) -> U8Array:
     """``cv2.resize`` bilinear (o que ``A.Resize`` executa em uint8)."""
-    out: U8Array = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
-    return out
+    out = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
+    return np.asarray(out, dtype=np.uint8)
 
 
 def pad_to_aspect_ratio(img: U8Array, aspect_ratio: float) -> U8Array:

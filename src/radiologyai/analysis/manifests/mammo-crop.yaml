@@ -1,0 +1,61 @@
+id: mammo-crop
+version: hf-bec2e30
+name: ianpan/mammo-crop (recorte da mama em mamografia)
+status: available
+adapter: radiologyai.analysis.adapters.mg_mammoscreen:MammoCropAdapter
+task: detection
+capabilities:
+- detect
+summary: Caixa xywh da mama em cada incidência (MobileNetV3-small); dependência do mammoscreen. Não emite
+  achado.
+route: dependency
+source:
+  hub: huggingface
+  repository: https://huggingface.co/ianpan/mammo-crop
+  revision: bec2e302d47176d743a86d276d8402f876ad0f9f
+  code: vendorizado em radiologyai/analysis/vendor/mammoscreen (sem trust_remote_code)
+weights:
+- key: model
+  url: https://huggingface.co/ianpan/mammo-crop/resolve/bec2e302d47176d743a86d276d8402f876ad0f9f/model.safetensors
+  filename: model.safetensors
+  extract: none
+  unsafe_pickle: false
+  note: safetensors (state_dict); carregado com load_state_dict(strict=True)
+  sha256: 57bd1f259c2b1588d96953195665bca3972e0954194d8eaeaf2bd12af47591d2
+  bytes: 6159428
+license:
+  code: Apache-2.0
+  weights: Apache-2.0
+  training_data_terms: RSNA Screening Mammography Breast Cancer Detection (termos da competição Kaggle)
+  commercial_use: unclear
+  evidence: 'huggingface.co/ianpan/mammo-crop README.md, front-matter "license: apache-2.0" (lido em 2026-11-24);
+    os termos dos dados de treino (competição RSNA no Kaggle) não foram lidos'
+applicability:
+  exam_types:
+  - mg
+  modalities:
+  - MG
+  image_kinds:
+  - projection
+  views:
+  - CC
+  - MLO
+  min_pixels: 256
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - L-CC
+  - L-MLO
+  - R-CC
+  - R-MLO
+training_data:
+- rsna-screening-mammography
+labels: []
+limitations:
+- Treinado para reproduzir uma caixa derivada por componentes conexos (limiar de intensidade) em imagens
+  RSNA; não é segmentação anatômica.
+- 'Papéis: o adaptador aceita de 1 a 4 incidências; papéis ausentes não recusam (ver mg_common.mg_applicability).'
+references:
+- title: ianpan/mammo-crop (cartão do modelo, Hugging Face)
+  url: https://huggingface.co/ianpan/mammo-crop

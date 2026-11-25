@@ -1,0 +1,124 @@
+id: mammoscreen
+version: hf-56b2890
+name: ianpan/mammoscreen (escore de câncer e densidade por mama)
+status: available
+adapter: radiologyai.analysis.adapters.mg_mammoscreen:MammoscreenAdapter
+task: classification
+capabilities:
+- classify
+summary: Ensemble de 3 EfficientNetV2-S sobre as incidências recortadas de cada mama (CC e/ou MLO); escore
+  bruto de câncer (sigmoide) e densidade A-D (softmax) por mama. Achado sugerido para confirmação médica.
+route: main
+source:
+  hub: huggingface
+  repository: https://huggingface.co/ianpan/mammoscreen
+  revision: 56b289045f71d26d85b7ecf0d204469ec8817c27
+  code: vendorizado em radiologyai/analysis/vendor/mammoscreen (sem trust_remote_code)
+  density_encoding: 'repositório de treino, data_preparation README: "encodes density A/B/C/D as 0/1/2/3"'
+weights:
+- key: model
+  url: https://huggingface.co/ianpan/mammoscreen/resolve/56b289045f71d26d85b7ecf0d204469ec8817c27/model.safetensors
+  filename: model.safetensors
+  extract: none
+  unsafe_pickle: false
+  note: safetensors (state_dict das 3 redes net0..net2); carregado com load_state_dict(strict=True)
+  sha256: 8ace0998e2d534b08eaa673fad37df16eaffef6dca3f3b5ac2196857a2949596
+  bytes: 244305924
+license:
+  code: Apache-2.0
+  weights: Apache-2.0
+  training_data_terms: CBIS-DDSM (pré-treino) e RSNA Screening Mammography Breast Cancer Detection (termos
+    da competição Kaggle)
+  commercial_use: unclear
+  evidence: 'huggingface.co/ianpan/mammoscreen README.md, front-matter "license: apache-2.0" (lido em
+    2026-11-24); os termos dos dados de treino (competição RSNA no Kaggle) não foram lidos'
+applicability:
+  exam_types:
+  - mg
+  modalities:
+  - MG
+  image_kinds:
+  - projection
+  views:
+  - CC
+  - MLO
+  min_pixels: 256
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - L-CC
+  - L-MLO
+  - R-CC
+  - R-MLO
+depends_on:
+- mammo-crop
+training_data:
+- cbis-ddsm
+- rsna-screening-mammography
+labels:
+- key: malignancy_left
+  source_label: cancer
+  condition_id: mg.malignancy_suspicion
+  kind: binary
+  score_kind: sigmoid
+  code:
+    scheme: 99MEDAI
+    value: mg.malignancy_suspicion
+    meaning: suspicion of breast malignancy
+- key: malignancy_right
+  source_label: cancer
+  condition_id: mg.malignancy_suspicion
+  kind: binary
+  score_kind: sigmoid
+  code:
+    scheme: 99MEDAI
+    value: mg.malignancy_suspicion
+    meaning: suspicion of breast malignancy
+- key: density_left
+  source_label: density
+  condition_id: mg.breast_density
+  kind: categorical
+  score_kind: softmax
+  classes:
+  - A
+  - B
+  - C
+  - D
+  code:
+    scheme: 99MEDAI
+    value: mg.breast_density
+    meaning: breast density category
+- key: density_right
+  source_label: density
+  condition_id: mg.breast_density
+  kind: categorical
+  score_kind: softmax
+  classes:
+  - A
+  - B
+  - C
+  - D
+  code:
+    scheme: 99MEDAI
+    value: mg.breast_density
+    meaning: breast density category
+operating_points: []
+limitations:
+- Os limiares do cartão do modelo foram escolhidos no hold-out interno do RSNA (autorrelato, sem IC, sem
+  n) e NÃO são usados como ponto de operação; a decisão é score_only até medição própria.
+- CBIS-DDSM foi usado no pré-treino; medir nele não é validação externa.
+- Treinado em rastreamento (RSNA); em população diagnóstica (ex. CMMD, só lesões biopsiadas) o escore
+  mede discriminação benigno x maligno, não detecção em rastreamento.
+- A ordem das classes de densidade vem da codificação do repositório de treino (A/B/C/D = 0/1/2/3); não
+  há métrica publicada para a cabeça de densidade.
+- Exige a VOI completa do DICOM (inclusive VOILUTFunction SIGMOID); DICOM carregado sem ela é recusado.
+- Incidência única por mama é aceita, com aviso (desempenho reduzido segundo o cartão).
+- Escore e densidade por mama vão em rótulos com sufixo _left/_right; o contrato de Score ainda não carrega
+  image_idx por mama.
+references:
+- title: ianpan/mammoscreen (cartão do modelo, Hugging Face; autorrelato, não revisado por pares)
+  url: https://huggingface.co/ianpan/mammoscreen
+- title: The Chinese Mammography Database (CMMD), TCIA 2021 (conjunto externo usado na medição)
+  identifier: doi:10.7937/tcia.eqde-4b16
+  url: https://doi.org/10.7937/tcia.eqde-4b16

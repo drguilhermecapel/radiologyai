@@ -1,0 +1,57 @@
+id: mirai
+version: mirai-full-2020
+name: Mirai (risco de câncer de mama em 1-5 anos a partir de 4 incidências)
+status: planned
+task: classification
+capabilities:
+- classify
+summary: 'Risco FUTURO de câncer de mama (1 a 5 anos) a partir das quatro incidências de rastreamento. Não
+  é detecção de câncer presente. Planejado: não roda de verdade neste ambiente.'
+route: none
+source:
+  repository: https://github.com/yala/Mirai
+  paper: doi:10.1126/scitranslmed.aba4373 (Yala et al., Sci Transl Med 2021; PMID 33504648)
+license:
+  code: MIT
+  weights: MIT ("Mirai (the trained model) and all code are released under the MIT license.")
+  commercial_use: unclear
+  evidence: 'raw.githubusercontent.com/yala/Mirai/master/README.md, lido em 2026-11-24; o mesmo README: "The
+    code base is not intended to be deployed for generating predictions for use in clinical-decision making
+    or for any other clinical use."'
+applicability:
+  exam_types:
+  - mg
+  modalities:
+  - MG
+  image_kinds:
+  - projection
+  views:
+  - CC
+  - MLO
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - L-CC
+  - L-MLO
+  - R-CC
+  - R-MLO
+training_data:
+- mgh-mammography-mirai
+limitations:
+- Tarefa é risco futuro (até 5 anos), não detecção; nunca mapear para "malignidade presente".
+- CMMD e CBIS-DDSM não têm seguimento temporal e não podem validar o Mirai.
+references:
+- title: 'Toward robust mammography-based models for breast cancer risk (Yala et al., Sci Transl Med 2021)'
+  identifier: doi:10.1126/scitranslmed.aba4373
+  url: https://doi.org/10.1126/scitranslmed.aba4373
+planned_reason: 'Não roda de verdade aqui sem esforço desproporcional e sem como verificar: (1) os snapshots
+  (mgh_mammo_MIRAI_Base_May20_2019.p, mgh_mammo_cancer_MIRAI_Transformer_Jan13_2020.p) são módulos PyTorch
+  inteiros em pickle legado que referenciam classes do pacote onconet (CustomResnet, AllImageTransformer,
+  RiskFactorPool, Cumulative_Probability_Layer...), torch.nn.backends.thnn (removido do PyTorch moderno)
+  e numpy.core (renomeado no numpy 2) — inspeção estática com pickletools, sem desserializar; exigiria
+  vendorizar o onconet e reescrever o carregamento; (2) o calibrador é um pickle de onconet.models.calibrator;
+  (3) o pré-processamento publicado é PNG16 via DCMTK dcmj2pnm (+on2, --min-max-window), ausente no ambiente;
+  (4) o README exige as 4 incidências "For Presentation" de Hologic Selenia; (5) não há dado aberto com
+  seguimento de 5 anos para medir o risco (CMMD/CBIS-DDSM são diagnósticos de um só tempo). O URL de
+  distribuição dos snapshots não foi verificado na fonte.'

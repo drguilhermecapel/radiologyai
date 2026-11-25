@@ -71,7 +71,7 @@ def read_list(path: Path) -> list[dict[str, Any]]:
 
 def _complete(dest: Path, row: dict[str, Any]) -> bool:
     folder = dest / row["patient"]
-    return folder.is_dir() and len(list(folder.glob("*.dcm"))) == row["n_images"]
+    return folder.is_dir() and len(list(folder.glob("*.dcm"))) == int(row["n_images"])
 
 
 def _fetch(row: dict[str, Any], dest: Path, retries: int = 4) -> str:
@@ -190,7 +190,6 @@ def cmd_predict(args: argparse.Namespace) -> int:
                 sel = tuple(im for im in images if im.meta.laterality == lat)
                 if not sel:
                     raise RuntimeError(f"{breast_id}: nenhuma imagem com essa lateralidade")
-                inputs = ModelInputs(images=sel, exam_type=ExamType.MG)
                 roles = _roles(sel)
                 inputs = ModelInputs(images=sel, exam_type=ExamType.MG, roles=roles)
                 qa = crop.applicability(inputs)
@@ -237,9 +236,7 @@ def cmd_predict(args: argparse.Namespace) -> int:
         "model_ids": ["mammo-crop", "mammoscreen"],
         "weights_sha256": {
             "mammo-crop": dict(registry.manifest("mammo-crop").weights[0].model_dump())["sha256"],
-            "mammoscreen": dict(registry.manifest("mammoscreen").weights[0].model_dump())[
-                "sha256"
-            ],
+            "mammoscreen": dict(registry.manifest("mammoscreen").weights[0].model_dump())["sha256"],
         },
         "dataset": "CMMD (TCIA, CC BY 4.0, doi:10.7937/tcia.eqde-4b16)",
         "subsample_list": str(args.list),

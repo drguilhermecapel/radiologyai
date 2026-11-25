@@ -62,9 +62,7 @@ DENSITY_CLASSES: tuple[str, ...] = ("A", "B", "C", "D")
 _SIDE = {"L": "left", "R": "right"}
 
 
-def apply_crop(
-    img: npt.NDArray[np.uint8], box: tuple[int, int, int, int]
-) -> npt.NDArray[np.uint8]:
+def apply_crop(img: npt.NDArray[np.uint8], box: tuple[int, int, int, int]) -> npt.NDArray[np.uint8]:
     """``img[y:y+h, x:x+w]`` como no cartão do modelo.
 
     Raises:
