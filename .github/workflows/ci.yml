@@ -37,7 +37,7 @@ jobs:
         run: uv python install ${{ matrix.python }}
 
       - name: Instalar dependências
-        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging
+        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging --extra platform
 
       - name: Lint (ruff)
         run: uv run ruff check src/ tests/ scripts/

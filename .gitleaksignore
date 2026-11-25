@@ -2,3 +2,7 @@
 299bb2441a6c5f6abb1a458c6a1b53e881912910:.github/workflows/ci.yml:generic-api-key:152
 14f7a4570f2d5e66c95ef0245954415060319082:.github/workflows/ci.yml:generic-api-key:101
 42c3e54b4064d91a14fd24fed5fca04aa3afb017:.gitleaksignore:generic-api-key:1
+# Falsos positivos verificados (2026-11-25): senhas fictícias de teste e nome de chave de dicionário.
+90816dfc3b36f8474c8cb923f7fd89618886eade:tests/unit/persistence/test_persistence_core.py:generic-api-key:89
+90816dfc3b36f8474c8cb923f7fd89618886eade:tests/unit/persistence/test_persistence_core.py:generic-api-key:109
+c763d4f07d39a51850bcb281b3dc13ed99b7a36e:src/radiologyai/analysis/biomarkers/ct.py:generic-api-key:382

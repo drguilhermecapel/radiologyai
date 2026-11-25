@@ -225,6 +225,14 @@ module = [
 ]
 ignore_missing_imports = true
 
+# Código de terceiros vendorizado (mammoscreen, Apache-2.0): subclasses de
+# torch.nn.Module e decoradores do torch viram Any quando o torch não está
+# instalado (job de qualidade sem o extra [ml]). Relaxa só essas duas regras.
+[[tool.mypy.overrides]]
+module = ["radiologyai.analysis.vendor.*"]
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+
 [tool.coverage.run]
 source = ["src/radiologyai"]
 omit = ["*/cli/*"]
