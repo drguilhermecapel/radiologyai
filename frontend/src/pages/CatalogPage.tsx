@@ -58,6 +58,7 @@ function ConditionsTab(): ReactNode {
     });
   }, [catalog.data, exam, level, q, research]);
 
+  const hiddenD = research ? 0 : (catalog.data?.conditions.filter((c) => c.best_level === "D").length ?? 0);
   if (catalog.error) return <ErrorBox error={catalog.error} onRetry={catalog.reload} />;
   if (!catalog.data) return <Loading />;
   const data = catalog.data;
@@ -106,6 +107,7 @@ function ConditionsTab(): ReactNode {
       </fieldset>
       <p className="muted" aria-live="polite">
         {t("catalog.count", { count: rows.length })}
+        {hiddenD > 0 ? <span data-testid="catalog-hidden-d"> · {t("catalog.hiddenD", { count: hiddenD })}</span> : null}
       </p>
       <div className="table-wrap">
         <table className="table" data-testid="catalog-table">

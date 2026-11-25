@@ -321,7 +321,18 @@ async function main() {
     // 7. Catálogo.
     await page.goto(`${base}/#/catalog`);
     await page.getByTestId("catalog-table").waitFor();
+    const hiddenD = page.getByTestId("catalog-hidden-d");
+    if ((await hiddenD.count()) > 0) {
+      log(`catálogo: ${(await hiddenD.innerText()).trim()}`);
+      await page.getByTestId("research-toggle").check();
+      await page.getByTestId("research-banner").waitFor();
+    }
+    const nCond = await page.getByTestId("catalog-table").locator("tbody tr").count();
+    log(`catálogo: ${nCond} linha(s) exibida(s)`);
     await page.screenshot({ path: join(screens, "03-catalogo.png"), fullPage: false });
+    if ((await hiddenD.count()) === 0 && (await page.getByTestId("research-banner").count()) > 0) {
+      await page.getByTestId("research-toggle").uncheck();
+    }
 
     // 8. Auditoria (administrador) com verificação da cadeia pelo servidor.
     await page.getByRole("button", { name: /Sair|Sign out/ }).click();
