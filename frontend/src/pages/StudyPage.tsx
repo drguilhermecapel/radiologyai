@@ -42,6 +42,12 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
   const [busy, setBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [activeExplanationId, setActiveExplanationId] = useState<string | null>(null);
+  // Vazio = roteamento automático pelo tipo de exame (o servidor decide).
+  const [chosenModels, setChosenModels] = useState<string[]>([]);
+  const models = useAsync(
+    async () => (can("models:read") ? unwrap(await api.GET("/api/v1/models")) : []),
+    [],
+  );
 
   const analyses = study.data?.analyses ?? [];
   // Sem análise escolhida na rota: a mais recente.
@@ -104,6 +110,12 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
   const s = study.data;
   const canAnalyze = can("analyses:create");
   const needsExamType = s.exam_type === "unknown";
+  const routable = (models.data ?? []).filter(
+    (m) =>
+      m.status === "available" &&
+      m.exam_types.includes(s.exam_type) &&
+      (m.route === "main" || m.route === "interactive" || (research && m.route === "research")),
+  );
 
   const createAnalysis = async (): Promise<void> => {
     setBusy(true);
@@ -112,7 +124,11 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
       const out = unwrap(
         await api.POST("/api/v1/studies/{study_id}/analyses", {
           params: { path: { study_id: s.id } },
-          body: { include_research: includeResearch && research, prompts },
+          body: {
+            include_research: includeResearch && research,
+            prompts,
+            ...(chosenModels.length > 0 ? { model_ids: chosenModels } : {}),
+          },
         }),
       );
       setPrompts([]);
@@ -200,6 +216,40 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
                     />
                     {t("study.analyze.research")}
                   </label>
+                ) : null}
+                {routable.length > 0 ? (
+                  <details className="model-chooser">
+                    <summary>
+                      {chosenModels.length === 0
+                        ? t("study.models.auto")
+                        : t("study.models.chosen", { count: chosenModels.length })}
+                    </summary>
+                    <p className="muted small">{t("study.models.help")}</p>
+                    {routable.map((m) => (
+                      <label key={m.id} className="check model-option">
+                        <input
+                          type="checkbox"
+                          value={m.id}
+                          checked={chosenModels.includes(m.id)}
+                          onChange={(e) =>
+                            setChosenModels((cur) =>
+                              e.target.checked ? [...cur, m.id] : cur.filter((x) => x !== m.id),
+                            )
+                          }
+                          data-testid={`choose-model-${m.id}`}
+                        />
+                        <span>
+                          {m.name} <span className="muted small">({m.id})</span>
+                          {m.commercial_use === "no" ? (
+                            <>
+                              {" "}
+                              <Pill tone="warn">{t("findings.noncommercial")}</Pill>
+                            </>
+                          ) : null}
+                        </span>
+                      </label>
+                    ))}
+                  </details>
                 ) : null}
                 {prompts.length > 0 ? (
                   <p className="small">{t("study.analyze.prompts", { count: prompts.length })}</p>

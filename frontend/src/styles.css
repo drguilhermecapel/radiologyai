@@ -840,3 +840,12 @@ textarea {
     animation: none !important;
   }
 }
+
+.model-chooser {
+  margin: 8px 0;
+}
+.model-option {
+  display: flex;
+  align-items: flex-start;
+  margin: 4px 0;
+}

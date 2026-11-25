@@ -136,6 +136,10 @@ export const pt = {
   "study.analysis.result": "Resultado: {status}",
   "study.analysis.hash": "Hash do resultado",
   "study.analysis.polling": "Aguardando o worker…",
+  "study.models.auto": "Modelos: automático pelo tipo de exame",
+  "study.models.chosen": "Modelos: {count} escolhido(s)",
+  "study.models.help":
+    "Opcional. Sem escolha, o servidor roteia pelo tipo de exame. Dependências entram sozinhas.",
 
   "viewer.title": "Visualizador",
   "viewer.canvas": "Imagem {series}, quadro {frame} de {count}",
@@ -506,6 +510,10 @@ export const en: Messages = {
   "study.analysis.result": "Result: {status}",
   "study.analysis.hash": "Result hash",
   "study.analysis.polling": "Waiting for the worker…",
+  "study.models.auto": "Models: automatic by exam type",
+  "study.models.chosen": "Models: {count} chosen",
+  "study.models.help":
+    "Optional. Without a choice, the server routes by exam type. Dependencies are added automatically.",
 
   "viewer.title": "Viewer",
   "viewer.canvas": "Image {series}, frame {frame} of {count}",
