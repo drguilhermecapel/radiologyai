@@ -54,7 +54,9 @@ def real_platform(platform_settings: Any) -> Any:
     from radiologyai.worker.runtime import AnalysisEngine, Platform
 
     engine = AnalysisEngine(registry=Registry(weights_dir=WEIGHTS), catalog=Catalog.load())
-    return Platform.create(platform_settings, engine=engine)
+    platform = Platform.create(platform_settings, engine=engine)
+    platform.db.migrate()
+    return platform
 
 
 @pytest.mark.requirement("REQ-160")
