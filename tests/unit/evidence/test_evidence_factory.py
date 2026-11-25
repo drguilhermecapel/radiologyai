@@ -16,10 +16,12 @@ import pytest
 from radiologyai.catalog import load_protocol
 from radiologyai.catalog.schema import (
     Condition,
+    EvidenceLevel,
     EvidenceRecord,
     EvidenceSource,
     LevelsFile,
     Metric,
+    compute_level,
 )
 from radiologyai.errors import EvidenceError
 from radiologyai.evaluation.protocol_eval import (
@@ -31,10 +33,12 @@ from radiologyai.evaluation.protocol_eval import (
 from radiologyai.evidence.leakage import assess_leakage, lineage
 from radiologyai.evidence.levels import build_levels, check_levels, render_levels
 from radiologyai.evidence.measure import (
+    ELIGIBILITY_PREFIX,
     MeasurementContext,
     judge_discrimination,
     measure_agreement,
     measure_binary,
+    verdict,
 )
 from radiologyai.evidence.store import dump_json, load_records, write_measured
 
@@ -172,6 +176,25 @@ class TestJudgement:
         )
         assert bad.record.passes_protocol is False
         assert any("auroc_min" in r for r in bad.record.failure_reasons)
+
+    @pytest.mark.requirement("REQ-113")
+    def test_underpowered_record_is_ineligible_not_refuting(self, protocol):
+        # 20 pacientes: abaixo dos mínimos do protocolo §2 -> nem aprova nem refuta.
+        pids, y, s = synthetic(n_patients=40, effect=0.3, seed=3)
+        ev = measure_binary(ctx(), protocol, patient_ids=pids, y_true=y, y_score=s, n_bootstrap=100)
+        rec = ev.record
+        assert rec.passes_protocol is None
+        assert any("min_positive" in r for r in rec.failure_reasons)
+        assert any("NÃO ELEGÍVEL" in c for c in rec.caveats)
+        level, _, refuted = compute_level([rec])
+        assert level is EvidenceLevel.D
+        assert refuted is False
+
+    @pytest.mark.requirement("REQ-113")
+    def test_verdict_rule(self):
+        assert verdict([]) is True
+        assert verdict(["AUROC 0.7 < auroc_min 0.8"]) is False
+        assert verdict([f"{ELIGIBILITY_PREFIX}pacientes 3 < min_positive 30", "x"]) is None
 
     @pytest.mark.requirement("REQ-115")
     def test_record_carries_full_provenance(self, protocol):

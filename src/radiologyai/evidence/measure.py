@@ -107,13 +107,33 @@ def _fmt(x: float) -> str:
 # --------------------------------------------------------------------------- #
 # Julgamento — exclusivamente pelos limiares do protocolo
 # --------------------------------------------------------------------------- #
+ELIGIBILITY_PREFIX = "não elegível: "
+
+
 def _eligibility(n_pos: int, n_neg: int, protocol: Protocol, unit: str) -> list[str]:
     reasons: list[str] = []
     if n_pos < protocol.min_positive:
-        reasons.append(f"{unit} positivos {n_pos} < min_positive {protocol.min_positive}")
+        reasons.append(
+            f"{ELIGIBILITY_PREFIX}{unit} positivos {n_pos} < min_positive {protocol.min_positive}"
+        )
     if n_neg < protocol.min_negative:
-        reasons.append(f"{unit} negativos {n_neg} < min_negative {protocol.min_negative}")
+        reasons.append(
+            f"{ELIGIBILITY_PREFIX}{unit} negativos {n_neg} < min_negative {protocol.min_negative}"
+        )
     return reasons
+
+
+def verdict(reasons: Sequence[str]) -> bool | None:
+    """``passes_protocol`` a partir dos motivos: ``None`` se o registro não é elegível.
+
+    Protocolo §2: abaixo dos mínimos de casos o registro "não é elegível para A nem
+    C, qualquer que seja a estimativa pontual". Também não pode **refutar** a
+    condição: amostra insuficiente não é evidência contra o modelo. Por isso o
+    veredito é indefinido (``None``), e os motivos continuam declarados.
+    """
+    if any(r.startswith(ELIGIBILITY_PREFIX) for r in reasons):
+        return None
+    return not reasons
 
 
 def judge_discrimination(report: BinaryProtocolReport, protocol: Protocol) -> list[str]:
@@ -158,7 +178,10 @@ def judge_agreement(report: AgreementReport, protocol: Protocol) -> list[str]:
     """
     reasons: list[str] = []
     if report.n_patients < protocol.min_positive:
-        reasons.append(f"pacientes {report.n_patients} < min_positive {protocol.min_positive}")
+        reasons.append(
+            f"{ELIGIBILITY_PREFIX}pacientes {report.n_patients} < min_positive "
+            f"{protocol.min_positive}"
+        )
     if report.icc.value < protocol.icc_min:
         reasons.append(f"{report.icc_form} {_fmt(report.icc.value)} < icc_min {protocol.icc_min}")
     return reasons
@@ -167,7 +190,10 @@ def judge_agreement(report: AgreementReport, protocol: Protocol) -> list[str]:
 def judge_segmentation(report: SegmentationReport, protocol: Protocol) -> list[str]:
     reasons: list[str] = []
     if report.n_patients < protocol.min_positive:
-        reasons.append(f"pacientes {report.n_patients} < min_positive {protocol.min_positive}")
+        reasons.append(
+            f"{ELIGIBILITY_PREFIX}pacientes {report.n_patients} < min_positive "
+            f"{protocol.min_positive}"
+        )
     if report.dice_mean < protocol.segmentation_dice_min:
         reasons.append(
             f"Dice médio {_fmt(report.dice_mean)} < segmentation_dice_min "
@@ -194,6 +220,12 @@ def _build_record(
 ) -> EvidenceRecord:
     leakage, note = assess_leakage(ctx.dataset_id, ctx.training_data)
     caveats = [*BASE_CAVEATS, *extra_caveats, *ctx.caveats]
+    passes = verdict(reasons)
+    if passes is None:
+        caveats.append(
+            "Registro NÃO ELEGÍVEL (casos abaixo dos mínimos do protocolo): não aprova "
+            "nem refuta a condição."
+        )
     if ctx.git_dirty:
         caveats.append(
             "ATENÇÃO: medido com modificações não commitadas sobre o git_sha; "
@@ -221,7 +253,7 @@ def _build_record(
         metrics={k: v for k, v in metrics.items() if v is not None},
         leakage=leakage,
         leakage_note=note,
-        passes_protocol=not reasons,
+        passes_protocol=passes,
         failure_reasons=tuple(reasons),
         provenance=MeasurementProvenance(
             git_sha=ctx.git_sha,

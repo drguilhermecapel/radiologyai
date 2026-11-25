@@ -1,7 +1,7 @@
 ---
 doc_id: REG-09
 title: Plano de Verificação de Software (IEC 62304 §5.5–5.7)
-status: RASCUNHO — v0.1
+status: RASCUNHO — v0.2
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-05, REG-07]
@@ -72,10 +72,10 @@ verificação de um requisito: o relatório de verificação registra onde cada 
 |---|---|
 | G0 | `git log --all -- medai_security.db` vazio; gitleaks limpo no histórico completo |
 | G1 | todo registro A reproduz de checkout limpo; `levels.json` regenerado é idêntico |
-| G1 | lateralidade propagada do DICOM (RISK-006) — requisito e teste a criar |
-| G1 | biomarcador abstém sem pré-condição (RISK-011) — requisito e teste a criar |
+| G1 | lateralidade propagada do DICOM (RISK-006) — coberta em mamografia (REQ-141); requisito e teste a criar para as demais modalidades |
+| G1 | biomarcador abstém sem pré-condição (RISK-011) — REQ-133, REQ-135, REQ-136, REQ-138 escritos; a verificação deles é exigida antes do fechamento de G1 para TC |
 | G2 | paridade torch ↔ ONNX para o modelo próprio; conjunto de teste sequestrado com hash registrado antes da avaliação |
-| Plataforma | assinatura invalidada por mudança de conteúdo (RISK-018); RBAC por papel (RISK-020); testes ponta a ponta no navegador |
+| Plataforma | assinatura invalidada por mudança de conteúdo (RISK-018; REQ-156); RBAC por papel (RISK-020; REQ-151); testes ponta a ponta no navegador (pendentes) |
 
 ---
 
@@ -84,3 +84,4 @@ verificação de um requisito: o relatório de verificação registra onde cada 
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação |
+| v0.2 | 2026-11-25 | Verificações de G1 e da plataforma ligadas aos requisitos REQ-1xx escritos |

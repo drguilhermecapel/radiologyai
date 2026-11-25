@@ -1,7 +1,7 @@
 ---
 doc_id: REG-11
 title: Cibersegurança e Proteção de Dados (LGPD / DPIA)
-status: RASCUNHO — v0.1
+status: RASCUNHO — v0.2
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-04, REG-07]
@@ -30,12 +30,12 @@ depends_on: [REG-01, REG-04, REG-07]
 
 | Ameaça | Exemplo | Controle | Estado |
 |---|---|---|---|
-| Falsificação de identidade | uso de credencial de outro médico para assinar | autenticação por usuário; RBAC; assinatura vinculada a usuário e hash | plataforma em construção |
-| Adulteração | alterar resultado ou registro de evidência | auditoria encadeada por hash (REQ-070); `levels.json` gerado e reproduzível; sha256 de pesos | implementado no núcleo |
+| Falsificação de identidade | uso de credencial de outro médico para assinar | autenticação por usuário (argon2id, sessão opaca revogável — REQ-150); RBAC por rota (REQ-151); assinatura vinculada a usuário e hash (REQ-156) | código presente; verificação em andamento |
+| Adulteração | alterar resultado ou registro de evidência | auditoria encadeada por hash (REQ-070; no banco, REQ-155); `levels.json` gerado e reproduzível (REQ-116); sha256 de pesos; artefatos endereçados por conteúdo (REQ-107) | implementado no núcleo; plataforma em verificação |
 | Repúdio | médico nega ter assinado | trilha com usuário, hash do conteúdo e carimbo de tempo | parcial |
 | Divulgação de informação | PHI em log, em erro, em texto gravado no pixel, em backup | des-identificação na ingestão; logs sem identificador nem nome de arquivo; limpeza de pixel em US/eco (pendente) | parcial |
-| Negação de serviço | upload gigante, volume malformado | limites de tamanho na API; decodificação que recusa em vez de adivinhar (`UnsupportedInputError`) | parcial |
-| Elevação de privilégio | pesquisador acessa função de administrador | RBAC por papel; testes de autorização | planejado |
+| Negação de serviço | upload gigante, volume malformado | limites medidos no fluxo da ingestão (REQ-152); decodificação que recusa em vez de adivinhar (`UnsupportedInputError`) | parcial |
+| Elevação de privilégio | pesquisador acessa função de administrador | RBAC por papel imposto rota a rota; testes de autorização (REQ-151) | código presente; verificação em andamento |
 | Cadeia de suprimentos | dependência com vulnerabilidade; pesos trocados no servidor de origem | `uv.lock`; lista SOUP gerada; pip-audit; SBOM CycloneDX; sha256 fixado por manifesto; sem rede na inferência | implementado (pip-audit ainda não bloqueia o build — ver §5) |
 
 ## 3. Des-identificação (DICOM PS3.15 Annex E)
@@ -86,7 +86,7 @@ O perfil e as opções usados são registrados no datasheet de cada dataset.
 2. `pip-audit` roda com `|| true` no workflow de segurança: reporta mas não bloqueia. Decidir
    política (bloquear vulnerabilidade com correção disponível).
 3. Limpeza de texto gravado no pixel para US/eco ainda não implementada.
-4. RBAC, autenticação e política de sessão da plataforma: em construção.
+4. RBAC, autenticação e sessão da plataforma: escritos (REQ-150, REQ-151); falta política de expiração/rotação de sessão documentada e revisão de segurança independente.
 5. SBOM é gerado no CI; falta anexá-lo a cada liberação.
 6. Plano de tratamento de vulnerabilidades (recebimento, triagem, prazo, divulgação) a escrever,
    conforme IEC 81001-5-1.
@@ -98,3 +98,4 @@ O perfil e as opções usados são registrados no datasheet de cada dataset.
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação |
+| v0.2 | 2026-11-25 | Estado dos controles da plataforma ligado aos requisitos REQ-150…REQ-155 |

@@ -1,7 +1,7 @@
 ---
 doc_id: REG-04
 title: Arquivo de Risco / Análise de Perigos
-status: RASCUNHO VIVO — v0.1
+status: RASCUNHO VIVO — v0.2
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-03]
@@ -21,28 +21,28 @@ zero-shot, da medida assistida, dos pesos não comerciais e da plataforma web.
 
 ## 1. Resumo
 
-| ID | Perigo | S | P (antes) | Controles (requisitos) | Situação |
-|---|---|---|---|---|---|
-| RISK-001 | Falso negativo em achado crítico | S5 | P3 | abstenção (REQ-062); nível D fora da visão principal (REQ-091); decisão só com ponto de operação de origem declarada (REQ-092); IFU proíbe *rule-out* | controles implementados; residual a estimar em G2 |
-| RISK-002 | Viés de automação | S5 | P3 | nunca afirmar normalidade (REQ-063); incerteza e nível visíveis; revisão obrigatória | parcial — interface ainda em construção |
-| RISK-003 | Entrada fora de distribuição processada em silêncio | S4 | P4 | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) | implementado para RX; demais modalidades em construção |
-| RISK-004 | Descasamento entre pesos e código | S4 | P2 | sha256 verificado (REQ-020); cabeças não treinadas não reportadas (REQ-021); falha fechada (REQ-030); API não fabrica métrica (REQ-080) | implementado |
-| RISK-005 | Má interpretação de DICOM | S4 | P3 | Modality LUT (REQ-005); MONOCHROME1 (REQ-006) | implementado para RX; VOI LUT em mamografia e HU em TC a verificar por modalidade |
-| RISK-006 | Erro de lateralidade | S4 | P2 | lateralidade propagada do DICOM, nunca inferida do pixel | **sem requisito ainda** — lacuna |
-| RISK-007 | Desempenho real diverge do declarado (número sem lastro, deriva) | S5 | P3 | sem aleatoriedade (REQ-002); toda verificação executada (REQ-003); avaliação reprodutível (REQ-050); sem vazamento por paciente (REQ-051); auditoria (REQ-070, REQ-071); nível calculado (REQ-090); medição própria prevalece (REQ-093) | implementado; deriva pós-implantação só em G6 |
-| RISK-008 | Explicabilidade enganosa | S4 | P2 | mapa derivado do modelo real (REQ-060) | implementado |
-| RISK-009 | Vazamento de dado pessoal | S3 | P3 | pseudo-ID determinístico (REQ-010); cobertura PS3.15 (REQ-011) | parcial — pixel com texto gravado (US, eco, captura secundária) pendente |
-| RISK-010 | Confiança mal calibrada | S4 | P4 | calibração preserva ordenação (REQ-061); IFU: escore não é probabilidade de doença | implementado; ECE reportado por avaliação |
-| RISK-011 | Biomarcador quantitativo fora das pré-condições de aquisição | S3 | P4 | verificar fase, kVp, kernel, espessura, inspiração; senão abstenção com motivo | em implementação — requisito a criar |
-| RISK-012 | Saída exploratória (zero-shot, nível D) lida como validada | S4 | P3 | modo pesquisa separado e desligado por padrão; nível D nunca sozinho no laudo (REQ-091) | parcial |
-| RISK-013 | Medida assistida aceita sem revisão (contorno, FE) | S4 | P3 | contorno exibido e confirmado pelo médico; FE só em modo pesquisa; caixa/prompt sempre do usuário ou declarado | em implementação — requisito a criar |
-| RISK-014 | Uso de pesos fora da licença (não comercial, só acadêmico, sem licença) | S2 | P3 | `commercial_use` no manifesto; modelos sem licença excluídos; pesos de licença intransferível não redistribuídos | parcial — inventário em [`MODEL_LICENSES.md`](../../MODEL_LICENSES.md) |
-| RISK-015 | Vazamento treino/teste na evidência ⇒ nível superestimado | S4 | P4 | campo `leakage` obrigatório; medição com vazamento no máximo C; política do [protocolo](../protocolo-evidencia.md) §8 | implementado no esquema; verificação por dataset em andamento |
-| RISK-016 | Modelo aplicado fora da população ou tarefa de treino | S4 | P3 | pré-condições por condição (ex.: glioma conhecido; T1w + FLAIR; diagnóstico, não rastreamento) | em implementação |
-| RISK-017 | Roteamento errado de exame (região, sequência ou janela ecocardiográfica) | S3 | P3 | roteamento por metadado DICOM validado; desconhecido ⇒ abstenção | em implementação |
-| RISK-018 | Assinatura do médico desvinculada do conteúdo analisado | S4 | P2 | assinatura vinculada ao hash do conteúdo; mudança após assinatura invalida a assinatura; auditoria encadeada | planejado na plataforma |
-| RISK-019 | Evidência publicada transcrita errado ou não aplicável ao modelo | S4 | P3 | citação literal conferida na fonte (`verified_at_source`); mesmo modelo e versão; revisão por pares ou diretriz | implementado no esquema |
-| RISK-020 | Acesso não autorizado ou adulteração | S4 | P3 | controle de acesso por papel; auditoria encadeada; segredos só por ambiente; expurgo de `medai_security.db` do histórico | parcial — ver [REG-11](11-cybersecurity-lgpd.md) |
+| ID | Perigo | S | P (antes) | Controles | Requisitos que declaram controlá-lo (`risk_controls`) | Situação |
+|---|---|---|---|---|---|---|
+| RISK-001 | Falso negativo em achado crítico | S5 | P3 | abstenção (REQ-062); nível D fora da visão principal (REQ-091); decisão só com ponto de operação de origem declarada (REQ-092); IFU proíbe *rule-out* | REQ-062, REQ-091, REQ-092, REQ-103, REQ-124, REQ-132, REQ-157 | controles implementados; residual a estimar em G2 |
+| RISK-002 | Viés de automação | S5 | P3 | nunca afirmar normalidade (REQ-063); incerteza e nível visíveis; revisão obrigatória | REQ-063, REQ-101, REQ-158, REQ-159 | parcial — interface ainda em construção |
+| RISK-003 | Entrada fora de distribuição processada em silêncio | S4 | P4 | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) | REQ-001, REQ-031, REQ-042, REQ-103, REQ-104, REQ-120, REQ-122, REQ-137, REQ-140, REQ-144, REQ-149, REQ-152 | implementado para RX; demais modalidades em construção |
+| RISK-004 | Descasamento entre pesos e código | S4 | P2 | sha256 verificado (REQ-020); cabeças não treinadas não reportadas (REQ-021); falha fechada (REQ-030); API não fabrica métrica (REQ-080) | REQ-020, REQ-021, REQ-030, REQ-080, REQ-100, REQ-115, REQ-121, REQ-125, REQ-127, REQ-130, REQ-142, REQ-148, REQ-154, REQ-160, REQ-164, REQ-165 | implementado |
+| RISK-005 | Má interpretação de DICOM | S4 | P3 | Modality LUT (REQ-005); MONOCHROME1 (REQ-006) | REQ-005, REQ-006, REQ-106, REQ-120, REQ-131, REQ-137, REQ-140, REQ-145, REQ-147, REQ-163 | implementado para RX; VOI LUT em mamografia e HU em TC a verificar por modalidade |
+| RISK-006 | Erro de lateralidade | S4 | P2 | lateralidade propagada do DICOM, nunca inferida do pixel | REQ-141 | requisito para mamografia (incidência e lateralidade do cabeçalho); RX, TC, US e eco sem requisito de lateralidade — lacuna parcial |
+| RISK-007 | Desempenho real diverge do declarado (número sem lastro, deriva) | S5 | P3 | sem aleatoriedade (REQ-002); toda verificação executada (REQ-003); avaliação reprodutível (REQ-050); sem vazamento por paciente (REQ-051); auditoria (REQ-070, REQ-071); nível calculado (REQ-090); medição própria prevalece (REQ-093) | REQ-002, REQ-003, REQ-050, REQ-051, REQ-070, REQ-071, REQ-090, REQ-093, REQ-102, REQ-105, REQ-110, REQ-111, REQ-112, REQ-113, REQ-114, REQ-115, REQ-116, REQ-117, REQ-118, REQ-121, REQ-125, REQ-131, REQ-132, REQ-134, REQ-135, REQ-139, REQ-143, REQ-148, REQ-154, REQ-155, REQ-160, REQ-166 | implementado; deriva pós-implantação só em G6 |
+| RISK-008 | Explicabilidade enganosa | S4 | P2 | mapa derivado do modelo real (REQ-060) | REQ-060, REQ-107, REQ-123 | implementado |
+| RISK-009 | Vazamento de dado pessoal | S3 | P3 | pseudo-ID determinístico (REQ-010); cobertura PS3.15 (REQ-011) | REQ-010, REQ-011, REQ-149, REQ-153, REQ-162 | parcial — pixel com texto gravado (US, eco, captura secundária) pendente |
+| RISK-010 | Confiança mal calibrada | S4 | P4 | calibração preserva ordenação (REQ-061); IFU: escore não é probabilidade de doença | REQ-061, REQ-101, REQ-111 | implementado; ECE reportado por avaliação |
+| RISK-011 | Biomarcador quantitativo fora das pré-condições de aquisição | S3 | P4 | verificar fase, kVp, kernel, espessura, inspiração; senão abstenção com motivo | REQ-106, REQ-124, REQ-133, REQ-135, REQ-136, REQ-138 | requisitos escritos (TC: HU, aorta, órgão cortado, Evans; RX: ICT); estado da verificação na [matriz](13-traceability.md) |
+| RISK-012 | Saída exploratória (zero-shot, nível D) lida como validada | S4 | P3 | modo pesquisa separado e desligado por padrão; nível D nunca sozinho no laudo (REQ-091) | REQ-102, REQ-116, REQ-126, REQ-143, REQ-146, REQ-157, REQ-158 | parcial |
+| RISK-013 | Medida assistida aceita sem revisão (contorno, FE) | S4 | P3 | contorno exibido e confirmado pelo médico; FE só em modo pesquisa; caixa/prompt sempre do usuário ou declarado | REQ-145, REQ-146, REQ-147 | requisitos escritos (Simpson, MedSAM2 com caixas do usuário, MedSAM em US); estado da verificação na [matriz](13-traceability.md) |
+| RISK-014 | Uso de pesos fora da licença (não comercial, só acadêmico, sem licença) | S2 | P3 | `commercial_use` no manifesto; modelos sem licença excluídos; pesos de licença intransferível não redistribuídos | REQ-100, REQ-105, REQ-126, REQ-130, REQ-142, REQ-146 | parcial — inventário em [`MODEL_LICENSES.md`](../../MODEL_LICENSES.md) |
+| RISK-015 | Vazamento treino/teste na evidência ⇒ nível superestimado | S4 | P4 | campo `leakage` obrigatório; medição com vazamento no máximo C; política do [protocolo](../protocolo-evidencia.md) §8 | REQ-125, REQ-148 | implementado no esquema; verificação por dataset em andamento |
+| RISK-016 | Modelo aplicado fora da população ou tarefa de treino | S4 | P3 | pré-condições por condição (ex.: glioma conhecido; T1w + FLAIR; diagnóstico, não rastreamento) | REQ-122, REQ-124, REQ-132, REQ-138, REQ-139, REQ-143, REQ-144 | em implementação |
+| RISK-017 | Roteamento errado de exame (região, sequência ou janela ecocardiográfica) | S3 | P3 | roteamento por metadado DICOM validado; desconhecido ⇒ abstenção | REQ-104, REQ-122, REQ-141, REQ-149, REQ-161 | em implementação |
+| RISK-018 | Assinatura do médico desvinculada do conteúdo analisado | S4 | P2 | assinatura vinculada ao hash do conteúdo; mudança após assinatura invalida a assinatura; auditoria encadeada | REQ-151, REQ-156, REQ-159 | requisitos escritos para a plataforma; estado da verificação na [matriz](13-traceability.md) |
+| RISK-019 | Evidência publicada transcrita errado ou não aplicável ao modelo | S4 | P3 | citação literal conferida na fonte (`verified_at_source`); mesmo modelo e versão; revisão por pares ou diretriz | REQ-134 | implementado no esquema |
+| RISK-020 | Acesso não autorizado ou adulteração | S4 | P3 | controle de acesso por papel; auditoria encadeada; segredos só por ambiente; expurgo de `medai_security.db` do histórico | REQ-107, REQ-127, REQ-130, REQ-150, REQ-151, REQ-152, REQ-155 | parcial — ver [REG-11](11-cybersecurity-lgpd.md) |
 
 ## 2. Detalhamento
 
@@ -160,12 +160,18 @@ auditoria encadeada por hash, segredos só por variável de ambiente, expurgo do
 
 ## 3. Lacunas abertas
 
-1. RISK-006 sem requisito nem teste.
-2. RISK-011, RISK-013, RISK-016, RISK-017, RISK-018 sem requisito próprio ainda — precisam de
-   `REQ-NNN` antes do fechamento de G1 para as modalidades afetadas.
-3. RISK-009: limpeza de texto gravado no pixel para US/eco.
-4. RISK-020: expurgo do histórico git pendente.
+1. RISK-006: requisito de lateralidade só para mamografia (REQ-141); RX, TC, US e eco ainda sem
+   requisito próprio.
+2. RISK-015 e RISK-019 têm poucos requisitos (sondas e limiares de biomarcador); a regra de
+   vazamento e a barra de publicação estão no esquema do catálogo, mas precisam de requisito
+   que cubra também o avaliador de evidência publicada.
+3. RISK-009: limpeza de texto gravado no pixel para US/eco (opção *Clean Pixel Data* do PS3.15)
+   ainda não implementada; REQ-149 só **relata** a presença de anotações gravadas.
+4. RISK-020: expurgo de `medai_security.db` do histórico git pendente.
 5. Nenhum risco residual avaliado — depende de frequências de G2/G4.
+
+A coluna de requisitos do §1 é a lista dos `REQ-NNN.md` cujo `risk_controls` cita o risco; se
+ela divergir do frontmatter, vale o frontmatter (a [matriz 13](13-traceability.md) é gerada dele).
 
 ---
 
@@ -174,3 +180,4 @@ auditoria encadeada por hash, segredos só por variável de ambiente, expurgo do
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação: RISK-001…RISK-010 a partir de H-01…H-10; RISK-011…RISK-020 da multimodalidade |
+| v0.2 | 2026-11-25 | Coluna de requisitos ligada ao frontmatter dos REQ-1xx; lacunas atualizadas |

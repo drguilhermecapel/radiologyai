@@ -211,7 +211,9 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             written = write_measured(evidence, root)
             rec = evidence.record
-            verdict = "APROVADO" if rec.passes_protocol else "REPROVADO"
+            verdict = {True: "APROVADO", False: "REPROVADO", None: "NÃO ELEGÍVEL"}[
+                rec.passes_protocol
+            ]
             print(f"[{label}] {verdict} ({rec.kind}, leakage={rec.leakage}) -> {written}")
             for reason in rec.failure_reasons:
                 print(f"    - {reason}")

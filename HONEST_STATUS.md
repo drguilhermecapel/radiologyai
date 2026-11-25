@@ -6,8 +6,10 @@
 
 **RadiologyAI / MedAI Radiologia é software de pesquisa. Não é um dispositivo médico.**
 
-- **Não existe nenhum modelo treinado por este projeto.** O que roda são modelos abertos de
-  terceiros, com pesos verificados por sha256.
+- **Nenhum modelo de ponta a ponta foi treinado por este projeto.** O que roda são modelos abertos
+  de terceiros, com pesos verificados por sha256, e sondas lineares (regressão logística) que o
+  projeto ajustou sobre codificadores congelados de terceiros (RAD-DINO, BiomedCLIP). Nenhuma
+  dessas sondas foi avaliada sob o protocolo pré-registrado até esta data.
 - **Todas as métricas de desempenho publicadas pela versão legada (v1) deste repositório foram
   fabricadas.** Não correspondiam a nenhuma medição.
 - **Existem hoje duas medições reais**, ambas do mesmo modelo de terceiros no mesmo dataset
@@ -82,8 +84,16 @@ README do v1 alegava e pior do que a expectativa registrada antes de medir; rela
   mas está nos commits `3f5ae26`, `c80c22e` e `0b89c95`. O expurgo com `git filter-repo` (e a
   rotação do que ele possa ter tocado) está pendente; até lá, trate seu conteúdo como exposto.
   O mesmo vale para segredos do legado em `medai_config.json` e `docker-compose.yml` no histórico.
-- **O catálogo de condições está vazio.** O esquema, a regra de nível A–D e o protocolo
-  pré-registrado existem (`src/radiologyai/catalog/`), mas nenhuma condição tem nível calculado.
+- **O catálogo de condições está vazio.** O esquema, a regra de nível A–D, o protocolo
+  pré-registrado (`src/radiologyai/catalog/`) e a fábrica de evidência (`src/radiologyai/evidence/`)
+  existem, mas nenhuma condição tem nível calculado e nenhum registro medido foi commitado.
+- **Licença de um dos dados de treino não conferida.** A sonda de lesão mamária em US foi ajustada
+  numa cópia não oficial do BUSI cuja licença foi inferida do artigo; até conferir na fonte (ou
+  reajustar em BUS-BRA/BrEaST), ela não sustenta evidência — ver
+  [`MODEL_LICENSES.md`](MODEL_LICENSES.md).
+- **Uso comercial incerto na maioria dos pesos.** Vários pesos têm licença permissiva, mas foram
+  treinados em dados com termos não comerciais ou não lidos (`commercial_use: unclear`); tratados
+  como não comerciais até confirmação.
 - **Nenhum dado brasileiro.** Validar em população brasileira exige parceria institucional e
   aprovação em CEP (portão G2 do roadmap).
 
@@ -96,4 +106,4 @@ pré-registrado em [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md).
 
 ---
 
-*Última atualização: novembro de 2026.*
+*Última atualização: 25 de novembro de 2026.*

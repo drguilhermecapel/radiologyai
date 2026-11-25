@@ -85,6 +85,11 @@ foundation = [
   "open-clip-torch>=2.29",
   "huggingface-hub>=0.26",
 ]
+# Eco (MedSAM2): SEM extra `echo`. O pacote `sam2` do PyPI é republicação de
+# terceiros que puxa hydra-core/iopath e compila extensão CUDA opcional; em vez
+# dele, o núcleo de inferência SAM 2 (Apache-2.0) foi vendorizado, reduzido e
+# revisado em src/radiologyai/analysis/vendor/sam2 (ver NOTICE). Só precisa de
+# torch (extra `ml`/`cpu`).
 # Mamografia: o pré-processamento publicado dos modelos de mamografia usa
 # OpenCV; reproduzi-lo bit a bit exige a mesma biblioteca (Apache-2.0).
 mammography = [

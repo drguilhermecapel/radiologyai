@@ -6,7 +6,9 @@ mostra a força da evidência que o sustenta.
 
 > ## ⚠️ Software de pesquisa — não é dispositivo médico
 >
-> **Não existe modelo treinado por este projeto. Não houve validação clínica. Não é regularizado
+> **Nenhum modelo de ponta a ponta foi treinado por este projeto** (existem apenas sondas lineares
+> ajustadas sobre codificadores congelados de terceiros, ainda sem avaliação sob o protocolo).
+> **Não houve validação clínica.** Não é regularizado
 > na ANVISA, nem tem clearance FDA ou marcação CE. Não use para nenhuma decisão sobre um paciente
 > real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um diagnóstico.
 >
@@ -45,7 +47,7 @@ O código legado (v1) foi removido da árvore e continua recuperável no histór
 |---|---|
 | Leitura DICOM — VOI LUT, MONOCHROME1, RescaleSlope/Intercept, sem quantização | funcional, testada |
 | Des-identificação PS3.15 (subconjunto) com pseudo-IDs determinísticos HMAC | funcional, testada |
-| Plugin de modalidade + gate de escopo antes do modelo (controle do perigo RISK-003) | funcional para RX; TC/RM/US declarados no sistema de tipos |
+| Plugin de modalidade + gate de escopo antes do modelo (controle do perigo RISK-003) | funcional e testado para RX; plugins de TC/RM, mamografia e US escritos (REQ-137, REQ-144, REQ-149), verificação em andamento |
 | Model card com sha256 validado; inferência falha-fechada | funcional, testada |
 | Backend TorchXRayVision (pesos reais, integridade sha256) | funcional, testada |
 | Avaliação: AUROC com IC bootstrap, ponto de operação, ECE, subgrupos, vazamento | funcional, testada |
@@ -54,9 +56,10 @@ O código legado (v1) foi removido da árvore e continua recuperável no histór
 | Trilha de auditoria encadeada por hash | funcional, testada |
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | funcional, testada |
 | Catálogo de condições: esquema, regra de nível, protocolo pré-registrado | funcional, testado; **nenhuma condição catalogada ainda** |
-| Camada de análise multimodal (`src/radiologyai/analysis/`) | em construção |
-| Plataforma web (lista de trabalho, visualizador, laudo preliminar, assinatura) | em construção |
-| **Modelo próprio treinado** | **nenhum** |
+| Camada de análise multimodal (`src/radiologyai/analysis/`) — manifestos por modelo, adaptadores RX/TC/RM/MG/US/eco, biomarcadores de TC com pré-condições, sondas lineares | código presente, verificação em andamento; inventário de modelos em [`MODEL_LICENSES.md`](MODEL_LICENSES.md) |
+| Fábrica de evidência (`src/radiologyai/evidence/`) — predições → medição → registro com proveniência → `levels.json` | código presente; **nenhum registro medido commitado ainda** |
+| Plataforma web (API, banco, fila, laudo preliminar PDF/DICOM SR/FHIR, assinatura vinculada ao hash, RBAC, DICOMweb, frontend) | código presente, verificação em andamento |
+| **Modelo próprio treinado** | **nenhum de ponta a ponta**; sondas lineares sobre RAD-DINO e BiomedCLIP congelados (TB, fratura, achados de punho, lesão mamária e hepática em US, esteatose), sem medição sob o protocolo |
 | **Validação clínica** | **nenhuma** |
 
 Requisitos rastreados até risco e teste: [`docs/regulatory/13-traceability.md`](docs/regulatory/13-traceability.md)
@@ -108,8 +111,9 @@ terceiros, sem calibração, sobre rótulos minerados por NLP.
 - **[MODEL_LICENSES.md](MODEL_LICENSES.md)** — licença de cada modelo de terceiros usado ou
   planejado
 - **[docs/access/README.md](docs/access/README.md)** — acesso a datasets (CheXpert, PhysioNet)
-- **[docs/datasheets/](docs/datasheets/)** — datasheets de datasets
-- `docs/OPENAPI_SPEC.yaml` — contrato de API alvo
+- **[docs/datasheets/](docs/datasheets/README.md)** — datasheets de datasets
+- **[docs/model-cards/](docs/model-cards/README.md)** — onde estão os cartões de modelo (manifestos)
+- `docs/OPENAPI_SPEC.yaml` — contrato OpenAPI gerado pela aplicação e versionado
 
 ## Desenvolvimento
 

@@ -18,5 +18,13 @@ Regras deste projeto:
    [protocolo](../protocolo-evidencia.md) §6.
 4. Licenças: ver o inventário em [`MODEL_LICENSES.md`](../../MODEL_LICENSES.md).
 
-Os cartões textuais por modelo serão adicionados aqui à medida que cada manifesto entrar no
-pacote.
+## Onde estão os cartões
+
+Os cartões **são** os manifestos YAML versionados em
+[`src/radiologyai/analysis/manifests/`](../../src/radiologyai/analysis/manifests/) — um por
+conjunto de pesos, com origem, sha256, licença e `commercial_use`, aplicabilidade, rótulos,
+limitações e referências; ou `status: planned` com `planned_reason` quando o modelo não roda de
+verdade. O inventário legível, um modelo por linha, está em
+[`MODEL_LICENSES.md`](../../MODEL_LICENSES.md). Este diretório recebe texto complementar apenas
+quando um manifesto precisar de explicação que não cabe nos campos; nenhum foi necessário até
+aqui.
