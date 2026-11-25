@@ -262,3 +262,51 @@ class TestThresholdsComeFromMeasuredArtifact:
         for f in response.json()["findings"]:
             assert f["band"] == "nao_avaliavel"
             assert "não está neste checkout" in f["reason"]
+
+
+class TestAnalyzeAuditTrail:
+    """Chamadas a /api/v1/analyze gravam registros encadeados no AuditTrail."""
+
+    def test_analyze_records_chained_audit_entries(self, tmp_path, cr_dataset):
+        from fastapi.testclient import TestClient
+
+        from radiologyai.api import create_app
+        from radiologyai.audit.trail import AuditTrail
+
+        audit_log_path = tmp_path / "audit.jsonl"
+        app = create_app(
+            artifacts_dir=str(tmp_path / "sem_artefatos"),
+            audit_log_path=audit_log_path,
+        )
+        client = TestClient(app)
+        payload = {"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")}
+
+        first = client.post(
+            "/api/v1/analyze",
+            files=payload,
+            headers={"x-user-id": "dr.teste"},
+        )
+        if first.status_code == 503:
+            pytest.skip("backend indisponivel neste ambiente")
+        assert first.status_code == 200, first.text
+
+        second = client.post(
+            "/api/v1/analyze",
+            files={"file": ("study.dcm", dicom_bytes(cr_dataset), "application/dicom")},
+        )
+        assert second.status_code == 200, second.text
+
+        assert audit_log_path.exists()
+        trail = AuditTrail(audit_log_path)
+        assert trail.verify()
+
+        lines = [
+            json.loads(line)
+            for line in audit_log_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert len(lines) == 2
+        assert lines[0]["event"] == "analyze"
+        assert lines[0]["user_id"] == "dr.teste"
+        assert lines[1]["user_id"] == "anonymous"
+        assert lines[1]["prev_hash"] != lines[0]["prev_hash"]
