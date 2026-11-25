@@ -12,6 +12,7 @@
  * Variáveis:
  *   E2E_DICOM          arquivo DICOM de tórax (padrão: primeiro de samples-cxr-dicom)
  *   E2E_MODELS         ids de modelos separados por vírgula (padrão abaixo); "auto" = roteamento
+ *   E2E_PATIENT_AGE    idade informada no envio (padrão 60; "" = não informar)
  *   E2E_SCREENS_DIR    onde salvar capturas (padrão: <workdir>/screens)
  *   E2E_WORKDIR        diretório descartável (padrão: mkdtemp)
  *   E2E_BACKEND_PORT / E2E_UI_PORT
@@ -38,6 +39,7 @@ const BACKEND_PORT = Number(process.env.E2E_BACKEND_PORT ?? 8765);
 const UI_PORT = Number(process.env.E2E_UI_PORT ?? 4173);
 const ANALYSIS_TIMEOUT = Number(process.env.E2E_ANALYSIS_TIMEOUT_MS ?? 600_000);
 const DEFAULT_MODELS = "xrv-densenet121-res224-all,xrv-pspnet-chestxdet";
+const PATIENT_AGE = process.env.E2E_PATIENT_AGE ?? "60";
 const MODELS = (process.env.E2E_MODELS ?? DEFAULT_MODELS)
   .split(",")
   .map((s) => s.trim())
@@ -187,6 +189,12 @@ async function main() {
     // 2. Envio do DICOM real.
     await page.getByTestId("upload-files").setInputFiles(dicom);
     await page.getByTestId("upload-exam-type").selectOption("cxr");
+    if (PATIENT_AGE) {
+      // Metadado informado pelo usuário (o DICOM de exemplo vem sem idade e os
+      // modelos de adulto se abstêm, corretamente, sem ela).
+      await page.getByTestId("upload-more").locator("summary").click();
+      await page.getByTestId("upload-age").fill(PATIENT_AGE);
+    }
     await page.getByTestId("upload-submit").click();
     await page.waitForURL(/#\/studies\//, { timeout: 120_000 });
     await page.locator('[data-testid="viewer-canvas"][data-frame-ready="true"]').waitFor({ timeout: 60_000 });
@@ -195,7 +203,10 @@ async function main() {
     // 3. Análise (modelos escolhidos, se roteáveis; senão automático).
     if (MODELS.length > 0 && MODELS[0] !== "auto") {
       const chooser = page.locator("details.model-chooser");
-      if ((await chooser.count()) > 0) {
+      await chooser.waitFor({ timeout: 30_000 }).catch(() => undefined);
+      if ((await chooser.count()) === 0) {
+        log("aviso: nenhum modelo roteável listado; análise em modo automático");
+      } else {
         await chooser.locator("summary").click();
         for (const id of MODELS) {
           const box = page.getByTestId(`choose-model-${id}`);
@@ -203,6 +214,10 @@ async function main() {
           else log(`aviso: modelo ${id} não está disponível/roteável; ignorado`);
         }
       }
+    }
+    if (MODELS[0] !== "auto") {
+      const summary = await page.locator("details.model-chooser summary").innerText().catch(() => "");
+      log(`seleção: ${summary}`);
     }
     const t0 = Date.now();
     await page.getByTestId("analyze").click();
@@ -218,6 +233,12 @@ async function main() {
     log(`análise terminou em ${((Date.now() - t0) / 1000).toFixed(1)} s: ${state}`);
     if (!state.includes("concluída")) throw new Error(`análise não concluiu: ${state}`);
     await page.getByTestId("findings-panel").waitFor();
+    const resultText = await page.locator(".analysis-state").innerText();
+    const nFindings = await page.locator('[data-testid^="finding-"]').count();
+    log(`resultado: ${resultText.replace(/\s+/g, " ")}; achados exibidos: ${nFindings}`);
+    if (!process.env.E2E_ALLOW_ABSTAIN && (/abstenção/.test(resultText) || nFindings === 0)) {
+      throw new Error("nenhum modelo produziu achado (abstenção total): o fluxo não exercitou inferência real");
+    }
 
     // 4. Sobreposições: mapa de calor (se o modelo gerou) e segmentação (se houver).
     const heatSelect = page.getByTestId("heatmap-select");

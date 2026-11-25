@@ -132,7 +132,7 @@ function UploadForm({ onUploaded }: { onUploaded: (study: Schemas["StudyOut"]) =
           ))}
         </select>
       </label>
-      <details>
+      <details data-testid="upload-more">
         <summary>{t("upload.more")}</summary>
         <p className="muted small">{t("upload.meta.help")}</p>
         <div className="grid-2">
@@ -171,6 +171,7 @@ function UploadForm({ onUploaded }: { onUploaded: (study: Schemas["StudyOut"]) =
               step="any"
               value={fields.patient_age_years}
               onChange={(e) => set("patient_age_years", e.target.value)}
+              data-testid="upload-age"
             />
           </label>
           <label className="field">
