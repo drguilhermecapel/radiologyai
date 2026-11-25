@@ -8,6 +8,7 @@ from radiologyai.calibration.abstention import (
     BandThresholds,
     summarize,
 )
+from radiologyai.calibration.platt import PlattScaler, fit_platt_scaler
 from radiologyai.calibration.reliability import (
     ReliabilityBin,
     ReliabilityDiagram,
@@ -19,10 +20,12 @@ __all__ = [
     "CRITICAL_FINDINGS",
     "AbstentionPolicy",
     "BandThresholds",
+    "PlattScaler",
     "ReliabilityBin",
     "ReliabilityDiagram",
     "TemperatureCalibrator",
     "compute_reliability_diagram",
+    "fit_platt_scaler",
     "fit_temperature",
     "summarize",
 ]
