@@ -38,7 +38,7 @@ const SKIP = 77;
 const BACKEND_PORT = Number(process.env.E2E_BACKEND_PORT ?? 8765);
 const UI_PORT = Number(process.env.E2E_UI_PORT ?? 4173);
 const ANALYSIS_TIMEOUT = Number(process.env.E2E_ANALYSIS_TIMEOUT_MS ?? 600_000);
-const DEFAULT_MODELS = "xrv-densenet121-res224-all,xrv-pspnet-chestxdet";
+const DEFAULT_MODELS = "xrv-densenet121-res224-pc,xrv-pspnet-chestxdet,xr-probe-tb";
 const PATIENT_AGE = process.env.E2E_PATIENT_AGE ?? "60";
 const MODELS = (process.env.E2E_MODELS ?? DEFAULT_MODELS)
   .split(",")
