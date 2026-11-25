@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
-from pathlib import Path
 from typing import Any
 
 import numpy as np
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.analysis.types import ImageData, ImageKind, ImageMeta, Modality
 
-CACHE = Path("/root/medai-cache")
-WEIGHTS = Path("/root/medai-cache/weights/registry")
-DATASETS = Path("/root/medai-cache/datasets")
+CACHE = MEDAI_CACHE
+WEIGHTS = MEDAI_CACHE / "weights/registry"
+DATASETS = MEDAI_CACHE / "datasets"
 
 
 def have(*modules: str) -> bool:

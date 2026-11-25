@@ -13,6 +13,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.analysis.base import ModelInputs
 from radiologyai.analysis.registry import Registry
@@ -20,8 +21,8 @@ from radiologyai.analysis.types import Modality
 from radiologyai.catalog.schema import ExamType
 from radiologyai.config.settings import Settings
 
-WEIGHTS = Path(os.environ.get("MEDAI_CTMR_WEIGHTS", "/root/medai-cache/weights/registry"))
-SAMPLES = Path("/root/medai-cache/datasets/samples-ct/totalseg-tests")
+WEIGHTS = Path(os.environ.get("MEDAI_CTMR_WEIGHTS", str(MEDAI_CACHE / "weights/registry")))
+SAMPLES = MEDAI_CACHE / "datasets/samples-ct/totalseg-tests"
 CT = SAMPLES / "example_ct_sm.nii.gz"
 MR = SAMPLES / "example_mr_sm.nii.gz"
 

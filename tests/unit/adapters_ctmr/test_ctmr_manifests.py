@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.analysis.adapters.ct_biomarkers import BIOMARKERS, CTBiomarkerAdapter
 from radiologyai.analysis.adapters.ct_totalseg import TotalSegConfig
@@ -20,7 +21,7 @@ MINE = sorted(
         PACKAGE_MANIFEST_DIR / "lst-ai.yaml",
     ]
 )
-CHECKPOINTS = Path("/root/medai-cache/weights/totalseg/checkpoints.sha256")
+CHECKPOINTS = MEDAI_CACHE / "weights/totalseg/checkpoints.sha256"
 
 
 def _load(name: str):

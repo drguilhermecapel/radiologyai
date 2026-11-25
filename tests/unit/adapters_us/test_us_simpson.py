@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import importlib.util
 import math
-from pathlib import Path
 
 import numpy as np
 import pytest
+from cache_paths import MEDAI_CACHE
 from us_support import half_ellipse
 
 from radiologyai.analysis.adapters.echo_medsam2 import lv_measurements
@@ -141,7 +141,7 @@ def test_shared_max_convention_uses_one_length_for_ed_and_es() -> None:
     assert "convenção CAMUS" in shared["lv_ef"].method
 
 
-CAMUS_FULL = Path("/root/medai-cache/datasets/camus-full")
+CAMUS_FULL = MEDAI_CACHE / "datasets/camus-full"
 
 
 @pytest.mark.skipif(

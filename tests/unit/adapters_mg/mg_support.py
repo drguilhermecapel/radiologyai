@@ -7,12 +7,13 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.analysis.types import ImageData, ImageKind, ImageMeta, Modality
 from radiologyai.modalities.mg.voi import VOI_EXTRA_KEY
 
-WEIGHTS = Path("/root/medai-cache/weights/registry")
-CMMD = Path("/root/medai-cache/datasets/cmmd-sample")
+WEIGHTS = MEDAI_CACHE / "weights/registry"
+CMMD = MEDAI_CACHE / "datasets/cmmd-sample"
 REFERENCE = Path(__file__).with_name("mg_original_reference.json")
 
 

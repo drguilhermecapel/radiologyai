@@ -14,15 +14,16 @@ from typing import Any
 
 import numpy as np
 import pytest
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.analysis.base import ModelInputs
 from radiologyai.analysis.imaging import load_dicom, load_raster
 from radiologyai.analysis.types import AbstentionReason, ImageData, Modality
 from radiologyai.catalog.schema import ExamType
 
-WEIGHTS = Path(os.environ.get("MEDAI_WEIGHTS_DIR", "/root/medai-cache/weights/registry"))
-XRV_CACHE = Path("/root/medai-cache/weights/xrv")
-DATA = Path("/root/medai-cache/datasets")
+WEIGHTS = Path(os.environ.get("MEDAI_WEIGHTS_DIR", str(MEDAI_CACHE / "weights/registry")))
+XRV_CACHE = MEDAI_CACHE / "weights/xrv"
+DATA = MEDAI_CACHE / "datasets"
 SAMPLES = DATA / "xrv-samples"
 HAVE = (
     importlib.util.find_spec("torchxrayvision") is not None
@@ -254,7 +255,7 @@ def test_pspnet_ctr_on_real_pa_and_ap(registry: Any) -> None:
 )
 @pytest.mark.requirement("REQ-126")
 def test_chexzero_reproduces_reference_implementation(registry: Any) -> None:
-    ref_path = Path("/root/medai-cache/spikes/zeroshot/out/chexzero_00000001_000.png.json")
+    ref_path = MEDAI_CACHE / "spikes/zeroshot/out/chexzero_00000001_000.png.json"
     if not ref_path.is_file():
         pytest.skip("saída da implementação de referência ausente")
     ref = json.loads(ref_path.read_text())["ensemble_prob"]
@@ -308,7 +309,7 @@ def test_full_pipeline_on_real_dicom(registry: Any, tmp_path: Path) -> None:
 def test_tb_probe_adapter_reproduces_saved_held_out_score(registry: Any) -> None:
     import pandas as pd
 
-    preds = Path("/root/medai-cache/eval-preds/xr-probe-tb/tb-montgomery/tuberculosis.parquet")
+    preds = MEDAI_CACHE / "eval-preds/xr-probe-tb/tb-montgomery/tuberculosis.parquet"
     if not preds.is_file():
         pytest.skip("predições da sonda ausentes")
     row = pd.read_parquet(preds).iloc[0]

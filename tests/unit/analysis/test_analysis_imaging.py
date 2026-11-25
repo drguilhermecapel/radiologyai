@@ -14,6 +14,7 @@ from typing import Any
 import numpy as np
 import pydicom
 import pytest
+from cache_paths import MEDAI_CACHE
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import CTImageStorage, ExplicitVRLittleEndian, generate_uid
 
@@ -33,7 +34,7 @@ from radiologyai.io.series import list_series, load_series_volume
 
 US_MULTIFRAME = "1.2.840.10008.5.1.4.1.1.3.1"
 DX_SOP = "1.2.840.10008.5.1.4.1.1.1.1"
-CACHE = Path("/root/medai-cache/datasets")
+CACHE = MEDAI_CACHE / "datasets"
 
 
 def _ds(rows: int, cols: int, sop_class: str, **attrs: Any) -> Dataset:

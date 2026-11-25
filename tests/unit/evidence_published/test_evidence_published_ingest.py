@@ -16,6 +16,7 @@ from typing import Any
 
 import pytest
 import yaml
+from cache_paths import MEDAI_CACHE
 
 from radiologyai.catalog import load_protocol
 from radiologyai.catalog.schema import Condition, EvidenceRecord, compute_level
@@ -25,7 +26,7 @@ from radiologyai.evidence.store import load_records
 REPO = Path(__file__).resolve().parents[3]
 PUBLISHED = REPO / "evidence" / "published"
 SCRIPT = REPO / "scripts" / "evidence_ingest_published.py"
-RESEARCH = Path("/root/medai-cache/research")
+RESEARCH = MEDAI_CACHE / "research"
 RECORD_FILES = ("cxr.yaml", "ct_mr.yaml", "echo_mg_us.yaml")
 
 # Ids de modelo usados pelos adaptadores (contrato do catálogo).

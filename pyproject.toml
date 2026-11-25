@@ -172,6 +172,8 @@ testpaths = ["tests"]
 # pode ser o nome de um subdiretório de tests/. Ver test_collection.py.
 norecursedirs = ["legacy", ".git", "artifacts"]
 addopts = "-ra --strict-markers"
+# tests/support: utilitários compartilhados (ex.: cache_paths.MEDAI_CACHE).
+pythonpath = ["tests/support"]
 markers = [
   "requirement(id): vincula este teste a um requisito REQ-xxx (IEC 62304 §5.7)",
   "slow: teste lento; excluído do CI rápido",

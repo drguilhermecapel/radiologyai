@@ -49,6 +49,9 @@ jobs:
         run: uv run mypy src/radiologyai
 
       - name: Testes com cobertura
+        # Sem cache local de pesos/amostras: os testes com dados reais pulam com motivo.
+        env:
+          MEDAI_CACHE: ${{ runner.temp }}/no-medai-cache
         run: uv run pytest --cov=radiologyai --cov-report=term-missing --cov-fail-under=85
 
       # --- Portões específicos deste projeto (ROADMAP §8) ---
