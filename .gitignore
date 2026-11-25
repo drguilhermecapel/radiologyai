@@ -218,3 +218,4 @@ dist/
 # (Regra herdada do v1 ignorava reports/ inteiro.)
 !reports/
 !reports/EVALUATION_*.md
+.aider*

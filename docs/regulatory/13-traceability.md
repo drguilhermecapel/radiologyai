@@ -28,6 +28,7 @@ requisito inexistente.
 | **REQ-030** Inferência falha fechada | safety | RISK-004 | implemented | `TestFailClosed` |
 | **REQ-031** Gate de escopo antes do modelo | safety | RISK-003 | implemented | `TestScopeGateOverHTTP`<br>`TestScopeGateRunsBeforeModel` |
 | **REQ-042** Limites do uso pretendido em radiografia | safety | RISK-003 | implemented | `TestXRScopeGate` |
+| **REQ-043** Preservação e validação de lateralidade DICOM | safety | RISK-006 | implemented | `TestXRLaterality` |
 | **REQ-050** Avaliação reprodutível | functional | RISK-007 | implemented | `test_same_seed_is_bit_reproducible`<br>`test_records_full_provenance`<br>`test_same_seed_is_reproducible` |
 | **REQ-051** Ausência de vazamento por paciente | safety | RISK-007 | implemented | `TestPatientLeakage` |
 | **REQ-060** Explicabilidade derivada do modelo real | safety | RISK-008 | implemented | `test_null_gradients_yield_null_map` |
@@ -38,7 +39,7 @@ requisito inexistente.
 | **REQ-071** Reconstrução completa da decisão | safety | RISK-007 | implemented | `TestDecisionReconstruction` |
 | **REQ-080** API não fabrica métricas | safety | RISK-004 | implemented | `TestMetricsNeverFabricated` |
 | **REQ-090** Nível de evidência é calculado, nunca digitado | safety | RISK-007 | implemented | `test_condition_cannot_declare_a_level`<br>`test_clean_passing_external_measurement_is_level_a`<br>`test_contaminated_external_measurement_is_only_level_c`<br>`test_evidence_record_has_no_level_field`<br>`test_failing_or_undecided_records_do_not_count`<br>`test_internal_measurement_is_level_c`<br>`test_no_evidence_is_level_d`<br>`test_one_passing_clean_external_measurement_is_enough`<br>`test_precedence_a_over_b_over_c`<br>`test_records_of_different_triples_are_rejected`<br>`test_unverified_published_evidence_does_not_count`<br>`test_verified_published_evidence_is_level_b` |
-| **REQ-091** Achado exploratório não aparece na visão principal | safety | RISK-001 | implemented | `test_condition_without_generated_level_is_research_only`<br>`test_hand_edited_levels_cannot_promote_level_d`<br>`test_packaged_catalog_loads_empty_and_unknown_triple_is_level_d`<br>`test_level_entry_rejects_level_d_in_main_view`<br>`test_visibility_follows_level` |
+| **REQ-091** Achado exploratório não aparece na visão principal | safety | RISK-001 | implemented | `test_condition_without_generated_level_is_research_only`<br>`test_hand_edited_levels_cannot_promote_level_d`<br>`test_packaged_catalog_loads_and_unknown_triple_is_level_d`<br>`test_level_entry_rejects_level_d_in_main_view`<br>`test_visibility_follows_level` |
 | **REQ-092** Decisão exige ponto de operação com origem declarada | safety | RISK-001 | implemented | `test_every_verdict_names_the_points_it_used`<br>`test_no_operating_point_means_score_only`<br>`test_operating_point_requires_declared_source`<br>`test_points_on_unavailable_scale_are_ignored` |
 | **REQ-093** Medição própria reprovada prevalece sobre alegação publicada | safety | RISK-007 | implemented | `test_failed_clean_external_measurement_refutes_internal_measurement`<br>`test_failed_clean_external_measurement_refutes_published_claims`<br>`test_failed_contaminated_external_measurement_does_not_refute`<br>`test_undecided_clean_external_measurement_does_not_refute` |
 | **REQ-100** Pesos só carregam após verificação de sha256; modelo planejado nunca carrega | safety | RISK-004, RISK-014 | implemented | `test_load_returns_adapter_with_verified_weights`<br>`test_missing_weights_make_the_model_unavailable`<br>`test_noncommercial_models_respect_configuration`<br>`test_pin_writes_real_hash_from_bytes`<br>`test_planned_models_can_never_be_loaded_or_pulled`<br>`test_pull_downloads_and_verifies`<br>`test_pull_rejects_and_deletes_tampered_download`<br>`test_tampered_weights_fail_the_integrity_check` |
@@ -104,7 +105,7 @@ requisito inexistente.
 | **REQ-165** Prontidão reflete banco, migração, repositório e worker | functional | RISK-004 | implemented | `test_readyz_reports_dependencies` |
 | **REQ-166** Banco evolui somente por migração Alembic | functional | RISK-007 | implemented | `TestMigrations` |
 
-**87 requisitos · 287 verificações.**
+**88 requisitos · 288 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.

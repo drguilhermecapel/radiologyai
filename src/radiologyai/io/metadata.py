@@ -58,6 +58,10 @@ class StudyMetadata(BaseModel):
     pseudo_patient_id: str | None = Field(
         default=None, description="Pseudo-ID determinístico (HMAC), quando anonimizado"
     )
+    laterality: str | None = Field(default=None, description="DICOM (0020,0060) Laterality")
+    image_laterality: str | None = Field(
+        default=None, description="DICOM (0020,0062) ImageLaterality, ex.: 'L', 'R', 'U', 'B'"
+    )
 
     @property
     def is_multiframe(self) -> bool:
@@ -106,4 +110,6 @@ def extract_metadata(ds: Any) -> StudyMetadata:
         pixel_spacing=pixel_spacing,
         slice_thickness=slice_thickness,
         number_of_frames=n_frames,
+        laterality=(str(v).strip().upper() if (v := _get(ds, "Laterality")) else None),
+        image_laterality=(str(v).strip().upper() if (v := _get(ds, "ImageLaterality")) else None),
     )

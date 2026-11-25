@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 ACCEPTED_VIEWS: frozenset[str] = frozenset({"PA", "AP"})
 MIN_AGE_YEARS: float = 18.0
 MIN_DIMENSION: int = 224
+VALID_LATERALITY: frozenset[str] = frozenset({"L", "R"})
+VALID_IMAGE_LATERALITY: frozenset[str] = frozenset({"L", "R", "U", "B"})
 
 
 class XRPlugin(ModalityPlugin):
@@ -57,6 +59,16 @@ class XRPlugin(ModalityPlugin):
 
         if metadata.is_multiframe:
             reasons.append("imagem multiframe não é esperada em radiografia")
+        lat = metadata.laterality
+        if lat is not None and lat not in VALID_LATERALITY:
+            reasons.append(f"lateralidade DICOM inválida: {lat!r}")
+
+        img_lat = metadata.image_laterality
+        if img_lat is not None and img_lat not in VALID_IMAGE_LATERALITY:
+            reasons.append(f"lateralidade de imagem DICOM inválida: {img_lat!r}")
+
+        if lat in VALID_LATERALITY and img_lat in VALID_IMAGE_LATERALITY and lat != img_lat:
+            reasons.append(f"conflito de lateralidade DICOM: {lat!r} vs {img_lat!r}")
 
         return ValidationReport(accepted=not reasons, modality=self.code, reasons=tuple(reasons))
 
