@@ -49,6 +49,7 @@ def require_fastapi() -> None:
             f"API indisponível: faltam {missing}. Instale com: pip install 'radiologyai[api]'"
         )
 
+
 def _resolve_audit_trail(
     audit_trail: AuditTrail | None,
     audit_log_path: str | Path | None,
@@ -63,10 +64,10 @@ def _resolve_audit_trail(
 
 
 def create_app(
-    *,
-        artifacts_dir: str | None = None,
-        audit_trail: AuditTrail | None = None,
-        audit_log_path: str | Path | None = None,
+*,
+    artifacts_dir: str | None = None,
+    audit_trail: AuditTrail | None = None,
+    audit_log_path: str | Path | None = None,
 ) -> FastAPI:
     """Constrói a aplicação.
 
