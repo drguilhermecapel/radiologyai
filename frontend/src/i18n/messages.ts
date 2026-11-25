@@ -250,6 +250,10 @@ export const pt = {
   "run.unavailable": "indisponível",
   "run.planned": "planejado (não roda)",
   "run.failed": "falhou",
+  "result.completed": "concluído",
+  "result.partial": "parcial (algum modelo não rodou)",
+  "result.abstained": "abstenção",
+  "result.failed": "falhou",
 
   "abst.not_applicable_modality": "modalidade fora do escopo do modelo",
   "abst.not_applicable_exam_type": "tipo de exame fora do escopo do modelo",
@@ -616,6 +620,10 @@ export const en: Messages = {
   "run.unavailable": "unavailable",
   "run.planned": "planned (does not run)",
   "run.failed": "failed",
+  "result.completed": "completed",
+  "result.partial": "partial (some model did not run)",
+  "result.abstained": "abstained",
+  "result.failed": "failed",
 
   "abst.not_applicable_modality": "modality outside the model scope",
   "abst.not_applicable_exam_type": "exam type outside the model scope",
