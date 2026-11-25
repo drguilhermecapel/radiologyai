@@ -95,7 +95,7 @@ def test_fit_platt_scaler_validation_errors(
     probs: object,
     labels: object,
 ) -> None:
-    with pytest.raises(ValueError), match=r"(probabilities|labels).*must"):
+    with pytest.raises(ValueError, match=r"(probabilities|labels).*must"):
         fit_platt_scaler(probs, labels)  # type: ignore[arg-type]
 
 
