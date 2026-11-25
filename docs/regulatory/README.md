@@ -20,10 +20,10 @@ Conjunto documental em construção para a trajetória SaMD/ANVISA descrita em
 | 09 | [Plano e Protocolos de Verificação](09-verification-plan.md) | rascunho v0.1 (Fase 2) |
 | 10 | [Plano de Avaliação Clínica](10-clinical-evaluation-plan.md) | rascunho v0.1 — pré-especificado (Fase 3) |
 | 11 | [Cibersegurança + LGPD/DPIA](11-cybersecurity-and-lgpd-dpia.md) | rascunho v0.1 (Fase 3) |
-| 12 | Rotulagem / IFU (pt-BR) | pendente — Fase 5 |
+| 12 | [Rotulagem / IFU (pt-BR)](12-labeling-and-ifu.md) | rascunho v0.1 — preparatório (Fase 5) |
 | 13 | [Matriz de Rastreabilidade](13-traceability.md) | **gerada** por `scripts/trace.py`, verificada no CI |
 | 14 | [Controle de Mudanças e Resolução de Problemas](14-change-control-and-problem-resolution.md) | rascunho v0.1 (Fase 2) |
-| 15 | Plano de Vigilância Pós-Mercado | pendente — Fase 5 |
+| 15 | [Plano de Vigilância Pós-Mercado](15-post-market-surveillance-plan.md) | rascunho v0.1 — preparatório (Fase 5) |
 | 16 | Model Cards e Dataset Datasheets | pendente — Fase 1, por artefato |
 
 **Ordem de escrita:** 01 e 02 primeiro, antes de qualquer código do núcleo v2. Eles fixam
