@@ -95,7 +95,7 @@ def test_fit_platt_scaler_validation_errors(
     probs: object,
     labels: object,
 ) -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError), match=r"(probabilities|labels).*must"):
         fit_platt_scaler(probs, labels)  # type: ignore[arg-type]
 
 
@@ -117,5 +117,5 @@ def test_transform_validation_errors(probs: object) -> None:
         pre_nll=0.5,
         post_nll=0.5,
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="probabilities must"):
         scaler.transform(probs)  # type: ignore[arg-type]
