@@ -395,13 +395,14 @@ e portanto credenciamento PhysioNet. Os dois caminhos estão no notebook 02.
 
 ### Fase 2 — Produtizar o caminho de RX · 8–10 semanas (~90 h)
 
-- `calibration/` — *temperature scaling* em split retido; ECE e diagrama de confiabilidade em todo relatório.
-- **`calibration/abstention.py`** — três bandas: *achado provável* / *não avaliável* / *achado improvável*. Controle de risco primário para H-01/H-02; precisa existir antes de qualquer uso clínico-adjacente.
-- `explain/gradcam.py` real. Teste unitário: modelo com gradientes zerados na última conv produz mapa nulo — **o teste que o código v1 reprovaria**.
-- `api/` — factory FastAPI, `/api/v1/*` conforme `docs/OPENAPI_SPEC.yaml`, segredos por env. **Nenhum *mock ground truth* em lugar nenhum.**
-- `persistence/audit.py` — log append-only encadeado por hash (hash do exame, id do card, sha256 dos pesos, git sha, saída, timestamp, decisão do médico).
+- `calibration/` — *temperature scaling* em split retido; ECE e diagrama de confiabilidade em todo relatório. *(entregue — `calibration/temperature.py`, ECE e diagrama de confiabilidade; calibração sobre dados reais pendente)*
+- **`calibration/abstention.py`** — três bandas: *achado provável* / *não avaliável* / *achado improvável*. Controle de risco primário para H-01/H-02; precisa existir antes de qualquer uso clínico-adjacente. *(entregue — `calibration/abstention.py`)*
+- `explain/gradcam.py` real. Teste unitário: modelo com gradientes zerados na última conv produz mapa nulo — **o teste que o código v1 reprovaria**. *(entregue — `explain/gradcam.py` + teste unitário)*
+- `api/` — factory FastAPI, `/api/v1/*` conforme `docs/OPENAPI_SPEC.yaml`, segredos por env. **Nenhum *mock ground truth* em lugar nenhum.** *(entregue — `api/` FastAPI)*
+- `persistence/audit.py` — log append-only encadeado por hash (hash do exame, id do card, sha256 dos pesos, git sha, saída, timestamp, decisão do médico). *(entregue — `persistence/audit.py`)*
 - Dockerfile `python:3.11-slim`, caminho ONNX, `--workers 1`, non-root, healthcheck. *(entregue — `Dockerfile` e `.dockerignore` na raiz)*
-- SRS em `docs/regulatory/06-requirements/`; `scripts/trace.py`; portão de rastreabilidade no CI.
+- SRS em `docs/regulatory/06-requirements/`; `scripts/trace.py`; portão de rastreabilidade no CI. *(entregue — SRS, `scripts/trace.py` e portão no CI)*
+- CLI `check-regression` e `OnnxBackend` integrado em `build_backend`. *(entregue)*
 
 ### Fase 3 — Modelo próprio de RX + validação externa · 10–14 semanas (~120 h)
 
