@@ -189,6 +189,7 @@ def evaluate(
     summarize(result, log=typer.echo)
     typer.secho(f"\nArtefato: {result.run_dir}", fg=typer.colors.GREEN)
 
+
 @app.command("check-regression")
 def check_regression(
     current: Annotated[Path, typer.Option("--current", help="Métricas atuais.")],
