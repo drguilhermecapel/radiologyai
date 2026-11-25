@@ -64,7 +64,7 @@ def _resolve_audit_trail(
 
 
 def create_app(
-*,
+    *,
     artifacts_dir: str | None = None,
     audit_trail: AuditTrail | None = None,
     audit_log_path: str | Path | None = None,
