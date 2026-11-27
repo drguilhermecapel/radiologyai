@@ -2610,8 +2610,7 @@ jobs:
   # ------------------------------------------------------------------ RX de tórax: Open-i
   # Gerados por scripts/xrv_nih_evidence.py plan --datasets openi-frontal (antes do resultado).
   - id: xrv-densenet121-res224-pc@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: atelectasis
@@ -2637,8 +2636,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: cardiomegaly
@@ -2664,8 +2662,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#emphysema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: emphysema
@@ -2691,8 +2688,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#fibrosis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: fibrosis
@@ -2718,8 +2714,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#fracture
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: fracture
@@ -2745,8 +2740,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#hernia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: hernia
@@ -2772,8 +2766,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#infiltration
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: infiltration
@@ -2799,8 +2792,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#mass
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: mass
@@ -2826,8 +2818,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#nodule
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: nodule
@@ -2853,8 +2844,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: pleural_effusion
@@ -2880,8 +2870,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#pleural_thickening
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: pleural_thickening
@@ -2907,8 +2896,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: pneumonia
@@ -2934,8 +2922,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: pneumothorax
@@ -2961,8 +2948,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: openi
     label: pulmonary_edema
@@ -2988,8 +2974,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: atelectasis
@@ -3015,8 +3000,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: cardiomegaly
@@ -3042,8 +3026,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#fracture
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: fracture
@@ -3069,8 +3052,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#lung_lesion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: lung_lesion
@@ -3096,8 +3078,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#lung_opacity
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: lung_opacity
@@ -3123,8 +3104,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: pleural_effusion
@@ -3150,8 +3130,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: pneumonia
@@ -3177,8 +3156,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: pneumothorax
@@ -3204,8 +3182,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: openi
     label: pulmonary_edema
@@ -3231,8 +3208,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: atelectasis
@@ -3258,8 +3234,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: cardiomegaly
@@ -3285,8 +3260,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#fracture
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: fracture
@@ -3312,8 +3286,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#lung_lesion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: lung_lesion
@@ -3339,8 +3312,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#lung_opacity
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: lung_opacity
@@ -3366,8 +3338,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: pleural_effusion
@@ -3393,8 +3364,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: pneumonia
@@ -3420,8 +3390,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: pneumothorax
@@ -3447,8 +3416,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: openi
     label: pulmonary_edema
@@ -3474,8 +3442,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: atelectasis
@@ -3501,8 +3468,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: cardiomegaly
@@ -3528,8 +3494,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#fracture
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: fracture
@@ -3555,8 +3520,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#lung_lesion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: lung_lesion
@@ -3582,8 +3546,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#lung_opacity
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: lung_opacity
@@ -3609,8 +3572,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: pleural_effusion
@@ -3636,8 +3598,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: pneumonia
@@ -3663,8 +3624,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: pneumothorax
@@ -3690,8 +3650,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: openi
     label: pulmonary_edema
@@ -3717,8 +3676,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: atelectasis
@@ -3750,8 +3708,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: cardiomegaly
@@ -3783,8 +3740,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#emphysema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: emphysema
@@ -3816,8 +3772,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#fibrosis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: fibrosis
@@ -3849,8 +3804,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#fracture
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: fracture
@@ -3882,8 +3836,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#hernia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: hernia
@@ -3915,8 +3868,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#infiltration
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: infiltration
@@ -3948,8 +3900,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#lung_lesion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: lung_lesion
@@ -3981,8 +3932,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#lung_opacity
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: lung_opacity
@@ -4014,8 +3964,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#mass
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: mass
@@ -4047,8 +3996,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#nodule
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: nodule
@@ -4080,8 +4028,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: pleural_effusion
@@ -4113,8 +4060,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#pleural_thickening
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: pleural_thickening
@@ -4146,8 +4092,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: pneumonia
@@ -4179,8 +4124,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: pneumothorax
@@ -4212,8 +4156,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: openi
     label: pulmonary_edema
@@ -4245,8 +4188,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#atelectasis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: atelectasis
@@ -4272,8 +4214,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#cardiomegaly
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: cardiomegaly
@@ -4299,8 +4240,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#emphysema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: emphysema
@@ -4326,8 +4266,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#fibrosis
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: fibrosis
@@ -4353,8 +4292,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#hernia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: hernia
@@ -4380,8 +4318,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#infiltration
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: infiltration
@@ -4407,8 +4344,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#mass
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: mass
@@ -4434,8 +4370,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#nodule
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: nodule
@@ -4461,8 +4396,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#pleural_effusion
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: pleural_effusion
@@ -4488,8 +4422,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#pleural_thickening
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: pleural_thickening
@@ -4515,8 +4448,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#pneumonia
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: pneumonia
@@ -4542,8 +4474,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#pneumothorax
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: pneumothorax
@@ -4569,8 +4500,7 @@ jobs:
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@openi-frontal#pulmonary_edema
-    status: pending
-    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: openi
     label: pulmonary_edema
