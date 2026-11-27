@@ -25,7 +25,9 @@ classifiers = [
 # MONAI 1.6 exige torch>=2.8. O código de src/ foi conferido contra a API do
 # pydicom 3 (dcmwrite com enforce_file_format, pixel_array via pixels backend).
 dependencies = [
-  "numpy>=2.0,<3",
+  # <2.5: a mesma versão em 3.11–3.13 (reprodutibilidade numérica entre a matriz
+  # da CI); os stubs do numpy 2.5 também rejeitam ndarray.max()/min() sem argumentos.
+  "numpy>=2.0,<2.5",
   "pydicom>=3.0.1,<4",
   "pydantic>=2.7,<3",
   "pydantic-settings>=2.3,<3",
