@@ -99,12 +99,12 @@ training_data:
 labels:
 - key: liver_lesion
   source_label: liver_lesions
-  condition_id: ct.liver_lesion
+  condition_id: ct.focal_liver_lesion
   kind: derived
   score_kind: measurement
   code:
     scheme: 99MEDAI
-    value: ct.liver_lesion
+    value: ct.focal_liver_lesion
     meaning: liver lesion (segmented volume)
   measurement: liver_lesions_volume_ml
 operating_points:

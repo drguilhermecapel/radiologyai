@@ -729,3 +729,127 @@ conditions:
   name_en: Elevated pulmonary artery pressure (estimate)
   name_pt: Pressão arterial pulmonar elevada (estimativa)
   system: coração
+- code:
+    meaning: Fracture on musculoskeletal radiograph
+    scheme: 99MEDAI
+    value: msk_xr.fracture
+  description_pt: Sinal radiográfico de fratura em radiografia de extremidade. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - msk_xr
+  group: msk_xr
+  icd10: T14.8
+  id: msk_xr.fracture
+  name_en: Fracture on musculoskeletal radiograph
+  name_pt: Fratura (radiografia musculoesquelética)
+  system: esqueleto
+- code:
+    meaning: Osteopenia on radiograph
+    scheme: 99MEDAI
+    value: msk_xr.osteopenia
+  description_pt: Rarefação óssea sugerida na radiografia; não substitui densitometria. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - msk_xr
+  group: msk_xr
+  icd10: M85.8
+  id: msk_xr.osteopenia
+  name_en: Osteopenia on radiograph
+  name_pt: Osteopenia (radiografia)
+  system: esqueleto
+- code:
+    meaning: Cast present
+    scheme: 99MEDAI
+    value: msk_xr.cast
+  description_pt: Achado de imagem (material de imobilização), não doença. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - msk_xr
+  group: msk_xr
+  id: msk_xr.cast
+  name_en: Cast present
+  name_pt: Gesso ou imobilização presente
+  system: esqueleto
+- code:
+    meaning: Metal implant or foreign material present
+    scheme: 99MEDAI
+    value: msk_xr.metal
+  description_pt: Achado de imagem (material metálico), não doença. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - msk_xr
+  group: msk_xr
+  id: msk_xr.metal
+  name_en: Metal implant or foreign material present
+  name_pt: Material metálico presente
+  system: esqueleto
+- code:
+    meaning: Breast lesion malignancy on ultrasound
+    scheme: 99MEDAI
+    value: us.breast_lesion_malignancy
+  description_pt: Probabilidade de malignidade de lesão mamária já identificada no ultrassom. Achado sugerido
+    para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - us_breast
+  group: us
+  icd10: C50.9
+  id: us.breast_lesion_malignancy
+  name_en: Breast lesion malignancy on ultrasound
+  name_pt: Malignidade de lesão mamária (ultrassom)
+  system: mama
+- code:
+    meaning: Focal liver lesion malignancy on ultrasound
+    scheme: 99MEDAI
+    value: us.liver_lesion_malignancy
+  description_pt: Probabilidade de malignidade de lesão hepática focal já identificada no ultrassom. Achado
+    sugerido para confirmação médica, nunca diagnóstico.
+  exam_types:
+  - us_abdomen
+  group: us
+  icd10: C22.9
+  id: us.liver_lesion_malignancy
+  name_en: Focal liver lesion malignancy on ultrasound
+  name_pt: Malignidade de lesão hepática focal (ultrassom)
+  system: fígado
+- code:
+    meaning: Intracranial hemorrhage on CT
+    scheme: 99MEDAI
+    value: ct.intracranial_hemorrhage
+  description_pt: Hemorragia intracraniana segmentada na TC de crânio. Achado sugerido para confirmação
+    médica, nunca diagnóstico.
+  exam_types:
+  - ct_head
+  group: ct
+  icd10: I62.9
+  id: ct.intracranial_hemorrhage
+  name_en: Intracranial hemorrhage on CT
+  name_pt: Hemorragia intracraniana (TC)
+  system: neuro
+- code:
+    meaning: Kidney cyst on CT
+    scheme: 99MEDAI
+    value: ct.kidney_cyst
+  description_pt: Lesão cística renal segmentada na TC. Achado sugerido para confirmação médica, nunca
+    diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  icd10: N28.1
+  id: ct.kidney_cyst
+  name_en: Kidney cyst on CT
+  name_pt: Cisto renal (TC)
+  system: rim
+- code:
+    meaning: Lung nodule on CT
+    scheme: 99MEDAI
+    value: ct.lung_nodule
+  description_pt: Nódulo pulmonar segmentado na TC de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: R91.1
+  id: ct.lung_nodule
+  name_en: Lung nodule on CT
+  name_pt: Nódulo pulmonar (TC)
+  system: pulmão

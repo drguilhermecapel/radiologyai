@@ -171,7 +171,7 @@ labels:
     meaning: emphysema
 - key: fibrosis
   source_label: Fibrosis
-  condition_id: cxr.fibrosis
+  condition_id: cxr.pulmonary_fibrosis
   kind: binary
   score_kind: softmax
   code:
@@ -189,7 +189,7 @@ labels:
     meaning: hernia
 - key: mass
   source_label: Mass
-  condition_id: cxr.mass
+  condition_id: cxr.lung_mass
   kind: binary
   score_kind: softmax
   code:
@@ -198,7 +198,7 @@ labels:
     meaning: Mass
 - key: nodule
   source_label: Nodule
-  condition_id: cxr.nodule
+  condition_id: cxr.lung_nodule
   kind: binary
   score_kind: softmax
   code:

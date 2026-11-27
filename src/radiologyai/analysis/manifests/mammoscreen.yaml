@@ -59,21 +59,21 @@ training_data:
 labels:
 - key: malignancy_left
   source_label: cancer
-  condition_id: mg.malignancy_suspicion
+  condition_id: mg.breast_cancer
   kind: binary
   score_kind: sigmoid
   code:
     scheme: 99MEDAI
-    value: mg.malignancy_suspicion
+    value: mg.breast_cancer
     meaning: suspicion of breast malignancy
 - key: malignancy_right
   source_label: cancer
-  condition_id: mg.malignancy_suspicion
+  condition_id: mg.breast_cancer
   kind: binary
   score_kind: sigmoid
   code:
     scheme: 99MEDAI
-    value: mg.malignancy_suspicion
+    value: mg.breast_cancer
     meaning: suspicion of breast malignancy
 - key: density_left
   source_label: density

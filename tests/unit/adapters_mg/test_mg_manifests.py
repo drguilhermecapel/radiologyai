@@ -32,7 +32,7 @@ def test_mg_mammoscreen_manifest() -> None:
     }
     for side in ("left", "right"):
         assert m.label(f"malignancy_{side}").score_kind == "sigmoid"
-        assert m.label(f"malignancy_{side}").condition_id == "mg.malignancy_suspicion"
+        assert m.label(f"malignancy_{side}").condition_id == "mg.breast_cancer"
         dens = m.label(f"density_{side}")
         assert (dens.kind, dens.score_kind, dens.classes) == (
             "categorical",

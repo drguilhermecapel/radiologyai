@@ -710,7 +710,7 @@ def cmd_fit(args: argparse.Namespace) -> int:  # noqa: ARG001 - interface dos su
         _manifest(
             model_id,
             label,
-            "us.liver_steatosis",
+            "us.hepatic_steatosis",
             "hepatic steatosis (suggested)",
             "us_abdomen",
             "full",

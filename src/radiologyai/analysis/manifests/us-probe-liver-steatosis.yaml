@@ -62,12 +62,12 @@ training_data:
 labels:
 - key: liver_steatosis
   source_label: liver_steatosis
-  condition_id: us.liver_steatosis
+  condition_id: us.hepatic_steatosis
   kind: binary
   score_kind: logit
   code:
     scheme: 99MEDAI
-    value: us.liver_steatosis
+    value: us.hepatic_steatosis
     meaning: hepatic steatosis (suggested)
 operating_points:
 - label: liver_steatosis

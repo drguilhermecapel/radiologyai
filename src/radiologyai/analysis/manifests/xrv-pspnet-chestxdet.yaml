@@ -56,13 +56,13 @@ training_data:
 labels:
 - key: cardiomegaly_ctr
   source_label: cardiothoracic_ratio_pa
-  condition_id: cxr.cardiomegaly_ctr
+  condition_id: cxr.cardiomegaly
   kind: derived
   score_kind: measurement
   measurement: cardiothoracic_ratio_pa
   code:
     scheme: 99MEDAI
-    value: cxr.cardiomegaly_ctr
+    value: cxr.cardiomegaly
     meaning: enlarged cardiac silhouette by cardiothoracic ratio
 operating_points:
 - label: cardiomegaly_ctr

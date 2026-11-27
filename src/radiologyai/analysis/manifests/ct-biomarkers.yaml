@@ -37,12 +37,12 @@ training_data: []
 labels:
 - key: osteoporosis_l1
   source_label: l1_trabecular_hu
-  condition_id: ct.osteoporosis
+  condition_id: ct.osteoporosis_l1
   kind: derived
   score_kind: measurement
   code:
     scheme: 99MEDAI
-    value: ct.osteoporosis
+    value: ct.osteoporosis_l1
     meaning: low L1 trabecular attenuation
   measurement: l1_trabecular_hu
 - key: steatosis_unenhanced
@@ -97,12 +97,12 @@ labels:
   measurement: aorta_abdominal_max_diameter_mm
 - key: ascending_aorta_dilation
   source_label: aorta_ascending_max_diameter_mm
-  condition_id: ct.thoracic_aortic_dilation
+  condition_id: ct.ascending_aorta_dilation
   kind: derived
   score_kind: measurement
   code:
     scheme: 99MEDAI
-    value: ct.thoracic_aortic_dilation
+    value: ct.ascending_aorta_dilation
     meaning: ascending aorta diameter >= 4.0 cm
   measurement: aorta_ascending_max_diameter_mm
 - key: splenomegaly
