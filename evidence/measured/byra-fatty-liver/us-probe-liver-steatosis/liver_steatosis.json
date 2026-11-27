@@ -1,4 +1,14 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": true,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "byra-fatty-liver",
+      "pmc-15m"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "n_missing_label_excluded": 0,
@@ -33,6 +43,7 @@
       "Achado sugerido para confirmação médica; nunca diagnóstico.",
       "Limiares e temperatura ajustados na metade de calibração (27 pacientes) e métricas reportadas na metade de teste (28 pacientes), split determinístico por paciente.",
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Réplicas de bootstrap com estatística indefinida (contadas, fora do percentil; abaixo de 95% definidas o IC fica indefinido): rule_out.npv 660/2000, IC indefinido; rule_in.ppv 235/2000, IC indefinido.",
       "CV aninhada 5 dobras agrupada por paciente; escore = média dos logits dos 10 quadros.",
       "Referência: biópsia, gordura >= 5% (campo class do dataset).",
       "Registro NÃO ELEGÍVEL (casos abaixo dos mínimos do protocolo): não aprova nem refuta a condição."
@@ -100,10 +111,10 @@
     "population": "Byra et al. 2018, 55 pacientes obesos graves (pré-bariátrica), um centro",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-liver-steatosis@byra-fatty-liver",
-      "created_at": "2026-11-27T13:49:26.306428Z",
+      "created_at": "2026-11-27T15:39:14.054752Z",
       "dataset_id": "byra-fatty-liver",
       "dataset_sha256": "36b325fab3a7920a1653ab61187df6059a24f1f6e7e965be360de72355c79860",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
@@ -111,18 +122,25 @@
         "probe.safetensors": "1653fa4b680823f448243ebf402c9e2206ae66df416f700e10da386759bc9d0b"
       }
     },
+    "reference_derived_input": null,
     "reference_standard": "histopathology",
-    "source": null
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "known"
   },
   "report": {
     "auprc": {
       "ci_high": 0.9574651207668641,
       "ci_low": 0.7441002171931806,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.8620141849819466
     },
     "auroc": {
       "ci_high": 0.9064327485380117,
       "ci_low": 0.5087719298245614,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.7309941520467836
     },
     "calibration": {
@@ -145,11 +163,15 @@
     "ece_after": {
       "ci_high": 0.26392865865527554,
       "ci_low": 0.10056524505676333,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.13893451677724275
     },
     "ece_before": {
       "ci_high": 0.38198635541325804,
       "ci_low": 0.16280740064770502,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.2550972967165903
     },
     "label": "liver_steatosis",
@@ -162,11 +184,15 @@
       "npv": {
         "ci_high": 0.391304347826087,
         "ci_low": 0.32142857142857145,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.34615384615384615
       },
       "ppv": {
-        "ci_high": 1.0,
-        "ci_low": 1.0,
+        "ci_high": null,
+        "ci_low": null,
+        "n_defined_replicates": 1765,
+        "n_replicates": 2000,
         "value": 1.0
       },
       "role": "rule_in",
@@ -174,11 +200,15 @@
       "sensitivity": {
         "ci_high": 0.2631578947368421,
         "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.10526315789473684
       },
       "specificity": {
         "ci_high": 1.0,
         "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 1.0
       },
       "target": 0.9,
@@ -189,13 +219,17 @@
       "calibration_sensitivity": 0.9473684210526315,
       "calibration_specificity": 0.0,
       "npv": {
-        "ci_high": 1.0,
-        "ci_low": 1.0,
+        "ci_high": null,
+        "ci_low": null,
+        "n_defined_replicates": 1340,
+        "n_replicates": 2000,
         "value": 1.0
       },
       "ppv": {
         "ci_high": 0.76,
         "ci_low": 0.6785714285714286,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.7037037037037037
       },
       "role": "rule_out",
@@ -203,11 +237,15 @@
       "sensitivity": {
         "ci_high": 1.0,
         "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 1.0
       },
       "specificity": {
         "ci_high": 0.3333333333333333,
         "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.1111111111111111
       },
       "target": 0.9,

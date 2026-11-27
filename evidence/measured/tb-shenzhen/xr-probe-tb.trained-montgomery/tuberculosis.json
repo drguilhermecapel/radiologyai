@@ -1,4 +1,23 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [
+      "tb-shenzhen",
+      "tb-montgomery",
+      "fracatlas",
+      "grazpedwri-dx-sample"
+    ],
+    "training_data": [
+      "tb-montgomery",
+      "mimic-cxr",
+      "chexpert",
+      "nih-cxr14",
+      "padchest",
+      "brax"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "n_missing_label_excluded": 0,
@@ -35,7 +54,8 @@
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "Sonda de comparação NÃO distribuída (direção inversa: treino Montgomery, teste Shenzhen); seus tensores não foram persistidos.",
       "Proveniência da sonda: embeddings RAD-DINO de treino (hash acima) + receita determinística radiologyai.analysis.probes.fit.fit_probe (semente do protocolo).",
-      "Sem id de paciente no dataset: cada caso tratado como um paciente."
+      "Sem id de paciente no dataset: cada caso tratado como um paciente.",
+      "Dataset de avaliação reutilizado na SELEÇÃO do modelo/codificador (tb-shenzhen): estimativa otimista; não é validação externa."
     ],
     "condition_id": "cxr.tuberculosis",
     "dataset": "tb-shenzhen",
@@ -44,8 +64,8 @@
     "id": "measured:tb-shenzhen:xr-probe-tb.trained-montgomery:tuberculosis:discrimination",
     "kind": "measured_external",
     "label": "tuberculosis",
-    "leakage": "none",
-    "leakage_note": "nenhuma linhagem comum entre avaliação e treino (tb-montgomery, mimic-cxr, chexpert, nih-cxr14, padchest, brax)",
+    "leakage": "known",
+    "leakage_note": "dataset de avaliação reutilizado na seleção do modelo/codificador (tb-shenzhen): a estimativa é otimista e não é validação externa; treino: nenhuma linhagem comum entre avaliação e treino (tb-montgomery, mimic-cxr, chexpert, nih-cxr14, padchest, brax)",
     "metrics": {
       "auprc": {
         "ci_high": 0.9745155560728365,
@@ -95,10 +115,10 @@
     "population": "NLM Shenzhen No.3 People's Hospital (China); conjunto inteiro (662 casos)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-tb.trained-montgomery@tb-shenzhen",
-      "created_at": "2026-11-27T13:49:18.550843Z",
+      "created_at": "2026-11-27T15:39:05.969933Z",
       "dataset_id": "tb-shenzhen",
       "dataset_sha256": "8aceaefc5865dd13e30ad59e4258ee48acf8c6ff1c31caf0a91b08d36615ff2f",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
@@ -106,18 +126,27 @@
         "tb-montgomery.npz": "ff60725cd84e6f46dc0e5cb649ba1b29c54bb52eddce0cc09f726957291c782a"
       }
     },
+    "reference_derived_input": null,
     "reference_standard": "other",
-    "source": null
+    "selection_overlap": [
+      "tb-shenzhen"
+    ],
+    "source": null,
+    "training_leakage": "none"
   },
   "report": {
     "auprc": {
       "ci_high": 0.9745155560728365,
       "ci_low": 0.941659155727905,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.9590802111676918
     },
     "auroc": {
       "ci_high": 0.9663690476190476,
       "ci_low": 0.9191845603271983,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.9442375109553024
     },
     "calibration": {
@@ -140,11 +169,15 @@
     "ece_after": {
       "ci_high": 0.17125929443682397,
       "ci_low": 0.12370800104857622,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.14454593440471689
     },
     "ece_before": {
       "ci_high": 0.2034222309927218,
       "ci_low": 0.1560613970756102,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.17554634266573457
     },
     "label": "tuberculosis",
@@ -157,11 +190,15 @@
       "npv": {
         "ci_high": 0.9053254437869822,
         "ci_low": 0.8142076502732241,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8587570621468926
       },
       "ppv": {
         "ci_high": 0.9662162162162162,
         "ci_low": 0.8896093936738109,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9285714285714286
       },
       "role": "rule_in",
@@ -169,11 +206,15 @@
       "sensitivity": {
         "ci_high": 0.9047619047619048,
         "ci_low": 0.7916666666666666,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8511904761904762
       },
       "specificity": {
         "ci_high": 0.9693251533742331,
         "ci_low": 0.8895705521472392,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9325153374233128
       },
       "target": 0.9,
@@ -186,11 +227,15 @@
       "npv": {
         "ci_high": 0.9246575342465754,
         "ci_low": 0.830965984586766,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8783783783783784
       },
       "ppv": {
         "ci_high": 0.8670608054162807,
         "ci_low": 0.7747252747252747,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.819672131147541
       },
       "role": "rule_out",
@@ -198,11 +243,15 @@
       "sensitivity": {
         "ci_high": 0.9345238095238095,
         "ci_low": 0.845089285714286,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8928571428571429
       },
       "specificity": {
         "ci_high": 0.8588957055214724,
         "ci_low": 0.7300613496932515,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.7975460122699386
       },
       "target": 0.9,
@@ -237,6 +286,8 @@
         "auroc": {
           "ci_high": 0.9575555929919136,
           "ci_low": 0.8456873315363881,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9053234501347709
         },
         "counts": {
@@ -252,21 +303,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.7735849056603774,
           "ci_low": 0.5094339622641509,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.6415094339622641
         },
         "rule_in_specificity": {
           "ci_high": 1.0,
           "ci_low": 0.9107142857142857,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9642857142857143
         },
         "rule_out_sensitivity": {
           "ci_high": 0.8679245283018868,
           "ci_low": 0.6415094339622641,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.7547169811320755
         },
         "rule_out_specificity": {
           "ci_high": 0.9464285714285714,
           "ci_low": 0.7857142857142857,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.875
         },
         "value": "F"
@@ -276,6 +335,8 @@
         "auroc": {
           "ci_high": 0.9891162129215765,
           "ci_low": 0.9483136936204795,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9716375457131248
         },
         "counts": {
@@ -291,21 +352,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.9826086956521739,
           "ci_low": 0.9043478260869565,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9478260869565217
         },
         "rule_in_specificity": {
           "ci_high": 0.9626168224299065,
           "ci_low": 0.8598130841121495,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9158878504672897
         },
         "rule_out_sensitivity": {
           "ci_high": 0.991304347826087,
           "ci_low": 0.9130434782608695,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9565217391304348
         },
         "rule_out_specificity": {
           "ci_high": 0.8317757009345794,
           "ci_low": 0.6728971962616822,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.7570093457943925
         },
         "value": "M"
@@ -334,6 +403,8 @@
         "auroc": {
           "ci_high": 0.9667647567941838,
           "ci_low": 0.9002921066297386,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.936731867751428
         },
         "counts": {
@@ -349,21 +420,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.926605504587156,
           "ci_low": 0.7889908256880734,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8623853211009175
         },
         "rule_in_specificity": {
           "ci_high": 0.9716981132075472,
           "ci_low": 0.8771226415094344,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9245283018867925
         },
         "rule_out_sensitivity": {
           "ci_high": 0.944954128440367,
           "ci_low": 0.8256880733944955,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8899082568807339
         },
         "rule_out_specificity": {
           "ci_high": 0.8679245283018868,
           "ci_low": 0.7169811320754716,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.7924528301886793
         },
         "value": "18-39"
@@ -373,6 +452,8 @@
         "auroc": {
           "ci_high": 0.9921090387374462,
           "ci_low": 0.9289634146341463,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9670014347202296
         },
         "counts": {
@@ -388,21 +469,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.926829268292683,
           "ci_low": 0.7073170731707317,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8292682926829268
         },
         "rule_in_specificity": {
           "ci_high": 1.0,
           "ci_low": 0.8529411764705882,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9411764705882353
         },
         "rule_out_sensitivity": {
           "ci_high": 1.0,
           "ci_low": 0.8292682926829268,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.926829268292683
         },
         "rule_out_specificity": {
           "ci_high": 0.9117647058823529,
           "ci_low": 0.6470588235294118,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.7941176470588235
         },
         "value": "40-59"
@@ -450,6 +539,8 @@
         "auroc": {
           "ci_high": 0.9663690476190476,
           "ci_low": 0.9191845603271983,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9442375109553024
         },
         "counts": {
@@ -465,21 +556,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.9047619047619048,
           "ci_low": 0.7916666666666666,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8511904761904762
         },
         "rule_in_specificity": {
           "ci_high": 0.9693251533742331,
           "ci_low": 0.8895705521472392,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9325153374233128
         },
         "rule_out_sensitivity": {
           "ci_high": 0.9345238095238095,
           "ci_low": 0.845089285714286,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8928571428571429
         },
         "rule_out_specificity": {
           "ci_high": 0.8588957055214724,
           "ci_low": 0.7300613496932515,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.7975460122699386
         },
         "value": "PA"

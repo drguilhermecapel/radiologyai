@@ -59,7 +59,7 @@ está no histórico git deste arquivo.
 | Requisitos rastreados | `REQ-NNN.md` em [`docs/regulatory/06-requirements/`](docs/regulatory/06-requirements/), cada um com teste verificador; contagem na [matriz gerada](docs/regulatory/13-traceability.md); portão `scripts/trace.py --check` no CI |
 | Medições de desempenho | linha de base de terceiros no NIH ChestX-ray14, AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` (fora do cálculo de nível); 15 registros sob o protocolo em `evidence/measured/` (ledger em `evidence/measured/ledger.yaml`): nenhum externo limpo aprovado, fratura reprovada no GRAZPEDWRI-DX, lista completa em [`HONEST_STATUS.md`](HONEST_STATUS.md). Os relatos de Colab de 2026-11-25 em [`docs/evaluation/`](docs/evaluation/phase1-nih1000-baseline.md) **não têm artefato commitado** e não contam como medição (ver [`HONEST_STATUS.md`](HONEST_STATUS.md)) |
 | Camada de análise `src/radiologyai/analysis/` | manifestos por modelo (`available` com pesos sha256, ou `planned` com motivo), adaptadores para RX, TC, RM, mamografia, US e eco, biomarcadores de TC com pré-condições, sondas lineares; verificação em andamento |
-| Fábrica de evidência `src/radiologyai/evidence/` | predições → medição sob o protocolo → registro com proveniência → `levels.json`; níveis re-julgados no build contra `protocol.yaml` e o plano; registros desta árvore com `git_dirty`, re-medição a partir de commit pendente |
+| Fábrica de evidência `src/radiologyai/evidence/` | predições → medição sob o protocolo → registro com proveniência → `levels.json`; níveis re-julgados no build contra `protocol.yaml` e o plano; registros medidos a partir de commit, sem código sujo |
 | Plataforma | API, persistência, fila, laudo preliminar (PDF, DICOM SR, FHIR), DICOMweb e frontend no código; verificação em andamento |
 | Catálogo de condições | esquema, regra de nível e protocolo pré-registrado commitados (`src/radiologyai/catalog/`); 63 condições em `conditions.yaml`; nenhuma em A ou B (KPI em §2.3); evidência publicada em `evidence/published/` |
 | Validação clínica | **nenhuma** |
@@ -115,20 +115,19 @@ reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 0 | 0 | 0 | 1 | 0 |
+| `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 0 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
-| `msk_xr` | 0 | 0 | 0 | 4 | 0 |
+| `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 0 | 13 | 0 |
+| **Todas** | 0 | 0 | 1 | 12 | 1 |
 <!-- kpi-levels:fim -->
 
 A tabela é transcrita de `src/radiologyai/catalog/levels.json` contando **só entradas
 `distributed: true`** (modelo com manifesto que cobre os pesos medidos); o CI
 (`tests/unit/test_status_docs_levels.py`) falha se este roadmap, o README ou o HONEST_STATUS
-divergirem dela. Nesta árvore os registros medidos carregam `git_dirty` e estão fora do cálculo,
-por isso tudo está em D; com a re-medição a partir de um commit, as regras atuais dão C só para
+divergirem dela. Os registros medidos foram gerados a partir de um commit: C só para
 tuberculose (`xr-probe-tb`, hold-out interno) e fratura refutada (AUROC 0,690 no GRAZPEDWRI-DX —
 `evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`). O nível A que o commit
 `23af5ca` atribuiu à TB foi **retratado** (Shenzhen reutilizado na seleção do codificador; sonda

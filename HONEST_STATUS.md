@@ -144,13 +144,13 @@ manifesto que cobre os pesos medidos):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 0 | 0 | 0 | 1 | 0 |
+| `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 0 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
-| `msk_xr` | 0 | 0 | 0 | 4 | 0 |
+| `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 0 | 13 | 0 |
+| **Todas** | 0 | 0 | 1 | 12 | 1 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada em `levels.json` e 13 têm entrada de modelo
@@ -158,14 +158,12 @@ distribuído. As demais entradas são de ids de modelo sem manifesto (inclusive 
 registros publicados em `evidence/published/`, que não casam com os manifestos) e ficam fora da
 contagem.
 
-**Estado transitório desta árvore:** os 15 registros acima foram regenerados com código ainda não
-commitado e carregam `git_dirty`; o build de níveis os exclui do cálculo, por isso a tabela está
-toda em D e sem refutação. A re-medição a partir de um commit é **pendente**. Aplicando as regras
-atuais aos mesmos registros, o resultado esperado é: **C** só para tuberculose / `xr-probe-tb`
-(hold-out interno); fratura **refutada** (D); `xr-probe-tb.trained-montgomery` fora da contagem
-(não distribuído); FE e lesão mamária mantidas em **D** apesar de aprovarem (manifesto só de
-pesquisa e entrada derivada da referência). Esta tabela será atualizada quando `levels.json`
-mudar — o CI (`tests/unit/test_status_docs_levels.py`) falha se ela divergir.
+**Níveis vigentes** (registros gerados a partir de um commit, sem código sujo): **C** só para
+tuberculose / `xr-probe-tb` (hold-out interno); fratura **refutada** (D);
+`xr-probe-tb.trained-montgomery` fora da contagem (não distribuído); FE e lesão mamária mantidas
+em **D** apesar de aprovarem (manifesto só de pesquisa e entrada derivada da referência). Esta
+tabela muda quando `levels.json` mudar — o CI (`tests/unit/test_status_docs_levels.py`) falha se
+ela divergir.
 
 ### Nível A retratado
 
@@ -215,8 +213,6 @@ corretamente). Para que esses resultados contem, a execução precisa ser refeit
   mas está nos commits `3f5ae26`, `c80c22e` e `0b89c95`. O expurgo com `git filter-repo` (e a
   rotação do que ele possa ter tocado) está pendente; até lá, trate seu conteúdo como exposto.
   O mesmo vale para segredos do legado em `medai_config.json` e `docker-compose.yml` no histórico.
-- **Re-medição a partir de commit.** Os registros de `evidence/measured/` desta árvore carregam
-  `git_dirty` e estão fora do cálculo de nível até serem re-medidos de um commit (ver acima).
 - **Nenhum registro externo limpo aprovado.** Toda aprovação própria é interna, tem vazamento
   possível/conhecido ou usou entrada derivada da referência. Não há condição em A nem em B.
 - **Licença de um dos dados de treino não conferida.** A sonda de lesão mamária em US foi ajustada

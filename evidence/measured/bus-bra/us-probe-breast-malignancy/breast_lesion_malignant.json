@@ -1,4 +1,14 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": "região = caixa da máscara de referência + 25%",
+    "selection_data": [],
+    "training_data": [
+      "busi",
+      "pmc-15m"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "n_missing_label_excluded": 0,
@@ -34,7 +44,8 @@
       "Limiares e temperatura ajustados na metade de calibração (532 pacientes) e métricas reportadas na metade de teste (532 pacientes), split determinístico por paciente.",
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "Rótulo benigno/maligno do BUS-BRA (histologia por lesão informada no dataset; não conferida caso a caso).",
-      "Região = caixa da máscara de referência + 25% (oráculo da caixa do usuário)."
+      "Região = caixa da máscara de referência + 25% (oráculo da caixa do usuário).",
+      "Entrada do modelo derivada do padrão de referência (região = caixa da máscara de referência + 25%): parte da referência entra no modelo; o registro não sustenta nível A."
     ],
     "condition_id": "us.breast_lesion_malignancy",
     "dataset": "bus-bra",
@@ -94,10 +105,10 @@
     "population": "BUS-BRA (Brasil), 1875 imagens de 1064 pacientes",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-breast-malignancy@bus-bra",
-      "created_at": "2026-11-27T13:49:24.826767Z",
+      "created_at": "2026-11-27T15:39:12.560877Z",
       "dataset_id": "bus-bra",
       "dataset_sha256": "32963339cb2902796be0bec129c685988c95dd2143c9e5419550484dc2ffb183",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
@@ -105,18 +116,25 @@
         "probe.safetensors": "ba535eb0180c3a47d34cbc4a3b1f363d1fce3149076b8dedd331ef606c6b660c"
       }
     },
+    "reference_derived_input": "região = caixa da máscara de referência + 25%",
     "reference_standard": "other",
-    "source": null
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "possible"
   },
   "report": {
     "auprc": {
       "ci_high": 0.8075316238759286,
       "ci_low": 0.7129402946162365,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.7615326652017262
     },
     "auroc": {
       "ci_high": 0.8881410238885935,
       "ci_low": 0.8301540832726219,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.8600163273905144
     },
     "calibration": {
@@ -139,11 +157,15 @@
     "ece_after": {
       "ci_high": 0.09496472754024252,
       "ci_low": 0.058096818747327146,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.0698609597979928
     },
     "ece_before": {
       "ci_high": 0.09400692475953809,
       "ci_low": 0.056089916822069597,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.0683859466499943
     },
     "label": "breast_lesion_malignant",
@@ -156,11 +178,15 @@
       "npv": {
         "ci_high": 0.8462694482174672,
         "ci_low": 0.7977348426086849,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8218978102189781
       },
       "ppv": {
         "ci_high": 0.7682428289724427,
         "ci_low": 0.6550318383167221,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.7108433734939759
       },
       "role": "rule_in",
@@ -168,11 +194,15 @@
       "sensitivity": {
         "ci_high": 0.655178238583411,
         "ci_low": 0.528052805280528,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.5919732441471572
       },
       "specificity": {
         "ci_high": 0.914159631522811,
         "ci_low": 0.8558079296119163,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8866141732283465
       },
       "target": 0.9,
@@ -185,11 +215,15 @@
       "npv": {
         "ci_high": 0.9696988779482483,
         "ci_low": 0.9191905578698032,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9456521739130435
       },
       "ppv": {
         "ci_high": 0.522730388898122,
         "ci_low": 0.46524064171123,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.4929328621908127
       },
       "role": "rule_out",
@@ -197,11 +231,15 @@
       "sensitivity": {
         "ci_high": 0.9630872483221476,
         "ci_low": 0.8989824717765894,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9331103678929766
       },
       "specificity": {
         "ci_high": 0.5894253797345709,
         "ci_low": 0.5038364232814753,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.5480314960629922
       },
       "target": 0.9,

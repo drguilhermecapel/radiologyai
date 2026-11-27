@@ -1,4 +1,23 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": true,
+    "reference_derived_input": null,
+    "selection_data": [
+      "tb-shenzhen",
+      "tb-montgomery",
+      "fracatlas",
+      "grazpedwri-dx-sample"
+    ],
+    "training_data": [
+      "fracatlas",
+      "mimic-cxr",
+      "chexpert",
+      "nih-cxr14",
+      "padchest",
+      "brax"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "n_missing_label_excluded": 0,
@@ -34,7 +53,8 @@
       "Limiares e temperatura ajustados na metade de calibração (990 pacientes) e métricas reportadas na metade de teste (989 pacientes), split determinístico por paciente.",
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "Predições fora-da-dobra; dobras por IMAGEM: o FracAtlas não publica id de paciente, então pode haver vazamento intrapaciente entre dobras (estimativa otimista).",
-      "87 JPEGs truncados, todos na classe sem fratura (artefato correlacionado ao rótulo, DATASET.json)."
+      "87 JPEGs truncados, todos na classe sem fratura (artefato correlacionado ao rótulo, DATASET.json).",
+      "Dataset de avaliação reutilizado na SELEÇÃO do modelo/codificador (fracatlas): estimativa otimista; não é validação externa."
     ],
     "condition_id": "msk_xr.fracture",
     "dataset": "fracatlas",
@@ -44,7 +64,7 @@
     "kind": "measured_internal",
     "label": "fracture",
     "leakage": "known",
-    "leakage_note": "dataset de avaliação compartilha linhagem com o treino: fracatlas (linhagem comum: fracatlas)",
+    "leakage_note": "dataset de avaliação compartilha linhagem com o treino: fracatlas (linhagem comum: fracatlas); dataset de avaliação reutilizado na seleção do modelo/codificador (fracatlas): a estimativa é otimista e não é validação externa",
     "metrics": {
       "auprc": {
         "ci_high": 0.8256859349893564,
@@ -94,10 +114,10 @@
     "population": "FracAtlas (Bangladesh), amostra do spike com todas as 719 imagens com fratura e 1260 sem fratura; mão, perna, quadril e ombro",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-fracture@fracatlas",
-      "created_at": "2026-11-27T13:49:19.453375Z",
+      "created_at": "2026-11-27T15:39:06.950075Z",
       "dataset_id": "fracatlas",
       "dataset_sha256": "410c1dca69800934732c11504e1d611d62ef99ddc82ec46da6c41893f8635046",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
@@ -106,18 +126,27 @@
         "probe.safetensors": "964a64cf06e87e1b031cb2910876d7143b96a16126c3f204cb105c56f2b165d3"
       }
     },
+    "reference_derived_input": null,
     "reference_standard": "other",
-    "source": null
+    "selection_overlap": [
+      "fracatlas"
+    ],
+    "source": null,
+    "training_leakage": "known"
   },
   "report": {
     "auprc": {
       "ci_high": 0.8256859349893564,
       "ci_low": 0.7481121785414458,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.7858608164694749
     },
     "auroc": {
       "ci_high": 0.8806387894061989,
       "ci_low": 0.8319602511385241,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.8568156696290401
     },
     "calibration": {
@@ -140,11 +169,15 @@
     "ece_after": {
       "ci_high": 0.09571327353947447,
       "ci_low": 0.06384902292552437,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.07793173239835827
     },
     "ece_before": {
       "ci_high": 0.09633953107964434,
       "ci_low": 0.06463863042108092,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.07851068655867723
     },
     "label": "fracture",
@@ -157,11 +190,15 @@
       "npv": {
         "ci_high": 0.8192252510760402,
         "ci_low": 0.7774798018195641,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.7972222222222223
       },
       "ppv": {
         "ci_high": 0.8366629777187546,
         "ci_low": 0.7464595130922995,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.79182156133829
       },
       "role": "rule_in",
@@ -169,11 +206,15 @@
       "sensitivity": {
         "ci_high": 0.6462395543175488,
         "ci_low": 0.5459610027855153,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.5933147632311978
       },
       "specificity": {
         "ci_high": 0.9333333333333333,
         "ci_low": 0.8872619047619048,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9111111111111111
       },
       "target": 0.9,
@@ -186,11 +227,15 @@
       "npv": {
         "ci_high": 0.9405972491579054,
         "ci_low": 0.8897632747829598,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9153846153846154
       },
       "ppv": {
         "ci_high": 0.5699486286229641,
         "ci_low": 0.5213266257478052,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.5442404006677797
       },
       "role": "rule_out",
@@ -198,11 +243,15 @@
       "sensitivity": {
         "ci_high": 0.935933147632312,
         "ci_low": 0.8774373259052924,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9080779944289693
       },
       "specificity": {
         "ci_high": 0.6063492063492063,
         "ci_low": 0.5285317460317461,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.5666666666666667
       },
       "target": 0.9,
@@ -237,6 +286,8 @@
         "auroc": {
           "ci_high": 0.86963384272963,
           "ci_low": 0.8030609669351323,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8385305523049035
         },
         "counts": {
@@ -252,21 +303,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.6164383561643836,
           "ci_low": 0.4840182648401826,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.5525114155251142
         },
         "rule_in_specificity": {
           "ci_high": 0.9422110552763819,
           "ci_low": 0.8844221105527639,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.914572864321608
         },
         "rule_out_sensitivity": {
           "ci_high": 0.9360730593607306,
           "ci_low": 0.8538812785388128,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8995433789954338
         },
         "rule_out_specificity": {
           "ci_high": 0.5879396984924623,
           "ci_low": 0.4899497487437186,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.5402010050251256
         },
         "value": "frontal"
@@ -276,6 +335,8 @@
         "auroc": {
           "ci_high": 0.9316261146211409,
           "ci_low": 0.8632869561320966,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.8994488506519693
         },
         "counts": {
@@ -291,21 +352,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.751937984496124,
           "ci_low": 0.5891472868217055,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.6744186046511628
         },
         "rule_in_specificity": {
           "ci_high": 0.9421965317919075,
           "ci_low": 0.8554913294797688,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9017341040462428
         },
         "rule_out_sensitivity": {
           "ci_high": 0.9767441860465116,
           "ci_low": 0.9069767441860465,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9457364341085271
         },
         "rule_out_specificity": {
           "ci_high": 0.7283236994219653,
           "ci_low": 0.5838150289017341,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.653179190751445
         },
         "value": "lateral"
@@ -315,6 +384,8 @@
         "auroc": {
           "ci_high": 0.8613251155624037,
           "ci_low": 0.46375192604006166,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.6687211093990755
         },
         "counts": {
@@ -330,21 +401,29 @@
         "rule_in_sensitivity": {
           "ci_high": 0.7272727272727273,
           "ci_low": 0.18181818181818182,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.45454545454545453
         },
         "rule_in_specificity": {
           "ci_high": 0.9830508474576272,
           "ci_low": 0.8305084745762712,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.9152542372881356
         },
         "rule_out_sensitivity": {
           "ci_high": 0.9090909090909091,
           "ci_low": 0.36363636363636365,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.6363636363636364
         },
         "rule_out_specificity": {
           "ci_high": 0.6101694915254238,
           "ci_low": 0.3728813559322034,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
           "value": 0.4915254237288136
         },
         "value": "oblique"

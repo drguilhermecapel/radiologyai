@@ -15,7 +15,7 @@ entries:
   awaiting_condition: false
   record: measured/tb-montgomery/xr-probe-tb/tuberculosis.json
   kind: measured_external
-  leakage: none
+  leakage: known
   n_total: 69
   n_positive: 29
   reasons:
@@ -44,7 +44,7 @@ entries:
   awaiting_condition: false
   record: measured/tb-shenzhen/xr-probe-tb.trained-montgomery/tuberculosis.json
   kind: measured_external
-  leakage: none
+  leakage: known
   n_total: 331
   n_positive: 168
   reasons: []
@@ -72,7 +72,7 @@ entries:
   awaiting_condition: false
   record: measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json
   kind: measured_external
-  leakage: none
+  leakage: known
   n_total: 632
   n_positive: 379
   reasons:

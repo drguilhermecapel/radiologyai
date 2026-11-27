@@ -1,4 +1,14 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": true,
+    "reference_derived_input": "região = caixa do polígono de referência da massa + 25%",
+    "selection_data": [],
+    "training_data": [
+      "liver-lesion-us-7272660",
+      "pmc-15m"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "n_missing_label_excluded": 0,
@@ -34,7 +44,8 @@
       "Limiares e temperatura ajustados na metade de calibração (195 pacientes) e métricas reportadas na metade de teste (196 pacientes), split determinístico por paciente.",
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "CV aninhada agrupada por aglomerado de quase-duplicatas; sem id de paciente nem histologia (rótulo = pasta do dataset).",
-      "Região = caixa do polígono da massa + 25% (oráculo)."
+      "Região = caixa do polígono da massa + 25% (oráculo).",
+      "Entrada do modelo derivada do padrão de referência (região = caixa do polígono de referência da massa + 25%): parte da referência entra no modelo; o registro não sustenta nível A."
     ],
     "condition_id": "us.liver_lesion_malignancy",
     "dataset": "liver-lesion-us-7272660",
@@ -96,10 +107,10 @@
     "population": "Zenodo 7272660 (Xu et al.), massas hepáticas benignas e malignas, deduplicado",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-liver-lesion-malignancy@liver-lesion-us-7272660",
-      "created_at": "2026-11-27T13:49:25.607845Z",
+      "created_at": "2026-11-27T15:39:13.343246Z",
       "dataset_id": "liver-lesion-us-7272660",
       "dataset_sha256": "216cc6045c43f621a44e06c90526b62b6e8751ba96cbed58644466d60ab7bcb4",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
@@ -107,18 +118,25 @@
         "probe.safetensors": "ce51b124638413f8c5a03276d900b468a53a04e0349460086680787124f835f7"
       }
     },
+    "reference_derived_input": "região = caixa do polígono de referência da massa + 25%",
     "reference_standard": "other",
-    "source": null
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "known"
   },
   "report": {
     "auprc": {
       "ci_high": 0.9117170693042996,
       "ci_low": 0.7798803044430687,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.8419836842672753
     },
     "auroc": {
       "ci_high": 0.8479618456410158,
       "ci_low": 0.609285921785471,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.8113734116951768
     },
     "calibration": {
@@ -133,7 +151,7 @@
     "counts": {
       "n_images": 362,
       "n_neg": 133,
-      "n_neg_patients": 42,
+      "n_neg_patients": 41,
       "n_patients": 196,
       "n_pos": 229,
       "n_pos_patients": 155
@@ -141,11 +159,15 @@
     "ece_after": {
       "ci_high": 0.21199032127727555,
       "ci_low": 0.10709267538933379,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.13721484464287917
     },
     "ece_before": {
       "ci_high": 0.21864764855167412,
       "ci_low": 0.10733011680197752,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 0.13667509454009102
     },
     "label": "liver_lesion_malignant",
@@ -158,11 +180,15 @@
       "npv": {
         "ci_high": 0.5231316725978647,
         "ci_low": 0.20587713808927827,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.4186851211072664
       },
       "ppv": {
         "ci_high": 0.927536231884058,
         "ci_low": 0.7333098591549295,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8356164383561644
       },
       "role": "rule_in",
@@ -170,11 +196,15 @@
       "sensitivity": {
         "ci_high": 0.4011627906976744,
         "ci_low": 0.16666666666666666,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.2663755458515284
       },
       "specificity": {
         "ci_high": 0.952076677316294,
         "ci_low": 0.6976744186046512,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9097744360902256
       },
       "target": 0.9,
@@ -187,11 +217,15 @@
       "npv": {
         "ci_high": 0.8961038961038961,
         "ci_low": 0.5623263888888892,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.8518518518518519
       },
       "ppv": {
         "ci_high": 0.8682926829268293,
         "ci_low": 0.6981524294064888,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.7722419928825622
       },
       "role": "rule_out",
@@ -199,11 +233,15 @@
       "sensitivity": {
         "ci_high": 0.9887005649717514,
         "ci_low": 0.916661227154047,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.9475982532751092
       },
       "specificity": {
         "ci_high": 0.5903372434017594,
         "ci_low": 0.19148936170212766,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
         "value": 0.518796992481203
       },
       "target": 0.9,
@@ -215,7 +253,7 @@
       "calibration": {
         "n_images": 264,
         "n_neg": 61,
-        "n_neg_patients": 43,
+        "n_neg_patients": 40,
         "n_patients": 195,
         "n_pos": 203,
         "n_pos_patients": 155
@@ -226,7 +264,7 @@
       "test": {
         "n_images": 362,
         "n_neg": 133,
-        "n_neg_patients": 42,
+        "n_neg_patients": 41,
         "n_patients": 196,
         "n_pos": 229,
         "n_pos_patients": 155

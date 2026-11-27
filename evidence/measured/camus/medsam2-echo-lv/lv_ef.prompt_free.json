@@ -1,8 +1,17 @@
 {
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": "quadros ED/ES e corte anotados no CAMUS (a caixa vem do atlas de treino)",
+    "selection_data": [],
+    "training_data": [
+      "medsam2-training-corpus"
+    ]
+  },
   "format": "radiologyai.evidence/measured-v1",
   "inputs": {
     "measured_column": "y_pred",
-    "n_abstained_excluded": 0,
+    "n_abstained": 0,
     "n_rows_outside_filter": 100,
     "plan_job": "medsam2-echo-lv@camus:prompt-free",
     "predictions_file": "medsam2-echo-lv/camus/ef.parquet",
@@ -18,10 +27,11 @@
       "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
       "Achado sugerido para confirmação médica; nunca diagnóstico.",
       "ICC(2,1): dois fatores, efeitos aleatórios, concordância absoluta.",
-      "n_positive = casos com medida de referência (desfecho contínuo).",
+      "n_total = n_positive = casos com medida de referência (desfecho contínuo), inclusive 0 em que o modelo se absteve (fora do ICC).",
       "IC: IC95% bootstrap percentílico por paciente (cluster); B=2000, seed=20261124.",
       "FE biplanar de Simpson das máscaras do MedSAM2 contra a FE de referência do CAMUS (Info_*.cfg, contornos de especialista).",
-      "Sem prompt do usuário: caixa do atlas da partição de treino do CAMUS (400 pacientes) + 1 refinamento; corte e quadros ED/ES ainda vêm do CAMUS. Variante só de avaliação."
+      "Sem prompt do usuário: caixa do atlas da partição de treino do CAMUS (400 pacientes) + 1 refinamento; corte e quadros ED/ES ainda vêm do CAMUS. Variante só de avaliação.",
+      "Entrada do modelo derivada do padrão de referência (quadros ED/ES e corte anotados no CAMUS (a caixa vem do atlas de treino)): parte da referência entra no modelo; o registro não sustenta nível A."
     ],
     "condition_id": "echo.reduced_lvef",
     "dataset": "camus",
@@ -35,6 +45,11 @@
     "leakage": "possible",
     "leakage_note": "sobreposição plausível declarada na tabela: medsam2-training-corpus",
     "metrics": {
+      "abstention_fraction": {
+        "ci_high": null,
+        "ci_low": null,
+        "value": 0.0
+      },
       "bland_altman_bias": {
         "ci_high": -13.26665649118248,
         "ci_low": -88.06552521963411,
@@ -68,48 +83,64 @@
     "population": "CAMUS (Lyon), partições oficiais testing + validation, 100 pacientes, A4C + A2C",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job medsam2-echo-lv@camus:prompt-free",
-      "created_at": "2026-11-27T13:49:26.784521Z",
+      "created_at": "2026-11-27T15:39:14.506635Z",
       "dataset_id": "camus",
       "dataset_sha256": "cee3877be374ce3e0a0724a7d95d5d229ed3e378f981986b9ea4518b879e7a06",
-      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "git_sha": "3f39b408f94612bc4390e4b8fa97d12188c95fe3",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
         "MedSAM2_US_Heart.pt": "295c0ff8912c99947c364287bbecd1cd36963f0c0ac67a042d292f0dedf8d933"
       }
     },
+    "reference_derived_input": "quadros ED/ES e corte anotados no CAMUS (a caixa vem do atlas de treino)",
     "reference_standard": "expert_segmentation",
-    "source": null
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "possible"
   },
   "report": {
     "bias": {
       "ci_high": -13.26665649118248,
       "ci_low": -88.06552521963411,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": -45.183984440088686
     },
     "ci_method": "IC95% bootstrap percentílico por paciente (cluster); B=2000, seed=20261124",
     "icc": {
       "ci_high": 0.017296464478936315,
       "ci_low": -0.030669516954788662,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 5.8561125652338954e-05
     },
     "icc_form": "ICC(2,1)",
     "loa_high": {
       "ci_high": 510.23839040039945,
       "ci_low": 114.23846925593504,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 337.2920700868871
     },
     "loa_low": {
       "ci_high": -141.19784125012515,
       "ci_low": -685.5954392052498,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": -427.6600389670645
     },
     "mae": {
       "ci_high": 94.23178453478668,
       "ci_low": 20.663641374717415,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
       "value": 51.61656686135324
     },
+    "n_abstained": 0,
     "n_cases": 100,
-    "n_patients": 100
+    "n_cases_with_reference": 100,
+    "n_patients": 100,
+    "n_patients_with_reference": 100
   }
 }

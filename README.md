@@ -48,19 +48,19 @@ se divergir):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 0 | 0 | 0 | 1 | 0 |
+| `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 0 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
-| `msk_xr` | 0 | 0 | 0 | 4 | 0 |
+| `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 0 | 13 | 0 |
+| **Todas** | 0 | 0 | 1 | 12 | 1 |
 <!-- kpi-levels:fim -->
 
-Nesta árvore os registros medidos foram regenerados com código não commitado (`git_dirty`) e
-estão fora do cálculo até a re-medição a partir de um commit; pelas regras atuais o esperado é C
-só para tuberculose (hold-out interno) e fratura refutada. Detalhe em
-[HONEST_STATUS.md](HONEST_STATUS.md).
+Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **C** só
+para tuberculose (`xr-probe-tb`, hold-out interno) e fratura **refutada**
+(`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`). Nenhuma condição em A
+ou B. Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
 
 ## O que existe hoje
 
