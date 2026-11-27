@@ -27,7 +27,12 @@ from radiologyai.analysis.base import (
     ModelInputs,
     RawMeasurement,
 )
-from radiologyai.analysis.policy import ManifestOnlyPolicy, SafetyPolicy
+from radiologyai.analysis.policy import (
+    MEASURED_LEVELS,
+    ManifestOnlyPolicy,
+    PointsRequest,
+    SafetyPolicy,
+)
 from radiologyai.analysis.routing import RoutingTable, load_routing, role_of
 from radiologyai.analysis.types import (
     PRIVATE_SCHEME,
@@ -165,29 +170,39 @@ class _Collector:
         return level
 
     def _points(
-        self, manifest: ModelManifest, label: str, level: EvidenceLevel
+        self, manifest: ModelManifest, spec: LabelSpec, level: EvidenceLevel, kind: ScoreKind
     ) -> list[OperatingPoint]:
-        """Pontos da política; os do manifesto só quando o nível não depende de outros pontos.
+        """Pontos de operação escolhidos pela política, com uma trava final para A/C.
 
         Níveis A e C são medições DESTE projeto sob o protocolo, em pontos de
         operação ajustados na metade de calibração e guardados no registro de
         evidência — não nos pontos do manifesto. Decidir com os pontos do
         manifesto e exibir o nível medido em outros pontos atribuiria à decisão
-        uma sensibilidade que nunca foi medida nela. Sem pontos da política, o
-        achado A/C fica ``score_only``.
+        uma sensibilidade que nunca foi medida nela. Por isso, qualquer que seja
+        a política, um ponto sem ``evidence_ref`` nunca decide um achado A/C: o
+        achado fica ``score_only``, com aviso.
         """
-        fitted = self.policy.operating_points(manifest.id, label)
-        if fitted:
-            return fitted
-        if level in (EvidenceLevel.A, EvidenceLevel.C):
-            if manifest.points_for(label):
-                self._warn_once(
-                    f"{manifest.id}:{label}: nível {level.value} foi medido em pontos de operação "
-                    "do protocolo que a política não fornece; os pontos do manifesto não foram "
-                    "avaliados — somente escore, sem decisão"
-                )
+        request = PointsRequest(
+            condition_id=spec.condition_id,
+            model_id=manifest.id,
+            label=spec.key,
+            level=level,
+            score_kind=kind,
+            manifest_points=tuple(manifest.points_for(spec.key)),
+            weights_sha256=frozenset(w.sha256 for w in manifest.weights if w.sha256),
+        )
+        resolution = self.policy.resolve_points(request)
+        for message in resolution.warnings:
+            self._warn_once(f"{manifest.id}:{spec.key}: {message}")
+        points = list(resolution.points)
+        if level in MEASURED_LEVELS and any(p.evidence_ref is None for p in points):
+            self._warn_once(
+                f"{manifest.id}:{spec.key}: nível {level.value} exige pontos de operação de um "
+                "registro de evidência; a política devolveu ponto sem evidence_ref — somente "
+                "escore, sem decisão"
+            )
             return []
-        return manifest.points_for(label)
+        return points
 
     def add(
         self,
@@ -357,7 +372,7 @@ class _Collector:
                 probability, calibration_id = calibrated
                 scores["calibrated"] = probability
         level = self._level(manifest, spec)
-        decision, used = decide(scores, self._points(manifest, spec.key, level))
+        decision, used = decide(scores, self._points(manifest, spec, level, kind))
         return Finding(
             condition_id=spec.condition_id,
             label=spec.key,
@@ -478,7 +493,8 @@ def analyze(
         registry: manifestos e pesos verificados.
         catalog: catálogo de condições; fonte do nível de evidência.
         store: repositório de artefatos (máscaras, mapas de explicação).
-        policy: calibração e pontos ajustados; padrão: só pontos do manifesto.
+        policy: calibração e pontos ajustados; padrão: :class:`ManifestOnlyPolicy` (pontos
+            do manifesto só nos níveis B e D; A/C ficam ``score_only``).
         routing: tabela de roteamento; padrão: ``load_routing(registry)``.
         model_ids: modelos explícitos (ignora o roteamento); dependências entram sozinhas.
         include_research: roda também os modelos exploratórios (modo pesquisa).

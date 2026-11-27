@@ -11,6 +11,7 @@ from analysis_support import manifest_dict, op, projection
 
 from radiologyai.analysis.artifacts import ArtifactStore
 from radiologyai.analysis.pipeline import _Collector, analyze
+from radiologyai.analysis.policy import PointsRequest, PointsResolution
 from radiologyai.analysis.types import AnalysisResult, ExamInputs
 from radiologyai.calibration.decision import OperatingPoint
 from radiologyai.catalog.schema import EvidenceLevel, ExamType
@@ -130,9 +131,13 @@ class _FittedPolicy:
         del model_id, label, raw_score, score_kind
         return None
 
-    def operating_points(self, model_id: str, label: str) -> list[OperatingPoint]:
-        del model_id, label
-        return [OperatingPoint.model_validate(op("rule_in", 0.3))]
+    def __init__(self, evidence_ref: str | None = "evidence/measured/x.json#report.rule_in"):
+        self.evidence_ref = evidence_ref
+
+    def resolve_points(self, request: PointsRequest) -> PointsResolution:
+        del request
+        point = {**op("rule_in", 0.3), "evidence_ref": self.evidence_ref}
+        return PointsResolution(points=(OperatingPoint.model_validate(point),))
 
 
 @pytest.mark.requirement("REQ-168")
@@ -168,3 +173,26 @@ def test_published_level_still_uses_manifest_points_with_origin(
     )
     result = run(make_registry, make_catalog, store, manifest, {BRIGHT: EvidenceLevel.B})
     assert result.findings[0].decision == "positive"
+
+
+@pytest.mark.requirement("REQ-192")
+def test_measured_level_refuses_policy_point_without_evidence_ref(
+    make_registry: Any, make_catalog: Any, store: ArtifactStore
+) -> None:
+    manifest = manifest_dict(
+        "fake-bright",
+        "Brightness",
+        operating_points=[{"label": "bright", "point": op("rule_in", 0.3)}],
+    )
+    result = run(
+        make_registry,
+        make_catalog,
+        store,
+        manifest,
+        {BRIGHT: EvidenceLevel.C},
+        policy=_FittedPolicy(evidence_ref=None),
+    )
+    (finding,) = result.findings
+    assert finding.decision == "score_only"
+    assert finding.operating_points == ()
+    assert any("sem evidence_ref" in w for w in result.warnings)

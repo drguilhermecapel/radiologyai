@@ -57,6 +57,14 @@ class Brightness(_Base):
         ]
 
 
+class LogitScore(_Base):
+    """Escore em logit = (média dos pixels - 128) / 16, para o primeiro rótulo do manifesto."""
+
+    def predict(self, inputs: ModelInputs) -> AdapterOutput:
+        value = float((inputs.single.pixels.mean() - 128.0) / 16.0)
+        return AdapterOutput(scores=[Score(self.manifest.labels[0].key, value, "logit")])
+
+
 class Segmenter(_Base):
     """Máscara = pixels acima da média; medida = fração da área clara."""
 

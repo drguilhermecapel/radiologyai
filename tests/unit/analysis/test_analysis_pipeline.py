@@ -9,6 +9,7 @@ from analysis_support import manifest_dict, op, projection
 
 from radiologyai.analysis.artifacts import ArtifactStore
 from radiologyai.analysis.pipeline import analyze
+from radiologyai.analysis.policy import PointsRequest, PointsResolution
 from radiologyai.analysis.types import (
     AbstentionReason,
     AnalysisResult,
@@ -153,9 +154,10 @@ class _Policy:
         del model_id, label, score_kind
         return raw_score / 2, "cal-teste"
 
-    def operating_points(self, model_id: str, label: str) -> list[OperatingPoint]:
-        del model_id, label
-        return [OperatingPoint.model_validate(op("balanced", 0.25, on="calibrated"))]
+    def resolve_points(self, request: PointsRequest) -> PointsResolution:
+        del request
+        point = OperatingPoint.model_validate(op("balanced", 0.25, on="calibrated"))
+        return PointsResolution(points=(point,))
 
 
 @pytest.mark.requirement("REQ-101")

@@ -262,7 +262,10 @@ def _point(finding: Finding) -> str | None:
     parts = []
     for p in finding.operating_points:
         sign = ">=" if p.direction == "ge" else "<="
-        parts.append(f"{p.name} ({p.role}): {p.on} {sign} {_fmt(p.threshold)} — origem: {p.source}")
+        text = f"{p.name} ({p.role}): {p.on} {sign} {_fmt(p.threshold)} — origem: {p.source}"
+        if p.evidence_ref:
+            text += f" — registro: {p.evidence_ref}"
+        parts.append(text)
     return "; ".join(parts)
 
 

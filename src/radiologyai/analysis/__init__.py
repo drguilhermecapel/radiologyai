@@ -23,6 +23,7 @@ Módulos:
 * :mod:`radiologyai.analysis.artifacts` — repositório endereçado por conteúdo.
 * :mod:`radiologyai.analysis.imaging` — DICOM/série/NIfTI/raster/cine → ImageData.
 * :mod:`radiologyai.analysis.policy` — interface de calibração e pontos ajustados.
+* :mod:`radiologyai.analysis.evidence_policy` — pontos do registro que sustenta o nível.
 """
 
 from __future__ import annotations

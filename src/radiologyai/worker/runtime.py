@@ -22,9 +22,11 @@ __all__ = ["AnalysisEngine", "Platform"]
 class AnalysisEngine:
     """O que o pipeline precisa: registro de modelos, catálogo e política de decisão.
 
-    ``policy=None`` faz o pipeline usar apenas pontos de operação do manifesto
-    (``ManifestOnlyPolicy``): sem calibração ajustada, nenhuma probabilidade é
-    reportada.
+    ``policy=None`` faz o pipeline usar ``ManifestOnlyPolicy`` (pontos do manifesto
+    só nos níveis B e D; A/C ficam ``score_only``). :meth:`default` usa a
+    ``EvidencePolicy``: achados A/B/C decidem só com os pontos do registro de
+    evidência que sustenta o nível. Sem calibração ajustada, nenhuma
+    probabilidade é reportada.
     """
 
     registry: Registry
@@ -33,11 +35,18 @@ class AnalysisEngine:
 
     @classmethod
     def default(cls) -> AnalysisEngine:
-        """Registro com os manifestos do pacote e o catálogo distribuído."""
+        """Registro dos manifestos do pacote, catálogo distribuído e política de evidência.
+
+        Raises:
+            EvidenceError: arquivo de ``evidence/`` inválido (falha alta, nunca decide
+                com evidência corrompida).
+        """
+        from radiologyai.analysis.evidence_policy import EvidencePolicy
         from radiologyai.analysis.registry import Registry
         from radiologyai.catalog.catalog import Catalog
 
-        return cls(registry=Registry(), catalog=Catalog.load())
+        catalog = Catalog.load()
+        return cls(registry=Registry(), catalog=catalog, policy=EvidencePolicy.load(catalog))
 
 
 @dataclass
