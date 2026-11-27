@@ -1,7 +1,7 @@
 ---
 doc_id: REG-09
 title: Plano de Verificação de Software (IEC 62304 §5.5–5.7)
-status: RASCUNHO — v0.2
+status: RASCUNHO — v0.3
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-05, REG-07]
@@ -14,6 +14,12 @@ depends_on: [REG-05, REG-07]
 > [plano de avaliação clínica](10-clinical-evaluation-plan.md). Software de pesquisa; não é
 > dispositivo médico.
 
+Objetivos: demonstrar, a cada mudança, que (1) todo requisito de
+[`06-requirements/`](06-requirements/) está implementado e verificado por teste reprodutível; (2)
+nenhum defeito da classe histórica do v1 (métrica fabricada, *fallback* silencioso, saliência
+simulada, hash inválido) pode ser reintroduzido; (3) os controles de risco do
+[arquivo de risco](04-risk-file.md) continuam eficazes.
+
 ## 1. Níveis de verificação
 
 | Nível | Onde | Critério de aceitação |
@@ -23,6 +29,12 @@ depends_on: [REG-05, REG-07]
 | Sistema | executores de avaliação e testes ponta a ponta | resultados reproduzíveis com a mesma semente; nenhum resultado sem modelo real |
 | Requisito | testes com `@pytest.mark.requirement("REQ-NNN")` | todo requisito tem ao menos um teste verificador (`scripts/trace.py --check`) |
 | Estático | ruff, mypy `--strict`, `scripts/check_honesty.py`, bandit | zero violações |
+| Pesos reais | jobs `ml` (Python 3.11) e `colab` (Python 3.13, torch mais recente) de `.github/workflows/ci.yml` | testes do backend, do Grad-CAM e da linha de base aprovados; sha256 do card conferido |
+| Trava de regressão | `tests/evaluation/test_baseline_regression.py`; `radiologyai check-regression` | queda de AUROC macro acima da tolerância, menos rótulos avaliados ou dataset não externo ao treino ⇒ reprovação |
+| SOUP e segurança | `scripts/soup.py --check`; `.github/workflows/security.yml` (gitleaks, bandit, pip-audit/OSV, SBOM CycloneDX) | lista SOUP igual ao `uv.lock`; zero segredos; pip-audit ainda não bloqueia ([REG-11](11-cybersecurity-lgpd.md) §5) |
+
+Todo teste de requisito usa `@pytest.mark.requirement("REQ-NNN")` sob `--strict-markers`; as
+execuções do GitHub Actions ficam vinculadas ao SHA do commit e à PR.
 
 ## 2. Verificações que são controles de risco
 
@@ -58,6 +70,12 @@ verificação de um requisito: o relatório de verificação registra onde cada 
   (exceto carimbo de tempo).
 - Relatórios `reports/EVALUATION_*.md` são gerados por `scripts/report.py` a partir do artefato,
   nunca escritos à mão.
+- `.github/workflows/eval.yml` executa `radiologyai evaluate` sob demanda (`workflow_dispatch`)
+  com card, manifest, número de reamostragens e semente explícitos, e publica `artifacts/eval/`
+  como artefato do Actions. Um número só entra em documento depois que o `metrics.json`
+  correspondente estiver commitado em `artifacts/eval/` (ou como registro em `evidence/`).
+- Relatos de avaliação em `docs/evaluation/` sem artefato commitado **não** são verificação:
+  ver [`HONEST_STATUS.md`](../../HONEST_STATUS.md).
 
 ## 5. Protocolos e relatórios de verificação
 
@@ -72,9 +90,9 @@ verificação de um requisito: o relatório de verificação registra onde cada 
 |---|---|
 | G0 | `git log --all -- medai_security.db` vazio; gitleaks limpo no histórico completo |
 | G1 | todo registro A reproduz de checkout limpo; `levels.json` regenerado é idêntico |
-| G1 | lateralidade propagada do DICOM (RISK-006) — coberta em mamografia (REQ-141); requisito e teste a criar para as demais modalidades |
+| G1 | lateralidade propagada do DICOM (RISK-006) — coberta em RX (REQ-043, `TestXRLaterality`) e mamografia (REQ-141); requisito e teste a criar para TC, US e eco; verificação de REQ-043 em pipeline de RX com dado real |
 | G1 | biomarcador abstém sem pré-condição (RISK-011) — REQ-133, REQ-135, REQ-136, REQ-138 escritos; a verificação deles é exigida antes do fechamento de G1 para TC |
-| G2 | paridade torch ↔ ONNX para o modelo próprio; conjunto de teste sequestrado com hash registrado antes da avaliação |
+| G2 | paridade torch ↔ ONNX para o modelo próprio (diferença absoluta máxima < `1e-4`, amostra de 100 exames); conjunto de teste sequestrado com hash registrado antes da avaliação; trava de regressão contra a linha de base `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` |
 | Plataforma | assinatura invalidada por mudança de conteúdo (RISK-018; REQ-156); RBAC por papel (RISK-020; REQ-151); testes ponta a ponta no navegador (pendentes) |
 
 ---
@@ -85,3 +103,4 @@ verificação de um requisito: o relatório de verificação registra onde cada 
 |---|---|---|
 | v0.1 | 2026-11 | Criação |
 | v0.2 | 2026-11-25 | Verificações de G1 e da plataforma ligadas aos requisitos REQ-1xx escritos |
+| v0.3 | 2026-11-27 | Consolidação com a v0.1 de `main` (`f45beff`): objetivos, jobs `ml`/`colab`, trava de regressão, segurança/SBOM, `eval.yml`, paridade ONNX, REQ-043 |

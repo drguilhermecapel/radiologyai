@@ -1,7 +1,7 @@
 ---
 doc_id: REG-07
 title: Descrição da Arquitetura de Software (IEC 62304 §5.3)
-status: RASCUNHO — v0.2
+status: RASCUNHO — v0.3
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-02, REG-05]
@@ -37,6 +37,18 @@ Três camadas, com dependências sempre de cima para baixo:
           só por extras opcionais, importado sob demanda
 ```
 
+Invariantes estruturais (vindas da v0.1 deste documento em `main` e mantidas):
+
+1. **Núcleo leve:** `import radiologyai` não importa torch; extra ausente ⇒
+   `BackendUnavailableError` que nomeia o extra (REQ-001).
+2. **Falha fechada em toda fronteira crítica:** pesos ausentes, sha256 divergente ou entrada fora
+   de escopo interrompem a execução sem *fallback* heurístico (REQ-020, REQ-030, REQ-031).
+3. **Extensão por plugin:** cada modalidade é registrada por *entry point*
+   (`radiologyai.modalities` no `pyproject.toml`), isolando pré-processamento, rótulos e gate de
+   escopo.
+4. **Rastreabilidade ponta a ponta:** inferência e avaliação propagam git sha, identificador do
+   card/manifesto, sha256 dos pesos e registro na trilha encadeada (REQ-050, REQ-070, REQ-071).
+
 ## 2. Itens de software do núcleo (implementados)
 
 | Item | Responsabilidade | Requisitos |
@@ -44,14 +56,14 @@ Três camadas, com dependências sempre de cima para baixo:
 | `io/reader.py`, `io/windowing.py`, `io/metadata.py` | leitura DICOM sem quantização: Modality LUT, VOI LUT, MONOCHROME1; metadados tipados | REQ-005, REQ-006 |
 | `io/deident.py` | des-identificação (subconjunto PS3.15) com pseudo-ID HMAC determinístico | REQ-010, REQ-011 |
 | `modalities/` (`base.py`, `registry.py`, `xr/`, `ct/`, `mr/`, `us/`) | plugin por modalidade descoberto por *entry point*; `validate()` rejeita entrada fora do escopo antes do modelo | REQ-031, REQ-042 |
-| `models/card.py`, `models/registry.py`, `models/backends/` | model card com sha256 validado; backend TorchXRayVision | REQ-020, REQ-021 |
+| `models/card.py`, `models/registry.py`, `models/backends/` | model card com sha256 validado; backend TorchXRayVision (`xrv.py`); backend ONNX Runtime (`onnx.py`) com verificação de sha256, integrado em `build_backend` — ainda não executado sobre dado real | REQ-020, REQ-021 |
 | `inference/engine.py`, `inference/types.py` | inferência falha-fechada; tipos de resultado congelados; nunca afirma normalidade | REQ-030, REQ-063 |
-| `calibration/temperature.py`, `abstention.py`, `decision.py` | calibração que preserva ordenação; abstenção em três bandas; decisão só com ponto de operação de origem declarada | REQ-061, REQ-062, REQ-092 |
+| `calibration/temperature.py`, `platt.py`, `reliability.py`, `abstention.py`, `decision.py` | calibração por temperatura e por Platt (ambas monotônicas, preservam a ordenação; piso de saída `1e-12` no Platt); ECE e diagrama de confiabilidade; abstenção em três bandas; decisão só com ponto de operação de origem declarada. Platt e diagrama ainda não integrados à rota `/api/v1/analyze`, que devolve escore bruto (`calibrated=False`) | REQ-061, REQ-062, REQ-092 |
 | `catalog/` (`schema.py`, `catalog.py`, `conditions.yaml`, `protocol.yaml`) | catálogo de condições; registros de evidência; `compute_level`; protocolo pré-registrado | REQ-090, REQ-091, REQ-093 |
-| `evaluation/` | AUROC com IC bootstrap, ponto de operação, ECE, subgrupos, vazamento, executor e artefatos | REQ-050, REQ-051 |
+| `evaluation/` | AUROC com IC bootstrap, ponto de operação, ECE, subgrupos, vazamento, executor e artefatos; trava de regressão (`regression.py`, CLI `radiologyai check-regression`) que compara `metrics.json` com a linha de base e falha fechada se o dataset não for externo ao treino | REQ-050, REQ-051 (a trava de regressão ainda não tem requisito próprio) |
 | `audit/trail.py` | trilha append-only encadeada por hash | REQ-070, REQ-071 |
 | `explain/gradcam.py` | Grad-CAM por *hooks* de gradiente no modelo real | REQ-060 |
-| `api/` | FastAPI: gate de escopo por HTTP, sem métrica fabricada | REQ-080 |
+| `api/` | FastAPI: gate de escopo por HTTP, sem métrica fabricada; a rota legada `/api/v1/analyze` grava trilha JSONL (`audit/trail.py`, caminho por `RADIOLOGYAI_AUDIT_LOG_PATH`) | REQ-080 |
 | `data/` | manifests NIH ChestX-ray14 e carregador CheXpert | REQ-051 |
 | `config/`, `errors.py`, `cli/` | configuração por ambiente; hierarquia de exceções `RadiologyAIError`; CLI | REQ-001 |
 
@@ -132,6 +144,12 @@ Regras de separação:
 - Modelos de terceiros (pesos) são SOUP também: inventário em
   [`MODEL_LICENSES.md`](../../MODEL_LICENSES.md), integridade por sha256.
 
+Classe de segurança por item: a v0.1 de `main` propunha Classe B para `config/`, `cli/` e
+`data/` e B/C para `evaluation/`. Esta versão **não adota** a segregação: IEC 62304 §4.3 exige
+justificativa documentada de que o item B não contribui para situação perigosa, e
+[REG-02](02-software-safety-classification.md) classifica o sistema inteiro como C. Fica como
+proposta a avaliar quando houver necessidade.
+
 ## 6. Interfaces externas
 
 | Interface | Direção | Formato |
@@ -141,6 +159,7 @@ Regras de separação:
 | API REST | entrada/saída | contrato gerado pela aplicação (`api/openapi.py`) e versionado em `docs/OPENAPI_SPEC.yaml` (REQ-164) |
 | Laudo | saída | PDF; DICOM SR TID 1500; FHIR R4 `DiagnosticReport` + `Observation` |
 | Artefatos de avaliação | saída | `artifacts/eval/<run_id>/metrics.json` |
+| Contêiner | implantação | `Dockerfile` (CPU, `--workers 1` para a ordem da auditoria, usuário não-root, segredos só por ambiente) |
 
 ## 7. Propriedades transversais
 
@@ -159,3 +178,4 @@ Regras de separação:
 |---|---|---|
 | v0.1 | 2026-11 | Criação: núcleo implementado; camadas de análise e plataforma em construção |
 | v0.2 | 2026-11-25 | Conferido contra a árvore: itens da análise, fábrica de evidência e plataforma com requisitos |
+| v0.3 | 2026-11-27 | Consolidação com `07-software-architecture.md` de `main` (removido): invariantes, backend ONNX, Platt e diagrama de confiabilidade, trava de regressão, trilha da rota legada, contêiner; segregação B/C por item registrada como não adotada |

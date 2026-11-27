@@ -1,7 +1,7 @@
 ---
 doc_id: REG-04
 title: Arquivo de Risco / Análise de Perigos
-status: RASCUNHO VIVO — v0.2
+status: RASCUNHO VIVO — v0.3
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-03]
@@ -28,7 +28,7 @@ zero-shot, da medida assistida, dos pesos não comerciais e da plataforma web.
 | RISK-003 | Entrada fora de distribuição processada em silêncio | S4 | P4 | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) | REQ-001, REQ-031, REQ-042, REQ-103, REQ-104, REQ-120, REQ-122, REQ-137, REQ-140, REQ-144, REQ-149, REQ-152 | implementado para RX; demais modalidades em construção |
 | RISK-004 | Descasamento entre pesos e código | S4 | P2 | sha256 verificado (REQ-020); cabeças não treinadas não reportadas (REQ-021); falha fechada (REQ-030); API não fabrica métrica (REQ-080) | REQ-020, REQ-021, REQ-030, REQ-080, REQ-100, REQ-115, REQ-121, REQ-125, REQ-127, REQ-130, REQ-142, REQ-148, REQ-154, REQ-160, REQ-164, REQ-165 | implementado |
 | RISK-005 | Má interpretação de DICOM | S4 | P3 | Modality LUT (REQ-005); MONOCHROME1 (REQ-006) | REQ-005, REQ-006, REQ-106, REQ-120, REQ-131, REQ-137, REQ-140, REQ-145, REQ-147, REQ-163 | implementado para RX; VOI LUT em mamografia e HU em TC a verificar por modalidade |
-| RISK-006 | Erro de lateralidade | S4 | P2 | lateralidade propagada do DICOM, nunca inferida do pixel | REQ-141 | requisito para mamografia (incidência e lateralidade do cabeçalho); RX, TC, US e eco sem requisito de lateralidade — lacuna parcial |
+| RISK-006 | Erro de lateralidade | S4 | P2 | lateralidade propagada do DICOM, nunca inferida do pixel; sem inversão esquerda-direita no pré-processamento | REQ-043, REQ-141 | RX (REQ-043: `Laterality`/`ImageLaterality` propagadas, conflito ou código inválido rejeitado, pré-processamento sem *flip*) e mamografia (REQ-141); TC, US e eco sem requisito — lacuna parcial |
 | RISK-007 | Desempenho real diverge do declarado (número sem lastro, deriva) | S5 | P3 | sem aleatoriedade (REQ-002); toda verificação executada (REQ-003); avaliação reprodutível (REQ-050); sem vazamento por paciente (REQ-051); auditoria (REQ-070, REQ-071); nível calculado (REQ-090); medição própria prevalece (REQ-093) | REQ-002, REQ-003, REQ-050, REQ-051, REQ-070, REQ-071, REQ-090, REQ-093, REQ-102, REQ-105, REQ-110, REQ-111, REQ-112, REQ-113, REQ-114, REQ-115, REQ-116, REQ-117, REQ-118, REQ-121, REQ-125, REQ-131, REQ-132, REQ-134, REQ-135, REQ-139, REQ-143, REQ-148, REQ-154, REQ-155, REQ-160, REQ-166 | implementado; deriva pós-implantação só em G6 |
 | RISK-008 | Explicabilidade enganosa | S4 | P2 | mapa derivado do modelo real (REQ-060) | REQ-060, REQ-107, REQ-123 | implementado |
 | RISK-009 | Vazamento de dado pessoal | S3 | P3 | pseudo-ID determinístico (REQ-010); cobertura PS3.15 (REQ-011) | REQ-010, REQ-011, REQ-149, REQ-153, REQ-162 | parcial — pixel com texto gravado (US, eco, captura secundária) pendente |
@@ -43,6 +43,32 @@ zero-shot, da medida assistida, dos pesos não comerciais e da plataforma web.
 | RISK-018 | Assinatura do médico desvinculada do conteúdo analisado | S4 | P2 | assinatura vinculada ao hash do conteúdo; mudança após assinatura invalida a assinatura; auditoria encadeada | REQ-151, REQ-156, REQ-159 | requisitos escritos para a plataforma; estado da verificação na [matriz](13-traceability.md) |
 | RISK-019 | Evidência publicada transcrita errado ou não aplicável ao modelo | S4 | P3 | citação literal conferida na fonte (`verified_at_source`); mesmo modelo e versão; revisão por pares ou diretriz | REQ-134 | implementado no esquema |
 | RISK-020 | Acesso não autorizado ou adulteração | S4 | P3 | controle de acesso por papel; auditoria encadeada; segredos só por ambiente; expurgo de `medai_security.db` do histórico | REQ-107, REQ-127, REQ-130, REQ-150, REQ-151, REQ-152, REQ-155 | parcial — ver [REG-11](11-cybersecurity-lgpd.md) |
+
+## 1a. Matriz FMEA da v0.1 de `main` — testes verificadores nomeados e estimativas propostas
+
+A versão deste arquivo criada em `main` (commits `9439a04`, `0b4e2bd`) trazia uma FMEA de
+H-01…H-10 com os testes verificadores nomeados e estimativas de risco inicial e residual. Os
+testes abaixo foram conferidos na árvore em 2026-11-27. As estimativas de **risco residual** são
+**propostas não aceitas**: pela matriz estrita de [REG-03](03-risk-management-plan.md) §4.3 e sem
+frequência observada (G2/G4), nenhuma delas pode ser declarada; ficam registradas para revisão.
+Onde a S×P inicial da v0.1 diverge da do §1, vale a do §1 (mais conservadora na maioria das
+linhas) até a revisão clínica de severidade.
+
+| ID | Testes verificadores (arquivo) | S×P inicial na v0.1 de `main` | Residual proposto na v0.1 (não aceito) | Pendência registrada na v0.1 |
+|---|---|---|---|---|
+| RISK-001 | `TestThresholdsComeFromMeasuredArtifact` (`tests/integration/test_api.py`); `TestAbstentionPolicy` (`tests/unit/calibration/test_calibration.py`) | S5×P3 | S5×P1 | IFU |
+| RISK-002 | `TestNeverAssertsNormality` (`tests/unit/calibration/test_calibration.py`) | S4×P3 | S4×P1 | revisão de usabilidade (IEC 62366-1) |
+| RISK-003 | `test_no_silent_import_fallbacks` (`tests/unit/test_package.py`); `TestScopeGateOverHTTP` (`tests/integration/test_api.py`); `TestScopeGateRunsBeforeModel` (`tests/unit/inference/test_fail_closed.py`); `TestXRScopeGate` (`tests/unit/modalities/test_scope_gate.py`) | S4×P4 | S4×P1 | — |
+| RISK-004 | `TestSha256Validation` (`tests/unit/models/test_card.py`); `test_untrained_heads_are_marked_not_silently_named` (`tests/unit/models/test_xrv_backend.py`); `TestFailClosed` (`tests/unit/inference/test_fail_closed.py`); `TestMetricsNeverFabricated` (`tests/integration/test_api.py`) | S4×P4 | S4×P1 | — |
+| RISK-005 | `TestModalityLUT`, `TestMonochrome1` (`tests/unit/io/test_reader.py`) | S4×P3 | S4×P1 | — |
+| RISK-006 | `TestXRLaterality` (`tests/unit/modalities/test_scope_gate.py`, REQ-043) | S5×P2 | S5×P1 | validação no pipeline de RX com dado real |
+| RISK-007 | `test_no_random_in_non_evaluation_code` (`tests/unit/test_package.py`); `TestPatientLeakage` (`tests/unit/evaluation/test_metrics.py`); `TestTamperDetection`, `TestDecisionReconstruction` (`tests/unit/audit/test_trail.py`) | S3×P4 | S3×P1 | vigilância pós-mercado |
+| RISK-008 | `test_null_gradients_yield_null_map` (`tests/unit/explain/test_gradcam.py`) | S3×P4 | S3×P1 | — |
+| RISK-009 | `TestDeterminism`, `TestTagRemoval` (`tests/unit/io/test_deident.py`) | S3×P3 | S3×P1 | DPIA e cibersegurança ([REG-11](11-cybersecurity-lgpd.md)) |
+| RISK-010 | `test_preserves_ranking_and_therefore_auroc` (`tests/unit/calibration/test_calibration.py`) | S3×P4 | S3×P1 | IFU: escore não é probabilidade |
+
+A lista completa e atual de testes por requisito é a da [matriz 13](13-traceability.md), gerada
+pelos marcadores `@pytest.mark.requirement`; esta tabela só preserva a seleção da v0.1.
 
 ## 2. Detalhamento
 
@@ -79,9 +105,14 @@ imagem com contraste invertido ou HU errado → saída errada. Controles: REQ-00
 com DICOMs sintéticos.
 
 ### RISK-006 — Lateralidade (H-06)
-Achado reportado no lado errado → procedimento no lado errado. Controle previsto: lateralidade
-(0020,0060)/(0020,0062) propagada do DICOM e asserida; nunca inferida do pixel. **Lacuna: não há
-requisito nem teste ainda.** Prioridade antes de qualquer laudo com lado (mamografia, fratura).
+Achado reportado no lado errado → procedimento no lado errado. Controle: lateralidade
+(0020,0060)/(0020,0062) propagada do DICOM e asserida; nunca inferida do pixel; nenhuma inversão
+horizontal silenciosa no pré-processamento. Implementado para RX por REQ-043
+(`src/radiologyai/io/metadata.py`, `src/radiologyai/modalities/xr/plugin.py`; teste
+`TestXRLaterality` em `tests/unit/modalities/test_scope_gate.py`): código inválido ou conflito
+entre `Laterality` e `ImageLaterality` ⇒ rejeição; ausência em RX frontal de tórax não rejeita
+por si só. Mamografia: REQ-141. **Lacuna:** TC, US e eco sem requisito; validação no pipeline de
+RX com dado real pendente. Prioridade antes de qualquer laudo com lado (mamografia, fratura).
 
 ### RISK-007 — Desempenho real diverge do declarado (H-07)
 Número sem lastro (como no v1), avaliação irreprodutível, vazamento por paciente, ou deriva após
@@ -158,10 +189,24 @@ alteração de resultado → exposição de dados ou resultado adulterado. Contr
 auditoria encadeada por hash, segredos só por variável de ambiente, expurgo do histórico
 ([REG-11](11-cybersecurity-lgpd.md)).
 
+## 2a. Riscos introduzidos pelos controles de risco
+
+- **Rejeição de exames fora de escopo (RISK-003) e abstenção (RISK-001, RISK-011):** aumentam a
+  proporção de exames sem achado sugerido. Como o uso pretendido é leitura concorrente por médico
+  qualificado, sem triagem nem automação, falha fechada ou abstenção explícita é estritamente
+  mais segura do que uma predição espúria. A taxa de abstenção por motivo é indicador de
+  vigilância ([REG-15](15-post-market-surveillance.md) §3).
+- **Modo pesquisa separado (RISK-012):** esconder nível D pode ocultar um achado verdadeiro; o
+  controle é a IFU (o sistema nunca afirma normalidade, REQ-063) e a leitura independente.
+
 ## 3. Lacunas abertas
 
-1. RISK-006: requisito de lateralidade só para mamografia (REQ-141); RX, TC, US e eco ainda sem
-   requisito próprio.
+**Decisão atual de aceitabilidade global: NÃO LIBERADO PARA USO CLÍNICO** — até o fechamento das
+lacunas abaixo, a avaliação externa (G2), a IFU e a usabilidade avaliadas, e auditoria sob QMS
+ISO 13485 (G5).
+
+1. RISK-006: requisito de lateralidade para RX (REQ-043) e mamografia (REQ-141); TC, US e eco
+   ainda sem requisito próprio; validação de REQ-043 em pipeline de RX com dado real pendente.
 2. RISK-015 e RISK-019 têm poucos requisitos (sondas e limiares de biomarcador); a regra de
    vazamento e a barra de publicação estão no esquema do catálogo, mas precisam de requisito
    que cubra também o avaliador de evidência publicada.
@@ -181,3 +226,4 @@ ela divergir do frontmatter, vale o frontmatter (a [matriz 13](13-traceability.m
 |---|---|---|
 | v0.1 | 2026-11 | Criação: RISK-001…RISK-010 a partir de H-01…H-10; RISK-011…RISK-020 da multimodalidade |
 | v0.2 | 2026-11-25 | Coluna de requisitos ligada ao frontmatter dos REQ-1xx; lacunas atualizadas |
+| v0.3 | 2026-11-27 | Consolidação com a v0.1 de `main`: FMEA com testes verificadores (§1a), estimativas residuais registradas como não aceitas, REQ-043 (lateralidade em RX) em RISK-006, riscos introduzidos pelos controles (§2a), decisão de aceitabilidade global |

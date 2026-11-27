@@ -1,7 +1,7 @@
 ---
 doc_id: REG-05
 title: Plano de Desenvolvimento de Software (IEC 62304 §5.1)
-status: RASCUNHO — v0.1
+status: RASCUNHO — v0.2
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-02, REG-03]
@@ -19,6 +19,16 @@ Desenvolvimento incremental orientado por portões de evidência (G0–G6,
 [`ROADMAP.md`](../../ROADMAP.md) §4). Cada incremento passa por: requisito → projeto → implementação
 → verificação de unidade e integração → verificação de sistema → liberação. Não há liberação
 para uso clínico em nenhum portão anterior a G5.
+
+Correspondência com as fases da v1.0 do roadmap (usadas pela v0.1 deste plano em `main`):
+
+| Fase v1.0 | Conteúdo | Onde está na v2.0 |
+|---|---|---|
+| 0 | quarentena e remoção do legado, retratação, fundação regulatória e CI | G0 |
+| 1 | núcleo v2 (`io/`, `modalities/`, `models/`, `inference/`, `evaluation/`) e linha de base honesta | núcleo implementado; linha de base em `artifacts/eval/` |
+| 2 | calibração, abstenção, Grad-CAM real, auditoria encadeada, API, rastreabilidade | núcleo implementado (ver [REG-07](07-architecture.md) §2) |
+| 3 | modelo próprio de RX, validação externa com rótulo adjudicado, exportação ONNX | G2 ([REG-10](10-clinical-evaluation-plan.md) §3.1a) |
+| 4–6 | multimodalidade, endurecimento regulatório/IFU, QMS ISO 13485 | amplitude multimodal já em G1; G5 |
 
 ## 2. Entregáveis por atividade (IEC 62304 §5)
 
@@ -39,7 +49,9 @@ para uso clínico em nenhum portão anterior a G5.
 
 ## 3. Padrões de codificação
 
-- Python ≥ 3.11, < 3.14; `src`-layout, pacote único `radiologyai`.
+- Python ≥ 3.11, < 3.14 (3.11 no CI reprodutível; 3.13 é a versão do Google Colab); `src`-layout,
+  pacote único `radiologyai`; empacotamento Hatchling (`pyproject.toml`) + `uv.lock`
+  (`uv sync --frozen` para instalação determinística).
 - `from __future__ import annotations`; `mypy --strict`; ruff (linha de 100).
 - Identificadores em inglês; docstrings, comentários, mensagens de erro e documentos em português
   do Brasil.
@@ -72,7 +84,10 @@ Definidos em `.github/workflows/ci.yml` e `security.yml`. Toda PR e todo push em
 | Importação leve | asserção de que `import radiologyai` não carrega torch/numpy/SimpleITK/cv2 |
 | Sem pixel no git | `git ls-files` sem `.dcm`, `.nii`, `.mhd`, `.raw`, `.nrrd` |
 | Pesos reais | job `ml`: testes do backend TorchXRayVision e verificação do sha256 do card |
-| Segurança | gitleaks no histórico completo, bandit, pip-audit, SBOM CycloneDX |
+| Como no Colab | job `colab`: Python 3.13 com o torch mais recente, instalado como o notebook instala |
+| Trava de regressão | `tests/evaluation/test_baseline_regression.py` (portão determinístico de AUROC macro, contagem de rótulos e dataset externo — `src/radiologyai/evaluation/regression.py`, CLI `radiologyai check-regression`) |
+| Segurança (`security.yml`, semanal e por PR) | gitleaks no histórico completo, bandit, pip-audit (OSV), SBOM CycloneDX |
+| Avaliação reprodutível (`eval.yml`) | disparo manual (`workflow_dispatch`): `radiologyai evaluate` com card, manifest, bootstrap e semente; publica `artifacts/eval/` como artefato do Actions |
 
 Testes que exigem pesos ou dados baixados pulam de forma limpa no CI sem eles
 (`pytest.mark.skipif` por `find_spec` ou existência de arquivo) e **são executados** no ambiente
@@ -83,9 +98,11 @@ onde os pesos existem; o relatório de verificação registra onde rodaram.
 - `main` é o ramo de integração; mudanças entram por PR com CI verde.
 - Mensagens de commit em português com prefixo convencional (`feat`, `fix`, `docs`, `chore`…).
 - Nunca commitar pesos, datasets, bancos de dados ou segredos.
-- **Pendências de governança (G0):** proteção de branch em `main`; poda dos ramos remotos
-  abandonados; expurgo de `medai_security.db` do histórico com `git filter-repo` e rotação do
-  que ele possa ter tocado.
+- **Governança (G0), conferida pela API do GitHub em 2026-11-27:** `main` é o ramo padrão e está
+  protegida; restam 6 ramos remotos (a poda dos ramos abandonados e o fechamento dos PRs
+  obsoletos foram registrados em `main`, commits `1b8f99b` e `2706b29`).
+- **Pendência de governança (G0):** expurgo de `medai_security.db` do histórico com
+  `git filter-repo` e rotação do que ele possa ter tocado.
 
 ## 6. Ambientes e ferramentas
 
@@ -93,7 +110,8 @@ onde os pesos existem; o relatório de verificação registra onde rodaram.
 |---|---|
 | Gerenciador | `uv` com `uv.lock` (artefato de configuração e fonte da lista SOUP) |
 | Python | 3.11 primário; 3.12 e 3.13 testados |
-| PyTorch | conforme extra `ml` do `pyproject.toml` |
+| PyTorch | conforme extra `ml` do `pyproject.toml` (inclui `onnxruntime` para o backend ONNX) |
+| Contêiner | `Dockerfile` (`python:3.11-slim`, torch de CPU, `--workers 1`, usuário não-root, `HEALTHCHECK`) e `.dockerignore` na raiz |
 | CI | GitHub Actions |
 | Execução de inferência pesada em desenvolvimento | CPU, sem GPU; trabalhos pesados serializados |
 
@@ -118,3 +136,4 @@ controla risco, o marcador `@pytest.mark.requirement`.
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação, descrevendo o processo já em execução |
+| v0.2 | 2026-11-27 | Consolidação com `05-software-development-plan.md` de `main` (removido): fases v1.0 ↔ portões, pilha, job `colab`, trava de regressão, `eval.yml`, Dockerfile, estado da governança conferido |

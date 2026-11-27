@@ -1,7 +1,7 @@
 ---
 doc_id: REG-10
 title: Plano de Avaliação Clínica
-status: RASCUNHO — v0.1
+status: RASCUNHO — v0.2
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-04]
@@ -55,6 +55,62 @@ pode alegar se aprovado. "Dados brasileiros" significa G2, sob CEP.
 | Achados do TorchXRayVision (cardiomegalia, derrame, edema, pneumotórax…) | NIH ChestX-ray14 teste oficial com pesos sem NIH (`pc`, `chex`, `mimic_nb`, `mimic_ch`); CheXpert validação; VinDr-CXR após credenciamento | NLP (NIH); 3 radiologistas (CheXpert); radiologistas (VinDr) | discriminação | RX de ≥ 2 centros, leitura adjudicada |
 | Índice cardiotorácico | conjunto com máscaras manuais de coração e pulmão (a identificar) | segmentação de especialista | segmentação + concordância | idem |
 | Tuberculose | treino Shenzhen → teste Montgomery e vice-versa | conforme datasets NLM | discriminação | depende de parceiro com confirmação microbiológica |
+
+### 3.1a Modelo próprio de RX de tórax (G2; ex-Fase 3 da v1.0)
+
+Pré-especificação herdada da v0.1 deste plano em `main` (commit `6f4b7ec`), fixada **antes** do
+treinamento de qualquer modelo próprio e antes de qualquer exposição ao conjunto de teste
+externo, para manter o caráter confirmatório. Não substitui o §2: um modelo próprio também
+precisa passar no protocolo vigente para chegar a nível A.
+
+- **Dispositivo em avaliação:** radiografia frontal de tórax em adulto (`CR`/`DX`), uso assistivo
+  concorrente ([REG-01](01-intended-use.md)).
+- **Pergunta primária:** um modelo próprio treinado em NIH ChestX-ray14 (split disjunto por
+  paciente) supera a linha de base registrada em
+  `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/` quando avaliado externamente em coorte
+  independente com rótulo de radiologistas (VinDr-CXR)?
+- **Fora do escopo desta avaliação:** uso autônomo, triagem/priorização, exclusão (*rule-out*),
+  pediatria, incidência lateral.
+
+| Etapa | Conjunto | Rótulo | Isolamento |
+|---|---|---|---|
+| Desenvolvimento e calibração | NIH ChestX-ray14, `train`/`val` disjuntos por paciente | NLP (limitação declarada) | disjunção de paciente verificada (REQ-051); conjunto de calibração separado do treino |
+| Avaliação externa primária | VinDr-CXR, após credenciamento PhysioNet (18.000 exames; teste de 3.000 lidos por 5 radiologistas, segundo a v0.1 — tamanhos a conferir no datasheet quando o acesso existir) | consenso de radiologistas | isolado até o congelamento do artefato (pesos + sha256 + limiares de abstenção) |
+| Avaliação externa complementar | CheXpert, conjunto de validação | adjudicado por 3 radiologistas | cobertura parcial de achados (não avalia fibrose) |
+
+Desfechos obrigatórios, todos produzidos por `radiologyai evaluate` em
+`artifacts/eval/<run_id>/metrics.json` com proveniência completa:
+
+1. Discriminação (primário): AUROC por achado e macro, IC95 por bootstrap agrupado por paciente
+   com semente fixa (REQ-050).
+2. Calibração: ECE antes e depois da calibração (temperatura ou Platt, ambas monotônicas) e
+   diagrama de confiabilidade (REQ-061).
+3. Abstenção: distribuição nas três bandas derivada só de artefato medido (REQ-062), sem afirmar
+   normalidade (REQ-063).
+4. Subgrupos: incidência (PA vs. AP), sexo, faixa etária adulta, equipamento/fonte quando houver
+   metadado.
+5. Paridade de inferência: diferença absoluta máxima < `1e-4` entre PyTorch e ONNX numa amostra de
+   100 exames.
+
+Critérios de aceitação pré-especificados (METAS, não resultados):
+
+- AUROC macro externo superior ao da linha de base em
+  `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/`, sem degradação clinicamente inaceitável
+  em achados de alta severidade (pneumotórax, derrame pleural, cardiomegalia) — a margem
+  "clinicamente inaceitável" precisa ser fixada em número no protocolo de G2 antes do treino;
+- ECE reduzido ou mantido após calibração, sem alteração da ordenação;
+- execução reprodutível bit a bit (exceto carimbo de tempo) de checkout limpo;
+- RISK-006 fechado: REQ-043 verificado no pipeline de RX ([`04-risk-file.md`](04-risk-file.md)).
+
+**Desvios:** qualquer mudança de arquitetura, hiperparâmetro, limiar de abstenção ou exclusão de
+exames depois da exposição ao teste externo invalida o caráter confirmatório e é registrada como
+desvio exploratório em `reports/`.
+
+**Medições exploratórias anteriores:** os relatos em
+[`docs/evaluation/phase1-nih1000-baseline.md`](../evaluation/phase1-nih1000-baseline.md) e
+[`docs/evaluation/phase1-nih-unseen-benchmark.md`](../evaluation/phase1-nih-unseen-benchmark.md)
+(Colab, 2026-11-25) não têm artefato commitado e não sustentam nenhum critério deste plano — ver
+[`HONEST_STATUS.md`](../../HONEST_STATUS.md).
 
 ### 3.2 RX musculoesquelético
 
@@ -124,3 +180,4 @@ confirmada com o CEP da instituição parceira.
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação; critérios iguais ao protocolo `2026-11-v1` |
+| v0.2 | 2026-11-27 | Consolidação com a v0.1 de `main`: pré-especificação do modelo próprio de RX (§3.1a) e ligação aos relatos exploratórios sem artefato |
