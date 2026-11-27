@@ -137,11 +137,14 @@ DATASETS: dict[str, dict[str, Any]] = {
         "reference_standard": "other",
         "population": (
             "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) "
-            "com PNG do índice local: 4014 imagens de 2561 pacientes"
+            "com PNG do índice local: 4014 imagens de 2561 laudos"
         ),
         "caveats": [
             "Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via "
             "torchxrayvision); não é leitura adjudicada da imagem.",
+            "O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e "
+            "bootstrap) é por laudo (uid); um paciente com mais de um laudo pode cair nas duas "
+            "metades, o que tende a otimizar a estimativa.",
             "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes "
             "de qualquer medição no Open-i; não houve comparação entre modelos no Open-i.",
             "138 frontais do Open-i entraram na calibração do limiar do portão OOD "

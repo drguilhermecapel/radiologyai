@@ -10,7 +10,17 @@ de cortes com geometria (``ImagePositionPatient``/``ImageOrientationPatient``/
 * ausência de ``PixelSpacing`` (nenhuma medida em mm seria possível);
 * matriz menor que 64 x 64 (miniatura, não diagnóstico);
 * paciente com idade informada < 18 anos (modelos e limiares derivados em adultos);
-  idade ausente NÃO recusa aqui — os biomarcadores que exigem adulto se abstêm.
+  idade ausente NÃO recusa aqui — os biomarcadores que exigem adulto se abstêm;
+* (só TC) ``Laterality``/``ImageLaterality``/``FrameLaterality`` com código inválido ou
+  em conflito (REQ-194).
+
+Lateralidade em TC (REQ-194, RISK-006): achados e medidas do produto são totais
+bilaterais (ex.: ``kidney_cyst_left+kidney_cyst_right``); o lado só aparece no nome de
+estruturas segmentadas (``kidney_left``...), que é anatômico no sistema do paciente
+(LPS) definido por ``ImageOrientationPatient``/``ImagePositionPatient`` — nunca pela
+posição na matriz de pixels nem pelo nome do arquivo, e sem inversão no caminho até o
+modelo. A tag ``Laterality`` da série (ex.: TC de joelho) é exposta por
+:meth:`CTPlugin.laterality` e, ausente, vira "lateralidade desconhecida".
 
 ``preprocess`` não normaliza: devolve as HU em float32 ``(Z, Y, X)`` e recusa
 volume não 3D, valores não finitos ou faixa incompatível com HU.
@@ -21,6 +31,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from radiologyai.errors import UnsupportedInputError
+from radiologyai.io.metadata import LateralityResolution, resolve_laterality
 from radiologyai.modalities.base import Dimensionality, ModalityPlugin, ValidationReport
 
 if TYPE_CHECKING:
@@ -92,7 +103,15 @@ class CTPlugin(ModalityPlugin):
         reasons = volumetric_scope(
             metadata, code=self.code, accepted=self.accepted_modalities, sop_class=CT_IMAGE_STORAGE
         )
+        side = self.laterality(metadata)
+        if side.is_problem:
+            reasons.append(f"lateralidade DICOM não confiável ({side.detail}); lado desconhecido")
         return ValidationReport(accepted=not reasons, modality=self.code, reasons=tuple(reasons))
+
+    @staticmethod
+    def laterality(metadata: StudyMetadata) -> LateralityResolution:
+        """Lado declarado na série só pelas tags DICOM (nunca pelo pixel)."""
+        return resolve_laterality(metadata)
 
     def preprocess(
         self,

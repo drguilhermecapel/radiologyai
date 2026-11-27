@@ -125,11 +125,12 @@ def image_meta_from_dataset(
     **overrides: Any,
 ) -> ImageMeta:
     """Metadados de aquisição a partir de um ``pydicom.Dataset`` (sem identificadores)."""
-    from radiologyai.io.metadata import extract_metadata
+    from radiologyai.io.metadata import extract_metadata, resolve_laterality
 
     basic = extract_metadata(ds)
     sex = basic.patient_sex if basic.patient_sex in ("F", "M", "O") else None
-    laterality = (_opt_str(ds, "ImageLaterality") or _opt_str(ds, "Laterality") or "").upper()
+    # REQ-194: só tags DICOM; conflito ou código inválido => lado desconhecido (None).
+    laterality = (resolve_laterality(basic).value or "").upper()
     burned = _opt_str(ds, "BurnedInAnnotation")
     contrast = getattr(ds, "ContrastBolusAgent", None)
     frame_time = _opt_float(ds, "FrameTime")

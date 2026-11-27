@@ -34,6 +34,21 @@ Os termos pedem para **não compartilhar fora do grupo de pesquisa**: nenhuma im
 | `terms_evidence` | {"file": "raw/NLM-ChinaCXRSet-ReadMe.docx", "text": "No formal licence. Readme 'Citation and Use': 'Please do not share the dataset outside of your research group/ organization, but forward new dataset requests to us.' Attribution to NLM/NIH (and Shenzhen No.3 People's Hospital) and citation of Jaeger 2014 (PMID 24108713) and Candemir 2014 (PMID 24239990) requested."} |
 | `pixel_format` | {"P": 635, "RGB": 27} |
 
+## Padrão de referência e uso (revisão 2026-11-27)
+
+- **Rótulo:** normal (0) x "manifestation of tuberculosis" (1), pelo sufixo do arquivo; o readme
+  (`NLM-ChinaCXRSet-ReadMe.docx`) diz que as radiografias vêm de ambulatório, "captured as part of
+  the daily routine using Philips DR Digital Diagnose systems", e que o texto clínico traz "age,
+  gender, and abnormality of the lung". Como o rótulo foi confirmado (cultura, baciloscopia ou só
+  leitura): **não conferido** — o readme não diz.
+- `raw/Annotations*` e `shenzhen_consensus_roi.csv` existem no cache; não são usados pelo projeto
+  e sua origem **não foi conferida**.
+- **Modelos treinados nele:** `xr-probe-tb` (`training_data: [tb-shenzhen]`). Também foi conjunto
+  de **seleção** do codificador RAD-DINO (`selection_data` dos itens de TB em `plan.yaml`).
+- **Uso:** `xr-probe-tb@tb-shenzhen` (CV interna, `internal_holdout: true`, nível no máximo C) e
+  `xr-probe-tb.trained-montgomery@tb-shenzhen` (sonda de comparação não distribuída; vazamento
+  `known` por seleção). Fonte "tórax frontal" dos portões de RX (`predict_xr_gates.py`).
+
 ## Des-identificação e governança
 
 Dataset público já des-identificado pelo distribuidor. Splits sempre por paciente quando há

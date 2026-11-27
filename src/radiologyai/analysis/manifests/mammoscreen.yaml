@@ -55,7 +55,7 @@ depends_on:
 - mammo-crop
 training_data:
 - cbis-ddsm
-- rsna-screening-mammography
+- rsna-screening-mammo
 labels:
 - key: malignancy_left
   source_label: cancer

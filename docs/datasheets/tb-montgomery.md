@@ -34,6 +34,21 @@ Mesmos termos da NLM: sem redistribuição.
 | `terms_evidence` | {"file": "raw/NLM-MontgomeryCXRSet-ReadMe.pdf", "text": "No formal licence. Readme 'Citation and Use': 'Please do not share the dataset outside of your research group/ organization, but forward new dataset requests to us.' Attribution to NLM/NIH (and Shenzhen No.3 People's Hospital) and citation of Jaeger 2014 (PMID 24108713) and Candemir 2014 (PMID 24239990) requested."} |
 | `pixel_format` | {"L": 138} |
 
+## Padrão de referência e uso (revisão 2026-11-27)
+
+- **Rótulo:** normal (0) x "manifestation of tuberculosis" (1), pelo sufixo do arquivo; o readme
+  (`NLM-MontgomeryCXRSet-ReadMe.pdf`) diz que os dados vêm do "Montgomery County`s Tuberculosis
+  screening program", matriz 4020 x 4892, espaçamento 0,0875 mm, 12 bits. Como o rótulo foi
+  confirmado: **não conferido** — o readme não diz.
+- `raw/ManualMask/{leftMask,rightMask}`: máscaras pulmonares "manually generated … under the
+  supervision of a radiologist" (readme); não usadas pelo projeto. `montgomery_consensus_roi.csv`:
+  origem **não conferida**.
+- **Modelos treinados nele:** nenhum manifesto distribuído. A sonda de comparação
+  `xr-probe-tb.trained-montgomery` (não distribuída) foi ajustada nele. É conjunto de **seleção** do
+  codificador RAD-DINO.
+- **Uso:** `xr-probe-tb@tb-montgomery` (teste externo da sonda de Shenzhen; vazamento `known` por
+  seleção do codificador, logo nunca nível A). Fonte "tórax frontal" dos portões de RX.
+
 ## Des-identificação e governança
 
 Dataset público já des-identificado pelo distribuidor. Splits sempre por paciente quando há

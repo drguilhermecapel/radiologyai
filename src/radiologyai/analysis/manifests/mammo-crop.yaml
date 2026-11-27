@@ -50,7 +50,7 @@ inputs:
   - R-CC
   - R-MLO
 training_data:
-- rsna-screening-mammography
+- rsna-screening-mammo
 labels: []
 limitations:
 - Treinado para reproduzir uma caixa derivada por componentes conexos (limiar de intensidade) em imagens

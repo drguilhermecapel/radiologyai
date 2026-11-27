@@ -8,7 +8,8 @@ ou se a idade era numérica. Aqui o contrato é explícito.
 from __future__ import annotations
 
 import re
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -62,6 +63,13 @@ class StudyMetadata(BaseModel):
     image_laterality: str | None = Field(
         default=None, description="DICOM (0020,0062) ImageLaterality, ex.: 'L', 'R', 'U', 'B'"
     )
+    frame_laterality: str | None = Field(
+        default=None,
+        description=(
+            "DICOM (0020,9072) FrameLaterality da FrameAnatomySequence (objetos multiframe "
+            "enhanced); valores distintos entre quadros ficam unidos por '\\'"
+        ),
+    )
 
     @property
     def is_multiframe(self) -> bool:
@@ -112,4 +120,108 @@ def extract_metadata(ds: Any) -> StudyMetadata:
         number_of_frames=n_frames,
         laterality=(str(v).strip().upper() if (v := _get(ds, "Laterality")) else None),
         image_laterality=(str(v).strip().upper() if (v := _get(ds, "ImageLaterality")) else None),
+        frame_laterality=_frame_laterality(ds),
     )
+
+
+def _frame_laterality(ds: Any) -> str | None:
+    """``FrameLaterality`` dos grupos funcionais (compartilhado e por quadro), sem inferir nada."""
+    values: list[str] = []
+    groups = list(_get(ds, "SharedFunctionalGroupsSequence", None) or ())
+    groups += list(_get(ds, "PerFrameFunctionalGroupsSequence", None) or ())
+    for group in groups:
+        for anatomy in getattr(group, "FrameAnatomySequence", None) or ():
+            value = getattr(anatomy, "FrameLaterality", None)
+            if value not in ("", None):
+                text = str(value).strip().upper()
+                if text not in values:
+                    values.append(text)
+    return "\\".join(sorted(values)) if values else None
+
+
+# --------------------------------------------------------------------- lateralidade (REQ-194)
+
+#: códigos válidos por tag (PS3.3): ``Laterality`` só R/L; as outras admitem U (ímpar) e B (ambos)
+_LATERALITY_CODES: dict[str, frozenset[str]] = {
+    "FrameLaterality": frozenset({"L", "R", "U", "B"}),
+    "ImageLaterality": frozenset({"L", "R", "U", "B"}),
+    "Laterality": frozenset({"L", "R"}),
+}
+
+LateralityStatus = Literal["known", "unknown", "unpaired", "conflict", "invalid"]
+
+_SIDE_LABEL = {"L": "esquerda", "R": "direita", "B": "bilateral"}
+
+
+@dataclass(frozen=True)
+class LateralityResolution:
+    """Lado de um objeto DICOM decidido **só** pelas tags; nunca pelo pixel nem pelo nome.
+
+    ``value`` é ``None`` sempre que o cabeçalho não decide o lado sem ambiguidade (ausente,
+    ``U``, código inválido ou tags em conflito); ``status`` diz por quê e ``detail`` traz as
+    tags lidas, para o aviso explícito.
+    """
+
+    value: Literal["L", "R", "B"] | None
+    status: LateralityStatus
+    source: str | None = None
+    detail: str | None = None
+
+    @property
+    def label(self) -> str:
+        """Texto para a saída: o lado, ou "lateralidade desconhecida" — nunca um palpite."""
+        if self.value is not None:
+            return _SIDE_LABEL[self.value]
+        if self.status == "unpaired":
+            return "estrutura ímpar (sem lado)"
+        return "lateralidade desconhecida"
+
+    @property
+    def is_problem(self) -> bool:
+        """Código inválido ou conflito entre tags: o cabeçalho se contradiz."""
+        return self.status in ("conflict", "invalid")
+
+
+def resolve_laterality(metadata: StudyMetadata) -> LateralityResolution:
+    """Resolve o lado a partir de ``FrameLaterality``, ``ImageLaterality`` e ``Laterality``.
+
+    Regras (REQ-194, mesmas de REQ-043 para conflito):
+
+    * só tags DICOM contam; nenhuma tag => ``unknown`` (``value=None``);
+    * código fora do conjunto válido da tag => ``invalid`` (``value=None``);
+    * tags presentes com lados diferentes (inclui ``U`` contra ``L``/``R``, e quadros com
+      ``FrameLaterality`` distintos) => ``conflict`` (``value=None``);
+    * todas ``U`` => ``unpaired`` (``value=None``);
+    * caso contrário o lado comum, com a tag mais específica como ``source``
+      (``FrameLaterality`` > ``ImageLaterality`` > ``Laterality``).
+    """
+    read = {
+        "FrameLaterality": metadata.frame_laterality,
+        "ImageLaterality": metadata.image_laterality,
+        "Laterality": metadata.laterality,
+    }
+    present = {tag: value for tag, value in read.items() if value}
+    if not present:
+        return LateralityResolution(
+            value=None, status="unknown", detail="nenhuma tag de lateralidade"
+        )
+    detail = "; ".join(f"{tag}={value!r}" for tag, value in present.items())
+    sides: dict[str, list[str]] = {}
+    for tag, raw in present.items():
+        codes = [c.strip() for c in raw.split("\\") if c.strip()]
+        bad = [c for c in codes if c not in _LATERALITY_CODES[tag]]
+        if bad or not codes:
+            return LateralityResolution(
+                value=None, status="invalid", detail=f"código inválido em {tag}: {raw!r} ({detail})"
+            )
+        for code in codes:
+            sides.setdefault(code, []).append(tag)
+    if len(sides) > 1:
+        return LateralityResolution(
+            value=None, status="conflict", detail=f"tags de lateralidade em conflito: {detail}"
+        )
+    (code,) = sides
+    if code == "U":
+        return LateralityResolution(value=None, status="unpaired", detail=detail)
+    side: Literal["L", "R", "B"] = "L" if code == "L" else "R" if code == "R" else "B"
+    return LateralityResolution(value=side, status="known", source=sides[code][0], detail=detail)

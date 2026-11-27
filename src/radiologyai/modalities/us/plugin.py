@@ -7,7 +7,15 @@ de degradar:
 * matriz menor que :data:`MIN_MATRIX` px no menor lado;
 * paciente com idade informada < 18 anos (os modelos abertos usados aqui foram
   desenvolvidos em adultos);
-* clipe com mais de :data:`MAX_FRAMES` quadros (laço longo / volume 4D exportado).
+* clipe com mais de :data:`MAX_FRAMES` quadros (laço longo / volume 4D exportado);
+* lateralidade DICOM com código inválido ou tags em conflito (REQ-194): o lado de um
+  achado de mama sairia do cabeçalho que se contradiz.
+
+Lateralidade (REQ-194, RISK-006): vem só de ``FrameLaterality``/``ImageLaterality``/
+``Laterality`` (:func:`radiologyai.io.metadata.resolve_laterality`), nunca do pixel, do
+texto gravado na imagem nem do nome do arquivo. Ausente => "lateralidade desconhecida",
+sem recusa (é comum em US). Na eco o lado não se aplica (coração é estrutura ímpar);
+a mesma regra vale, e nenhuma saída de eco carrega lado.
 
 Multiframe é aceito: é o cine de US/eco (``ImageKind.CINE``, ``(T, H, W)``).
 Anotações gravadas na imagem (texto, réguas, marcas coloridas) não recusam o
@@ -24,6 +32,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from radiologyai.errors import UnsupportedInputError
+from radiologyai.io.metadata import LateralityResolution, resolve_laterality
 from radiologyai.modalities.base import Dimensionality, ModalityPlugin, ValidationReport
 
 if TYPE_CHECKING:
@@ -62,7 +71,15 @@ class USPlugin(ModalityPlugin):
         age = metadata.patient_age_years
         if age is not None and age < MIN_AGE_YEARS:
             reasons.append(f"paciente com {age:.1f} anos; população pediátrica fora do escopo")
+        side = self.laterality(metadata)
+        if side.is_problem:
+            reasons.append(f"lateralidade DICOM não confiável ({side.detail}); lado desconhecido")
         return ValidationReport(accepted=not reasons, modality=self.code, reasons=tuple(reasons))
+
+    @staticmethod
+    def laterality(metadata: StudyMetadata) -> LateralityResolution:
+        """Lado do exame só pelas tags DICOM; ``label`` é "lateralidade desconhecida" na falta."""
+        return resolve_laterality(metadata)
 
     def preprocess(
         self,

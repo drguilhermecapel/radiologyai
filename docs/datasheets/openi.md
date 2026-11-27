@@ -24,6 +24,27 @@ Laudos CC BY-NC-ND 4.0: uso não comercial, sem obra derivada dos laudos.
 | `caveats` | ["CC BY-NC-ND 4.0: non-commercial, no derivatives; NLM asks not to share the dataset outside the research group.", "Reports are de-identified with XXXX tokens; no patient age; no patient id other than the report uid (one report = one study).", "No authoritative frontal/lateral flag: DICOM View Position is missing for 2,589 of 7,470 images and disagrees with the t-SNE label for 198; the torchxrayvision t-SNE file covers only 3,851 images (3,267 PA, 584 L).", "Labels are substring matches on machine-extracted MeSH/automatic terms: 'granuloma' also fires on 'calcified granuloma', 'mass' on 'mass  … |
 | arquivos registrados com sha256 | 2 |
 
+## Padrão de referência, contagens e uso (revisão 2026-11-27)
+
+Contado em `openi_index.csv` (7470 linhas, uma por imagem; todas com PNG): `View Position` PA 3591,
+AP 423, LL 717, LATERAL 119, RL 29, LARGE LATERAL 2, vazio 2589. Frontais PA/AP = **4014 imagens de
+2561 `uid`**. O `uid` é o do laudo (CXR<n>): um laudo = um estudo; **não há id de paciente** — os
+"2561 pacientes" da população em `plan.yaml` são, na verdade, 2561 laudos (avisar ao autor do plano).
+Arquivos com sha256 (`SHA256SUMS`): `NLMCXR_png.tgz` `baf3abfe…44bdf2` (apagado após extração),
+`NLMCXR_reports.tgz` `8fb6de7e…68667a`. Termos citados de `TERMS_openi_faq_extract.txt`: "distributed
+under the terms of the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+License" e "We request not to share the datasets outside of your research group/organization".
+
+- **Rótulos:** casamento de substring em termos MeSH (`major` atribuído por curadores a partir do
+  laudo; `automatic` extraído por máquina), via torchxrayvision; não é leitura adjudicada da imagem
+  (`reference_standard: other` no plano).
+- **Modelos treinados nele:** `xrv-densenet121-res224-all` (`training_data` inclui `openi`):
+  vazamento `known` para esse peso.
+- **Uso:** 70 itens `*@openi-frontal#<rótulo>` em `plan.yaml`, todos `status: pending`
+  ("inferência do Open-i em andamento"); 138 frontais entraram na calibração do portão OOD
+  (`predict_xr_gates.py`); laterais (LL/LATERAL) são a fonte "tórax lateral" dos portões.
+- **Não conferido:** idade e sexo (coluna `Patient's Sex` vazia em todas as linhas); equipamento.
+
 ## Des-identificação e governança
 
 Dataset público já des-identificado pelo distribuidor. Splits sempre por paciente quando há

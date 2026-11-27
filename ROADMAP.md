@@ -392,7 +392,7 @@ Os perigos-semente H-01…H-10 do v1.0 viraram `RISK-001`…`RISK-010` no arquiv
 | RISK-003 (H-03) | Entrada fora de distribuição processada em silêncio | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) |
 | RISK-004 (H-04) | Descasamento pesos/código | sha256 verificado (REQ-020); falha fechada (REQ-030) |
 | RISK-005 (H-05) | Má interpretação DICOM | Modality LUT, MONOCHROME1 (REQ-005, REQ-006) |
-| RISK-006 (H-06) | Erro de lateralidade | lateralidade do DICOM, nunca do pixel; RX (REQ-043) e mamografia (REQ-141); TC, US e eco pendentes |
+| RISK-006 (H-06) | Erro de lateralidade | lateralidade do DICOM, nunca do pixel; RX (REQ-043), mamografia (REQ-141), TC/US/eco (REQ-194: ausente = "lateralidade desconhecida", conflito ou código inválido sem lado; TC entrega ao modelo o lado da geometria LPS; eco não aplicável) |
 | RISK-007 (H-07) | Desempenho real diverge do declarado | avaliação reprodutível, nível calculado, auditoria (REQ-050, REQ-090, REQ-093, REQ-070) |
 | RISK-008 (H-08) | Explicabilidade enganosa | Grad-CAM de gradiente real (REQ-060) |
 | RISK-009 (H-09) | Vazamento de dado pessoal | des-identificação PS3.15 (REQ-010, REQ-011) |
