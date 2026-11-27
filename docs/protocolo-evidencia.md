@@ -196,3 +196,26 @@ Duplicatas conhecidas são removidas antes de medir, e a remoção é registrada
 - Equivalência a radiologista.
 
 Ver o plano de avaliação clínica: [`regulatory/10-clinical-evaluation-plan.md`](regulatory/10-clinical-evaluation-plan.md).
+
+## 11. Propostas para a próxima versão (não vigentes, não retroativas)
+
+Nada desta seção vale para `2026-11-v1`. Os registros já medidos continuam julgados pelas regras
+acima; mudar a régua depois de ver o resultado seria pior do que conviver com um resultado frágil.
+As propostas só entram em vigor sob um novo `protocol_id`, congelado **antes** de qualquer nova
+medição, e todo registro antigo continua marcado com o protocolo sob o qual foi julgado.
+
+**11.1 Robustez à divisão calibração/teste.** O caso da cardiomegalia (`xrv-densenet121-res224-pc`
+no teste oficial do NIH) mostrou que uma aprovação pode depender do sorteio da metade de teste:
+AUROC 0,813 na metade pré-registrada, 0,796 na amostra completa e 0,773 na metade de calibração
+(registro `evidence/measured/nih-cxr14/xrv-densenet121-res224-pc/cardiomegaly.json`; detalhe em
+`HONEST_STATUS.md`). Proposta: exigir, além da barra atual na metade de teste, que a AUROC pontual
+na **amostra completa** também atinja `auroc_min`. Pontos de operação continuam ajustados só na
+metade de calibração.
+
+**11.2 Multiplicidade.** Quando vários modelos são medidos para a mesma condição no mesmo
+conjunto, relatar quantos foram testados ao lado de cada aprovação (hoje está só nas ressalvas e
+no `HONEST_STATUS.md`).
+
+**11.3 Prevalência.** Em conjunto enriquecido (por exemplo, o subconjunto adjudicado do Google),
+publicar VPP/VPN apenas recalculados para uma prevalência de referência declarada, nunca os da
+amostra.
