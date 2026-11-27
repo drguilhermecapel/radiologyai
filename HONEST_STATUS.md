@@ -143,8 +143,27 @@ por `scripts/xrv_nih_evidence.py plan` e commitados antes de qualquer métrica; 
 Como ler:
 
 - **Aprovados sem vazamento pelo treino (sustentam A):** cardiomegalia com `pc`; opacidade
-  pulmonar com `chex`, `mimic_ch` e `mimic_nb`. A cardiomegalia passa por pouco (AUROC 0,813,
-  barra de 0,80) e com rótulo NLP ruidoso.
+  pulmonar com `chex`, `mimic_ch` e `mimic_nb`.
+- **A cardiomegalia é um A limítrofe, que depende do sorteio da metade de teste.** O registro
+  (metade de teste, semente pré-registrada 20261124) dá AUROC 0,813. No **teste oficial completo**
+  o mesmo modelo dá **0,796**, e na metade de calibração 0,773 — abaixo da barra de 0,80.
+  Repetindo a divisão com 40 sementes, a AUROC da metade de teste varia de 0,763 a 0,820
+  (mediana 0,795) e só um terço das sementes passaria. O mesmo 0,796 já constava da medição de
+  setembro (`artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`). Quatro modelos sem
+  vazamento foram testados para cardiomegalia e só `pc` passa. O subgrupo feminino tem limite
+  inferior do IC de 0,749. O nível A é mantido porque é o que a regra pré-registrada dá (mudar a
+  regra depois do resultado seria pior), mas ele **não** deve ser lido como evidência robusta.
+  Com o nível A, o produto emite decisões de regra (rule-in: sensibilidade 0,43, especificidade
+  0,90 na metade de teste); se essas decisões devem ficar ativas é decisão do responsável.
+  Próxima versão do protocolo (não retroativa): considerar exigir a barra também na amostra
+  completa.
+- **Opacidade pulmonar é estável:** AUROC 0,873 na amostra completa, 0,874 na calibração e 0,872
+  no teste. O subconjunto do Google é enriquecido (~58% de opacidade): limiares, VPP e VPN não se
+  transferem à prevalência clínica.
+- **Escolha dos pesos `pc`:** feita em c80c22e (2026-09-09), antes de qualquer medição; não houve
+  comparação entre modelos no NIH. A inferência do teste oficial foi feita em fragmentos ao longo
+  de vários commits sem mudança funcional no código de inferência; o checkout limpo vale para o
+  cálculo das métricas.
 - **`all` e `nih` têm vazamento `known`:** foram treinados no NIH, e o split do TorchXRayVision não
   é o oficial, então parte das imagens de teste pode ter estado no treino. A regra pré-registrada
   põe aprovação externa com vazamento conhecido em **C**; para estes dois modelos esse C **não**

@@ -44,7 +44,8 @@
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.",
       "O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente); IC por bootstrap agrupado por paciente.",
-      "Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho no NIH registrada.",
+      "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição; o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z, cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.",
+      "Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança funcional entre eles); o checkout limpo vale para o cálculo das métricas.",
       "Padrão de referência minerado de laudos por NLP (rótulo ruidoso)."
     ],
     "condition_id": "cxr.emphysema",
@@ -108,10 +109,10 @@
     "population": "NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt, 25596 imagens, pacientes disjuntos do split oficial de treino)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-nih@nih-cxr14-test#emphysema",
-      "created_at": "2026-11-27T18:21:05.996137Z",
+      "created_at": "2026-11-27T19:19:07.492539Z",
       "dataset_id": "nih-cxr14",
       "dataset_sha256": "6b51340f19089606979038418494642e5f1f4c589780c08922d05006e202b24d",
-      "git_sha": "22fb1aeba42d09daa964245743a217b2816f75bf",
+      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

@@ -116,10 +116,10 @@
     "population": "GRAZPEDWRI-DX, 30% dos pacientes da amostra local (hold-out por paciente)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-grazpedwri-osteopenia@test30",
-      "created_at": "2026-11-27T18:12:13.428828Z",
+      "created_at": "2026-11-27T19:09:57.589818Z",
       "dataset_id": "grazpedwri-dx-sample-test30",
       "dataset_sha256": "d6ab0e7a6714cde32186854e51cf2041b21015f0ec9ca10d67c63173d3aa1e80",
-      "git_sha": "22fb1aeba42d09daa964245743a217b2816f75bf",
+      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

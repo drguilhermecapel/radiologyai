@@ -169,6 +169,9 @@ async function main() {
     });
     const page = await context.newPage();
     const consoleErrors = [];
+    page.on("response", (r) => {
+      if (r.status() >= 400) consoleErrors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url()}`);
+    });
     page.on("console", (m) => {
       if (m.type() === "error") consoleErrors.push(m.text());
     });
@@ -356,6 +359,8 @@ async function main() {
 
     const relevant = consoleErrors.filter((e) => !/favicon/i.test(e));
     if (relevant.length > 0) log(`avisos de console (${relevant.length}): ${relevant.slice(0, 5).join(" | ")}`);
+    const httpErrors = relevant.filter((e) => e.startsWith("HTTP "));
+    if (httpErrors.length > 0) throw new Error(`respostas HTTP de erro durante o fluxo: ${httpErrors.join(" | ")}`);
     log(`OK — capturas em ${screens}`);
     return 0;
   } catch (err) {

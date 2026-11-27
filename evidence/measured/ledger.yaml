@@ -1566,9 +1566,9 @@ entries:
   outcome: pendente
   model_id: totalseg-cerebral-bleed
   dataset_id: cq500
-  label: null
-  condition_id: null
-  endpoint: discrimination
+  label: intracranial_hemorrhage
+  condition_id: ct.intracranial_hemorrhage
+  endpoint: detection
   awaiting_condition: false
   record: null
   kind: null
@@ -1576,8 +1576,8 @@ entries:
   n_total: null
   n_positive: null
   reasons:
-  - 'medição pendente: 5 de 80 exames da seleção pré-definida (40 com e 40 sem HIC, ordem sha256) processados;
-    o parquet consolidado tem 2 linhas.'
+  - 'medição pendente: inferência em andamento (10 de 80 exames da seleção pré-definida, 40 com e 40 sem
+    HIC, ordem sha256). Especificação abaixo fixada antes do resultado.'
 - job: xrv-densenet121-pc@nih-cxr14-sample300
   outcome: excluido
   model_id: xrv-densenet121-pc

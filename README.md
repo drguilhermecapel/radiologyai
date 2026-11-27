@@ -61,7 +61,8 @@ se divergir):
 
 Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **A** para
 cardiomegalia (`evidence/measured/nih-cxr14/xrv-densenet121-res224-pc/cardiomegaly.json`, AUROC
-0,813 [0,783; 0,839], rótulo NLP) e opacidade pulmonar
+0,813 [0,783; 0,839], rótulo NLP; **limítrofe**: 0,796 no teste oficial completo, ver
+HONEST_STATUS) e opacidade pulmonar
 (`evidence/measured/nih-cxr14-google/xrv-densenet121-res224-chex/lung_opacity.json`, AUROC 0,872
 [0,848; 0,894], rótulo adjudicado); **C** para tuberculose (`xr-probe-tb`, hold-out interno);
 fratura, câncer de mama em mamografia e 13 condições de tórax **refutadas** em todos os modelos

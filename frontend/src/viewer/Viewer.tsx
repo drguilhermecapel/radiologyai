@@ -215,14 +215,21 @@ export function Viewer(props: ViewerProps): ReactNode {
     };
   }, [activeExplanation, showHeatmap]);
 
-  // Quadros de segmentação visíveis.
+  // Trocar de análise ou de visão (padrão x pesquisa) muda a lista de segmentações
+  // e o significado de cada índice: as camadas ligadas deixam de valer.
+  const segListKey = `${analysis?.id ?? ""}:${analysis?.research_view ? "r" : "p"}`;
   useEffect(() => {
-    if (!analysis || visibleSegs.size === 0) {
+    setVisibleSegs(new Set());
+  }, [segListKey]);
+
+  // Quadros de segmentação visíveis (só índices presentes na lista atual).
+  useEffect(() => {
+    const ids = [...visibleSegs].filter((i) => i < (result?.segmentations.length ?? 0));
+    if (!analysis || ids.length === 0) {
       setSegFrames(new Map());
       return;
     }
     let alive = true;
-    const ids = [...visibleSegs];
     Promise.all(
       ids.map((i) =>
         getSegmentationFrame(analysis.id, fullSegIndex(i), frameIndex, MAX_DIM, isResearchSeg(i)).then(
@@ -239,7 +246,7 @@ export function Viewer(props: ViewerProps): ReactNode {
     return () => {
       alive = false;
     };
-  }, [analysis, visibleSegs, frameIndex, fullSegIndex, isResearchSeg]);
+  }, [analysis, result, visibleSegs, frameIndex, fullSegIndex, isResearchSeg]);
 
   // Imagem-base janelada (no tamanho do quadro).
   const base = useMemo(() => {

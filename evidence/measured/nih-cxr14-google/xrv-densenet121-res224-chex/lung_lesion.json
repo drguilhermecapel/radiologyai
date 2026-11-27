@@ -43,7 +43,9 @@
       "Limiares e temperatura ajustados na metade de calibração (430 pacientes) e métricas reportadas na metade de teste (430 pacientes), split determinístico por paciente.",
       "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
       "Rótulos do Google: 4 classes; 'Nodule or mass' comparado a lung_lesion e 'Airspace opacity' a lung_opacity (definições próximas, não idênticas).",
-      "Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho no NIH registrada."
+      "Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados nesta prevalência não se transferem à prática clínica.",
+      "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição; o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z, cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.",
+      "Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança funcional entre eles); o checkout limpo vale para o cálculo das métricas."
     ],
     "condition_id": "cxr.lung_lesion",
     "dataset": "nih-cxr14-google",
@@ -106,10 +108,10 @@
     "population": "Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas (Majkowska et al., Radiology 2020; google_labels_joined.csv)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-chex@nih-google-adjudicated#lung_lesion",
-      "created_at": "2026-11-27T18:16:25.949886Z",
+      "created_at": "2026-11-27T19:14:08.222632Z",
       "dataset_id": "nih-cxr14-google",
       "dataset_sha256": "8ea25e779794b25e5ceaf437a5ef2a4816f4a266ebbfaa0e077d6e3877bbc3b7",
-      "git_sha": "22fb1aeba42d09daa964245743a217b2816f75bf",
+      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
