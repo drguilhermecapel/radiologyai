@@ -75,7 +75,17 @@ function OperatingPoints({ f }: { f: Finding }): ReactNode {
   const { t } = useI18n();
   const rel = operatingPointRelations(f);
   if (rel.length === 0) {
-    return f.decision === "abstained" ? null : <p className="muted small">{t("findings.op.none")}</p>;
+    if (f.decision === "abstained") return null;
+    return (
+      <>
+        <p className="muted small">{t("findings.op.none")}</p>
+        {f.decision_note ? (
+          <p className="small decision-note" data-testid="decision-note">
+            {t("findings.op.note")} {f.decision_note}
+          </p>
+        ) : null}
+      </>
+    );
   }
   return (
     <ul className="op-list" aria-label={t("findings.op")}>

@@ -492,3 +492,35 @@ def test_repo_holds_file_is_valid_and_points_to_catalog_triples() -> None:
     catalog = Catalog.load()
     for cid, mid, label in holds:
         assert catalog.entry(cid, mid, label) is not None, (cid, mid, label)
+
+
+@pytest.mark.requirement("REQ-193")
+def test_hold_reason_is_on_the_finding_and_in_the_report_text(
+    make_registry: Any, store: ArtifactStore, tmp_path: Path
+) -> None:
+    root = tmp_path / "evidence"
+    record = _record("tb-sintetico")
+    _write(root, record, _envelope(record))
+    _hold_file(root)
+    finding = _finding(_run(make_registry, store, _catalog(EvidenceLevel.C, (record.id,)), root))
+    assert finding.decision_note is not None
+    assert "decisão suspensa" in finding.decision_note
+    assert "sorteio" in finding.decision_note
+    text = _point(finding)
+    assert text is not None
+    assert text.startswith("sem decisão (só escore):")
+    assert "sorteio" in text
+
+
+@pytest.mark.requirement("REQ-193")
+def test_decision_note_only_allowed_with_score_only(
+    make_registry: Any, store: ArtifactStore, tmp_path: Path
+) -> None:
+    root = tmp_path / "evidence"
+    record = _record("tb-sintetico")
+    _write(root, record, _envelope(record))
+    finding = _finding(_run(make_registry, store, _catalog(EvidenceLevel.C, (record.id,)), root))
+    assert finding.decision == "positive"
+    assert finding.decision_note is None
+    with pytest.raises(ValueError, match="decision_note"):
+        Finding.model_validate({**finding.model_dump(), "decision_note": "x"})

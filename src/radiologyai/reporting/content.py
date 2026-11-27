@@ -258,6 +258,8 @@ def _fmt(value: float | None) -> str:
 
 def _point(finding: Finding) -> str | None:
     if not finding.operating_points:
+        if finding.decision_note:
+            return f"sem decisão (só escore): {finding.decision_note}"
         return None
     parts = []
     for p in finding.operating_points:

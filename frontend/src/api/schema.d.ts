@@ -1335,6 +1335,8 @@ export interface components {
              * @enum {string}
              */
             decision: "positive" | "negative" | "indeterminate" | "category" | "score_only" | "abstained";
+            /** Decision Note */
+            decision_note?: string | null;
             evidence_level: components["schemas"]["EvidenceLevel"];
             /**
              * Explanation Ids

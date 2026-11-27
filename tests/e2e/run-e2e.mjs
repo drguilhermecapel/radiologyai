@@ -239,6 +239,13 @@ async function main() {
     const resultText = await page.locator(".analysis-state").innerText();
     const nFindings = await page.locator('[data-testid^="finding-"]').count();
     log(`resultado: ${resultText.replace(/\s+/g, " ")}; achados exibidos: ${nFindings}`);
+    // Achado com decisão suspensa (REQ-193) mostra o motivo no próprio cartão.
+    const notes = page.getByTestId("decision-note");
+    const nNotes = await notes.count();
+    if (nNotes > 0) log(`nota de decisão: ${(await notes.first().innerText()).replace(/\s+/g, " ").slice(0, 160)}`);
+    if (MODELS.includes("xrv-densenet121-res224-pc") && nNotes === 0) {
+      throw new Error("cardiomegalia com decisão suspensa sem o motivo no cartão do achado");
+    }
     if (/abstenção/.test(resultText)) {
       throw new Error("abstenção total: o fluxo não exercitou inferência real");
     }

@@ -171,7 +171,7 @@ class _Collector:
 
     def _points(
         self, manifest: ModelManifest, spec: LabelSpec, level: EvidenceLevel, kind: ScoreKind
-    ) -> list[OperatingPoint]:
+    ) -> tuple[list[OperatingPoint], str | None]:
         """Pontos de operação escolhidos pela política, com uma trava final para A/C.
 
         Níveis A e C são medições DESTE projeto sob o protocolo, em pontos de
@@ -181,6 +181,9 @@ class _Collector:
         uma sensibilidade que nunca foi medida nela. Por isso, qualquer que seja
         a política, um ponto sem ``evidence_ref`` nunca decide um achado A/C: o
         achado fica ``score_only``, com aviso.
+
+        Devolve também a nota que explica, no próprio achado, por que não há
+        decisão (os avisos da política), quando nenhum ponto foi devolvido.
         """
         request = PointsRequest(
             condition_id=spec.condition_id,
@@ -196,13 +199,14 @@ class _Collector:
             self._warn_once(f"{manifest.id}:{spec.key}: {message}")
         points = list(resolution.points)
         if level in MEASURED_LEVELS and any(p.evidence_ref is None for p in points):
-            self._warn_once(
-                f"{manifest.id}:{spec.key}: nível {level.value} exige pontos de operação de um "
-                "registro de evidência; a política devolveu ponto sem evidence_ref — somente "
-                "escore, sem decisão"
+            message = (
+                f"nível {level.value} exige pontos de operação de um registro de evidência; a "
+                "política devolveu ponto sem evidence_ref — somente escore, sem decisão"
             )
-            return []
-        return points
+            self._warn_once(f"{manifest.id}:{spec.key}: {message}")
+            return [], message
+        note = "; ".join(resolution.warnings) if not points and resolution.warnings else None
+        return points, note
 
     def add(
         self,
@@ -372,7 +376,8 @@ class _Collector:
                 probability, calibration_id = calibrated
                 scores["calibrated"] = probability
         level = self._level(manifest, spec)
-        decision, used = decide(scores, self._points(manifest, spec, level, kind))
+        points, note = self._points(manifest, spec, level, kind)
+        decision, used = decide(scores, points)
         return Finding(
             condition_id=spec.condition_id,
             label=spec.key,
@@ -385,6 +390,7 @@ class _Collector:
             calibration_id=calibration_id,
             operating_points=tuple(used),
             decision=decision,
+            decision_note=note if decision == "score_only" else None,
             evidence_level=level,
             visibility=visibility_for(level),
             image_idx=image_idx,

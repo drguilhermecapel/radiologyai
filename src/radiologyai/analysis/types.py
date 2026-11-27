@@ -363,6 +363,8 @@ class Finding(_Frozen):
     operating_points: tuple[OperatingPoint, ...] = ()
     decision: FindingDecision
     abstention_reason: AbstentionReason | None = None
+    # Por que o achado ficou só com escore (ex.: decisão suspensa, REQ-193); só com score_only.
+    decision_note: str | None = None
 
     evidence_level: EvidenceLevel
     visibility: Visibility
@@ -383,6 +385,8 @@ class Finding(_Frozen):
             raise ValueError("achado com abstenção exige abstention_reason")
         if self.decision != "abstained" and self.abstention_reason is not None:
             raise ValueError("abstention_reason só é válido com decision='abstained'")
+        if self.decision_note is not None and self.decision != "score_only":
+            raise ValueError("decision_note só é válido com decision='score_only'")
         if self.raw_score is None and self.decision != "abstained":
             raise ValueError("achado sem escore só pode ser abstenção")
         if self.raw_score is not None and not math.isfinite(self.raw_score):

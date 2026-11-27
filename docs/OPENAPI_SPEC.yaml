@@ -930,6 +930,11 @@ components:
           - abstained
           title: Decision
           type: string
+        decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision Note
         evidence_level:
           $ref: '#/components/schemas/EvidenceLevel'
         explanation_ids:
