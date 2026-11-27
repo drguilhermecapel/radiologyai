@@ -282,6 +282,36 @@ def collect() -> Path:
     return target
 
 
+def evidence() -> Path:
+    """Grava ``evidence.parquet`` (formato da fábrica, desfecho ``detection``).
+
+    Regra pré-especificada: ``y_score`` = 1 se o volume segmentado >= 0,1 mL, senão 0.
+    Exame sem volume (abstenção ou erro) conta como **não detectado** (``y_score`` = 0):
+    a abstenção não é escondida; penaliza a sensibilidade em vez de sair da conta.
+    """
+    import pandas as pd
+
+    df = pd.read_parquet(OUT / "predictions.parquet")
+    if len(df) != N_POS + N_NEG:
+        raise SystemExit(f"seleção incompleta: {len(df)} de {N_POS + N_NEG} exames")
+    pred = df["label_pred_ge_0_1ml"]
+    out = pd.DataFrame(
+        {
+            "image_id": df["name"].astype(str),
+            "patient_id": df["name"].astype(str),  # um estudo por paciente no CQ500
+            "y_true": df["maj_ICH"].astype(int),
+            "y_score": pred.fillna(0).astype(float),
+        }
+    )
+    target = OUT / "evidence.parquet"
+    out.to_parquet(target, index=False)
+    print(
+        f"{len(out)} exames ({int(out.y_true.sum())} com HIC); "
+        f"{int(pred.isna().sum())} sem volume contados como não detectado -> {target}"
+    )
+    return target
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -293,6 +323,7 @@ def main() -> int:
     pr.add_argument("--limit", type=int, default=None)
     pr.add_argument("--weights-dir", type=Path, default=Path("/root/medai-cache/weights/registry"))
     sub.add_parser("collect")
+    sub.add_parser("evidence")
     args = parser.parse_args()
     if args.cmd == "select":
         print(write_selection())
@@ -307,6 +338,8 @@ def main() -> int:
         predict(names, args.weights_dir)
     elif args.cmd == "collect":
         print(collect())
+    elif args.cmd == "evidence":
+        evidence()
     return 0
 
 

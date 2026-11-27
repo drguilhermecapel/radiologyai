@@ -29,6 +29,7 @@ from radiologyai.evidence.measure import (
     MeasurementContext,
     measure_agreement,
     measure_binary,
+    measure_detection,
 )
 from radiologyai.evidence.provenance import REPO_ROOT, sha256_file
 from radiologyai.evidence.store import EVIDENCE_ROOT, measured_path, write_measured
@@ -53,7 +54,7 @@ class PlanJob(_Frozen):
     id: str
     status: JobStatus
     reason: str | None = None  # obrigatório para pending/excluded
-    endpoint: Literal["discrimination", "agreement"] = "discrimination"
+    endpoint: Literal["discrimination", "agreement", "detection"] = "discrimination"
     model_id: str | None = None
     dataset_id: str | None = None  # chave em radiologyai.evidence.leakage.DATASETS
     label: str | None = None
@@ -63,6 +64,9 @@ class PlanJob(_Frozen):
     score_scale: Literal["probability", "logit"] = "probability"
     reference_column: str | None = None  # agreement
     measured_column: str | None = None  # agreement
+    # detection: regra fixa pré-especificada; a coluna de escore traz a decisão 0/1 já
+    # tomada pela regra (nenhum ajuste nos dados de avaliação).
+    detection_rule: str | None = None
     where: dict[str, str] = {}
     training_data: tuple[str, ...] = ()
     no_training_data_declared: bool = False
@@ -101,8 +105,10 @@ class PlanJob(_Frozen):
             )
         if self.endpoint == "agreement" and not (self.reference_column and self.measured_column):
             raise ValueError(f"{self.id}: agreement exige reference_column e measured_column")
-        if self.endpoint == "discrimination" and (self.reference_column or self.measured_column):
+        if self.endpoint != "agreement" and (self.reference_column or self.measured_column):
             raise ValueError(f"{self.id}: reference/measured_column só valem para agreement")
+        if (self.endpoint == "detection") != bool(self.detection_rule):
+            raise ValueError(f"{self.id}: detection_rule é obrigatória em detection e só nela")
         return self
 
 
@@ -340,6 +346,33 @@ def execute_job(
                     "score_column": score_column,
                 },
                 evidence_ref=f"{_relative(target, root.parent)}#report",
+            )
+        elif job.endpoint == "detection":
+            preds = read_label(path, job.label_column)
+            decisions = {float(v) for v in preds.y_score}
+            if not decisions <= {0.0, 1.0}:
+                raise EvidenceError(
+                    f"{job.id}: detection exige decisão 0/1 na coluna de escore; "
+                    f"valores {sorted(decisions)[:5]}"
+                )
+            judged_det = (
+                protocol
+                if n_bootstrap is None
+                else protocol.model_copy(update={"bootstrap_iterations": n_bootstrap})
+            )
+            evidence = measure_detection(
+                context(preds.dataset_sha256),
+                judged_det,
+                rule=job.detection_rule or "",
+                patient_ids=preds.patient_ids,
+                y_true=preds.y_true,
+                y_pred=preds.y_score.astype("int64"),
+                inputs={
+                    **common_inputs,
+                    "predictions_sha256": preds.predictions_sha256,
+                    "n_missing_label_excluded": preds.n_missing_label,
+                    "detection_rule": job.detection_rule,
+                },
             )
         else:
             if not (job.reference_column and job.measured_column):  # validador garante

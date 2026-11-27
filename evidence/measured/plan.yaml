@@ -2348,11 +2348,35 @@ jobs:
       - "Recorte prévio por mammo-crop (sha256 57bd1f259c2b1588d96953195665bca3972e0954194d8eaeaf2bd12af47591d2, conferido no manifesto mammo-crop)."
   - id: totalseg-cerebral-bleed@cq500
     status: pending
+    reason: >-
+      medição pendente: inferência em andamento (10 de 80 exames da seleção pré-definida,
+      40 com e 40 sem HIC, ordem sha256). Especificação abaixo fixada antes do resultado.
+    endpoint: detection
+    detection_rule: volume segmentado de hemorragia >= 0,1 mL (ponto de operação do manifesto)
     model_id: totalseg-cerebral-bleed
     dataset_id: cq500
-    reason: >-
-      medição pendente: 5 de 80 exames da seleção pré-definida (40 com e 40 sem HIC,
-      ordem sha256) processados; o parquet consolidado tem 2 linhas.
+    label: intracranial_hemorrhage
+    condition_id: ct.intracranial_hemorrhage
+    predictions: totalseg-cerebral_bleed/cq500/evidence.parquet
+    training_data: [rusche-2023-ich-inhouse, totalsegmentator-ct]
+    reference_standard: radiologist_adjudicated
+    population: >-
+      CQ500 (qure.ai, Índia; CC BY-NC-SA 4.0), TC de crânio sem contraste; seleção
+      pré-definida de 80 exames: 40 com HIC por maioria (>= 2 de 3 radiologistas) e 40 sem
+      HIC por unanimidade (0 de 3); ordem sha256("medai-cq500-v1" + nome)
+    weights:
+      d150_checkpoint: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset150_icb_v0__checkpoint_final.pth
+      d150_plans: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset150_icb_v0__plans.json
+      d150_dataset: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset150_icb_v0__dataset.json
+      d298_checkpoint: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset298_TotalSegmentator_total_6mm_1559subj__checkpoint_final.pth
+      d298_plans: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset298_TotalSegmentator_total_6mm_1559subj__plans.json
+      d298_dataset: /root/medai-cache/weights/registry/totalseg-cerebral-bleed/Dataset298_TotalSegmentator_total_6mm_1559subj__dataset.json
+    manifest: totalseg-cerebral-bleed
+    caveats:
+      - "O modelo segmenta hemorragia intracerebral (ICB); a referência do CQ500 é hemorragia intracraniana de qualquer tipo (inclui subdural, subaracnoide, epidural e intraventricular): espera-se perda de sensibilidade nesses subtipos."
+      - "Exames com 1 de 3 votos para HIC excluídos da seleção (referência ambígua); a especificidade é medida só contra negativos unânimes."
+      - "Exame sem volume (abstenção ou erro) conta como não detectado."
+      - "Prevalência da amostra (50%) fixada pelo desenho; VPP/VPN não generalizam."
   # ------------------------------------------------------------------ Fora de avaliação
   - id: xrv-densenet121-pc@nih-cxr14-sample300
     status: excluded

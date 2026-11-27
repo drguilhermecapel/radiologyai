@@ -128,6 +128,14 @@ class TestPlanValidation:
             _job(endpoint="agreement")
 
     @pytest.mark.requirement("REQ-115")
+    def test_detection_requires_rule_and_rule_only_in_detection(self):
+        with pytest.raises(ValueError, match="detection_rule"):
+            _job(endpoint="detection")
+        with pytest.raises(ValueError, match="detection_rule"):
+            _job(detection_rule="volume >= 0,1 mL")
+        assert _job(endpoint="detection", detection_rule="volume >= 0,1 mL")
+
+    @pytest.mark.requirement("REQ-115")
     def test_two_jobs_writing_same_record_rejected(self, tmp_path):
         with pytest.raises(ValueError, match="mesmo registro"):
             _plan(tmp_path, _job(id="a"), _job(id="b"))
@@ -300,6 +308,50 @@ class TestExecuteJob:
         env = json.loads((root / entry.record).read_text(encoding="utf-8"))
         assert env["inputs"]["plan_job"] == "j1"
         assert len(env["operating_points"]) == 2
+
+    @pytest.mark.requirement("REQ-115")
+    def test_detection_measures_fixed_rule_decisions(self, tmp_path, protocol):
+        import pandas as pd
+
+        w = tmp_path / "w.pt"
+        w.write_bytes(b"pesos")
+        n = 80
+        y = np.r_[np.ones(n // 2, dtype=int), np.zeros(n // 2, dtype=int)]
+        pred = y.copy()
+        pred[0] = 0  # um falso negativo
+        path = tmp_path / "preds" / "m1" / "tb-montgomery" / "tuberculosis.parquet"
+        path.parent.mkdir(parents=True)
+        pd.DataFrame(
+            {
+                "patient_id": [f"p{i}" for i in range(n)],
+                "image_id": [f"i{i}" for i in range(n)],
+                "y_true": y,
+                "y_score": pred.astype(float),
+            }
+        ).to_parquet(path)
+        job = _job(weights={"w": str(w)}, endpoint="detection", detection_rule="decisão do modelo")
+        plan = _plan(tmp_path, job)
+        root = tmp_path / "evidence"
+        entry = _run(plan, job, protocol, root, known={"cxr.tuberculosis"})
+        assert entry.outcome in ("aprovado", "reprovado")
+        (rec,) = load_records(root)
+        assert rec.endpoint == "detection"
+        assert rec.n_positive == n // 2
+        assert rec.metrics["sensitivity"].value == pytest.approx(39 / 40)
+        assert rec.metrics["specificity"].value == pytest.approx(1.0)
+        env = json.loads((root / entry.record).read_text(encoding="utf-8"))
+        assert env["inputs"]["detection_rule"] == "decisão do modelo"
+
+    @pytest.mark.requirement("REQ-115")
+    def test_detection_refuses_continuous_score(self, tmp_path, protocol):
+        w = tmp_path / "w.pt"
+        w.write_bytes(b"pesos")
+        _binary_parquet(tmp_path / "preds" / "m1" / "tb-montgomery" / "tuberculosis.parquet")
+        job = _job(weights={"w": str(w)}, endpoint="detection", detection_rule="r")
+        plan = _plan(tmp_path, job)
+        entry = _run(plan, job, protocol, tmp_path / "evidence", known={"cxr.tuberculosis"})
+        assert entry.outcome == "falha"
+        assert "0/1" in entry.reasons[0]
 
     @pytest.mark.requirement("REQ-113")
     @pytest.mark.requirement("REQ-182")

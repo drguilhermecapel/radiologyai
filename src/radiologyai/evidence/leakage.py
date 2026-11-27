@@ -90,6 +90,10 @@ DATASETS: dict[str, DatasetInfo] = {
         DatasetInfo("mura"),
         # --- TC / RM
         DatasetInfo("cq500"),
+        DatasetInfo(
+            "rusche-2023-ich-inhouse",
+            note="treino do ICB do TotalSegmentator (Rusche 2023, doi:10.3390/jcm12072631)",
+        ),
         DatasetInfo("rsna-ich"),
         DatasetInfo("totalsegmentator-ct"),
         DatasetInfo("totalsegmentator-mr"),
