@@ -242,6 +242,11 @@ async function main() {
     // Achados de nível D só aparecem no modo pesquisa (papel com research:view).
     const hidden = page.getByTestId("hidden-research");
     let researchFindings = 0;
+    // Visão padrão (sem modo pesquisa): captura e conta as camadas de segmentação expostas.
+    const defaultSeg = await page.locator('[data-testid^="toggle-seg-"]').count();
+    log(`visão principal: ${defaultSeg} camada(s) de segmentação disponível(is)`);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: join(screens, "00-visao-principal.png"), fullPage: true });
     if ((await hidden.count()) > 0) {
       log(`visão principal: ${(await hidden.innerText()).replace(/\s+/g, " ")}`);
       await page.getByTestId("research-toggle").check();

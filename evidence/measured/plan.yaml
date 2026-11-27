@@ -369,8 +369,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -392,8 +395,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -415,8 +421,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#emphysema
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -438,8 +447,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#fibrosis
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -461,8 +473,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#hernia
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -484,8 +499,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#infiltration
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -507,8 +525,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#mass
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -530,8 +551,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#nodule
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -553,8 +577,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -576,8 +603,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_thickening
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -599,8 +629,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -622,8 +655,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -645,8 +681,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -668,8 +707,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-google-adjudicated#fracture
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -690,8 +732,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-pc@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-pc
@@ -712,8 +759,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#atelectasis
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -735,8 +787,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -758,8 +813,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -781,8 +839,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -804,8 +865,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -827,8 +891,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -850,8 +917,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -873,8 +943,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-google-adjudicated#fracture
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -895,8 +968,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_lesion
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -917,8 +995,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_opacity
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -939,8 +1022,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-chex@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-chex
@@ -961,8 +1049,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#atelectasis
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -984,8 +1077,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1007,8 +1103,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1030,8 +1129,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1053,8 +1155,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1076,8 +1181,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1099,8 +1207,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1122,8 +1233,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#fracture
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1144,8 +1258,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_lesion
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1166,8 +1285,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_opacity
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1188,8 +1312,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-mimic_nb
@@ -1210,8 +1339,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#atelectasis
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1233,8 +1367,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1256,8 +1393,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1279,8 +1419,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1302,8 +1445,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1325,8 +1471,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1348,8 +1497,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1371,8 +1523,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#fracture
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1393,8 +1548,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_lesion
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1415,8 +1575,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_opacity
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1437,8 +1602,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-mimic_ch
@@ -1459,8 +1629,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#atelectasis
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1488,8 +1663,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1517,8 +1695,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1546,8 +1727,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#emphysema
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1575,8 +1759,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#fibrosis
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1604,8 +1791,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#hernia
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1633,8 +1823,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#infiltration
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1662,8 +1855,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#mass
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1691,8 +1887,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#nodule
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1720,8 +1919,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1749,8 +1951,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#pleural_thickening
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1778,8 +1983,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1807,8 +2015,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1836,8 +2047,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1865,8 +2079,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-google-adjudicated#fracture
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1893,8 +2110,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-google-adjudicated#lung_lesion
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1921,8 +2143,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-google-adjudicated#lung_opacity
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1949,8 +2176,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-all@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-all
@@ -1977,8 +2209,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#atelectasis
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2000,8 +2237,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#cardiomegaly
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2023,8 +2263,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#consolidation
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2046,8 +2289,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#emphysema
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2069,8 +2315,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#fibrosis
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2092,8 +2341,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#hernia
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2115,8 +2367,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#infiltration
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2138,8 +2393,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#mass
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2161,8 +2419,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#nodule
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2184,8 +2445,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_effusion
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2207,8 +2471,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_thickening
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2230,8 +2497,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#pneumonia
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2253,8 +2523,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2276,8 +2549,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-cxr14-test#pulmonary_edema
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2299,8 +2575,11 @@ jobs:
     - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
     - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
       IC por bootstrap agrupado por paciente.
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   - id: xrv-densenet121-res224-nih@nih-google-adjudicated#pneumothorax
     status: measure
     model_id: xrv-densenet121-res224-nih
@@ -2321,8 +2600,13 @@ jobs:
     caveats:
     - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
       lung_opacity (definições próximas, não idênticas).'
-    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
-      no NIH registrada.
+    - 'Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, VPP e VPN ajustados
+      nesta prevalência não se transferem à prática clínica.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição;
+      o mesmo teste oficial do NIH foi medido com pc em 2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z,
+      cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   # ------------------------------------------------------------------ Mamografia
   - id: mammoscreen@cmmd
     status: measure

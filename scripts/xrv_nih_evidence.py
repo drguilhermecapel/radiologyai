@@ -98,6 +98,8 @@ DATASETS: dict[str, dict[str, Any]] = {
         "caveats": [
             "Rótulos do Google: 4 classes; 'Nodule or mass' comparado a lung_lesion e "
             "'Airspace opacity' a lung_opacity (definições próximas, não idênticas).",
+            "Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, "
+            "VPP e VPN ajustados nesta prevalência não se transferem à prática clínica.",
         ],
     },
 }
@@ -173,8 +175,15 @@ def plan() -> int:
                         "manifest": mid,
                         "caveats": [
                             *info["caveats"],
-                            "Rota principal dos modelos xrv definida antes desta medição "
-                            "(commit 9961292), sem comparação de desempenho no NIH registrada.",
+                            "Pesos pc escolhidos como modelo de validação externa em c80c22e "
+                            "(2026-09-09), antes de qualquer medição; o mesmo teste oficial do "
+                            "NIH foi medido com pc em 2026-09-12 (artifacts/eval/"
+                            "xrv-densenet121-pc__20260912T215742Z, cardiomegalia 0,796), antes "
+                            "de o protocolo ser escrito; não houve comparação entre modelos "
+                            "no NIH.",
+                            "Inferência feita em fragmentos ao longo de vários commits (código de "
+                            "inferência e adaptador sem mudança funcional entre eles); o checkout "
+                            "limpo vale para o cálculo das métricas.",
                         ],
                     }
                 )
