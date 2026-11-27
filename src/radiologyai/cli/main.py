@@ -445,6 +445,50 @@ def openapi_cmd(
     typer.secho(f"OpenAPI gravado em {out}", fg=typer.colors.GREEN)
 
 
+@app.command("check-regression")
+def check_regression(
+    current: Annotated[Path, typer.Option("--current", help="Métricas atuais.")],
+    reference: Annotated[Path, typer.Option("--reference", help="Métricas base.")],
+    max_auroc_drop: Annotated[
+        float,
+        typer.Option("--max-auroc-drop", help="Queda máxima no macro-AUROC."),
+    ] = 0.02,
+    allow_internal: Annotated[
+        bool,
+        typer.Option("--allow-internal", help="Permite dataset interno."),
+    ] = False,
+    allow_label_drop: Annotated[
+        bool,
+        typer.Option("--allow-label-drop", help="Permite perda de rótulos."),
+    ] = False,
+) -> None:
+    """Verifica regressão de métricas entre modelo atual e referência."""
+    from radiologyai.evaluation.regression import compare_metric_files
+
+    try:
+        result = compare_metric_files(
+            current_path=current,
+            reference_path=reference,
+            max_auroc_drop=max_auroc_drop,
+            require_external_dataset=not allow_internal,
+            allow_label_drop=allow_label_drop,
+        )
+    except (OSError, ValueError) as exc:
+        typer.secho(f"ERRO: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+
+    payload: dict[str, Any] = {
+        "passed": result.passed,
+        "reasons": list(result.reasons),
+        "current_macro_auroc": result.current_macro_auroc,
+        "reference_macro_auroc": result.reference_macro_auroc,
+        "delta_macro_auroc": result.delta_macro_auroc,
+    }
+    typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+    if not result.passed:
+        raise typer.Exit(code=1)
+
+
 def main() -> None:
     sys.exit(app())
 

@@ -18,11 +18,15 @@ Princípios:
 from __future__ import annotations
 
 import importlib.util
+import os
+import tempfile
 from collections.abc import AsyncIterator, Awaitable, Callable, MutableMapping
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from radiologyai import __version__
+from radiologyai.audit.trail import AuditTrail
 from radiologyai.errors import BackendUnavailableError
 
 if TYPE_CHECKING:
@@ -175,9 +179,25 @@ def _error_status() -> list[tuple[type[Exception], int]]:
     ]
 
 
+def _resolve_audit_trail(
+    audit_trail: AuditTrail | None,
+    audit_log_path: str | Path | None,
+) -> AuditTrail:
+    """Trilha JSONL da rota legada ``/analyze`` (a plataforma audita no banco, encadeado)."""
+    if audit_trail is not None:
+        return audit_trail
+    resolved_path = audit_log_path or os.environ.get("RADIOLOGYAI_AUDIT_LOG_PATH")
+    if resolved_path:
+        return AuditTrail(Path(resolved_path))
+    default_dir = Path(tempfile.mkdtemp(prefix="radiologyai_audit_"))
+    return AuditTrail(default_dir / "audit.jsonl")
+
+
 def create_app(
     *,
     artifacts_dir: str | None = None,
+    audit_trail: AuditTrail | None = None,
+    audit_log_path: str | Path | None = None,
     settings: PlatformSettings | None = None,
     platform: Platform | None = None,
     engine: AnalysisEngine | None = None,
@@ -191,6 +211,8 @@ def create_app(
         platform: plataforma pronta (testes); ignora ``settings``.
         engine: motor de análise (registro + catálogo); padrão: o do pacote, sob demanda.
         start_worker: sobe o worker em processo no ``lifespan`` (padrão: configuração).
+        audit_trail: trilha JSONL da rota legada ``/analyze`` (testes).
+        audit_log_path: caminho dessa trilha (ou ``RADIOLOGYAI_AUDIT_LOG_PATH``).
     """
     require_fastapi()
 
@@ -252,6 +274,7 @@ def create_app(
     app.state.worker = None
     app.state.worker_enabled = run_worker
     app.state.artifacts_dir = artifacts_dir or str(platform.settings.artifacts_eval_dir)
+    app.state.audit_trail = _resolve_audit_trail(audit_trail, audit_log_path)
 
     if platform.settings.cors_origins:
         app.add_middleware(

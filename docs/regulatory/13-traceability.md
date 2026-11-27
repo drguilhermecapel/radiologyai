@@ -97,7 +97,7 @@ requisito inexistente.
 | **REQ-157** Achado exploratório (nível D) fora das respostas padrão e de todo laudo | safety | RISK-012, RISK-001 | implemented | `TestResearchMode`<br>`TestContentExcludesResearch` |
 | **REQ-158** Laudo PDF em português, preliminar e sem afirmação de normalidade | safety | RISK-002, RISK-012 | implemented | `TestPdf` |
 | **REQ-159** DICOM SR TID 1500, SEG e FHIR DiagnosticReport preliminares | safety | RISK-002, RISK-018 | implemented | `TestStructuredOutputs` |
-| **REQ-160** Plataforma serve exatamente o que o pipeline calculou | safety | RISK-004, RISK-007 | implemented | `TestFullFlow`<br>`test_worklist_filters` |
+| **REQ-160** Plataforma serve exatamente o que o pipeline calculou | safety | RISK-004, RISK-007 | implemented | `TestFullFlow`<br>`test_real_cxr_flow_serves_exactly_what_models_computed`<br>`test_worklist_filters` |
 | **REQ-161** Tipo de exame desconhecido exige decisão humana auditada | safety | RISK-017 | implemented | `TestExamType` |
 | **REQ-162** DICOMweb (QIDO/WADO/STOW) com importação des-identificada | functional | RISK-009 | implemented | `test_import_over_api_deidentifies`<br>`test_qido_search_drops_patient_identifiers`<br>`test_stow_sends_part10_objects`<br>`test_unreachable_server_is_explicit_error`<br>`test_wado_retrieve_returns_datasets` |
 | **REQ-163** Quadros decodificados no servidor sem perda de faixa | safety | RISK-005 | implemented | `test_segmentation_overlay_on_same_grid`<br>`TestFrames` |
@@ -105,7 +105,7 @@ requisito inexistente.
 | **REQ-165** Prontidão reflete banco, migração, repositório e worker | functional | RISK-004 | implemented | `test_readyz_reports_dependencies` |
 | **REQ-166** Banco evolui somente por migração Alembic | functional | RISK-007 | implemented | `TestMigrations` |
 
-**88 requisitos · 288 verificações.**
+**88 requisitos · 289 verificações.**
 
 > Os controles de risco (RISK-xxx) serão detalhados em
 > `04-risk-file.md`. As sementes H-01…H-10 estão em `ROADMAP.md` §6.3.

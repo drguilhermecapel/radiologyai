@@ -129,6 +129,19 @@ async def analyze(
                     "note": "Nenhuma predição é fabricada quando o modelo não pode rodar.",
                 },
             ) from exc
+    audit_trail = getattr(request.app.state, "audit_trail", None)
+    if audit_trail is not None:
+        audit_trail.record(
+            event="analyze",
+            input_sha256=input_sha256,
+            card_id=card.card_id,
+            weights_sha256=card.weights_sha256,
+            code_version=__version__,
+            modality=plugin.code,
+            user_id=principal.username,
+            findings=findings,
+            abstained=any(f.get("band") in {"inconclusivo", "nao_avaliavel"} for f in findings),
+        )
 
     del principal
     return LegacyAnalyzeOut(

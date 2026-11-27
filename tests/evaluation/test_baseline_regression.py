@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from typer.testing import CliRunner
 
+from radiologyai.cli.main import app
 from radiologyai.evaluation.regression import (
     check_baseline_regression,
     compare_metric_files,
@@ -165,3 +167,62 @@ def test_rejects_negative_max_auroc_drop() -> None:
 
     with pytest.raises(ValueError, match="max_auroc_drop"):
         check_baseline_regression(current, reference, max_auroc_drop=-0.01)
+
+
+def test_cli_check_regression_passes(tmp_path: Path) -> None:
+    reference_file = tmp_path / "reference.json"
+    current_file = tmp_path / "current.json"
+    reference_file.write_text(
+        json.dumps(_valid_metrics(macro_auroc=0.86)),
+        encoding="utf-8",
+    )
+    current_file.write_text(
+        json.dumps(_valid_metrics(macro_auroc=0.85)),
+        encoding="utf-8",
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "check-regression",
+            "--current",
+            str(current_file),
+            "--reference",
+            str(reference_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["passed"] is True
+
+
+def test_cli_check_regression_fails(tmp_path: Path) -> None:
+    reference_file = tmp_path / "reference.json"
+    current_file = tmp_path / "current.json"
+    reference_file.write_text(
+        json.dumps(_valid_metrics(macro_auroc=0.86)),
+        encoding="utf-8",
+    )
+    current_file.write_text(
+        json.dumps(_valid_metrics(macro_auroc=0.80)),
+        encoding="utf-8",
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "check-regression",
+            "--current",
+            str(current_file),
+            "--reference",
+            str(reference_file),
+        ],
+    )
+
+    assert result.exit_code == 1
+    payload = json.loads(result.stdout)
+    assert payload["passed"] is False
+    assert payload["reasons"]

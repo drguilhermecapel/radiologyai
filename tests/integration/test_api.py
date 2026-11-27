@@ -7,6 +7,7 @@ endpoint legado ``/analyze``. Saúde e métricas MEDIDAS continuam públicas.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -255,3 +256,45 @@ class TestThresholdsComeFromMeasuredArtifact:
         for f in response.json()["findings"]:
             assert f["band"] == "nao_avaliavel"
             assert "não está neste checkout" in f["reason"]
+
+
+class TestAnalyzeAuditTrail:
+    """Chamadas a /api/v1/analyze gravam registros encadeados no AuditTrail."""
+
+    def test_analyze_records_chained_audit_entries(self, platform_settings, tmp_path, cr_dataset):
+        """O usuário gravado é o da sessão autenticada, nunca um cabeçalho do cliente."""
+        from fastapi.testclient import TestClient
+
+        from radiologyai.api import create_app
+        from radiologyai.audit.trail import AuditTrail
+        from radiologyai.worker.runtime import Platform
+
+        audit_log_path = tmp_path / "audit.jsonl"
+        app = create_app(
+            platform=Platform.create(platform_settings),
+            artifacts_dir=str(tmp_path / "sem_artefatos"),
+            audit_log_path=audit_log_path,
+        )
+        client = TestClient(app)
+        physician = _auth(client, "physician")
+        technician = _auth(client, "technician")
+
+        first = post_analyze(client, cr_dataset, headers={**physician, "x-user-id": "forjado"})
+        if first.status_code == 503:
+            pytest.skip("backend indisponivel neste ambiente")
+        assert first.status_code == 200, first.text
+        second = post_analyze(client, cr_dataset, headers=technician)
+        assert second.status_code == 200, second.text
+
+        assert audit_log_path.exists()
+        AuditTrail(audit_log_path).verify()  # levanta AuditError se a cadeia quebrar
+        lines = [
+            json.loads(line)
+            for line in audit_log_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert len(lines) == 2
+        assert lines[0]["event"] == "analyze"
+        assert lines[0]["user_id"] == "physician-api"
+        assert lines[1]["user_id"] == "technician-api"
+        assert lines[1]["prev_hash"] != lines[0]["prev_hash"]
