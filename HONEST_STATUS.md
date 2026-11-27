@@ -266,6 +266,107 @@ Como ler:
 | `cxr.pulmonary_fibrosis` | `nih` | teste oficial (NLP) | known | 0,653 [0,599; 0,704] | 207/12017 | reprovado | `evidence/measured/nih-cxr14/xrv-densenet121-res224-nih/fibrosis.json` |
 | `cxr.pulmonary_fibrosis` | `pc` | teste oficial (NLP) | none | 0,442 [0,379; 0,500] | 207/12017 | reprovado | `evidence/measured/nih-cxr14/xrv-densenet121-res224-pc/fibrosis.json` |
 
+### RX de tórax: TorchXRayVision no Open-i (70 registros)
+
+Seis modelos TorchXRayVision em **todas as frontais do Open-i** (Indiana University, NLMCXR):
+4.014 imagens de 2.561 laudos. Rótulos: códigos MeSH atribuídos por curadores a partir do laudo
+(não é leitura adjudicada da imagem). O Open-i não publica id de paciente: divisão e bootstrap
+são agrupados por laudo, e um paciente com mais de um laudo pode cair nas duas metades, o que
+tende a otimizar a estimativa. Itens pré-especificados (`scripts/xrv_nih_evidence.py plan
+--datasets openi-frontal`) e commitados antes da inferência.
+
+Como ler:
+
+- **Cardiomegalia confirmada externamente pela segunda vez:** `pc` 0,874 [0,840; 0,905] e `nih`
+  0,825 [0,786; 0,862], ambos sem vazamento pelo treino. No NIH, `pc` tinha passado no limite
+  (0,813 na metade de teste; 0,796 na amostra completa). A decisão do trio `pc` continua
+  suspensa (REQ-193) até o responsável decidir; o trio `nih` passou a A **só** pelo Open-i e não
+  está suspenso.
+- **`all` treinou no Open-i** (vazamento `known`): as aprovações de cardiomegalia (0,867) e de
+  derrame pleural (0,829) põem esses trios em **C** pela regra pré-registrada, mas esse C **não**
+  é hold-out limpo — parte destas imagens esteve no treino.
+- **Derrame pleural reprovado de novo nos modelos sem vazamento** (`pc` 0,798, `nih` 0,775,
+  `mimic_nb` 0,739, `mimic_ch` 0,737, `chex` 0,723), como no NIH.
+- **Fratura em RX de tórax refutada** (era não elegível no subconjunto do Google): AUROC de 0,50 a
+  0,66 em todos os modelos, 44 imagens positivas na metade de teste; por isso a coluna "Refutadas"
+  de `cxr` sobe para 15.
+- **Não elegíveis** (positivos contados por laudo na metade de teste, mínimo 30): edema 27,
+  pneumonia 25, nódulo 25, hérnia 19, espessamento pleural 10, pneumotórax 8, fibrose 7, massa 3
+  (contagens do modelo `pc`); nada é concluído delas.
+
+| Condição | Modelo (`xrv-densenet121-res224-…`) | Vazamento | AUROC [IC 95%] | positivos/n (teste) | Protocolo | Registro |
+|---|---|---|---|---|---|---|
+| `cxr.atelectasis` | `all` | known | 0,745 [0,708; 0,781] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-all/atelectasis.json` |
+| `cxr.atelectasis` | `chex` | none | 0,647 [0,604; 0,685] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-chex/atelectasis.json` |
+| `cxr.atelectasis` | `mimic_ch` | none | 0,671 [0,626; 0,713] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/atelectasis.json` |
+| `cxr.atelectasis` | `mimic_nb` | none | 0,672 [0,630; 0,711] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/atelectasis.json` |
+| `cxr.atelectasis` | `nih` | none | 0,725 [0,686; 0,764] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-nih/atelectasis.json` |
+| `cxr.atelectasis` | `pc` | none | 0,721 [0,681; 0,760] | 185/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/atelectasis.json` |
+| `cxr.cardiomegaly` | `all` | known | 0,867 [0,840; 0,895] | 138/2027 | aprovado | `evidence/measured/openi/xrv-densenet121-res224-all/cardiomegaly.json` |
+| `cxr.cardiomegaly` | `chex` | none | 0,779 [0,738; 0,817] | 138/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-chex/cardiomegaly.json` |
+| `cxr.cardiomegaly` | `mimic_ch` | none | 0,715 [0,670; 0,757] | 138/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/cardiomegaly.json` |
+| `cxr.cardiomegaly` | `mimic_nb` | none | 0,726 [0,683; 0,767] | 138/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/cardiomegaly.json` |
+| `cxr.cardiomegaly` | `nih` | none | 0,825 [0,786; 0,862] | 138/2027 | aprovado | `evidence/measured/openi/xrv-densenet121-res224-nih/cardiomegaly.json` |
+| `cxr.cardiomegaly` | `pc` | none | 0,874 [0,840; 0,905] | 138/2027 | aprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/cardiomegaly.json` |
+| `cxr.emphysema` | `all` | known | 0,687 [0,639; 0,735] | 52/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-all/emphysema.json` |
+| `cxr.emphysema` | `nih` | none | 0,636 [0,573; 0,695] | 52/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-nih/emphysema.json` |
+| `cxr.emphysema` | `pc` | none | 0,741 [0,665; 0,812] | 52/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/emphysema.json` |
+| `cxr.fracture` | `all` | known | 0,653 [0,579; 0,729] | 44/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-all/fracture.json` |
+| `cxr.fracture` | `chex` | none | 0,533 [0,464; 0,603] | 44/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-chex/fracture.json` |
+| `cxr.fracture` | `mimic_ch` | none | 0,503 [0,421; 0,595] | 44/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/fracture.json` |
+| `cxr.fracture` | `mimic_nb` | none | 0,583 [0,509; 0,666] | 44/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/fracture.json` |
+| `cxr.fracture` | `pc` | none | 0,655 [0,575; 0,730] | 44/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/fracture.json` |
+| `cxr.hernia` | `all` | known | 0,920 [0,874; 0,969] | 30/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/hernia.json` |
+| `cxr.hernia` | `nih` | none | 0,675 [0,576; 0,799] | 30/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/hernia.json` |
+| `cxr.hernia` | `pc` | none | 0,827 [0,765; 0,905] | 30/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/hernia.json` |
+| `cxr.infiltration` | `all` | known | 0,690 [0,617; 0,760] | 60/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-all/infiltration.json` |
+| `cxr.infiltration` | `nih` | none | 0,563 [0,495; 0,636] | 60/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-nih/infiltration.json` |
+| `cxr.infiltration` | `pc` | none | 0,619 [0,560; 0,679] | 60/2026 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/infiltration.json` |
+| `cxr.lung_lesion` | `all` | known | 0,502 [0,481; 0,522] | 2/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/lung_lesion.json` |
+| `cxr.lung_lesion` | `chex` | none | 0,623 [0,603; 0,644] | 2/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-chex/lung_lesion.json` |
+| `cxr.lung_lesion` | `mimic_ch` | none | 0,602 [0,589; 0,615] | 2/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/lung_lesion.json` |
+| `cxr.lung_lesion` | `mimic_nb` | none | 0,613 [0,597; 0,628] | 2/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/lung_lesion.json` |
+| `cxr.lung_mass` | `all` | known | 0,843 [0,666; 0,998] | 5/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/mass.json` |
+| `cxr.lung_mass` | `nih` | none | 0,673 [0,521; 0,829] | 5/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/mass.json` |
+| `cxr.lung_mass` | `pc` | none | 0,612 [0,562; 0,725] | 5/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/mass.json` |
+| `cxr.lung_nodule` | `all` | known | 0,616 [0,515; 0,724] | 36/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/nodule.json` |
+| `cxr.lung_nodule` | `nih` | none | 0,637 [0,542; 0,734] | 36/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/nodule.json` |
+| `cxr.lung_nodule` | `pc` | none | 0,591 [0,485; 0,691] | 36/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/nodule.json` |
+| `cxr.lung_opacity` | `all` | known | 0,622 [0,592; 0,651] | 217/2023 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-all/lung_opacity.json` |
+| `cxr.lung_opacity` | `chex` | none | 0,601 [0,557; 0,643] | 217/2023 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-chex/lung_opacity.json` |
+| `cxr.lung_opacity` | `mimic_ch` | none | 0,635 [0,594; 0,674] | 217/2023 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/lung_opacity.json` |
+| `cxr.lung_opacity` | `mimic_nb` | none | 0,639 [0,600; 0,676] | 217/2023 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/lung_opacity.json` |
+| `cxr.pleural_effusion` | `all` | known | 0,829 [0,782; 0,876] | 92/2027 | aprovado | `evidence/measured/openi/xrv-densenet121-res224-all/pleural_effusion.json` |
+| `cxr.pleural_effusion` | `chex` | none | 0,723 [0,672; 0,771] | 92/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-chex/pleural_effusion.json` |
+| `cxr.pleural_effusion` | `mimic_ch` | none | 0,737 [0,687; 0,789] | 92/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/pleural_effusion.json` |
+| `cxr.pleural_effusion` | `mimic_nb` | none | 0,739 [0,681; 0,796] | 92/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/pleural_effusion.json` |
+| `cxr.pleural_effusion` | `nih` | none | 0,775 [0,717; 0,831] | 92/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-nih/pleural_effusion.json` |
+| `cxr.pleural_effusion` | `pc` | none | 0,798 [0,751; 0,843] | 92/2027 | reprovado | `evidence/measured/openi/xrv-densenet121-res224-pc/pleural_effusion.json` |
+| `cxr.pleural_thickening` | `all` | known | 0,846 [0,744; 0,932] | 14/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/pleural_thickening.json` |
+| `cxr.pleural_thickening` | `nih` | none | 0,613 [0,502; 0,754] | 14/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/pleural_thickening.json` |
+| `cxr.pleural_thickening` | `pc` | none | 0,703 [0,597; 0,835] | 14/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/pleural_thickening.json` |
+| `cxr.pneumonia` | `all` | known | 0,665 [0,594; 0,731] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/pneumonia.json` |
+| `cxr.pneumonia` | `chex` | none | 0,538 [0,458; 0,617] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-chex/pneumonia.json` |
+| `cxr.pneumonia` | `mimic_ch` | none | 0,604 [0,507; 0,698] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/pneumonia.json` |
+| `cxr.pneumonia` | `mimic_nb` | none | 0,585 [0,503; 0,668] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/pneumonia.json` |
+| `cxr.pneumonia` | `nih` | none | 0,532 [0,455; 0,619] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/pneumonia.json` |
+| `cxr.pneumonia` | `pc` | none | 0,659 [0,570; 0,745] | 40/2028 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/pneumonia.json` |
+| `cxr.pneumothorax` | `all` | known | 0,648 [0,516; 0,745] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/pneumothorax.json` |
+| `cxr.pneumothorax` | `chex` | none | 0,472 [0,269; 0,631] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-chex/pneumothorax.json` |
+| `cxr.pneumothorax` | `mimic_ch` | none | 0,636 [0,449; 0,835] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/pneumothorax.json` |
+| `cxr.pneumothorax` | `mimic_nb` | none | 0,621 [0,423; 0,812] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/pneumothorax.json` |
+| `cxr.pneumothorax` | `nih` | none | 0,633 [0,507; 0,758] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/pneumothorax.json` |
+| `cxr.pneumothorax` | `pc` | none | 0,509 [0,309; 0,766] | 12/2025 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/pneumothorax.json` |
+| `cxr.pulmonary_edema` | `all` | known | 0,838 [0,775; 0,891] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/pulmonary_edema.json` |
+| `cxr.pulmonary_edema` | `chex` | none | 0,741 [0,686; 0,793] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-chex/pulmonary_edema.json` |
+| `cxr.pulmonary_edema` | `mimic_ch` | none | 0,737 [0,663; 0,803] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_ch/pulmonary_edema.json` |
+| `cxr.pulmonary_edema` | `mimic_nb` | none | 0,780 [0,701; 0,851] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-mimic_nb/pulmonary_edema.json` |
+| `cxr.pulmonary_edema` | `nih` | none | 0,670 [0,600; 0,740] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/pulmonary_edema.json` |
+| `cxr.pulmonary_edema` | `pc` | none | 0,850 [0,805; 0,891] | 45/2027 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/pulmonary_edema.json` |
+| `cxr.pulmonary_fibrosis` | `all` | known | 0,900 [0,836; 0,956] | 7/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-all/fibrosis.json` |
+| `cxr.pulmonary_fibrosis` | `nih` | none | 0,906 [0,851; 0,961] | 7/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/fibrosis.json` |
+| `cxr.pulmonary_fibrosis` | `pc` | none | 0,744 [0,575; 0,893] | 7/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/fibrosis.json` |
+
 **Pendentes (inferência incompleta; nenhuma métrica é extrapolada de conjunto incompleto):**
 `totalseg-cerebral-bleed@cq500` (5 de 80 exames; inferência em andamento). Itens
 excluídos do plano (provas de caminho, calibração de portões, execuções de fumaça) e o motivo de
@@ -281,13 +382,13 @@ manifesto que cobre os pesos medidos):
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
 | `ct` | 0 | 1 | 0 | 2 | 0 |
-| `cxr` | 2 | 0 | 1 | 16 | 14 |
+| `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 1 | 1 | 30 | 16 |
+| **Todas** | 2 | 1 | 2 | 29 | 17 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada de modelo distribuído em `levels.json`. Os ids de
@@ -296,11 +397,13 @@ manifestos (antes 140 de 148 não casavam e ficavam fora da contagem); a ingest�
 registro citar modelo sem manifesto.
 
 **Níveis vigentes** (registros gerados a partir de um commit, sem código sujo): **A** para
-cardiomegalia (`xrv-densenet121-res224-pc`) e opacidade pulmonar (`xrv-densenet121-res224-chex`,
-`mimic_ch`, `mimic_nb`), ambos no NIH; **B** para derrame pericárdico em TC
-(`totalseg-pleural-pericard-effusion`, validação publicada revisada por pares); **C** para tuberculose / `xr-probe-tb` (hold-out interno);
-fratura, câncer de mama em mamografia e a maior parte das condições de tórax medidas no NIH
-**refutados** (D);
+cardiomegalia (`xrv-densenet121-res224-pc` no NIH e no Open-i; `xrv-densenet121-res224-nih` no
+Open-i) e opacidade pulmonar (`xrv-densenet121-res224-chex`, `mimic_ch`, `mimic_nb`, no NIH); **B** para derrame pericárdico em TC
+(`totalseg-pleural-pericard-effusion`, validação publicada revisada por pares); **C** para tuberculose / `xr-probe-tb` (hold-out interno) e
+derrame pleural / `xrv-densenet121-res224-all` (aprovado no Open-i, onde o modelo treinou: não é
+hold-out limpo);
+fratura (osteoarticular e em RX de tórax), câncer de mama em mamografia e a maior parte das
+condições de tórax medidas no NIH e no Open-i **refutados** (D);
 `xr-probe-tb.trained-montgomery` fora da contagem (não distribuído); FE e lesão mamária mantidas
 em **D** apesar de aprovarem (manifesto só de pesquisa e entrada derivada da referência). Esta
 tabela muda quando `levels.json` mudar — o CI (`tests/unit/test_status_docs_levels.py`) falha se

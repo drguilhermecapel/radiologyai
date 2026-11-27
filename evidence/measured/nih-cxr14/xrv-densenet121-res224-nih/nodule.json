@@ -109,10 +109,10 @@
     "population": "NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt, 25596 imagens, pacientes disjuntos do split oficial de treino)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-nih@nih-cxr14-test#nodule",
-      "created_at": "2026-11-27T19:19:48.805299Z",
+      "created_at": "2026-11-27T22:48:18.641141Z",
       "dataset_id": "nih-cxr14",
       "dataset_sha256": "0bd6e3bdfd696dc2b803736b88362aa4bb5bfd46501a1933c339fddf64484c61",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

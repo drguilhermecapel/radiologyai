@@ -105,10 +105,10 @@
     "population": "BUSI (Baheya, Cairo), deduplicado por dHash (630 de 647 imagens com lesão)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-breast-malignancy@busi",
-      "created_at": "2026-11-27T19:10:01.099097Z",
+      "created_at": "2026-11-27T22:39:57.576309Z",
       "dataset_id": "busi",
       "dataset_sha256": "963a34698d715ad28f71f58fbea4801bbf076c45488bb9a723439c65d86ad404",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

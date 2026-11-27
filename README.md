@@ -51,19 +51,20 @@ se divergir):
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
 | `ct` | 0 | 1 | 0 | 2 | 0 |
-| `cxr` | 2 | 0 | 1 | 16 | 14 |
+| `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 1 | 1 | 30 | 16 |
+| **Todas** | 2 | 1 | 2 | 29 | 17 |
 <!-- kpi-levels:fim -->
 
 Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **A** para
 cardiomegalia (`evidence/measured/nih-cxr14/xrv-densenet121-res224-pc/cardiomegaly.json`, AUROC
-0,813 [0,783; 0,839], rótulo NLP; **limítrofe**: 0,796 no teste oficial completo; decisão suspensa no
-produto, só escore — ver HONEST_STATUS) e opacidade pulmonar
+0,813 [0,783; 0,839], rótulo NLP; limítrofe no NIH, 0,796 no teste oficial completo; confirmada no
+Open-i, `evidence/measured/openi/xrv-densenet121-res224-pc/cardiomegaly.json`, 0,874 [0,840;
+0,905]; decisão ainda suspensa no produto, só escore — ver HONEST_STATUS) e opacidade pulmonar
 (`evidence/measured/nih-cxr14-google/xrv-densenet121-res224-chex/lung_opacity.json`, AUROC 0,872
 [0,848; 0,894], rótulo adjudicado); **C** para tuberculose (`xr-probe-tb`, hold-out interno);
 fratura, câncer de mama em mamografia e 13 condições de tórax **refutadas** em todos os modelos

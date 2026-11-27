@@ -111,10 +111,10 @@
     "population": "Byra et al. 2018, 55 pacientes obesos graves (pré-bariátrica), um centro",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-liver-steatosis@byra-fatty-liver",
-      "created_at": "2026-11-27T19:10:04.638906Z",
+      "created_at": "2026-11-27T22:40:00.510351Z",
       "dataset_id": "byra-fatty-liver",
       "dataset_sha256": "36b325fab3a7920a1653ab61187df6059a24f1f6e7e965be360de72355c79860",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

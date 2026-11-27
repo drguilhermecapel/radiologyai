@@ -117,10 +117,10 @@
     "population": "GRAZPEDWRI-DX, 30% dos pacientes da amostra local (hold-out por paciente)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-grazpedwri-metal@test30",
-      "created_at": "2026-11-27T19:09:58.301013Z",
+      "created_at": "2026-11-27T22:39:55.987656Z",
       "dataset_id": "grazpedwri-dx-sample-test30",
       "dataset_sha256": "173833606381a6527a413d954b52d83535d179ade2509dacde69c15b76713d50",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

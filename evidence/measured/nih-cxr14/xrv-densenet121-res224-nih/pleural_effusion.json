@@ -109,10 +109,10 @@
     "population": "NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt, 25596 imagens, pacientes disjuntos do split oficial de treino)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-nih@nih-cxr14-test#pleural_effusion",
-      "created_at": "2026-11-27T19:19:57.035476Z",
+      "created_at": "2026-11-27T22:48:26.753801Z",
       "dataset_id": "nih-cxr14",
       "dataset_sha256": "7af7f886bdb5c61c04d263f5af7bd16f9cdf11dcf457d7d03124e78e3fb5e92d",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

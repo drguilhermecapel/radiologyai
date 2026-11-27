@@ -114,10 +114,10 @@
     "population": "Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas (Majkowska et al., Radiology 2020; google_labels_joined.csv)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-all@nih-google-adjudicated#lung_lesion",
-      "created_at": "2026-11-27T19:18:39.090145Z",
+      "created_at": "2026-11-27T22:47:09.319757Z",
       "dataset_id": "nih-cxr14-google",
       "dataset_sha256": "8ea25e779794b25e5ceaf437a5ef2a4816f4a266ebbfaa0e077d6e3877bbc3b7",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

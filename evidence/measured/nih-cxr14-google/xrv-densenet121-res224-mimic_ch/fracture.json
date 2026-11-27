@@ -110,10 +110,10 @@
     "population": "Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas (Majkowska et al., Radiology 2020; google_labels_joined.csv)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#fracture",
-      "created_at": "2026-11-27T19:16:31.838567Z",
+      "created_at": "2026-11-27T22:45:06.307169Z",
       "dataset_id": "nih-cxr14-google",
       "dataset_sha256": "a8f184b63f20f5169893381de0cec9d20443b975a3457933b5670ea39aeef874",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

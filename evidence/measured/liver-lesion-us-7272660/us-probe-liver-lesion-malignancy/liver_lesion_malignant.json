@@ -107,10 +107,10 @@
     "population": "Zenodo 7272660 (Xu et al.), massas hepáticas benignas e malignas, deduplicado",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-liver-lesion-malignancy@liver-lesion-us-7272660",
-      "created_at": "2026-11-27T19:10:03.883874Z",
+      "created_at": "2026-11-27T22:39:59.754554Z",
       "dataset_id": "liver-lesion-us-7272660",
       "dataset_sha256": "216cc6045c43f621a44e06c90526b62b6e8751ba96cbed58644466d60ab7bcb4",
-      "git_sha": "79784699972f47291bc270062350720f7d9603b5",
+      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
