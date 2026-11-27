@@ -51,7 +51,8 @@ O código legado (v1) foi removido da árvore e continua recuperável no histór
 | Model card com sha256 validado; inferência falha-fechada | funcional, testada |
 | Backend TorchXRayVision (pesos reais, integridade sha256) | funcional, testada |
 | Avaliação: AUROC com IC bootstrap, ponto de operação, ECE, subgrupos, vazamento | funcional, testada |
-| Calibração por temperatura; abstenção em 3 bandas; decisão por ponto de operação com origem | funcional, testada |
+| Calibração por temperatura e por Platt; ECE e diagrama de confiabilidade; abstenção em 3 bandas; decisão por ponto de operação com origem | funcional, testada; nenhuma calibração sobre dado real commitada como artefato |
+| Backend ONNX Runtime (sha256 verificado) e trava de regressão (`radiologyai check-regression`) | funcional, testado; ainda sem execução sobre dado real |
 | Grad-CAM **real** por hooks de gradiente | funcional, testada |
 | Trilha de auditoria encadeada por hash | funcional, testada |
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | funcional, testada |
