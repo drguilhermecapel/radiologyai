@@ -115,7 +115,7 @@ validação clínica**.
 | Lesão mamária maligna / `us-probe-breast-malignancy` | BrEaST-Lesions-USG (Polônia), externo, `possible` | AUROC 0,820 [0,740; 0,893], n=126 — `evidence/measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
 | Lesão hepática maligna / `us-probe-liver-lesion-malignancy` | Zenodo 7272660, interno, `known` | AUROC 0,811 [0,609; 0,848], n=362 — `evidence/measured/liver-lesion-us-7272660/us-probe-liver-lesion-malignancy/liver_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
 | FE reduzida / `medsam2-echo-lv` (sem prompt) | CAMUS, externo, `possible` | ICC 0,000 [−0,031; 0,017], n=100 — `evidence/measured/camus/medsam2-echo-lv/lv_ef.prompt_free.json` | sem a caixa do usuário a FE não concorda com a referência |
-| Câncer de mama / `mammoscreen` | CMMD (TCIA, biópsia), externo, treino sem sobreposição | AUROC 0,790 [0,715; 0,859], metade de teste n=156 mamas (75 malignas) — `evidence/measured/cmmd/mammoscreen/malignancy.json` | **refuta** `mg.breast_cancer` pela regra do protocolo (AUROC < 0,80 e limite inferior < 0,75); só mede benigno x maligno em lesões biopsiadas, não rastreamento |
+| Câncer de mama / `mammoscreen` (`mammoscreen@cmmd`) | CMMD (TCIA, biópsia), externo, treino sem sobreposição | AUROC 0,790 [0,715; 0,859], metade de teste n=156 mamas (75 malignas) — `evidence/measured/cmmd/mammoscreen/malignancy.json` | **refuta** `mg.breast_cancer` pela regra do protocolo (AUROC < 0,80 e limite inferior < 0,75); só mede benigno x maligno em lesões biopsiadas, não rastreamento |
 
 **Não elegíveis (abaixo dos mínimos; não aprovam nem refutam):**
 
