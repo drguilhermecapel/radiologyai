@@ -153,8 +153,9 @@ Como ler:
   vazamento foram testados para cardiomegalia e só `pc` passa. O subgrupo feminino tem limite
   inferior do IC de 0,749. O nível A é mantido porque é o que a regra pré-registrada dá (mudar a
   regra depois do resultado seria pior), mas ele **não** deve ser lido como evidência robusta.
-  Com o nível A, o produto emite decisões de regra (rule-in: sensibilidade 0,43, especificidade
-  0,90 na metade de teste); se essas decisões devem ficar ativas é decisão do responsável.
+  Por decisão do responsável (2026-11-27), a **decisão positiva/negativa está suspensa** para
+  este trio (`evidence/decision_holds.yaml`, REQ-193): o produto mostra só o escore, com o
+  motivo. O nível no catálogo não muda.
   Próxima versão do protocolo (não retroativa): considerar exigir a barra também na amostra
   completa.
 - **Opacidade pulmonar é estável:** AUROC 0,873 na amostra completa, 0,874 na calibração e 0,872

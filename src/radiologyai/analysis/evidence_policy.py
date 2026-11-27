@@ -27,14 +27,23 @@ aplicada aos limiares. O ponto do registro declara ``on`` (``"logit"`` ou
 que o adaptador emite (``score_kind`` do manifesto) e com ``report.score_scale``,
 e quando o limiar é idêntico ao do relatório. Nenhuma conversão é feita: escala
 diferente vira abstenção (``score_only`` + aviso), nunca limiar aproximado.
+
+Suspensões de decisão (``evidence/decision_holds.yaml``, REQ-193). O responsável pode
+suspender a decisão de um trio cujo nível é sustentado pela regra mas que uma análise
+posterior mostrou frágil. A suspensão só retira decisão (o achado fica ``score_only`` com o
+motivo); nunca altera o nível do catálogo nem promove nada. Cada suspensão traz motivo,
+data, quem decidiu e a referência que a justifica.
 """
 
 from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
+from datetime import date
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
+
+from pydantic import BaseModel, ConfigDict
 
 from radiologyai.analysis.policy import PointsRequest, PointsResolution
 from radiologyai.analysis.types import ScoreKind
@@ -44,7 +53,58 @@ if TYPE_CHECKING:
     from radiologyai.catalog.catalog import Catalog
     from radiologyai.evidence.store import LoadedEvidence
 
-__all__ = ["EvidencePolicy", "select_basis"]
+__all__ = ["HOLDS_FILE", "DecisionHold", "EvidencePolicy", "load_holds", "select_basis"]
+
+HOLDS_FILE = "decision_holds.yaml"
+
+
+class DecisionHold(BaseModel):
+    """Decisão suspensa para um trio (condição, modelo, rótulo): só escore."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    condition_id: str
+    model_id: str
+    label: str
+    reason: str
+    decided_on: date
+    decided_by: str
+    evidence_ref: str
+
+
+class _HoldsFile(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    format: Literal["radiologyai.evidence/decision-holds-v1"]
+    holds: tuple[DecisionHold, ...] = ()
+
+
+def load_holds(root: Path) -> dict[tuple[str, str, str], DecisionHold]:
+    """Suspensões de ``<root>/decision_holds.yaml``; arquivo ausente = nenhuma.
+
+    Raises:
+        EvidenceError: arquivo ilegível, fora do formato ou com trio repetido.
+    """
+    import yaml
+    from pydantic import ValidationError
+
+    from radiologyai.errors import EvidenceError
+
+    path = root / HOLDS_FILE
+    if not path.is_file():
+        return {}
+    try:
+        parsed = _HoldsFile.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+    except (OSError, yaml.YAMLError, ValidationError) as exc:
+        raise EvidenceError(f"{path}: suspensões de decisão inválidas: {exc}") from exc
+    out: dict[tuple[str, str, str], DecisionHold] = {}
+    for hold in parsed.holds:
+        key = (hold.condition_id, hold.model_id, hold.label)
+        if key in out:
+            raise EvidenceError(f"{path}: trio repetido {key}")
+        out[key] = hold
+    return out
+
 
 _LEVEL_RANK: dict[EvidenceLevel, int] = {
     EvidenceLevel.A: 3,
@@ -89,27 +149,36 @@ class EvidencePolicy:
     reportada); a temperatura dos registros não é aplicada ao escore.
     """
 
-    def __init__(self, catalog: Catalog, evidence: Sequence[LoadedEvidence], *, base: Path) -> None:
+    def __init__(
+        self,
+        catalog: Catalog,
+        evidence: Sequence[LoadedEvidence],
+        *,
+        base: Path,
+        holds: Mapping[tuple[str, str, str], DecisionHold] | None = None,
+    ) -> None:
         """``base`` é a raiz contra a qual os caminhos dos registros são mostrados."""
         self.catalog = catalog
         self.base = base
         self._by_id: dict[str, LoadedEvidence] = {item.record.id: item for item in evidence}
+        self.holds: dict[tuple[str, str, str], DecisionHold] = dict(holds or {})
 
     @classmethod
     def load(cls, catalog: Catalog, root: Path | None = None) -> EvidencePolicy:
         """Carrega ``evidence/`` (padrão: o diretório do repositório).
 
         Diretório ausente não é erro: sem registros, todo achado A/B/C fica
-        ``score_only`` com aviso (padrão conservador).
+        ``score_only`` com aviso (padrão conservador). Lê também as suspensões de
+        decisão (``decision_holds.yaml``).
 
         Raises:
-            EvidenceError: arquivo de evidência inválido ou id duplicado.
+            EvidenceError: arquivo de evidência ou de suspensões inválido, ou id duplicado.
         """
         from radiologyai.evidence.store import EVIDENCE_ROOT, load_evidence
 
         root = root or EVIDENCE_ROOT
         evidence = load_evidence(root) if root.is_dir() else []
-        return cls(catalog, evidence, base=root.parent)
+        return cls(catalog, evidence, base=root.parent, holds=load_holds(root))
 
     # -- SafetyPolicy -------------------------------------------------------- #
     def calibrate(
@@ -119,6 +188,15 @@ class EvidencePolicy:
         return None
 
     def resolve_points(self, request: PointsRequest) -> PointsResolution:
+        hold = self.holds.get((request.condition_id, request.model_id, request.label))
+        if hold is not None:
+            return PointsResolution(
+                warnings=(
+                    f"nível {request.level.value}: decisão suspensa em {hold.decided_on} "
+                    f"({hold.decided_by}): {hold.reason} [{hold.evidence_ref}]; somente "
+                    "escore, sem decisão",
+                )
+            )
         if request.level is EvidenceLevel.D:
             # Comportamento anterior: exploratório, só no modo pesquisa, fora do laudo.
             return PointsResolution(points=request.manifest_points)

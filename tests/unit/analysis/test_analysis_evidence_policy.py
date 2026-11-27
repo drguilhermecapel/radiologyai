@@ -410,3 +410,85 @@ def test_pipeline_uses_only_the_selected_record(
 def test_select_basis_rejects_empty(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="ao menos um"):
         select_basis([], tmp_path)
+
+
+# --------------------------------------------------------------------------- #
+# Suspensão de decisão (REQ-193)
+# --------------------------------------------------------------------------- #
+def _hold_file(root: Path, triple: tuple[str, str, str] = TB, extra: str = "") -> None:
+    cid, mid, label = triple
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "decision_holds.yaml").write_text(
+        "format: radiologyai.evidence/decision-holds-v1\n"
+        "holds:\n"
+        f"  - condition_id: {cid}\n"
+        f"    model_id: {mid}\n"
+        f"    label: {label}\n"
+        "    reason: aprovação dependente do sorteio\n"
+        "    decided_on: 2026-11-27\n"
+        "    decided_by: responsável\n"
+        "    evidence_ref: HONEST_STATUS.md\n" + extra,
+        encoding="utf-8",
+    )
+
+
+@pytest.mark.requirement("REQ-193")
+def test_hold_removes_decision_but_keeps_level(
+    make_registry: Any, store: ArtifactStore, tmp_path: Path
+) -> None:
+    root = tmp_path / "evidence"
+    record = _record("tb-sintetico")
+    _write(root, record, _envelope(record))
+    _hold_file(root)
+    result = _run(make_registry, store, _catalog(EvidenceLevel.C, (record.id,)), root)
+    finding = _finding(result)
+    assert finding.evidence_level is EvidenceLevel.C
+    assert finding.decision == "score_only"
+    assert finding.operating_points == ()
+    assert any("decisão suspensa" in w and "sorteio" in w for w in result.warnings)
+
+
+@pytest.mark.requirement("REQ-193")
+def test_hold_for_other_triple_does_not_affect_decision(
+    make_registry: Any, store: ArtifactStore, tmp_path: Path
+) -> None:
+    root = tmp_path / "evidence"
+    record = _record("tb-sintetico")
+    _write(root, record, _envelope(record))
+    _hold_file(root, ("cxr.cardiomegaly", "xrv-densenet121-res224-pc", "cardiomegaly"))
+    finding = _finding(_run(make_registry, store, _catalog(EvidenceLevel.C, (record.id,)), root))
+    assert finding.decision == "positive"
+
+
+@pytest.mark.requirement("REQ-193")
+def test_invalid_or_duplicated_holds_fail_loudly(tmp_path: Path) -> None:
+    from radiologyai.analysis.evidence_policy import load_holds
+    from radiologyai.errors import EvidenceError
+
+    root = tmp_path / "evidence"
+    assert load_holds(root) == {}
+    _hold_file(
+        root,
+        extra=(
+            "  - condition_id: cxr.tuberculosis\n    model_id: xr-probe-tb\n"
+            "    label: tuberculosis\n    reason: r\n    decided_on: 2026-11-27\n"
+            "    decided_by: x\n    evidence_ref: y\n"
+        ),
+    )
+    with pytest.raises(EvidenceError, match="repetido"):
+        load_holds(root)
+    (root / "decision_holds.yaml").write_text("format: outro\n", encoding="utf-8")
+    with pytest.raises(EvidenceError, match="inválidas"):
+        load_holds(root)
+
+
+@pytest.mark.requirement("REQ-193")
+def test_repo_holds_file_is_valid_and_points_to_catalog_triples() -> None:
+    from radiologyai.analysis.evidence_policy import load_holds
+    from radiologyai.evidence.store import EVIDENCE_ROOT
+
+    holds = load_holds(EVIDENCE_ROOT)
+    assert ("cxr.cardiomegaly", "xrv-densenet121-res224-pc", "cardiomegaly") in holds
+    catalog = Catalog.load()
+    for cid, mid, label in holds:
+        assert catalog.entry(cid, mid, label) is not None, (cid, mid, label)
