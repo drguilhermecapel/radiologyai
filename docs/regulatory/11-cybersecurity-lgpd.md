@@ -1,7 +1,7 @@
 ---
 doc_id: REG-11
 title: Cibersegurança e Proteção de Dados (LGPD / DPIA)
-status: RASCUNHO — v0.2
+status: RASCUNHO — v0.3
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-04, REG-07]
@@ -37,6 +37,14 @@ depends_on: [REG-01, REG-04, REG-07]
 | Negação de serviço | upload gigante, volume malformado | limites medidos no fluxo da ingestão (REQ-152); decodificação que recusa em vez de adivinhar (`UnsupportedInputError`) | parcial |
 | Elevação de privilégio | pesquisador acessa função de administrador | RBAC por papel imposto rota a rota; testes de autorização (REQ-151) | código presente; verificação em andamento |
 | Cadeia de suprimentos | dependência com vulnerabilidade; pesos trocados no servidor de origem | `uv.lock`; lista SOUP gerada; pip-audit; SBOM CycloneDX; sha256 fixado por manifesto; sem rede na inferência | implementado (pip-audit ainda não bloqueia o build — ver §5) |
+| Vazamento de segredo pelo código | credencial em commit ou configuração | gitleaks no histórico completo e bandit no CI (`security.yml`); segredos só por variável de ambiente (`.env.example`); contêiner sem segredo embutido | implementado; histórico do legado ainda contém segredos (§5) |
+| Superfície de execução | processo comprometido com privilégio | contêiner `Dockerfile` com usuário não-root e `--workers 1`; validação estrita de entrada por pydantic | implementado |
+
+Superfície por fronteira (da v0.1 deste documento em `main`): pesos e artefatos
+(`src/radiologyai/models/`, REQ-020, REQ-030); dependências SOUP ([`08-soup-list.md`](08-soup-list.md));
+código e segredos (`.github/workflows/security.yml`); API `/api/v1/*` (`src/radiologyai/api/`,
+gate de escopo REQ-031); trilha de auditoria (`src/radiologyai/audit/`, REQ-070, REQ-071; no banco,
+REQ-155).
 
 ## 3. Des-identificação (DICOM PS3.15 Annex E)
 
@@ -58,6 +66,9 @@ Configuração recomendada para a fábrica de evidência e para dados de parceir
 
 O perfil e as opções usados são registrados no datasheet de cada dataset.
 
+Minimização no repositório: o CI bloqueia qualquer pixel médico versionado (`.dcm`, `.nii`,
+`.nii.gz`, `.mhd`, `.raw`, `.nrrd`); só manifests com hash são commitados.
+
 ## 4. LGPD — esboço de DPIA (Relatório de Impacto à Proteção de Dados)
 
 | Item | Conteúdo |
@@ -74,6 +85,17 @@ O perfil e as opções usados são registrados no datasheet de cada dataset.
 | Incidentes | procedimento de comunicação a definir com o encarregado do controlador |
 | Ética | protocolo CEP; Res. CNS 738/2024 para bancos de dados |
 | Riscos residuais | reidentificação por características visuais (crânio), por texto no pixel (US), por combinação de metadados retidos |
+
+## 4a. Governança para operação futura (antes de G4)
+
+Antes de qualquer implantação com dados reais de pacientes em ambiente hospitalar ou ambulatorial:
+
+1. Controlador, operador e encarregado (DPO) definidos formalmente — no parceiro institucional e,
+   a partir de G5, na pessoa jurídica do fabricante.
+2. Base legal documentada (LGPD Art. 11) e política de retenção e descarte seguro compatível com a
+   guarda da trilha de auditoria.
+3. Criptografia em trânsito (TLS 1.3) e em repouso; RBAC (REQ-151) revisado; teste de intrusão
+   (*pentest*) antes da produção.
 
 ## 5. Pendências conhecidas
 
@@ -99,3 +121,4 @@ O perfil e as opções usados são registrados no datasheet de cada dataset.
 |---|---|---|
 | v0.1 | 2026-11 | Criação |
 | v0.2 | 2026-11-25 | Estado dos controles da plataforma ligado aos requisitos REQ-150…REQ-155 |
+| v0.3 | 2026-11-27 | Consolidação com `11-cybersecurity-and-lgpd-dpia.md` de `main` (removido): superfície por fronteira, segredos, contêiner não-root, bloqueio de pixel no git, governança para operação futura |

@@ -1,7 +1,7 @@
 ---
 doc_id: REG-12
 title: Rotulagem e Instruções de Uso (IFU) — rascunho pt-BR
-status: RASCUNHO — v0.1 (uso em pesquisa)
+status: RASCUNHO — v0.2 (uso em pesquisa)
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
 depends_on: [REG-01, REG-04]
@@ -94,6 +94,10 @@ que exista artigo favorável.
    ([`MODEL_LICENSES.md`](../../MODEL_LICENSES.md)); seu uso fora de pesquisa é proibido pelos
    próprios termos.
 7. Imagens com texto gravado no pixel (comum em ultrassom) podem conter dado pessoal.
+8. Sensibilidade a mudança de domínio: equipamento, protocolo de aquisição e população não
+   representados nos dados de avaliação podem degradar o desempenho sem aviso. Riscos residuais e
+   critérios pendentes: [`04-risk-file.md`](04-risk-file.md) e
+   [`10-clinical-evaluation-plan.md`](10-clinical-evaluation-plan.md).
 
 ## 7. Limitações por modalidade
 
@@ -107,6 +111,45 @@ população diagnóstica, não de rastreamento; ecocardiografia somente em modo 
 Não há tabela de desempenho nesta IFU. Cada número existe apenas como registro de evidência do
 catálogo, com dataset, contagens, intervalo de confiança e caminho do artefato
 (`artifacts/eval/`), e é mostrado na própria interface junto ao achado.
+
+## 8a. Rotas de API do estágio atual (comportamento implementado)
+
+A API de pesquisa (`/api/v1/*`, contrato em [`docs/OPENAPI_SPEC.yaml`](../OPENAPI_SPEC.yaml))
+tem duas famílias de rota:
+
+- **Plataforma** (exames, análises, laudos): segue §3–§5; auditoria no banco, encadeada por hash
+  (REQ-155).
+- **Rota legada `POST /api/v1/analyze`** (RX de tórax, TorchXRayVision):
+  - devolve **escores brutos não calibrados** (`calibrated=False`); não os leia como
+    probabilidade;
+  - os módulos de calibração por temperatura e por Platt e o diagrama de confiabilidade
+    (`calibration/temperature.py`, `calibration/platt.py`, `calibration/reliability.py`) existem
+    para pesquisa, mas **não** estão integrados a esta rota;
+  - abstenção ("não avaliável") vem de `calibration/abstention.py` com limiares lidos de artefato
+    medido; sem artefato não há banda;
+  - o mapa Grad-CAM (`explain/gradcam.py`) é visualização auxiliar derivada do gradiente do modelo
+    real e **não** delimita lesão com precisão anatômica;
+  - a lateralidade DICOM é verificada quando presente (REQ-043): código inválido ou conflito entre
+    `Laterality` e `ImageLaterality` ⇒ recusa;
+  - **trilha de auditoria:** cada chamada é registrada em trilha *append-only* encadeada por hash
+    (`src/radiologyai/audit/trail.py`, `AuditTrail`), em arquivo configurado por `create_app` ou
+    pela variável `RADIOLOGYAI_AUDIT_LOG_PATH` (sem ela, um diretório temporário), com
+    `input_sha256`, `card_id`, `weights_sha256`, `code_version`, `modality`, `user_id`,
+    `findings`, `abstained`, `prev_hash` e `timestamp_utc` — sem pixel e sem dado identificável.
+
+Contraindicação adicional: não use pesos sem verificação de integridade (sha256) nem pesos não
+calibrados como se fossem calibrados.
+
+## 8b. Rotulagem eletrônica (preparatório, para quando houver regularização)
+
+A interface (página "Sobre", rodapé do laudo e resposta da API) deverá exibir:
+
+1. Identificação única do software e versão: versão semântica, git sha e sha256 dos pesos de
+   cada modelo carregado.
+2. Fabricante e Responsável Técnico: a definir após a constituição da empresa e do SGQ (G5).
+3. Número de notificação ou registro na ANVISA: **não aplicável — software não regularizado**.
+4. Aviso de uso restrito: resultado auxiliar que exige revisão independente por médico
+   habilitado.
 
 ## 9. Requisitos mínimos
 
@@ -124,3 +167,4 @@ projeto ou contatar o responsável, Dr. Guilherme Capel Pasqua (CRM-SP 175873).
 | Versão | Data | Alteração |
 |---|---|---|
 | v0.1 | 2026-11 | Criação, versão de pesquisa |
+| v0.2 | 2026-11-27 | Consolidação com `12-labeling-and-ifu.md` de `main` (removido): rota legada `/api/v1/analyze` (escore bruto, calibração não integrada, trilha de auditoria e seus campos), lateralidade, rotulagem eletrônica, mudança de domínio |

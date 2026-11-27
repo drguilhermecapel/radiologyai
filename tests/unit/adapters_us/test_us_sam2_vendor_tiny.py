@@ -241,10 +241,11 @@ def test_sam2_utils_helpers() -> None:
     masks[0, 0, 2:5, 3:9] = True
     boxes = misc.mask_to_box(masks)
     assert boxes[0, 0].tolist() == [3, 2, 8, 4]
-    assert boxes[1, 0].tolist() == [0, 0, 0, 0]
-    pts, labs = misc.concat_points(None, torch.zeros(1, 1, 2), torch.ones(1, 1))
-    pts2, labs2 = misc.concat_points({"point_coords": pts, "point_labels": labs}, pts, labs)
-    assert tuple(pts2["point_coords"].shape) == (1, 2, 2) if isinstance(pts2, dict) else True
+    assert boxes[1, 0].tolist() == [12, 10, -1, -1]  # máscara vazia: caixa invertida
+    first = misc.concat_points(None, torch.zeros(1, 1, 2), torch.ones(1, 1))
+    both = misc.concat_points(first, torch.ones(1, 1, 2), torch.zeros(1, 1))
+    assert tuple(both["point_coords"].shape) == (1, 2, 2)
+    assert both["point_labels"].tolist() == [[1.0, 0.0]]
     assert isinstance(misc.get_sdpa_settings(), tuple)
     with pytest.raises(ImportError):
         misc.get_connected_components(masks)
