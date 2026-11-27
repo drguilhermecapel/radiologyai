@@ -244,118 +244,1324 @@ entries:
   reasons:
   - 'ef_per_instant.parquet é análise secundária: a referência é recalculada das máscaras de referência
     por instante, não a FE oficial do CAMUS; o desfecho primário é ef.parquet.'
-- job: xrv-densenet121-res224-pc@nih-cxr14-test
-  outcome: pendente
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-pc
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/atelectasis.json
+  kind: measured_external
+  leakage: none
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
-    a fila parou no fragmento 7 e não houve merge.'
-- job: xrv-densenet121-res224-chex@nih-cxr14-test
-  outcome: pendente
+  - AUROC 0.6449 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6239 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#cardiomegaly
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/cardiomegaly.json
+  kind: measured_external
+  leakage: none
+  n_total: 12176
+  n_positive: 602
+  reasons: []
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/consolidation.json
+  kind: measured_external
+  leakage: none
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.6688 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6483 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#emphysema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: emphysema
+  condition_id: cxr.emphysema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/emphysema.json
+  kind: measured_external
+  leakage: none
+  n_total: 12059
+  n_positive: 511
+  reasons:
+  - AUROC 0.6048 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5607 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#fibrosis
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: fibrosis
+  condition_id: cxr.pulmonary_fibrosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/fibrosis.json
+  kind: measured_external
+  leakage: none
+  n_total: 12017
+  n_positive: 207
+  reasons:
+  - AUROC 0.4421 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.3793 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#hernia
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: hernia
+  condition_id: cxr.hernia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/hernia.json
+  kind: measured_external
+  leakage: none
+  n_total: 12043
+  n_positive: 45
+  reasons:
+  - 'não elegível: pacientes positivos 16 < min_positive 30'
+  - limite inferior do IC da AUROC 0.7192 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#infiltration
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: infiltration
+  condition_id: cxr.infiltration
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/infiltration.json
+  kind: measured_external
+  leakage: none
+  n_total: 12222
+  n_positive: 2813
+  reasons:
+  - AUROC 0.6599 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6443 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#mass
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: mass
+  condition_id: cxr.lung_mass
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/mass.json
+  kind: measured_external
+  leakage: none
+  n_total: 12153
+  n_positive: 864
+  reasons:
+  - AUROC 0.6187 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5795 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#nodule
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: nodule
+  condition_id: cxr.lung_nodule
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/nodule.json
+  kind: measured_external
+  leakage: none
+  n_total: 12318
+  n_positive: 777
+  reasons:
+  - AUROC 0.6018 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5588 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/pleural_effusion.json
+  kind: measured_external
+  leakage: none
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.7496 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7300 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_thickening
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: pleural_thickening
+  condition_id: cxr.pleural_thickening
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/pleural_thickening.json
+  kind: measured_external
+  leakage: none
+  n_total: 11998
+  n_positive: 479
+  reasons:
+  - AUROC 0.5407 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5031 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/pneumonia.json
+  kind: measured_external
+  leakage: none
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.6423 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6074 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.6794 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6450 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-pc/pulmonary_edema.json
+  kind: measured_external
+  leakage: none
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.7514 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7196 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-google-adjudicated#fracture
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14-google
+  label: fracture
+  condition_id: cxr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-pc/fracture.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 36
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+  - AUROC 0.5458 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.4333 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-pc@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-pc/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.7480 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6947 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-chex
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/atelectasis.json
+  kind: measured_external
+  leakage: none
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
-    a fila parou no fragmento 7 e não houve merge.'
-- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test
-  outcome: pendente
+  - AUROC 0.5604 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5339 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#cardiomegaly
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/cardiomegaly.json
+  kind: measured_external
+  leakage: none
+  n_total: 12176
+  n_positive: 602
+  reasons:
+  - AUROC 0.6640 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6141 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/consolidation.json
+  kind: measured_external
+  leakage: none
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.6706 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6497 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/pleural_effusion.json
+  kind: measured_external
+  leakage: none
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.6665 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6415 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/pneumonia.json
+  kind: measured_external
+  leakage: none
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.5627 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5245 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.6508 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6168 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-chex/pulmonary_edema.json
+  kind: measured_external
+  leakage: none
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.7047 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6680 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-google-adjudicated#fracture
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14-google
+  label: fracture
+  condition_id: cxr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-chex/fracture.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 36
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+  - AUROC 0.5245 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.4085 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_lesion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14-google
+  label: lung_lesion
+  condition_id: cxr.lung_lesion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-chex/lung_lesion.json
+  kind: measured_external
+  leakage: none
+  n_total: 954
+  n_positive: 149
+  reasons:
+  - AUROC 0.5634 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5067 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_opacity
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14-google
+  label: lung_opacity
+  condition_id: cxr.lung_opacity
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-chex/lung_opacity.json
+  kind: measured_external
+  leakage: none
+  n_total: 949
+  n_positive: 535
+  reasons: []
+- job: xrv-densenet121-res224-chex@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-chex/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.6941 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6301 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-mimic_nb
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/atelectasis.json
+  kind: measured_external
+  leakage: none
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
-    a fila parou no fragmento 7 e não houve merge.'
-- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test
-  outcome: pendente
+  - AUROC 0.5810 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5554 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#cardiomegaly
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/cardiomegaly.json
+  kind: measured_external
+  leakage: none
+  n_total: 12176
+  n_positive: 602
+  reasons:
+  - AUROC 0.6686 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6221 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/consolidation.json
+  kind: measured_external
+  leakage: none
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.6066 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5762 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/pleural_effusion.json
+  kind: measured_external
+  leakage: none
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.6898 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6670 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/pneumonia.json
+  kind: measured_external
+  leakage: none
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.5409 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5036 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.6158 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5675 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_nb/pulmonary_edema.json
+  kind: measured_external
+  leakage: none
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.7377 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7077 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#fracture
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14-google
+  label: fracture
+  condition_id: cxr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_nb/fracture.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 36
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+  - AUROC 0.4931 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.3950 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_lesion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14-google
+  label: lung_lesion
+  condition_id: cxr.lung_lesion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_nb/lung_lesion.json
+  kind: measured_external
+  leakage: none
+  n_total: 954
+  n_positive: 149
+  reasons:
+  - AUROC 0.5611 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5060 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_opacity
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14-google
+  label: lung_opacity
+  condition_id: cxr.lung_opacity
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_nb/lung_opacity.json
+  kind: measured_external
+  leakage: none
+  n_total: 949
+  n_positive: 535
+  reasons: []
+- job: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_nb/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.7133 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6490 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-mimic_ch
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/atelectasis.json
+  kind: measured_external
+  leakage: none
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
-    a fila parou no fragmento 7 e não houve merge.'
-- job: xrv-densenet121-res224-all@nih-cxr14-test
-  outcome: pendente
+  - AUROC 0.6044 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5823 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#cardiomegaly
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/cardiomegaly.json
+  kind: measured_external
+  leakage: none
+  n_total: 12176
+  n_positive: 602
+  reasons:
+  - AUROC 0.6363 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5934 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/consolidation.json
+  kind: measured_external
+  leakage: none
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.6318 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6079 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/pleural_effusion.json
+  kind: measured_external
+  leakage: none
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.6960 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6752 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/pneumonia.json
+  kind: measured_external
+  leakage: none
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.5547 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5179 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.5880 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5379 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-mimic_ch/pulmonary_edema.json
+  kind: measured_external
+  leakage: none
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.6965 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6659 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#fracture
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14-google
+  label: fracture
+  condition_id: cxr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_ch/fracture.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 36
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+  - AUROC 0.5134 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.4282 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_lesion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14-google
+  label: lung_lesion
+  condition_id: cxr.lung_lesion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_ch/lung_lesion.json
+  kind: measured_external
+  leakage: none
+  n_total: 954
+  n_positive: 149
+  reasons:
+  - AUROC 0.5594 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5047 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_opacity
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14-google
+  label: lung_opacity
+  condition_id: cxr.lung_opacity
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_ch/lung_opacity.json
+  kind: measured_external
+  leakage: none
+  n_total: 949
+  n_positive: 535
+  reasons: []
+- job: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-mimic_ch/pneumothorax.json
+  kind: measured_external
+  leakage: none
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.6643 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6004 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-all
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/atelectasis.json
+  kind: measured_external
+  leakage: known
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split do TorchXRayVision
-    põe a maior parte do teste oficial no treino; protocolo §8.2).'
-- job: xrv-densenet121-res224-nih@nih-cxr14-test
-  outcome: pendente
+  - AUROC 0.7125 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6923 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#cardiomegaly
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/cardiomegaly.json
+  kind: measured_external
+  leakage: known
+  n_total: 12176
+  n_positive: 602
+  reasons: []
+- job: xrv-densenet121-res224-all@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/consolidation.json
+  kind: measured_external
+  leakage: known
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.7034 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6829 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#emphysema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: emphysema
+  condition_id: cxr.emphysema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/emphysema.json
+  kind: measured_external
+  leakage: known
+  n_total: 12059
+  n_positive: 511
+  reasons:
+  - AUROC 0.6076 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5703 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#fibrosis
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: fibrosis
+  condition_id: cxr.pulmonary_fibrosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/fibrosis.json
+  kind: measured_external
+  leakage: known
+  n_total: 12017
+  n_positive: 207
+  reasons:
+  - AUROC 0.6600 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6128 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#hernia
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: hernia
+  condition_id: cxr.hernia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/hernia.json
+  kind: measured_external
+  leakage: known
+  n_total: 12043
+  n_positive: 45
+  reasons:
+  - 'não elegível: pacientes positivos 16 < min_positive 30'
+- job: xrv-densenet121-res224-all@nih-cxr14-test#infiltration
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: infiltration
+  condition_id: cxr.infiltration
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/infiltration.json
+  kind: measured_external
+  leakage: known
+  n_total: 12222
+  n_positive: 2813
+  reasons:
+  - AUROC 0.6682 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6518 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#mass
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: mass
+  condition_id: cxr.lung_mass
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/mass.json
+  kind: measured_external
+  leakage: known
+  n_total: 12153
+  n_positive: 864
+  reasons:
+  - AUROC 0.7136 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6813 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#nodule
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: nodule
+  condition_id: cxr.lung_nodule
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/nodule.json
+  kind: measured_external
+  leakage: known
+  n_total: 12318
+  n_positive: 777
+  reasons:
+  - AUROC 0.6303 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5874 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/pleural_effusion.json
+  kind: measured_external
+  leakage: known
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.7888 < auroc_min 0.8
+- job: xrv-densenet121-res224-all@nih-cxr14-test#pleural_thickening
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: pleural_thickening
+  condition_id: cxr.pleural_thickening
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/pleural_thickening.json
+  kind: measured_external
+  leakage: known
+  n_total: 11998
+  n_positive: 479
+  reasons:
+  - AUROC 0.6805 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6513 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/pneumonia.json
+  kind: measured_external
+  leakage: known
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.6436 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6031 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/pneumothorax.json
+  kind: measured_external
+  leakage: known
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.6338 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5951 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-all/pulmonary_edema.json
+  kind: measured_external
+  leakage: known
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.7748 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7456 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-google-adjudicated#fracture
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14-google
+  label: fracture
+  condition_id: cxr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-all/fracture.json
+  kind: measured_external
+  leakage: known
+  n_total: 946
+  n_positive: 36
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+  - AUROC 0.5679 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.4645 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-google-adjudicated#lung_lesion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14-google
+  label: lung_lesion
+  condition_id: cxr.lung_lesion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-all/lung_lesion.json
+  kind: measured_external
+  leakage: known
+  n_total: 954
+  n_positive: 149
+  reasons:
+  - AUROC 0.6866 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6218 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-all@nih-google-adjudicated#lung_opacity
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14-google
+  label: lung_opacity
+  condition_id: cxr.lung_opacity
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-all/lung_opacity.json
+  kind: measured_external
+  leakage: known
+  n_total: 949
+  n_positive: 535
+  reasons: []
+- job: xrv-densenet121-res224-all@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-all/pneumothorax.json
+  kind: measured_external
+  leakage: known
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.7381 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6835 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#atelectasis
+  outcome: reprovado
   model_id: xrv-densenet121-res224-nih
   dataset_id: nih-cxr14
-  label: null
-  condition_id: null
+  label: atelectasis
+  condition_id: cxr.atelectasis
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/atelectasis.json
+  kind: measured_external
+  leakage: known
+  n_total: 12113
+  n_positive: 1672
   reasons:
-  - 'medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split do TorchXRayVision
-    põe a maior parte do teste oficial no treino; protocolo §8.2).'
+  - AUROC 0.6644 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6429 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#cardiomegaly
+  outcome: aprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: cardiomegaly
+  condition_id: cxr.cardiomegaly
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/cardiomegaly.json
+  kind: measured_external
+  leakage: known
+  n_total: 12176
+  n_positive: 602
+  reasons: []
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#consolidation
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: consolidation
+  condition_id: cxr.consolidation
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/consolidation.json
+  kind: measured_external
+  leakage: known
+  n_total: 12235
+  n_positive: 891
+  reasons:
+  - AUROC 0.6793 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6569 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#emphysema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: emphysema
+  condition_id: cxr.emphysema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/emphysema.json
+  kind: measured_external
+  leakage: known
+  n_total: 12059
+  n_positive: 511
+  reasons:
+  - AUROC 0.5326 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.4863 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#fibrosis
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: fibrosis
+  condition_id: cxr.pulmonary_fibrosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/fibrosis.json
+  kind: measured_external
+  leakage: known
+  n_total: 12017
+  n_positive: 207
+  reasons:
+  - AUROC 0.6529 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5993 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#hernia
+  outcome: nao_elegivel
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: hernia
+  condition_id: cxr.hernia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/hernia.json
+  kind: measured_external
+  leakage: known
+  n_total: 12043
+  n_positive: 45
+  reasons:
+  - 'não elegível: pacientes positivos 16 < min_positive 30'
+  - AUROC 0.7269 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5725 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#infiltration
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: infiltration
+  condition_id: cxr.infiltration
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/infiltration.json
+  kind: measured_external
+  leakage: known
+  n_total: 12222
+  n_positive: 2813
+  reasons:
+  - AUROC 0.6404 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6231 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#mass
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: mass
+  condition_id: cxr.lung_mass
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/mass.json
+  kind: measured_external
+  leakage: known
+  n_total: 12153
+  n_positive: 864
+  reasons:
+  - AUROC 0.6786 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6403 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#nodule
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: nodule
+  condition_id: cxr.lung_nodule
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/nodule.json
+  kind: measured_external
+  leakage: known
+  n_total: 12318
+  n_positive: 777
+  reasons:
+  - AUROC 0.6033 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5555 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_effusion
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: pleural_effusion
+  condition_id: cxr.pleural_effusion
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/pleural_effusion.json
+  kind: measured_external
+  leakage: known
+  n_total: 12204
+  n_positive: 2284
+  reasons:
+  - AUROC 0.7534 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7371 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_thickening
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: pleural_thickening
+  condition_id: cxr.pleural_thickening
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/pleural_thickening.json
+  kind: measured_external
+  leakage: known
+  n_total: 11998
+  n_positive: 479
+  reasons:
+  - AUROC 0.6621 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6302 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#pneumonia
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: pneumonia
+  condition_id: cxr.pneumonia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/pneumonia.json
+  kind: measured_external
+  leakage: known
+  n_total: 12457
+  n_positive: 262
+  reasons:
+  - AUROC 0.6240 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5890 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/pneumothorax.json
+  kind: measured_external
+  leakage: known
+  n_total: 12109
+  n_positive: 1197
+  reasons:
+  - AUROC 0.5791 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5318 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-cxr14-test#pulmonary_edema
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: pulmonary_edema
+  condition_id: cxr.pulmonary_edema
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14/xrv-densenet121-res224-nih/pulmonary_edema.json
+  kind: measured_external
+  leakage: known
+  n_total: 12255
+  n_positive: 474
+  reasons:
+  - AUROC 0.7388 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7126 < auroc_ci_low_min 0.75
+- job: xrv-densenet121-res224-nih@nih-google-adjudicated#pneumothorax
+  outcome: reprovado
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14-google
+  label: pneumothorax
+  condition_id: cxr.pneumothorax
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/nih-cxr14-google/xrv-densenet121-res224-nih/pneumothorax.json
+  kind: measured_external
+  leakage: known
+  n_total: 946
+  n_positive: 99
+  reasons:
+  - AUROC 0.6463 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5807 < auroc_ci_low_min 0.75
 - job: mammoscreen@cmmd
-  outcome: pendente
+  outcome: reprovado
   model_id: mammoscreen
   dataset_id: cmmd
-  label: null
-  condition_id: null
+  label: malignancy
+  condition_id: mg.breast_cancer
   endpoint: discrimination
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/cmmd/mammoscreen/malignancy.json
+  kind: measured_external
+  leakage: none
+  n_total: 156
+  n_positive: 75
   reasons:
-  - 'medição pendente: 80 de 300 mamas da amostra pré-definida (spikes/mammo/meta/cmmd_sample300.txt)
-    inferidas; a fila parou em --limit 100.'
+  - AUROC 0.7896 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.7154 < auroc_ci_low_min 0.75
 - job: totalseg-cerebral-bleed@cq500
   outcome: pendente
   model_id: totalseg-cerebral-bleed

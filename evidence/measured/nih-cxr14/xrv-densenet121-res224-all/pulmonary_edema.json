@@ -1,0 +1,694 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "nih-cxr14",
+      "padchest",
+      "chexpert",
+      "mimic-cxr",
+      "nih-cxr14-google",
+      "openi",
+      "rsna-pneumonia"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "xrv-densenet121-res224-all@nih-cxr14-test#pulmonary_edema",
+    "predictions_file": "xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet",
+    "predictions_sha256": "d94dbd6b5de90506879f37bcb158a7dd8358d42acb6efa80a09188703fd8d734",
+    "score_column": "y_score__pulmonary_edema"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/nih-cxr14/xrv-densenet121-res224-all/pulmonary_edema.json#report",
+      "name": "pulmonary_edema:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de nih-cxr14",
+      "threshold": -5.344086647033691
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/nih-cxr14/xrv-densenet121-res224-all/pulmonary_edema.json#report",
+      "name": "pulmonary_edema:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de nih-cxr14",
+      "threshold": -2.7137291431427
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (1399 pacientes) e métricas reportadas na metade de teste (1398 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.",
+      "O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente); IC por bootstrap agrupado por paciente.",
+      "Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho no NIH registrada.",
+      "Padrão de referência minerado de laudos por NLP (rótulo ruidoso)."
+    ],
+    "condition_id": "cxr.pulmonary_edema",
+    "dataset": "nih-cxr14",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "AUROC 0.7748 < auroc_min 0.8",
+      "limite inferior do IC da AUROC 0.7456 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:nih-cxr14:xrv-densenet121-res224-all:pulmonary_edema:discrimination",
+    "kind": "measured_external",
+    "label": "pulmonary_edema",
+    "leakage": "known",
+    "leakage_note": "dataset de avaliação compartilha linhagem com o treino: nih-cxr14 (linhagem comum: nih-cxr14); nih-cxr14-google (linhagem comum: nih-cxr14); rsna-pneumonia (linhagem comum: nih-cxr14)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.14417753642422718,
+        "ci_low": 0.08542968708147694,
+        "value": 0.11116540866784352
+      },
+      "auroc": {
+        "ci_high": 0.8019811000054532,
+        "ci_low": 0.7455523429605644,
+        "value": 0.7747517367770532
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.016772605907554982,
+        "ci_low": 0.0064097478559781915,
+        "value": 0.011240335011272924
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.026682617384590396,
+        "ci_low": 0.014654408478172096,
+        "value": 0.01962180316215767
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.3632695765530882,
+        "ci_low": 0.2370087866210345,
+        "value": 0.29957805907172996
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.9264024755266137,
+        "ci_low": 0.8896145671371003,
+        "value": 0.9084967320261438
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 0.918918918918919,
+        "ci_low": 0.8367243982794912,
+        "value": 0.8818565400843882
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.5634219911547488,
+        "ci_low": 0.489264524000664,
+        "value": 0.5258467023172906
+      }
+    },
+    "model_id": "xrv-densenet121-res224-all",
+    "n_positive": 474,
+    "n_total": 12255,
+    "passes_protocol": false,
+    "population": "NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt, 25596 imagens, pacientes disjuntos do split oficial de treino)",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-all@nih-cxr14-test#pulmonary_edema",
+      "created_at": "2026-11-27T18:20:28.307220Z",
+      "dataset_id": "nih-cxr14",
+      "dataset_sha256": "d2d350ee33cbfeccbd8c3aaec359bf3362247f4b2ee4e0124d7ceab8d18bc0ba",
+      "git_sha": "22fb1aeba42d09daa964245743a217b2816f75bf",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt": "56524913dd16a906422e8d8b66a7a5c46be1d82eb7ac012d8103776f1aa68899"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "report_nlp",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "known"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.14417753642422718,
+      "ci_low": 0.08542968708147694,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.11116540866784352
+    },
+    "auroc": {
+      "ci_high": 0.8019811000054532,
+      "ci_low": 0.7455523429605644,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.7747517367770532
+    },
+    "calibration": {
+      "n_fit_samples": 13341,
+      "nll_after": 0.13475244185789093,
+      "nll_before": 0.14159276613123983,
+      "temperature": 1.2679430084549677
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 12255,
+      "n_neg": 11781,
+      "n_neg_patients": 1235,
+      "n_patients": 1398,
+      "n_pos": 474,
+      "n_pos_patients": 163
+    },
+    "ece_after": {
+      "ci_high": 0.016772605907554982,
+      "ci_low": 0.0064097478559781915,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.011240335011272924
+    },
+    "ece_before": {
+      "ci_high": 0.026682617384590396,
+      "ci_low": 0.014654408478172096,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.01962180316215767
+    },
+    "label": "pulmonary_edema",
+    "operating_point_errors": [],
+    "prevalence": 0.038678090575275395,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.35033259423503327,
+      "calibration_specificity": 0.9,
+      "npv": {
+        "ci_high": 0.9753988612318463,
+        "ci_low": 0.9635343125453697,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9699139102854554
+      },
+      "ppv": {
+        "ci_high": 0.14874781195298822,
+        "ci_low": 0.09039711671018823,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.11639344262295082
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.3632695765530882,
+        "ci_low": 0.2370087866210345,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.29957805907172996
+      },
+      "specificity": {
+        "ci_high": 0.9264024755266137,
+        "ci_low": 0.8896145671371003,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9084967320261438
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": -2.7137291431427
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9002217294900222,
+      "calibration_specificity": 0.4946470131885182,
+      "npv": {
+        "ci_high": 0.9936037784437037,
+        "ci_low": 0.9880604350923106,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9910414333706606
+      },
+      "ppv": {
+        "ci_high": 0.0837930451441372,
+        "ci_low": 0.0566009858679147,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.06962025316455696
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.918918918918919,
+        "ci_low": 0.8367243982794912,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.8818565400843882
+      },
+      "specificity": {
+        "ci_high": 0.5634219911547488,
+        "ci_low": 0.489264524000664,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.5258467023172906
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -5.344086647033691
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 13341,
+        "n_neg": 12890,
+        "n_neg_patients": 1236,
+        "n_patients": 1399,
+        "n_pos": 451,
+        "n_pos_patients": 163
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 12255,
+        "n_neg": 11781,
+        "n_neg_patients": 1235,
+        "n_patients": 1398,
+        "n_pos": 474,
+        "n_pos_patients": 163
+      }
+    },
+    "subgroups": [
+      {
+        "attribute": "sex",
+        "auroc": {
+          "ci_high": 0.815736025377356,
+          "ci_low": 0.7371468504618878,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7788184925482597
+        },
+        "counts": {
+          "n_images": 5194,
+          "n_neg": 4971,
+          "n_neg_patients": 545,
+          "n_patients": 610,
+          "n_pos": 223,
+          "n_pos_patients": 65
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.3642218060757385,
+          "ci_low": 0.1499933155080214,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.2556053811659193
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9395379109443609,
+          "ci_low": 0.8873116293950267,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9147052906859787
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9421487603305785,
+          "ci_low": 0.8343158098183224,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8968609865470852
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.5776333472763334,
+          "ci_low": 0.45921676675291684,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.51981492657413
+        },
+        "value": "F"
+      },
+      {
+        "attribute": "sex",
+        "auroc": {
+          "ci_high": 0.8135923421636511,
+          "ci_low": 0.7312013041333277,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7725626129841866
+        },
+        "counts": {
+          "n_images": 7061,
+          "n_neg": 6810,
+          "n_neg_patients": 690,
+          "n_patients": 788,
+          "n_pos": 251,
+          "n_pos_patients": 98
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.4086053507424475,
+          "ci_low": 0.26228792325864414,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.3386454183266932
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9288348617694974,
+          "ci_low": 0.8768870074206556,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9039647577092511
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9245342165966759,
+          "ci_low": 0.8018622470758987,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8685258964143426
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.5781430203673973,
+          "ci_low": 0.48135425043866065,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5302496328928047
+        },
+        "value": "M"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": {
+          "ci_high": 0.8079789721471792,
+          "ci_low": 0.6132151499062338,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7066436583261432
+        },
+        "counts": {
+          "n_images": 446,
+          "n_neg": 427,
+          "n_neg_patients": 60,
+          "n_patients": 66,
+          "n_pos": 19,
+          "n_pos_patients": 6
+        },
+        "eligible": false,
+        "note": "abaixo do mínimo do protocolo: reportado sem julgamento",
+        "rule_in_sensitivity": {
+          "ci_high": 0.8003124999999983,
+          "ci_low": 0.05555555555555555,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.3157894736842105
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.991079589093702,
+          "ci_low": 0.7750983938377345,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8992974238875878
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9545454545454546,
+          "ci_low": 0.3333333333333333,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7894736842105263
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.7417108821709334,
+          "ci_low": 0.3315347568351679,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5245901639344263
+        },
+        "value": "<18"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": {
+          "ci_high": 0.8557614233476344,
+          "ci_low": 0.7728298727746472,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8188243384356774
+        },
+        "counts": {
+          "n_images": 3140,
+          "n_neg": 2982,
+          "n_neg_patients": 420,
+          "n_patients": 463,
+          "n_pos": 158,
+          "n_pos_patients": 43
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.44296166885767657,
+          "ci_low": 0.1769478149803851,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.31645569620253167
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9562769784091528,
+          "ci_low": 0.8928050702647619,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9265593561368209
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9602282134256471,
+          "ci_low": 0.8384615384615385,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9113924050632911
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.6280709490656011,
+          "ci_low": 0.5158075076558593,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5690811535881959
+        },
+        "value": "18-39"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": {
+          "ci_high": 0.7945667530079417,
+          "ci_low": 0.7089499395838614,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7534106292391755
+        },
+        "counts": {
+          "n_images": 5427,
+          "n_neg": 5208,
+          "n_neg_patients": 517,
+          "n_patients": 592,
+          "n_pos": 219,
+          "n_pos_patients": 75
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.37191703127531994,
+          "ci_low": 0.19746902410599276,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.2876712328767123
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9244022011973796,
+          "ci_low": 0.8666364120808615,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8959293394777266
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9266456351822205,
+          "ci_low": 0.8125,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8767123287671232
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.5795580162495974,
+          "ci_low": 0.4613454852871381,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5195852534562212
+        },
+        "value": "40-59"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": {
+          "ci_high": 0.8588311113069422,
+          "ci_low": 0.7245186462166885,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7963021340822682
+        },
+        "counts": {
+          "n_images": 2941,
+          "n_neg": 2868,
+          "n_neg_patients": 253,
+          "n_patients": 289,
+          "n_pos": 73,
+          "n_pos_patients": 36
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.43666312946170144,
+          "ci_low": 0.20588235294117646,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.3150684931506849
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9423443335609012,
+          "ci_low": 0.8721045622180061,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9086471408647141
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9870171495171495,
+          "ci_low": 0.7368421052631579,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8904109589041096
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.5770613039998529,
+          "ci_low": 0.4106342075441153,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.4898884239888424
+        },
+        "value": "60-74"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": null,
+        "counts": {
+          "n_images": 301,
+          "n_neg": 296,
+          "n_neg_patients": 48,
+          "n_patients": 51,
+          "n_pos": 5,
+          "n_pos_patients": 3
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "75+"
+      },
+      {
+        "attribute": "view",
+        "auroc": {
+          "ci_high": 0.7057990233489,
+          "ci_low": 0.6270517675863462,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.6667277826959908
+        },
+        "counts": {
+          "n_images": 6833,
+          "n_neg": 6401,
+          "n_neg_patients": 460,
+          "n_patients": 605,
+          "n_pos": 432,
+          "n_pos_patients": 145
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.3970690618019359,
+          "ci_low": 0.25592141518792016,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.32407407407407407
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.8645058014983547,
+          "ci_low": 0.8075288767409025,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.835806905171067
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9476098559093077,
+          "ci_low": 0.8705861193398223,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9143518518518519
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.29305934652038185,
+          "ci_low": 0.22478247209190805,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.25730354632088737
+        },
+        "value": "AP"
+      },
+      {
+        "attribute": "view",
+        "auroc": {
+          "ci_high": 0.8523787584292299,
+          "ci_low": 0.7454396806783427,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8018233315631085
+        },
+        "counts": {
+          "n_images": 5422,
+          "n_neg": 5380,
+          "n_neg_patients": 1287,
+          "n_patients": 1320,
+          "n_pos": 42,
+          "n_pos_patients": 33
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.11912020905923305,
+          "ci_low": 0.0,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.047619047619047616
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9974040168511605,
+          "ci_low": 0.9918742709425523,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9949814126394052
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.6818181818181818,
+          "ci_low": 0.4146341463414634,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5476190476190477
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.8711460598055969,
+          "ci_low": 0.8171573883382545,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8453531598513011
+        },
+        "value": "PA"
+      }
+    ],
+    "subgroups_unavailable": []
+  }
+}

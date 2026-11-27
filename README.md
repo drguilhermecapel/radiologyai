@@ -12,7 +12,9 @@ mostra a força da evidência que o sustenta.
 > sobre um paciente real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um
 > diagnóstico.
 >
-> **Nenhuma condição tem nível A ou B.** As medições existentes são retrospectivas, em dados
+> **Duas condições têm nível A** (cardiomegalia e opacidade pulmonar em RX de tórax, modelos
+> TorchXRayVision de terceiros, validação externa retrospectiva no NIH ChestX-ray14); **nenhuma tem
+> nível B**. Nível A aqui não é validação clínica. As medições são retrospectivas, em dados
 > públicos, e estão listadas com o caminho de cada artefato em
 > **[HONEST_STATUS.md](HONEST_STATUS.md)**, inclusive as reprovações e o nível A retratado.
 > Versões anteriores deste README alegavam acurácia e "validação clínica" que eram **fabricadas
@@ -48,19 +50,25 @@ se divergir):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 0 | 0 | 1 | 0 | 0 |
+| `cxr` | 2 | 0 | 1 | 15 | 14 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 1 | 12 | 2 |
+| **Todas** | 2 | 0 | 1 | 27 | 16 |
 <!-- kpi-levels:fim -->
 
-Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **C** só
-para tuberculose (`xr-probe-tb`, hold-out interno) e fratura **refutada**
-(`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`). Nenhuma condição em A
-ou B. Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
+Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **A** para
+cardiomegalia (`evidence/measured/nih-cxr14/xrv-densenet121-res224-pc/cardiomegaly.json`, AUROC
+0,813 [0,783; 0,839], rótulo NLP) e opacidade pulmonar
+(`evidence/measured/nih-cxr14-google/xrv-densenet121-res224-chex/lung_opacity.json`, AUROC 0,872
+[0,848; 0,894], rótulo adjudicado); **C** para tuberculose (`xr-probe-tb`, hold-out interno);
+fratura, câncer de mama em mamografia e 13 condições de tórax **refutadas** em todos os modelos
+medidos (a coluna "Refutadas" do KPI conta 14 em `cxr` porque inclui a cardiomegalia, A com `pc` e
+refutada com `chex` e `mimic_*`)
+(`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`,
+`evidence/measured/cmmd/mammoscreen/malignancy.json`). Nenhuma condição em B. Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
 
 ## O que existe hoje
 
@@ -82,7 +90,7 @@ O código legado (v1) foi removido da árvore e continua recuperável no histór
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | funcional, testada |
 | Catálogo de condições: esquema, regra de nível, protocolo pré-registrado | funcional, testado; 63 condições em `conditions.yaml`, níveis em `levels.json` (KPI acima) |
 | Camada de análise multimodal (`src/radiologyai/analysis/`) — manifestos por modelo, adaptadores RX/TC/RM/MG/US/eco, biomarcadores de TC com pré-condições, sondas lineares | código presente, verificação em andamento; inventário de modelos em [`MODEL_LICENSES.md`](MODEL_LICENSES.md) |
-| Fábrica de evidência (`src/radiologyai/evidence/`) — predições → medição → registro com proveniência → `levels.json` | 15 registros em `evidence/measured/` (aprovados, reprovados e não elegíveis; desfecho de cada item em `evidence/measured/ledger.yaml`); re-medição a partir de commit pendente |
+| Fábrica de evidência (`src/radiologyai/evidence/`) — predições → medição → registro com proveniência → `levels.json` | 98 registros em `evidence/measured/` (aprovados, reprovados e não elegíveis; desfecho de cada item em `evidence/measured/ledger.yaml`), medidos a partir de commit limpo |
 | Plataforma web (API, banco, fila, laudo preliminar PDF/DICOM SR/FHIR, assinatura vinculada ao hash, RBAC, DICOMweb, frontend) | código presente, verificação em andamento |
 | **Modelo próprio treinado** | **nenhum de ponta a ponta**; sondas lineares sobre RAD-DINO e BiomedCLIP congelados (TB, fratura, achados de punho, lesão mamária e hepática em US, esteatose), medidas sob o protocolo — nenhuma em medição externa limpa aprovada; fratura reprovada no GRAZPEDWRI-DX (ver HONEST_STATUS.md) |
 | **Validação clínica** | **nenhuma** |

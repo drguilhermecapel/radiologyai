@@ -109,10 +109,10 @@
     "population": "CMMD (TCIA, CC BY 4.0; mamografia digital chinesa, pacientes biopsiadas); amostra pré-definida de 300 pacientes (150 benignas, 150 malignas; spikes/mammo/meta/cmmd_sample300.txt), 315 mamas rotuladas por biópsia",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job mammoscreen@cmmd",
-      "created_at": "2026-11-27T17:53:40.645381Z",
+      "created_at": "2026-11-27T18:22:41.137954Z",
       "dataset_id": "cmmd",
       "dataset_sha256": "efca2ab3f81d3ff8217c38c38a65521fd34b5e35f5231ffac72c6aa2f27bb9fa",
-      "git_sha": "822002d20f7ce7666418ae71062ed416748166eb",
+      "git_sha": "22fb1aeba42d09daa964245743a217b2816f75bf",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
