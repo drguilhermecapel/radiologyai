@@ -2,6 +2,23 @@
 
 > **Aviso regulatório:** Este documento registra exclusivamente resultados de pesquisa computacional (*research-only*). O sistema **não é um dispositivo médico** e não se destina a uso clínico, diagnóstico ou tomada de decisão médica.
 
+> **Situação da proveniência (conferida em 2026-11-27): NÃO VERIFICÁVEL.** Os números abaixo foram
+> transcritos de uma execução em Google Colab cujo artefato (`metrics.json`, predições, manifest
+> da amostra) **não está commitado** em `artifacts/eval/` nem em `evidence/`. Nenhum deles pode
+> ser reproduzido ou conferido a partir deste repositório, e nenhum sustenta nível de evidência,
+> critério de aceitação ou alegação em outro documento. Ver [`HONEST_STATUS.md`](../../HONEST_STATUS.md)
+> §"Relatos sem artefato". Os únicos números de desempenho com artefato são os de
+> `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` e
+> `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`.
+
+> **Observações da conferência:** (1) o próprio relato declara que o ZIP com os artefatos locais
+> do Colab não foi recuperado (§5, limitação 3); (2) `densenet121-res224-all` inclui o NIH
+> ChestX-ray14 no treino, portanto a comparação `All − PC` não é externa para `All` — o portão de
+> regressão bloqueou corretamente (§4); com o split aleatório por paciente do TorchXRayVision,
+> pacientes do NIH podem estar na parte de treino dos pesos `all` ([`ROADMAP.md`](../../ROADMAP.md)
+> §9.4); (3) a consistência aritmética interna foi conferida (diferença pareada e redução
+> relativa de ECE batem com os valores relatados), o que não substitui o artefato.
+
 ## 1. Contexto e Desenho Experimental
 
 - **Data da execução:** 25/11/2026
@@ -49,4 +66,5 @@ A execução do comando `radiologyai check-regression` retornou bloqueio *fail-c
 3. **Rastreabilidade de artefatos locais:** ausência de download recuperado do arquivo ZIP local gerado no ambiente Colab.
 
 ### Próximo Passo Científico
+- Commitar o artefato desta execução (ou refazê-la com `radiologyai evaluate` / `.github/workflows/eval.yml`) antes de citar qualquer número dela.
 - Executar **validação externa verdadeira** no conjunto **VinDr-CXR 1.0.0** (PhysioNet, ausente das fontes de pré-treinamento do `densenet121-res224-all`), após conclusão do credenciamento CITI/PhysioNet.
