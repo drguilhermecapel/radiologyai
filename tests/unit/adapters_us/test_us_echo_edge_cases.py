@@ -70,14 +70,14 @@ def test_echo_prompt_parsing_ignores_foreign_labels_and_rejects_duplicates() -> 
 def test_echo_lv_measurements_report_area_when_discs_are_inapplicable() -> None:
     good = half_ellipse(40.0, 18.0, SP)
     blob = np.zeros((60, 60), bool)
-    blob[20:23, 20:23] = True  # 3x3: contorno curto demais para achar a base
+    blob[20, 20] = True  # um pixel: contorno degenerado, discos inaplicáveis
     traced = {
         ("a4c", "ed"): (good, SP, 0),
         ("a4c", "es"): (blob, SP, 4),
     }
     meas = {m.key: m for m in lv_measurements(traced)}
     es = meas["lv_cavity_area_a4c_es"]
-    assert es.value == pytest.approx(9 * SP[0] * SP[1])
+    assert es.value == pytest.approx(SP[0] * SP[1])
     assert es.note is not None and "inaplicável" in es.note
     assert meas["lv_ef"].value is None
     assert meas["lv_ef"].abstention is AbstentionReason.QUALITY
@@ -92,9 +92,10 @@ def test_echo_simpson_input_validation() -> None:
         disc_geometry(half_ellipse(40.0, 18.0, SP), (0.3,))  # type: ignore[arg-type]
     with pytest.raises(SimpsonError, match="espaçamento inválido"):
         disc_geometry(half_ellipse(40.0, 18.0, SP), (0.3, -1.0))
-    geom = disc_geometry(half_ellipse(40.0, 18.0, SP), SP)
     with pytest.raises(SimpsonError, match="n_discs"):
-        single_plane_volume(geom, n_discs=0)
+        disc_geometry(half_ellipse(40.0, 18.0, SP), SP, n_discs=0)
+    geom = disc_geometry(half_ellipse(40.0, 18.0, SP), SP)
+    assert single_plane_volume(geom).volume_ml > 0
     with pytest.raises(SimpsonError):
         ejection_fraction(0.0, 0.0)
 
