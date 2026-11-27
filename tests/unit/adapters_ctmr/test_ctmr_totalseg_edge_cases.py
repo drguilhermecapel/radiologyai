@@ -256,7 +256,7 @@ def test_ctmr_ventricles_volume_and_evans_paths(fake: pytest.MonkeyPatch, tmp_pa
         meas = {m.key: m for m in out.measurements}
         vent = meas["ventricular_system_volume_ml"]
         assert vent.value == pytest.approx((2 * 4 * 8 * 8 + 4 * 4 * 4) * 5.0 / 1000.0)
-        assert vent.preconditions["n_components"] == "3"
+        assert vent.preconditions["n_components"] == "1"  # os três se tocam
         evans = [m for m in out.measurements if m.key != "ventricular_system_volume_ml"]
         assert len(evans) == 1 and (evans[0].value is not None or evans[0].abstention)
 
