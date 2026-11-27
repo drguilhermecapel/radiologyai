@@ -87,7 +87,9 @@ class _MeanEncoder:
 # --------------------------------------------------------------------------- #
 @pytest.mark.requirement("REQ-149")
 def test_us_frame_uint8_scales_cine_color_and_rejects_bad_frames() -> None:
-    clip = us_image(np.stack([np.full((4, 5), v) for v in (0.0, 127.5, 255.0)]), kind=ImageKind.CINE)
+    clip = us_image(
+        np.stack([np.full((4, 5), v) for v in (0.0, 127.5, 255.0)]), kind=ImageKind.CINE
+    )
     assert frame_uint8(clip, 2).max() == 255
     assert frame_uint8(clip, 1)[0, 0] == 128
     with pytest.raises(UnsupportedInputError, match="fora do clipe"):
@@ -95,7 +97,9 @@ def test_us_frame_uint8_scales_cine_color_and_rejects_bad_frames() -> None:
     still = us_image(np.full((4, 5), 10.0))
     with pytest.raises(UnsupportedInputError, match="quadro 0"):
         frame_uint8(still, 1)
-    rgb = us_image(np.dstack([np.full((3, 3), 255.0), np.zeros((3, 3)), np.zeros((3, 3))]), color=True)
+    rgb = us_image(
+        np.dstack([np.full((3, 3), 255.0), np.zeros((3, 3)), np.zeros((3, 3))]), color=True
+    )
     assert int(frame_uint8(rgb)[0, 0]) == round(255 * 0.299)
     vol = us_image(np.zeros((2, 3, 3)), kind=ImageKind.VOLUME)
     with pytest.raises(UnsupportedInputError, match="volume"):
@@ -118,7 +122,8 @@ def test_us_box_and_mask_helpers() -> None:
         mask_bbox(np.zeros((3, 3), bool))
     frame = sector_frame(60, 80).astype(np.uint8)
     x0, y0, x1, y1 = sector_bbox(frame)
-    assert 0 < x0 < x1 < 80 and 0 < y0 < y1 < 60
+    assert 0 < x0 < x1 < 80
+    assert 0 < y0 < y1 < 60
     assert not clean_mask(np.zeros((4, 4), bool)).any()
     with pytest.raises(UnsupportedInputError, match="espaçamento inválido"):
         lesion_morphometry(m, (0.0, 1.0))
@@ -176,13 +181,15 @@ def test_us_probe_box_roi_flow_with_fixed_encoder() -> None:
     adapter.probe = _probe("breast_lesion_malignant")
     out = adapter.predict(one)
     (score,) = out.scores
-    assert score.label == "breast_lesion_malignant" and score.kind == "logit"
+    assert score.label == "breast_lesion_malignant"
+    assert score.kind == "logit"
     # ROI = caixa + 25 %: a média canônica fica entre o fundo (0) e a lesão (200)
     assert -1.0 < score.value < -1.0 + 2.0 * 200 / 255
     assert enc.seen == [(1, 224, 224)]
     assert "caixa do usuário (+25%)" in out.warnings[0]
     adapter.unload()
-    assert adapter.encoder is None and adapter.probe is None
+    assert adapter.encoder is None
+    assert adapter.probe is None
 
 
 @pytest.mark.requirement("REQ-148")
@@ -212,6 +219,7 @@ def test_us_probe_load_checks_encoder_and_label(
         def __init__(self, checkpoint: Any, device: str = "cpu") -> None:
             super().__init__()
             self.checkpoint = checkpoint
+            self.device = device
 
     monkeypatch.setattr(us_probe, "BiomedCLIPImageEncoder", _Enc)
 
@@ -228,7 +236,8 @@ def test_us_probe_load_checks_encoder_and_label(
     with pytest.raises(ManifestError, match="rótulo da sonda"):
         adapter.load(weights_for(_probe("outro_rotulo")), "cpu")
     adapter.load(weights_for(_probe("liver_steatosis")), "cpu")
-    assert adapter.loaded and isinstance(adapter.encoder, _Enc)
+    assert adapter.loaded
+    assert isinstance(adapter.encoder, _Enc)
 
 
 @pytest.mark.requirement("REQ-148")
@@ -261,14 +270,20 @@ def test_us_biomedclip_tower_loads_strict_and_embeds(tmp_path: Path) -> None:
         BiomedCLIPImageEncoder(empty)
     torch.manual_seed(0)
     tower = TimmModel(
-        "vit_base_patch16_224", embed_dim=512, image_size=224, pool="", proj="linear", proj_bias=False
+        "vit_base_patch16_224",
+        embed_dim=512,
+        image_size=224,
+        pool="",
+        proj="linear",
+        proj_bias=False,
     )
     ckpt = tmp_path / "biomedclip.pt"
     torch.save({f"visual.{k}": v for k, v in tower.state_dict().items()}, str(ckpt))
     enc = BiomedCLIPImageEncoder(ckpt)
     one = enc.embed(np.zeros((224, 224), dtype=np.uint8))
     batch = enc.embed(np.zeros((2, 224, 224), dtype=np.uint8))
-    assert one.shape == (1, 512) and batch.shape == (2, 512)
+    assert one.shape == (1, 512)
+    assert batch.shape == (2, 512)
     np.testing.assert_allclose(batch[0], one[0], rtol=1e-4, atol=1e-5)
 
 
@@ -280,6 +295,7 @@ class _EmptySeg:
         return f"emb{frame.shape}"
 
     def segment(self, frame: np.ndarray, box: np.ndarray, embedding: object = None) -> Any:
+        assert box.shape == (4,)
         assert embedding == f"emb{frame.shape}"
         return np.zeros(frame.shape, bool), 0.1
 
@@ -357,14 +373,13 @@ def test_medsam_segmenter_and_adapter_with_tiny_sam(tmp_path: Path) -> None:
     frame = sector_frame(60, 80).astype(np.uint8)
     emb = seg.embed(frame)
     mask, iou = seg.segment(frame, np.array([10.0, 10.0, 60.0, 50.0]), emb)
-    assert mask.shape == (60, 80) and mask.dtype == np.bool_
+    assert mask.shape == (60, 80)
+    assert mask.dtype == np.bool_
     assert np.isfinite(iou)
 
     adapter = MedSAMUSAdapter(_manifest("medsam-vit-base"))
     weights_file = next(model_dir.glob("*.safetensors"))
-    adapter.load(
-        ResolvedWeights(files={"model": weights_file}, sha256={"model": "0" * 64}), "cpu"
-    )
+    adapter.load(ResolvedWeights(files={"model": weights_file}, sha256={"model": "0" * 64}), "cpu")
     box = Primitive(type="bbox", xy=((10.0, 10.0), (60.0, 50.0)))
     out = adapter.predict(
         ModelInputs(

@@ -102,8 +102,8 @@ def test_strict_load_reproduces_saved_parameters(model: Any, checkpoint: Path) -
 
 @pytest.mark.requirement("REQ-146")
 def test_predictor_box_point_and_mask_prompts(predictor: Any) -> None:
-    with pytest.raises(RuntimeError):
-        predictor.reset_predictor()
+    predictor.reset_predictor()
+    with pytest.raises(RuntimeError, match="set_image"):
         predictor.predict(box=np.array([1.0, 1.0, 20.0, 20.0], dtype=np.float32))
     with pytest.raises(RuntimeError):
         predictor.get_image_embedding()
@@ -122,7 +122,9 @@ def test_predictor_box_point_and_mask_prompts(predictor: Any) -> None:
 
     pts = np.array([[60.0, 50.0], [40.0, 30.0]], dtype=np.float32)
     lab = np.array([1, 0], dtype=np.int32)
-    masks3, iou3, low3 = predictor.predict(point_coords=pts, point_labels=lab, multimask_output=True)
+    masks3, iou3, low3 = predictor.predict(
+        point_coords=pts, point_labels=lab, multimask_output=True
+    )
     assert masks3.shape == (3, 96, 128)
     assert iou3.shape == (3,)
 
@@ -220,9 +222,11 @@ def test_sam2_utils_helpers() -> None:
 
     cond = {i: {"i": i} for i in (0, 4, 9, 12)}
     sel, unsel = sam2_utils.select_closest_cond_frames(10, cond, max_cond_frame_num=2)
-    assert set(sel) == {9, 12} and set(unsel) == {0, 4}
+    assert set(sel) == {9, 12}
+    assert set(unsel) == {0, 4}
     sel_all, unsel_all = sam2_utils.select_closest_cond_frames(10, cond, max_cond_frame_num=-1)
-    assert set(sel_all) == set(cond) and not unsel_all
+    assert set(sel_all) == set(cond)
+    assert not unsel_all
     pe = sam2_utils.get_1d_sine_pe(torch.arange(5.0), dim=8)
     assert tuple(pe.shape) == (5, 8)
     for name in ("relu", "gelu", "glu"):
@@ -265,7 +269,8 @@ def test_medsam2_segmenter_and_adapter_load(checkpoint: Path) -> None:
     seg = MedSAM2Segmenter(checkpoint)
     frame = sector_frame(80, 100).astype(np.uint8)
     mask, iou = seg.segment(frame, np.array([20.0, 15.0, 70.0, 60.0]))
-    assert mask.shape == (80, 100) and mask.dtype == np.bool_
+    assert mask.shape == (80, 100)
+    assert mask.dtype == np.bool_
     assert np.isfinite(iou)
 
     manifests = Path(__file__).resolve().parents[3] / "src/radiologyai/analysis/manifests"
@@ -275,10 +280,9 @@ def test_medsam2_segmenter_and_adapter_load(checkpoint: Path) -> None:
         adapter.predict(ModelInputs(images=(), exam_type=ExamType.ECHO))
     weights = ResolvedWeights(files={"checkpoint": checkpoint}, sha256={"checkpoint": "0" * 64})
     adapter.load(weights, "cpu")
-    assert adapter.loaded and adapter.segmenter is not None
-    clip = us_image(
-        np.stack([sector_frame(80, 100)] * 3), kind=ImageKind.CINE, spacing=(0.3, 0.3)
-    )
+    assert adapter.loaded
+    assert adapter.segmenter is not None
+    clip = us_image(np.stack([sector_frame(80, 100)] * 3), kind=ImageKind.CINE, spacing=(0.3, 0.3))
     prompts = (
         Primitive(type="bbox", xy=((25.0, 15.0), (75.0, 65.0)), frame=0, label="a4c:ed"),
         Primitive(type="bbox", xy=((30.0, 20.0), (70.0, 60.0)), frame=2, label="a4c:es"),
@@ -289,4 +293,5 @@ def test_medsam2_segmenter_and_adapter_load(checkpoint: Path) -> None:
     assert {m.key for m in out.measurements} >= {"lv_ef", "lv_edv", "lv_esv"}
     assert out.labelmaps[0].array.shape == (3, 80, 100)
     adapter.unload()
-    assert adapter.segmenter is None and not adapter.loaded
+    assert adapter.segmenter is None
+    assert not adapter.loaded

@@ -102,9 +102,11 @@ def test_mg_crop_adapter_boxes_by_role_and_sha() -> None:
     assert set(by_role) == {"L-CC", "L-MLO", "R-CC"}
     assert by_role["L-CC"] == [65, 75, 130, 150]
     assert set(out.extras["crop_boxes"]) == {img.sha256 for img in inputs.images}
-    assert not out.scores and not out.class_scores
+    assert not out.scores
+    assert not out.class_scores
     adapter.unload()
-    assert adapter._model is None and not adapter.loaded
+    assert adapter._model is None
+    assert not adapter.loaded
 
 
 @pytest.mark.requirement("REQ-143")
@@ -139,9 +141,7 @@ def test_mg_mammoscreen_requires_upstream_boxes_and_scores_per_breast() -> None:
     wrong_exam = ModelInputs(images=images, exam_type=ExamType.CXR)
     assert AbstentionReason.EXAM_TYPE in adapter.applicability(wrong_exam).reasons
 
-    inputs = ModelInputs(
-        images=images, exam_type=ExamType.MG, upstream=_crop_upstream(crop, bare)
-    )
+    inputs = ModelInputs(images=images, exam_type=ExamType.MG, upstream=_crop_upstream(crop, bare))
     assert adapter.applicability(inputs).applicable
     with pytest.raises(InferenceError, match="não carregado"):
         adapter.predict(inputs)
@@ -152,7 +152,9 @@ def test_mg_mammoscreen_requires_upstream_boxes_and_scores_per_breast() -> None:
     scores = {s.label: s for s in out.scores}
     assert set(scores) == {"malignancy_left", "malignancy_right"}
     assert scores["malignancy_left"].kind == "sigmoid"
-    assert out.class_scores["density_right"] == dict(zip(DENSITY_CLASSES, [0.1, 0.2, 0.3, 0.4]))
+    assert out.class_scores["density_right"] == dict(
+        zip(DENSITY_CLASSES, [0.1, 0.2, 0.3, 0.4], strict=True)
+    )
     assert out.extras["views"] == {"left": ["CC", "MLO"], "right": ["CC"]}
     assert out.extras["per_net_cancer"]["left"] == [0.2, 0.25, 0.3]
     # cada incidência chega recortada pela caixa a montante (metade central)
@@ -184,12 +186,14 @@ def test_mg_monai_density_contract_and_guards() -> None:
     adapter = MonaiBreastDensityAdapter(manifest)
     one = ModelInputs(images=(mg_image(gradient(400, 340), view="MLO"),), exam_type=ExamType.MG)
     assert adapter.applicability(one).applicable
-    with pytest.raises(InferenceError, match="não carregado"):
-        adapter.predict(one)
+    if _have("torch"):  # predict importa torch antes de conferir o modelo
+        with pytest.raises(InferenceError, match="não carregado"):
+            adapter.predict(one)
     adapter.unload()
     assert not adapter.loaded
 
 
+@pytest.mark.skipif(not _have("safetensors"), reason="safetensors ausente (extra foundation)")
 def test_mg_read_verified_rejects_swapped_file(tmp_path: Path) -> None:
     from radiologyai.analysis.adapters.mg_common import load_safetensors_verified
 
@@ -213,7 +217,8 @@ def _tiny_backbone(name: str, **kwargs: Any) -> Any:
     import torch
 
     channels = {"mobilenetv3_small_100": 1024, "tf_efficientnetv2_s": 1280}[name]
-    assert kwargs["in_chans"] == 1 and kwargs["pretrained"] is False
+    assert kwargs["in_chans"] == 1
+    assert kwargs["pretrained"] is False
     return torch.nn.Conv2d(1, channels, kernel_size=32, stride=32)
 
 
@@ -240,20 +245,24 @@ def test_mg_vendor_ensemble_and_adapters_load_with_tiny_backbone(
     crop_net = vendor.MammoCropNet().eval()
     ensemble = vendor.MammoEnsemble().eval()
     assert len(ensemble.nets) == 3
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="ao menos uma"):
         ensemble.breast([])
 
     crop = MammoCropAdapter(_manifest("mammo-crop"))
     crop.load(_weights(tmp_path, "crop", crop_net), "cpu")
     screen = MammoscreenAdapter(_manifest("mammoscreen"))
     screen.load(_weights(tmp_path, "screen", ensemble), "cpu")
-    assert crop.loaded and screen.loaded
+    assert crop.loaded
+    assert screen.loaded
 
     images = _four_views()
     bare = ModelInputs(images=images, exam_type=ExamType.MG)
     boxes = crop.boxes(bare)
     for x, y, w, h in boxes.values():
-        assert 0 <= x <= 260 and 0 <= y <= 300 and w >= 0 and h >= 0
+        assert 0 <= x <= 260
+        assert 0 <= y <= 300
+        assert w >= 0
+        assert h >= 0
     # caixa conhecida a jusante (a da rede não treinada pode ser degenerada)
     fixed = {img.sha256: [20, 30, 200, 240] for img in images}
     inputs = ModelInputs(
@@ -289,7 +298,8 @@ def test_mg_monai_density_tiny_inception_path(tmp_path: Path) -> None:
         mod.monai_input(np.zeros((40, 30), dtype=np.uint8))
     x = mod.monai_input(np.arange(1200, dtype=np.uint8).reshape(40, 30))
     assert tuple(x.shape) == (1, 3, 299, 299)
-    assert float(x.min()) >= 0.0 and float(x.max()) <= 1.0
+    assert float(x.min()) >= 0.0
+    assert float(x.max()) <= 1.0
 
     torch.manual_seed(0)
     net = torchvision.models.inception_v3(

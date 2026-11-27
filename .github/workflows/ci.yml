@@ -36,8 +36,10 @@ jobs:
       - name: Python ${{ matrix.python }}
         run: uv python install ${{ matrix.python }}
 
+      # --extra cpu: torch CPU. Sem ele o código que só roda com torch (SAM2 vendorizado,
+      # caminhos de carga de XR/MG) fica em 0% e o portão de 85% é inalcançável.
       - name: Instalar dependências
-        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging --extra platform
+        run: uv sync --python ${{ matrix.python }} --extra dev --extra eval --extra api --extra imaging --extra platform --extra cpu
 
       - name: Lint (ruff)
         run: uv run ruff check src/ tests/ scripts/

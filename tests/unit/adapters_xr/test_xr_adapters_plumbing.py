@@ -114,8 +114,8 @@ def test_xr_view_gate_decision_is_argmax(
 ) -> None:
     adapter = XrvViewGateAdapter(_manifest("xrv-view-xinario"))
     image = _cxr()
-    monkeypatch.setattr(adapter, "_batch", lambda inputs, size: ("lote", size))
-    monkeypatch.setattr(xr_gates, "view_probabilities", lambda m, b: np.array([probs]))
+    monkeypatch.setattr(adapter, "_batch", lambda _inputs, size: ("lote", size))
+    monkeypatch.setattr(xr_gates, "view_probabilities", lambda _m, _b: np.array([probs]))
     gate = adapter.predict(_inputs(image, gates=False)).extras["gate"]
     assert gate["passed"] is passed
     assert gate["image_sha256"] == image.sha256
@@ -130,8 +130,8 @@ def test_xr_ood_gate_decision_uses_manifest_threshold(
     monkeypatch: pytest.MonkeyPatch, mae: float, passed: bool
 ) -> None:
     adapter = XrvAutoencoderGateAdapter(_manifest("xrv-ae-ood"))
-    monkeypatch.setattr(adapter, "_batch", lambda inputs, size: ("lote", size))
-    monkeypatch.setattr(xr_gates, "ae_reconstruction_mae", lambda m, b: np.array([mae]))
+    monkeypatch.setattr(adapter, "_batch", lambda _inputs, size: ("lote", size))
+    monkeypatch.setattr(xr_gates, "ae_reconstruction_mae", lambda _m, _b: np.array([mae]))
     out = adapter.predict(_inputs(_cxr(), gates=False))
     assert out.extras["gate"]["passed"] is passed
     assert out.extras["gate"]["threshold"] == adapter.threshold
@@ -161,8 +161,8 @@ def test_xr_anatomy_ctr_geometry_and_pa_only_threshold(
     image = _cxr(view=view, size=600)
     assert adapter.applicability(_inputs(image)).applicable
     assert AbstentionReason.UPSTREAM in adapter.applicability(_inputs(image, False)).reasons
-    monkeypatch.setattr(xr_anatomy, "xrv_input", lambda img, size: np.zeros((size, size)))
-    monkeypatch.setattr(adapter, "segment", lambda plane: _anatomy_masks())
+    monkeypatch.setattr(xr_anatomy, "xrv_input", lambda _img, size: np.zeros((size, size)))
+    monkeypatch.setattr(adapter, "segment", lambda _plane: _anatomy_masks())
     out = adapter.predict(_inputs(image))
     meas = {m.key: m for m in out.measurements}
     ctr = meas["cardiothoracic_ratio"]
@@ -174,7 +174,8 @@ def test_xr_anatomy_ctr_geometry_and_pa_only_threshold(
     if view == "PA":
         assert pa.value == ctr.value
     else:
-        assert pa.value is None and pa.abstention is AbstentionReason.VIEW
+        assert pa.value is None
+        assert pa.abstention is AbstentionReason.VIEW
     heart_map, lungs_map = out.labelmaps
     assert heart_map.array.shape == (600, 600)
     assert set(np.unique(lungs_map.array)) == {0, 1, 2}
@@ -186,11 +187,12 @@ def test_xr_anatomy_empty_heart_abstains_everywhere(monkeypatch: pytest.MonkeyPa
     adapter = ChestXDetAnatomyAdapter(_manifest("xrv-pspnet-chestxdet"))
     masks = _anatomy_masks()
     masks[PSPNET_TARGETS.index("Heart")] = False
-    monkeypatch.setattr(xr_anatomy, "xrv_input", lambda img, size: np.zeros((size, size)))
-    monkeypatch.setattr(adapter, "segment", lambda plane: masks)
+    monkeypatch.setattr(xr_anatomy, "xrv_input", lambda _img, size: np.zeros((size, size)))
+    monkeypatch.setattr(adapter, "segment", lambda _plane: masks)
     out = adapter.predict(_inputs(_cxr()))
     for m in out.measurements:
-        assert m.value is None and m.abstention is AbstentionReason.QUALITY
+        assert m.value is None
+        assert m.abstention is AbstentionReason.QUALITY
 
 
 # --------------------------------------------------------------------------- #
@@ -232,7 +234,8 @@ def test_xr_raddino_canonical_crop_pad_and_range() -> None:
     crop = raddino_canonical(wide, "crop")
     pad = raddino_canonical(wide, "pad")
     assert crop.shape == pad.shape == (518, 518)
-    assert pad[0].max() == 0 and crop[0].max() > 0  # pad acrescenta faixas pretas em cima/baixo
+    assert pad[0].max() == 0
+    assert crop[0].max() > 0
     with pytest.raises(ValueError, match="square"):
         raddino_canonical(wide, "fit")
     bad = ImageData(
@@ -310,8 +313,9 @@ def test_xr_classifier_logits_cam_and_explain_with_tiny_module(
     labels = [spec.key for spec in adapter.manifest.labels[:2]]
     adapter._heads = {labels[0]: 0, labels[1]: 2}
     monkeypatch.setattr(
-        xr_xrv, "xrv_input", lambda img, size: np.linspace(-1, 1, size * size, dtype=np.float32)
-        .reshape(size, size)
+        xr_xrv,
+        "xrv_input",
+        lambda _img, size: np.linspace(-1, 1, size * size, dtype=np.float32).reshape(size, size),
     )
     out = adapter.predict(_inputs(image))
     assert [s.label for s in out.scores] == labels
@@ -320,7 +324,8 @@ def test_xr_classifier_logits_cam_and_explain_with_tiny_module(
         expected = adapter._model(batch)[0]
     assert out.scores[1].value == pytest.approx(float(expected[2]), abs=1e-6)
     maps = adapter.explain(_inputs(image), [labels[0], "nao_declarado"])
-    assert len(maps) == 1 and maps[0].heatmap.shape == (7, 7)
+    assert len(maps) == 1
+    assert maps[0].heatmap.shape == (7, 7)
     assert float(maps[0].heatmap.max()) <= 1.0
     adapter.arch = "resnet"
     assert adapter.explain(_inputs(image), labels) == []
@@ -354,7 +359,8 @@ def test_xr_gate_tensor_functions_with_tiny_modules(monkeypatch: pytest.MonkeyPa
 
     batch = torch.full((1, 1, 8, 8), 100.0)
     probs = xr_gates.view_probabilities(TwoWay(), batch)
-    assert probs.shape == (1, 2) and probs[0, 0] > probs[0, 1]
+    assert probs.shape == (1, 2)
+    assert probs[0, 0] > probs[0, 1]
     mae = xr_gates.ae_reconstruction_mae(HalfAE(), batch)
     assert mae[0] == pytest.approx(50.0 / (2 * XRV_SCALE))
 
@@ -362,7 +368,7 @@ def test_xr_gate_tensor_functions_with_tiny_modules(monkeypatch: pytest.MonkeyPa
     with pytest.raises(InferenceError, match="não carregado"):
         gate._batch(_inputs(_cxr()), 224)
     gate._model = TwoWay()
-    monkeypatch.setattr(xr_gates, "xrv_input", lambda img, size: np.ones((size, size), np.float32))
+    monkeypatch.setattr(xr_gates, "xrv_input", lambda _img, size: np.ones((size, size), np.float32))
     assert tuple(gate._batch(_inputs(_cxr()), 224).shape) == (1, 1, 224, 224)
     assert gate.predict(_inputs(_cxr())).extras["gate"]["passed"] is True
 
@@ -391,7 +397,7 @@ def test_xr_chexzero_load_and_probabilities_with_tiny_clip(
         def encode_image(self, x: torch.Tensor) -> torch.Tensor:
             return self.image(x.mean(dim=(2, 3)))
 
-    monkeypatch.setattr(xr_chexzero, "build_chexzero_clip", lambda state: TinyClip())
+    monkeypatch.setattr(xr_chexzero, "build_chexzero_clip", lambda _state: TinyClip())
     adapter = ChexzeroAdapter(_manifest("chexzero"))
     image = _cxr(size=256)
     with pytest.raises(InferenceError, match="não carregado"):

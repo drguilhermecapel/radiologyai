@@ -15,6 +15,12 @@ Desfecho: discriminação (desenho pré-registrado: metade de calibração / met
 teste por paciente). Concordância, segmentação e detecção em regra fixa usam a
 API Python (``radiologyai.evidence.measure``).
 
+Modo plano (``--plan evidence/measured/plan.yaml``): executa todos os itens do plano
+declarado (discriminação e concordância), confere o hash dos pesos contra o
+manifesto do modelo e grava ``evidence/measured/ledger.yaml`` com o desfecho de
+CADA item — inclusive pendentes, excluídos, falhas e não elegíveis. Registro cuja
+condição não existe em ``conditions.yaml`` vai para ``measured/_awaiting_condition/``.
+
 Exemplos::
 
     python scripts/evidence_run.py --model-id xrv-densenet121-pc --dataset-id nih-cxr14 \\
@@ -51,8 +57,11 @@ def _pairs(items: list[str], what: str) -> dict[str, str]:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    p.add_argument("--model-id", required=True)
-    p.add_argument("--dataset-id", required=True, help="chave em evidence.leakage.DATASETS")
+    p.add_argument("--plan", type=Path, help="executa os itens de um plano (ver acima)")
+    p.add_argument("--job", action="append", default=[], help="só estes itens do plano")
+    p.add_argument("--ledger", type=Path, help="razão do plano (padrão: <out>/measured/)")
+    p.add_argument("--model-id")
+    p.add_argument("--dataset-id", help="chave em evidence.leakage.DATASETS")
     p.add_argument("--predictions", type=Path, help="parquet de predições (senão, --preds-root)")
     p.add_argument("--preds-root", type=Path, default=DEFAULT_PREDS_ROOT)
     p.add_argument("--label", action="append", default=[], help="rótulo (repetível)")
@@ -98,8 +107,89 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return p.parse_args(argv)
 
 
+def _known_conditions() -> set[str]:
+    from radiologyai.evidence.levels import load_conditions
+
+    return {c.id for c in load_conditions()}
+
+
+def run_plan(args: argparse.Namespace, command: str) -> int:
+    """Executa o plano; 0 = todos os itens 'measure' gravados, 3 = alguma falha."""
+    from radiologyai.catalog import load_protocol
+    from radiologyai.errors import EvidenceError
+    from radiologyai.evidence.plan import Ledger, execute_job, load_plan, write_ledger
+    from radiologyai.evidence.provenance import dirty_paths, git_state
+    from radiologyai.evidence.store import EVIDENCE_ROOT
+
+    protocol = load_protocol()
+    plan = load_plan(args.plan)
+    if plan.protocol_id != protocol.protocol_id:
+        raise EvidenceError(
+            f"plano declarado para o protocolo {plan.protocol_id!r}; vigente: "
+            f"{protocol.protocol_id!r}"
+        )
+    if args.n_bootstrap is not None and args.out is None:
+        raise SystemExit(
+            "ERRO: --n-bootstrap altera o procedimento do protocolo; só com --out "
+            "fora de evidence/ do repositório"
+        )
+    root = args.out or EVIDENCE_ROOT
+    sha, dirty = git_state()
+    if dirty and not args.allow_dirty:
+        raise SystemExit(
+            "ERRO: código da medição com modificações não commitadas "
+            f"({', '.join(dirty_paths())}); a medição não seria reproduzível a partir do "
+            "sha. Faça commit ou use --allow-dirty (registros saem com aviso)."
+        )
+    unknown = sorted(set(args.job) - {j.id for j in plan.jobs})
+    if unknown:
+        raise SystemExit(f"ERRO: itens ausentes do plano: {unknown}")
+    known = _known_conditions()
+    entries = []
+    for job in plan.jobs:
+        if args.job and job.id not in args.job:
+            continue
+        entry = execute_job(
+            plan,
+            job,
+            protocol,
+            known_conditions=known,
+            root=root,
+            git_sha=sha,
+            git_dirty=dirty,
+            command=f"{command} --job {job.id}" if not args.job else command,
+            n_bootstrap=args.n_bootstrap,
+        )
+        entries.append(entry)
+        tag = " [aguarda condição no catálogo]" if entry.awaiting_condition else ""
+        where = f" -> {entry.record}" if entry.record else ""
+        print(f"[{job.id}] {entry.outcome.upper()}{tag}{where}")
+        for reason in entry.reasons:
+            print(f"    - {reason}")
+    if not args.job:
+        try:
+            plan_rel = args.plan.resolve().relative_to(root.resolve().parent).as_posix()
+        except ValueError:
+            plan_rel = args.plan.as_posix()
+        ledger = Ledger(protocol_id=protocol.protocol_id, plan=plan_rel, entries=tuple(entries))
+        written = write_ledger(ledger, args.ledger or root / "measured" / "ledger.yaml")
+        print(f"Razão: {written}")
+    return 3 if any(e.outcome == "falha" for e in entries) else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    command = shlex.join([Path(sys.argv[0]).name, *(argv if argv is not None else sys.argv[1:])])
+    if args.plan is not None:
+        from radiologyai.errors import RadiologyAIError
+
+        try:
+            return run_plan(args, command)
+        except RadiologyAIError as exc:
+            print(f"ERRO: {exc}", file=sys.stderr)
+            return 2
+    if not args.model_id or not args.dataset_id:
+        raise SystemExit("ERRO: informe --model-id e --dataset-id (ou --plan)")
     from radiologyai.catalog import load_protocol
     from radiologyai.errors import RadiologyAIError
     from radiologyai.evidence.leakage import lineage
@@ -108,7 +198,6 @@ def main(argv: list[str] | None = None) -> int:
     from radiologyai.evidence.provenance import git_state, sha256_file
     from radiologyai.evidence.store import EVIDENCE_ROOT, measured_path, write_measured
 
-    command = shlex.join([Path(sys.argv[0]).name, *(argv if argv is not None else sys.argv[1:])])
     try:
         protocol = load_protocol()
         lineage(args.dataset_id)
@@ -139,6 +228,7 @@ def main(argv: list[str] | None = None) -> int:
         if not weights:
             raise SystemExit("ERRO: informe --weights (arquivo) ou --weights-sha256")
         conditions = _pairs(args.condition, "--condition")
+        known = _known_conditions()
 
         jobs: list[tuple[Path, str, str]] = []  # (arquivo, coluna_rótulo, rótulo)
         if args.predictions:
@@ -182,7 +272,8 @@ def main(argv: list[str] | None = None) -> int:
                 created_at=datetime.now(UTC),
                 caveats=tuple(args.caveat),
             )
-            out_path = measured_path(root, args.dataset_id, args.model_id, label)
+            awaiting = conditions[label] not in known
+            out_path = measured_path(root, args.dataset_id, args.model_id, label, awaiting=awaiting)
             try:
                 rel = out_path.relative_to(root.parent).as_posix()
             except ValueError:
@@ -209,12 +300,13 @@ def main(argv: list[str] | None = None) -> int:
                 failures += 1
                 print(f"[{label}] NÃO AVALIADO: {exc}", file=sys.stderr)
                 continue
-            written = write_measured(evidence, root)
+            written = write_measured(evidence, root, awaiting=awaiting)
             rec = evidence.record
             verdict = {True: "APROVADO", False: "REPROVADO", None: "NÃO ELEGÍVEL"}[
                 rec.passes_protocol
             ]
-            print(f"[{label}] {verdict} ({rec.kind}, leakage={rec.leakage}) -> {written}")
+            tag = " [aguarda condição no catálogo]" if awaiting else ""
+            print(f"[{label}] {verdict} ({rec.kind}, leakage={rec.leakage}){tag} -> {written}")
             for reason in rec.failure_reasons:
                 print(f"    - {reason}")
         return 3 if failures else 0

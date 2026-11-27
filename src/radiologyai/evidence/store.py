@@ -4,6 +4,8 @@ Estrutura::
 
     evidence/
       measured/<dataset>/<model>/<label>.json   # escritos por scripts/evidence_run.py
+      measured/plan.yaml, measured/ledger.yaml  # plano declarado e desfecho de cada item
+      measured/_awaiting_condition/**.json      # medidos, condição ainda fora do catálogo
       published/**/*.json|*.yaml                # registros publicados conferidos na fonte
 
 Um arquivo medido é um envelope (:class:`~radiologyai.evidence.measure.MeasuredEvidence`)
@@ -26,6 +28,8 @@ from radiologyai.errors import EvidenceError
 from radiologyai.evidence.measure import MeasuredEvidence
 
 EVIDENCE_ROOT = Path(__file__).resolve().parents[3] / "evidence"
+# Subdiretórios de measured/ iniciados por "_" ficam fora de load_records.
+AWAITING_DIR = "_awaiting_condition"
 _SAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
 # scripts/check_honesty.py (R3) exige que toda linha com chave "...sha256" traga
@@ -49,16 +53,28 @@ def dump_json(data: Any) -> str:
     return _SHA_KEY_OPENING.sub(r"\1:\n\2", text) + "\n"
 
 
-def measured_path(root: Path, dataset: str, model: str, label: str) -> Path:
-    return root / "measured" / slug(dataset) / slug(model) / f"{slug(label)}.json"
+def measured_path(
+    root: Path, dataset: str, model: str, label: str, *, awaiting: bool = False
+) -> Path:
+    """``<root>/measured/[_awaiting_condition/]<dataset>/<modelo>/<rótulo>.json``."""
+    base = root / "measured" / AWAITING_DIR if awaiting else root / "measured"
+    return base / slug(dataset) / slug(model) / f"{slug(label)}.json"
 
 
-def write_measured(evidence: MeasuredEvidence, root: Path = EVIDENCE_ROOT) -> Path:
-    """Grava o envelope em ``measured/<dataset>/<modelo>/<rótulo>.json``."""
+def write_measured(
+    evidence: MeasuredEvidence, root: Path = EVIDENCE_ROOT, *, awaiting: bool = False
+) -> Path:
+    """Grava o envelope em ``measured/<dataset>/<modelo>/<rótulo>.json``.
+
+    ``awaiting=True`` grava em ``measured/_awaiting_condition/``: medição real cuja
+    condição ainda não existe em ``conditions.yaml``. Esses arquivos não entram em
+    :func:`load_records` (nem em ``levels.json``) até a condição ser catalogada e o
+    arquivo movido para ``measured/``.
+    """
     rec = evidence.record
     if rec.dataset is None:
         raise EvidenceError("registro medido sem dataset")
-    path = measured_path(root, rec.dataset, rec.model_id, rec.label)
+    path = measured_path(root, rec.dataset, rec.model_id, rec.label, awaiting=awaiting)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_json(evidence.model_dump(mode="json")), encoding="utf-8")
     return path
@@ -105,7 +121,11 @@ def evidence_files(root: Path = EVIDENCE_ROOT) -> list[Path]:
     files: list[Path] = []
     measured = root / "measured"
     if measured.is_dir():
-        files += sorted(measured.rglob("*.json"))
+        files += sorted(
+            p
+            for p in measured.rglob("*.json")
+            if not any(part.startswith("_") for part in p.relative_to(measured).parts[:-1])
+        )
     published = root / "published"
     if published.is_dir():
         files += sorted(

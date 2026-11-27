@@ -134,12 +134,14 @@ def test_ctmr_load_guards(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
     with pytest.raises(ManifestError, match="config do TotalSegmentator inválida"):
         TotalSegmentatorAdapter(manifest.model_copy(update={"config": {"task": "x"}}))
     adapter = TotalSegmentatorAdapter(manifest)
+    assert adapter._command()[1:] == ["-m", "radiologyai.analysis.adapters.ct_totalseg_runner"]
+    monkeypatch.setattr(TotalSegmentatorAdapter, "command", (sys.executable, "-c", "pass"))
     first_key = manifest.weights[0].key
     with pytest.raises(ManifestError, match="não declarado"):
         adapter.load(_resolved(manifest, tmp_path, drop=first_key), "cpu")
-    assert adapter._command()[1:] == ["-m", "radiologyai.analysis.adapters.ct_totalseg_runner"]
     with pytest.raises(TotalSegmentatorRunError, match="não carregado"):
         adapter.run_task(volume_image(_head(), SP))
+    monkeypatch.setattr(TotalSegmentatorAdapter, "command", None)
 
     real = importlib.util.find_spec
     monkeypatch.setattr(
@@ -258,7 +260,8 @@ def test_ctmr_ventricles_volume_and_evans_paths(fake: pytest.MonkeyPatch, tmp_pa
         assert vent.value == pytest.approx((2 * 4 * 8 * 8 + 4 * 4 * 4) * 5.0 / 1000.0)
         assert vent.preconditions["n_components"] == "1"  # os três se tocam
         evans = [m for m in out.measurements if m.key != "ventricular_system_volume_ml"]
-        assert len(evans) == 1 and (evans[0].value is not None or evans[0].abstention)
+        assert len(evans) == 1
+        assert evans[0].value is not None or evans[0].abstention
 
         no_brain = ModelInputs(images=(image,), exam_type=ExamType.CT_HEAD)
         qa = adapter.applicability(no_brain)
@@ -289,7 +292,7 @@ def test_ctmr_ventricles_volume_and_evans_paths(fake: pytest.MonkeyPatch, tmp_pa
 
 
 @pytest.mark.requirement("REQ-131")
-def test_ctmr_applicability_needs_geometry_and_slices(tmp_path: Path) -> None:
+def test_ctmr_applicability_needs_geometry_and_slices() -> None:
     adapter = TotalSegmentatorAdapter(_manifest("totalseg-cerebral-bleed"))
     thin = volume_image(_head()[:3], SP)
     qa = adapter.applicability(ModelInputs(images=(thin,), exam_type=ExamType.CT_HEAD))

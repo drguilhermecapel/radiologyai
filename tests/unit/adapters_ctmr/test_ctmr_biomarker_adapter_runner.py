@@ -98,9 +98,7 @@ def test_ctmr_biomarker_adapter_applicability_gates() -> None:
     assert adapter.applicability(ok).applicable, adapter.applicability(ok)
     no_up = ModelInputs(images=ok.images, exam_type=ok.exam_type)
     assert AbstentionReason.UPSTREAM in adapter.applicability(no_up).reasons
-    empty_up = ModelInputs(
-        images=ok.images, exam_type=ok.exam_type, upstream={UP: AdapterOutput()}
-    )
+    empty_up = ModelInputs(images=ok.images, exam_type=ok.exam_type, upstream={UP: AdapterOutput()})
     assert AbstentionReason.UPSTREAM in adapter.applicability(empty_up).reasons
     image = ok.images[0]
     flat = type(image)(
@@ -211,9 +209,12 @@ def test_ctmr_runner_main_contract(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert main(args) == 0
     side = json.loads((tmp_path / "side.json").read_text())
     assert side["class_map"] == {"1": "intracerebral_hemorrhage"}
-    assert side["torch_threads"] == 2 and side["totalsegmentator_version"] == "9.9.9"
+    assert side["torch_threads"] == 2
+    assert side["totalsegmentator_version"] == "9.9.9"
     assert side["input_shape"] == [4, 5, 6] == side["output_shape"]
-    assert calls[0]["fast"] is True and calls[0]["fastest"] is False and calls[0]["ml"] is True
+    assert calls[0]["fast"] is True
+    assert calls[0]["fastest"] is False
+    assert calls[0]["ml"] is True
     cfg = json.loads((tmp_path / "home" / "config.json").read_text())
     assert cfg["send_usage_stats"] is False
 

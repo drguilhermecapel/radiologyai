@@ -153,3 +153,99 @@ def read_label(path: str | Path, label: str) -> LabelPredictions:
         dataset_sha256=dataset_sha,
         predictions_sha256=predictions_sha,
     )
+
+
+@dataclass(frozen=True)
+class ContinuousPredictions:
+    """Medida contínua do modelo contra uma medida de referência, uma linha por caso."""
+
+    patient_ids: list[str]
+    image_ids: list[str]
+    reference: npt.NDArray[np.float64]
+    measured: npt.NDArray[np.float64]
+    n_abstained: int  # casos sem medida do modelo (abstenção declarada ou nula)
+    n_filtered_out: int  # linhas fora do filtro ``where``
+    dataset_sha256: str  # manifesto: ids + referência (+ colunas do filtro)
+    predictions_sha256: str  # manifesto + medida do modelo
+
+
+def read_continuous(
+    path: str | Path,
+    *,
+    reference_column: str,
+    measured_column: str,
+    where: dict[str, str] | None = None,
+) -> ContinuousPredictions:
+    """Lê uma medida contínua (ex.: FE do modelo) e a sua referência.
+
+    ``where`` seleciona linhas por igualdade textual de colunas (ex.: ``{"mode":
+    "prompt_free"}``), para arquivos que guardam várias variantes do mesmo caso.
+    Linhas sem medida do modelo são **contadas** como abstenção e excluídas da
+    concordância — nunca imputadas.
+
+    Raises:
+        EvidenceError: colunas ausentes, ``image_id`` duplicado após o filtro,
+            referência ausente/não finita, filtro que não seleciona nenhuma linha.
+    """
+    import numpy as np
+
+    pd = _require_pandas()
+    p = Path(path)
+    if not p.is_file():
+        raise EvidenceError(f"parquet de predições não encontrado: {p}")
+    df = pd.read_parquet(p)
+    conditions = dict(where or {})
+    missing = [
+        c
+        for c in (*REQUIRED, reference_column, measured_column, *conditions)
+        if c not in df.columns
+    ]
+    if missing:
+        raise EvidenceError(f"{p}: colunas obrigatórias ausentes: {missing}")
+    n_all = len(df)
+    for column, value in conditions.items():
+        df = df[df[column].astype(str) == value]
+    if df.empty:
+        raise EvidenceError(f"{p}: o filtro {conditions} não seleciona nenhuma linha")
+    if df["image_id"].duplicated().any():
+        raise EvidenceError(f"{p}: image_id duplicado após o filtro {conditions}")
+    if df["patient_id"].isna().any():
+        raise EvidenceError(f"{p}: patient_id ausente em alguma linha")
+
+    rows: list[dict[str, Any]] = []
+    for rec in df[[*REQUIRED, *conditions, reference_column, measured_column]].to_dict(
+        orient="records"
+    ):
+        ref = rec[reference_column]
+        if ref is None or not np.isfinite(float(ref)):
+            raise EvidenceError(
+                f"{p}: {reference_column} ausente ou não finito em {rec['image_id']!r}; "
+                "caso sem referência não entra na concordância"
+            )
+        meas = rec[measured_column]
+        meas_f = None if meas is None or not np.isfinite(float(meas)) else float(meas)
+        rows.append(
+            {
+                "image_id": str(rec["image_id"]),
+                "patient_id": str(rec["patient_id"]),
+                **{c: str(rec[c]) for c in conditions},
+                "reference": float(ref),
+                "measured": meas_f,
+            }
+        )
+    manifest_cols = ["image_id", "patient_id", *conditions, "reference"]
+    dataset_sha = canonical_rows_sha256(rows, manifest_cols)
+    predictions_sha = canonical_rows_sha256(rows, [*manifest_cols, "measured"])
+    kept = [r for r in rows if r["measured"] is not None]
+    if not kept:
+        raise EvidenceError(f"{p}: nenhum caso com medida do modelo ({measured_column})")
+    return ContinuousPredictions(
+        patient_ids=[r["patient_id"] for r in kept],
+        image_ids=[r["image_id"] for r in kept],
+        reference=np.array([r["reference"] for r in kept], dtype=np.float64),
+        measured=np.array([r["measured"] for r in kept], dtype=np.float64),
+        n_abstained=len(rows) - len(kept),
+        n_filtered_out=n_all - len(rows),
+        dataset_sha256=dataset_sha,
+        predictions_sha256=predictions_sha,
+    )

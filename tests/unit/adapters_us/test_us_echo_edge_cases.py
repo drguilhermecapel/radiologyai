@@ -78,7 +78,8 @@ def test_echo_lv_measurements_report_area_when_discs_are_inapplicable() -> None:
     meas = {m.key: m for m in lv_measurements(traced)}
     es = meas["lv_cavity_area_a4c_es"]
     assert es.value == pytest.approx(SP[0] * SP[1])
-    assert es.note is not None and "inaplicável" in es.note
+    assert es.note is not None
+    assert "inaplicável" in es.note
     assert meas["lv_ef"].value is None
     assert meas["lv_ef"].abstention is AbstentionReason.QUALITY
     assert meas["lv_esv"].abstention is AbstentionReason.QUALITY
