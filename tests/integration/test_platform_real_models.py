@@ -18,13 +18,13 @@ import hashlib
 import importlib.util
 import io
 import math
-from pathlib import Path
 from typing import Any
 
 import pytest
+from cache_paths import MEDAI_CACHE
 from platform_support import HAS_PLATFORM, PASSWORD
 
-CACHE = Path("/root/medai-cache")
+CACHE = MEDAI_CACHE
 WEIGHTS = CACHE / "weights" / "registry"
 SAMPLE = (
     CACHE
