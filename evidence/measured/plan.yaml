@@ -346,48 +346,1984 @@ jobs:
       ef_per_instant.parquet é análise secundária: a referência é recalculada das máscaras
       de referência por instante, não a FE oficial do CAMUS; o desfecho primário é ef.parquet.
   # ------------------------------------------------------------------ Conjuntos incompletos
-  - id: xrv-densenet121-res224-pc@nih-cxr14-test
-    status: pending
+  # ------------------------------------------------------------------ RX de tórax: NIH ChestX-ray14
+  # Gerados por scripts/xrv_nih_evidence.py plan (pré-especificados antes da medição).
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-pc
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos
-      (17920 de 25596 imagens); a fila parou no fragmento 7 e não houve merge.
-  - id: xrv-densenet121-res224-chex@nih-cxr14-test
-    status: pending
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#emphysema
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#fibrosis
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#hernia
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#infiltration
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#mass
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#nodule
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#pleural_thickening
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-pc/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-google-adjudicated#fracture
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14-google
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-pc/nih-google-adjudicated/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-pc@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-pc/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-chex
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos
-      (17920 de 25596 imagens); a fila parou no fragmento 7 e não houve merge.
-  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test
-    status: pending
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-chex/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-google-adjudicated#fracture
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14-google
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-chex/nih-google-adjudicated/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_lesion
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14-google
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-chex/nih-google-adjudicated/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-google-adjudicated#lung_opacity
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14-google
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-chex/nih-google-adjudicated/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-chex@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-chex/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-mimic_nb
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos
-      (17920 de 25596 imagens); a fila parou no fragmento 7 e não houve merge.
-  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test
-    status: pending
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-mimic_nb/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#fracture
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14-google
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-mimic_nb/nih-google-adjudicated/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_lesion
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14-google
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-mimic_nb/nih-google-adjudicated/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#lung_opacity
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14-google
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-mimic_nb/nih-google-adjudicated/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_nb@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_nb/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-mimic_ch
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos
-      (17920 de 25596 imagens); a fila parou no fragmento 7 e não houve merge.
-  - id: xrv-densenet121-res224-all@nih-cxr14-test
-    status: pending
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-mimic_ch/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#fracture
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14-google
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-mimic_ch/nih-google-adjudicated/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_lesion
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14-google
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-mimic_ch/nih-google-adjudicated/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#lung_opacity
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14-google
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-mimic_ch/nih-google-adjudicated/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_ch/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-all
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split
-      do TorchXRayVision põe a maior parte do teste oficial no treino; protocolo §8.2).
-  - id: xrv-densenet121-res224-nih@nih-cxr14-test
-    status: pending
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#emphysema
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#fibrosis
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#hernia
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#infiltration
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#mass
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#nodule
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#pleural_thickening
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-all/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-google-adjudicated#fracture
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14-google
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-all/nih-google-adjudicated/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-google-adjudicated#lung_lesion
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14-google
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-all/nih-google-adjudicated/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-google-adjudicated#lung_opacity
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14-google
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-all/nih-google-adjudicated/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-all@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-all
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-all/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - google-nih-relabel
+    - openi
+    - rsna-pneumonia
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#atelectasis
+    status: measure
     model_id: xrv-densenet121-res224-nih
     dataset_id: nih-cxr14
-    reason: >-
-      medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split
-      do TorchXRayVision põe a maior parte do teste oficial no treino; protocolo §8.2).
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#cardiomegaly
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#consolidation
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: consolidation
+    condition_id: cxr.consolidation
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: consolidation
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#emphysema
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#fibrosis
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#hernia
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#infiltration
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#mass
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#nodule
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_effusion
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#pleural_thickening
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#pneumonia
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-cxr14-test#pulmonary_edema
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-nih/nih-cxr14-test/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: report_nlp
+    population: NIH Clinical Center (Bethesda, EUA); split oficial de teste do ChestX-ray14 (test_list.txt,
+      25596 imagens, pacientes disjuntos do split oficial de treino)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.
+    - O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens por paciente);
+      IC por bootstrap agrupado por paciente.
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  - id: xrv-densenet121-res224-nih@nih-google-adjudicated#pneumothorax
+    status: measure
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: nih-cxr14-google
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-nih/nih-google-adjudicated/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: radiologist_adjudicated
+    population: Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas
+      (Majkowska et al., Radiology 2020; google_labels_joined.csv)
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos do Google: 4 classes; ''Nodule or mass'' comparado a lung_lesion e ''Airspace opacity'' a
+      lung_opacity (definições próximas, não idênticas).'
+    - Rota principal dos modelos xrv definida antes desta medição (commit 9961292), sem comparação de desempenho
+      no NIH registrada.
+  # ------------------------------------------------------------------ Mamografia
   - id: mammoscreen@cmmd
     status: measure
     model_id: mammoscreen
