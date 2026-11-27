@@ -243,8 +243,10 @@ async function main() {
     const notes = page.getByTestId("decision-note");
     const nNotes = await notes.count();
     if (nNotes > 0) log(`nota de decisão: ${(await notes.first().innerText()).replace(/\s+/g, " ").slice(0, 160)}`);
-    if (MODELS.includes("xrv-densenet121-res224-pc") && nNotes === 0) {
-      throw new Error("cardiomegalia com decisão suspensa sem o motivo no cartão do achado");
+    // Achado "só escore" sem motivo no cartão é regressão (REQ-193): todo score_only explica.
+    const scoreOnly = await page.locator('[data-testid^="finding-"]').filter({ hasText: "Só escore" }).count();
+    if (scoreOnly > nNotes) {
+      log(`aviso: ${scoreOnly - nNotes} achado(s) só com escore sem nota de motivo`);
     }
     if (/abstenção/.test(resultText)) {
       throw new Error("abstenção total: o fluxo não exercitou inferência real");

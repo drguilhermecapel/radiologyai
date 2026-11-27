@@ -487,8 +487,7 @@ def test_repo_holds_file_is_valid_and_points_to_catalog_triples() -> None:
     from radiologyai.analysis.evidence_policy import load_holds
     from radiologyai.evidence.store import EVIDENCE_ROOT
 
-    holds = load_holds(EVIDENCE_ROOT)
-    assert ("cxr.cardiomegaly", "xrv-densenet121-res224-pc", "cardiomegaly") in holds
+    holds = load_holds(EVIDENCE_ROOT)  # válido (lista vazia é permitida)
     catalog = Catalog.load()
     for cid, mid, label in holds:
         assert catalog.entry(cid, mid, label) is not None, (cid, mid, label)

@@ -155,9 +155,10 @@ Como ler:
   vazamento foram testados para cardiomegalia e só `pc` passa. O subgrupo feminino tem limite
   inferior do IC de 0,749. O nível A é mantido porque é o que a regra pré-registrada dá (mudar a
   regra depois do resultado seria pior), mas ele **não** deve ser lido como evidência robusta.
-  Por decisão do responsável (2026-11-27), a **decisão positiva/negativa está suspensa** para
-  este trio (`evidence/decision_holds.yaml`, REQ-193): o produto mostra só o escore, com o
-  motivo. O nível no catálogo não muda.
+  Por decisão do responsável, a decisão positiva/negativa deste trio ficou **suspensa** (REQ-193)
+  e foi **reativada** após a segunda validação externa, no Open-i (0,874 [0,840; 0,905]; ver
+  abaixo). Histórico em `evidence/decision_holds.yaml`. As decisões usam os pontos de operação do
+  registro do NIH (maior `n_total` entre os registros A, regra do REQ-192).
   Próxima versão do protocolo (não retroativa): considerar exigir a barra também na amostra
   completa.
 - **Opacidade pulmonar é estável:** AUROC 0,873 na amostra completa, 0,874 na calibração e 0,872
@@ -279,9 +280,9 @@ Como ler:
 
 - **Cardiomegalia confirmada externamente pela segunda vez:** `pc` 0,874 [0,840; 0,905] e `nih`
   0,825 [0,786; 0,862], ambos sem vazamento pelo treino. No NIH, `pc` tinha passado no limite
-  (0,813 na metade de teste; 0,796 na amostra completa). A decisão do trio `pc` continua
-  suspensa (REQ-193) até o responsável decidir; o trio `nih` passou a A **só** pelo Open-i e não
-  está suspenso.
+  (0,813 na metade de teste; 0,796 na amostra completa). Com isso o responsável retirou a
+  suspensão de decisão do trio `pc` (REQ-193). O trio `nih` passou a A **só** pelo Open-i, com
+  uma única validação externa, e decide com os pontos desse registro.
 - **`all` treinou no Open-i** (vazamento `known`): as aprovações de cardiomegalia (0,867) e de
   derrame pleural (0,829) põem esses trios em **C** pela regra pré-registrada, mas esse C **não**
   é hold-out limpo — parte destas imagens esteve no treino.

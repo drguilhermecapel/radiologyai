@@ -2,15 +2,12 @@
 # (condição, modelo, rótulo): o achado mostra só o escore, com o motivo. Nunca altera o nível
 # do catálogo nem promove nada. Remover uma suspensão é decisão do responsável, registrada em
 # commit, com a nova evidência que a justifica.
+#
+# Histórico:
+# - 2026-11-27: suspensa a decisão de cxr.cardiomegaly / xrv-densenet121-res224-pc (A limítrofe
+#   no NIH: 0,813 na metade de teste, 0,796 no teste oficial completo).
+# - 2026-11-27: suspensão retirada pelo responsável após a segunda validação externa, no Open-i
+#   (evidence/measured/openi/xrv-densenet121-res224-pc/cardiomegaly.json, AUROC 0,874
+#   [0,840; 0,905]).
 format: radiologyai.evidence/decision-holds-v1
-holds:
-  - condition_id: cxr.cardiomegaly
-    model_id: xrv-densenet121-res224-pc
-    label: cardiomegaly
-    reason: >-
-      nível A limítrofe: AUROC 0,813 na metade de teste pré-registrada, mas 0,796 no teste
-      oficial completo do NIH e 0,773 na metade de calibração; só ~1/3 das divisões
-      passariam na barra de 0,80
-    decided_on: 2026-11-27
-    decided_by: responsável do projeto
-    evidence_ref: HONEST_STATUS.md (RX de tórax no NIH ChestX-ray14)
+holds: []
