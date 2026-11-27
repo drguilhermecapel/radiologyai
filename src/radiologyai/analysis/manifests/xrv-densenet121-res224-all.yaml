@@ -59,7 +59,7 @@ training_data:
 - padchest
 - chexpert
 - mimic-cxr
-- google-nih-relabel
+- nih-cxr14-google
 - openi
 - rsna-pneumonia
 labels:
