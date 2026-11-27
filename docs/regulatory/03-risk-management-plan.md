@@ -87,7 +87,8 @@ A probabilidade estimada é a de a situação perigosa ocorrer **e** resultar em
 médica concorrente. Para falhas de software, este
 plano **não credita baixa probabilidade de falha do próprio software**: assume que a falha ocorre
 e estima apenas a probabilidade de ela levar a dano (prática da IEC 62304 para classificação; o
-texto exato da cláusula na Ed. 1.1 está a confirmar).
+texto exato da cláusula na Ed. 1.1 está a confirmar; a v0.1 de `main` a citava como §7.1.4,
+junto com a ISO/TR 24971).
 
 ### 4.3 Matriz
 
