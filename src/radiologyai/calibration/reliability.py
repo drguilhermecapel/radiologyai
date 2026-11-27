@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import numpy as np
-from numpy.typing import ArrayLike
+if TYPE_CHECKING:
+    # numpy é importado sob demanda: `import radiologyai.calibration` deve continuar leve.
+    from numpy.typing import ArrayLike
 
 
 @dataclass(frozen=True)
@@ -63,6 +65,8 @@ def compute_reliability_diagram(
     """Calcula bins uniformes em [0.0, 1.0], ECE, MCE e Brier score."""
     if isinstance(n_bins, bool) or n_bins < 1:
         raise ValueError("n_bins must be an integer >= 1.")
+
+    import numpy as np
 
     probs = np.asarray(probabilities, dtype=np.float64)
     targets = np.asarray(labels, dtype=np.float64)
