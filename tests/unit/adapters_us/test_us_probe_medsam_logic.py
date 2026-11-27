@@ -189,7 +189,7 @@ def test_us_probe_box_roi_flow_with_fixed_encoder() -> None:
 @pytest.mark.skipif(not have("PIL"), reason="Pillow ausente")
 def test_us_probe_full_roi_averages_cine_frames() -> None:
     adapter = USProbeAdapter(_manifest("us-probe-liver-steatosis"))
-    frames = np.stack([np.full((50, 50), 255.0 * k / 3) for k in range(4)])
+    frames = np.stack([np.full((150, 150), 255.0 * k / 3) for k in range(4)])
     clip = us_image(frames, kind=ImageKind.CINE)
     inputs = ModelInputs(images=(clip,), exam_type=ExamType.US_ABDOMEN)
     assert adapter.applicability(inputs).applicable
@@ -329,6 +329,7 @@ def _tiny_sam_dir(tmp_path: Path) -> Path:
             "window_size": 0,
             "image_size": 1024,
             "patch_size": 16,
+            "num_pos_feats": 16,
         },
         prompt_encoder_config={"hidden_size": 32, "image_size": 1024, "patch_size": 16},
         mask_decoder_config={
