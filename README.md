@@ -13,8 +13,8 @@ mostra a força da evidência que o sustenta.
 > diagnóstico.
 >
 > **Duas condições têm nível A** (cardiomegalia e opacidade pulmonar em RX de tórax, modelos
-> TorchXRayVision de terceiros, validação externa retrospectiva no NIH ChestX-ray14); **nenhuma tem
-> nível B**. Nível A aqui não é validação clínica. As medições são retrospectivas, em dados
+> TorchXRayVision de terceiros, validação externa retrospectiva no NIH ChestX-ray14); **uma tem
+> nível B** (derrame pericárdico em TC, por validação publicada revisada por pares). Nível A aqui não é validação clínica. As medições são retrospectivas, em dados
 > públicos, e estão listadas com o caminho de cada artefato em
 > **[HONEST_STATUS.md](HONEST_STATUS.md)**, inclusive as reprovações e o nível A retratado.
 > Versões anteriores deste README alegavam acurácia e "validação clínica" que eram **fabricadas
@@ -50,13 +50,14 @@ se divergir):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 2 | 0 | 1 | 15 | 14 |
+| `ct` | 0 | 1 | 0 | 2 | 0 |
+| `cxr` | 2 | 0 | 1 | 16 | 14 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 1 | 27 | 16 |
+| **Todas** | 2 | 1 | 1 | 30 | 16 |
 <!-- kpi-levels:fim -->
 
 Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **A** para
@@ -69,7 +70,8 @@ fratura, câncer de mama em mamografia e 13 condições de tórax **refutadas** 
 medidos (a coluna "Refutadas" do KPI conta 14 em `cxr` porque inclui a cardiomegalia, A com `pc` e
 refutada com `chex` e `mimic_*`)
 (`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`,
-`evidence/measured/cmmd/mammoscreen/malignancy.json`). Nenhuma condição em B. Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
+`evidence/measured/cmmd/mammoscreen/malignancy.json`). **B** para derrame pericárdico em TC (`totalseg-pleural-pericard-effusion`, Wilder-Smith et al.
+2022, `evidence/published/ct_mr.yaml`). Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
 
 ## O que existe hoje
 

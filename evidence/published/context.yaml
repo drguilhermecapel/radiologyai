@@ -6062,6 +6062,114 @@ context:
   validation_type: external
   value: '0.92'
 - ci95: null
+  condition_id: null
+  condition_text: Enlarged cardiomediastinal silhouette
+  metric: auroc
+  model_or_method: TorchXRayVision XRV-ResNet-resnet50-res512-all
+  n: null
+  note: null
+  population_or_dataset: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Enlarged Cardiomediastinum'
+  reason: 'a saída publicada não é exposta pelo manifesto do modelo que rodamos (sem rótulo correspondente
+    em analysis/manifests): xrv-resnet50-res512-all: rótulo ''Enlarged Cardiomediastinum'' (cxr.enlarged_cardiomediastinum)
+    fora do manifesto; saída sem limiar de operação em models.py (np.nan): não treinada (Fonte: BENCHMARKS.md
+    do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem contagem de positivos;
+    split 80/20 por paciente do próprio repositório.)'
+  reason_code: saida_nao_exposta
+  reference_standard: CheXpert dataset labels (automated labeler over radiology reports, Irvin et al.
+    arXiv:1901.07031); 20% patient-grouped split of the dataset as loaded by XRV (not stated to be the
+    500-study radiologist-labelled test set)
+  source:
+    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
+    peer_reviewed: false
+    quote: '|XRV-ResNet-resnet50-res512-all|23,538,642|0.63|0.84|0.74|0.79|0.5|0.58|0.50|0.71|0.81|-|0.67|0.61|-|'
+    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
+    verified_at_source: true
+  source_entry: cxr-xrv-res512-all-chex-enlarged-cardiomediastinum
+  source_file: evidence-cxr.verified.md
+  validation_type: external
+  value: '0.5'
+- ci95: null
+  condition_id: null
+  condition_text: Lung lesion (nodule/mass)
+  metric: auroc
+  model_or_method: TorchXRayVision XRV-ResNet-resnet50-res512-all
+  n: null
+  note: null
+  population_or_dataset: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Lung Lesion'
+  reason: 'a saída publicada não é exposta pelo manifesto do modelo que rodamos (sem rótulo correspondente
+    em analysis/manifests): xrv-resnet50-res512-all: rótulo ''Lung Lesion'' (cxr.lung_lesion) fora do
+    manifesto; saída sem limiar de operação em models.py (np.nan): não treinada (Fonte: BENCHMARKS.md
+    do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem contagem de positivos;
+    split 80/20 por paciente do próprio repositório.)'
+  reason_code: saida_nao_exposta
+  reference_standard: CheXpert dataset labels (automated labeler over radiology reports, Irvin et al.
+    arXiv:1901.07031); 20% patient-grouped split of the dataset as loaded by XRV (not stated to be the
+    500-study radiologist-labelled test set)
+  source:
+    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
+    peer_reviewed: false
+    quote: '|XRV-ResNet-resnet50-res512-all|23,538,642|0.63|0.84|0.74|0.79|0.5|0.58|0.50|0.71|0.81|-|0.67|0.61|-|'
+    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
+    verified_at_source: true
+  source_entry: cxr-xrv-res512-all-chex-lung-lesion
+  source_file: evidence-cxr.verified.md
+  validation_type: external
+  value: '0.5'
+- ci95: null
+  condition_id: null
+  condition_text: Enlarged cardiomediastinal silhouette
+  metric: auroc
+  model_or_method: TorchXRayVision XRV-ResNet-resnet50-res512-all
+  n: null
+  note: null
+  population_or_dataset: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column
+    'Enlarged Cardiomediastinum'
+  reason: 'a saída publicada não é exposta pelo manifesto do modelo que rodamos (sem rótulo correspondente
+    em analysis/manifests): xrv-resnet50-res512-all: rótulo ''Enlarged Cardiomediastinum'' (cxr.enlarged_cardiomediastinum)
+    fora do manifesto; saída sem limiar de operação em models.py (np.nan): não treinada (Fonte: BENCHMARKS.md
+    do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem contagem de positivos;
+    split 80/20 por paciente do próprio repositório.)'
+  reason_code: saida_nao_exposta
+  reference_standard: MIMIC-CXR with CheXpert-labeler labels (per BENCHMARKS.md heading 'MIMIC-CXR (CheXpert
+    labels)'); 20% hold-out
+  source:
+    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
+    peer_reviewed: false
+    quote: '|XRV-ResNet-resnet50-res512-all|0.77|0.78|0.88|0.87|0.50|0.66|0.5|0.77|0.9|-|0.77|0.72|-|'
+    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
+    verified_at_source: true
+  source_entry: cxr-xrv-res512-all-mimic_ch-enlarged-cardiomediastinum
+  source_file: evidence-cxr.verified.md
+  validation_type: external
+  value: '0.5'
+- ci95: null
+  condition_id: null
+  condition_text: Lung lesion (nodule/mass)
+  metric: auroc
+  model_or_method: TorchXRayVision XRV-ResNet-resnet50-res512-all
+  n: null
+  note: null
+  population_or_dataset: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column
+    'Lung Lesion'
+  reason: 'a saída publicada não é exposta pelo manifesto do modelo que rodamos (sem rótulo correspondente
+    em analysis/manifests): xrv-resnet50-res512-all: rótulo ''Lung Lesion'' (cxr.lung_lesion) fora do
+    manifesto; saída sem limiar de operação em models.py (np.nan): não treinada (Fonte: BENCHMARKS.md
+    do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem contagem de positivos;
+    split 80/20 por paciente do próprio repositório.)'
+  reason_code: saida_nao_exposta
+  reference_standard: MIMIC-CXR with CheXpert-labeler labels (per BENCHMARKS.md heading 'MIMIC-CXR (CheXpert
+    labels)'); 20% hold-out
+  source:
+    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
+    peer_reviewed: false
+    quote: '|XRV-ResNet-resnet50-res512-all|0.77|0.78|0.88|0.87|0.50|0.66|0.5|0.77|0.9|-|0.77|0.72|-|'
+    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
+    verified_at_source: true
+  source_entry: cxr-xrv-res512-all-mimic_ch-lung-lesion
+  source_file: evidence-cxr.verified.md
+  validation_type: external
+  value: '0.5'
+- ci95: null
   condition_id: ct.abdominal_aortic_aneurysm
   condition_text: 'Abdominal aortic aneurysm: diameter definition'
   metric: threshold

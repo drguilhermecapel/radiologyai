@@ -40,7 +40,9 @@ records:
   population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
     not peer-reviewed)'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
     peer_reviewed: false
@@ -49,6 +51,7 @@ records:
       (MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md))
     url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - Valores de desenvolvedor no split de validação usado para seleção de modelo (README do bundle no Hugging
     Face).
@@ -81,7 +84,9 @@ records:
   population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
     not peer-reviewed)'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
     peer_reviewed: false
@@ -90,6 +95,7 @@ records:
       Model Zoo bundle brats_mri_segmentation (docs/README.md))
     url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - Valores de desenvolvedor no split de validação usado para seleção de modelo (README do bundle no Hugging
     Face).
@@ -122,7 +128,9 @@ records:
   population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
     not peer-reviewed)'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
     peer_reviewed: false
@@ -131,6 +139,7 @@ records:
       Model Zoo bundle brats_mri_segmentation (docs/README.md))
     url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'sensitivity: a fonte publica apenas um limite (''>75%'')'
   - 'tipo de validação na fonte: external'
@@ -160,7 +169,9 @@ records:
   passes_protocol: false
   population: 103 test cases from publicly available datasets
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
     peer_reviewed: true
@@ -170,6 +181,7 @@ records:
       (PMID 38703470))
     url: https://pubmed.ncbi.nlm.nih.gov/38703470/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'tipo de validação na fonte: external'
   - 'padrão de referência (fonte): expert consensus lesion masks'
@@ -198,7 +210,9 @@ records:
   passes_protocol: false
   population: MSSEG-1 challenge dataset (public)
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
     peer_reviewed: true
@@ -207,6 +221,7 @@ records:
       10.1016/j.nicl.2024.103611 (PMID 38703470))
     url: https://pubmed.ncbi.nlm.nih.gov/38703470/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'tipo de validação na fonte: external'
   - 'padrão de referência (fonte): expert lesion masks'
@@ -234,7 +249,9 @@ records:
   passes_protocol: false
   population: 103 test cases from publicly available datasets
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
     peer_reviewed: true
@@ -243,17 +260,24 @@ records:
       (PMID 38703470))
     url: https://pubmed.ncbi.nlm.nih.gov/38703470/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
+  - 'n_positive=100: Wilder-Smith et al., Diagnostics 2022, seção 3.3 ''Model Performance'' (https://pmc.ncbi.nlm.nih.gov/articles/PMC9139725/):
+    ''Hereon, the analyses are based on the positive test cohort only ( n = 100), which are presented
+    in Table 4.'''
+  - 'Fonte internamente inconsistente: a seção 3.4 define positivo como volume de referência > 50 mL (89
+    derrames assim no teste, seção 3.1) e soma volumes < 50 mL aos negativos; mas os IC publicados (91,48–99,38%
+    e 96,38–100,00%) só se reproduzem exatamente por Clopper-Pearson com 97/100 e 100/100. Gravado o denominador
+    literal da seção 3.3 (n = 100); com 89 a condição também ficaria acima do mínimo de 30 positivos.'
   - 'tipo de validação na fonte: internal'
   - 'padrão de referência (fonte): manual 3D segmentation / report'
   - 'origem: evidence-ct-mr.verified.md#pericard_eff_sens, evidence-ct-mr.verified.md#pericard_eff_spec'
   condition_id: ct.pericardial_effusion
   dataset: Univ. Hospital Basel (interno)
   endpoint: detection
-  failure_reasons:
-  - número de positivos não publicado; a barra exige >= 30 positivos
+  failure_reasons: []
   id: pub.pericard_eff_detection
   kind: published
   label: pericardial_effusion
@@ -269,23 +293,28 @@ records:
       ci_high: 1.0
       ci_low: 0.9638
       value: 1.0
-  model_id: totalseg-pleural_pericard_effusion
-  n_positive: null
+  model_id: totalseg-pleural-pericard-effusion
+  n_positive: 100
   n_total: 200
-  passes_protocol: false
+  passes_protocol: true
   population: Univ. Hospital Basel chest CT, held-out test set (contrast and non-enhanced)
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.3390/diagnostics12051045 (PMID 35626201)
     peer_reviewed: true
     quote: 'The sensitivity and specificity for PEF detection was 97% (95% CI 91.48−99.38%) and 100.00%
       (95% CI 96.38−100.00%) and 89.74% and 83.61% for diagnosing hemopericardium (AUC 0.944, 95% CI 0.904−0.984).
-      Model performance (Dice coefficient: 0.75 ± 0.01) was non-inferior to inter-reader (0.69 ± 0.02)'
+      Model performance (Dice coefficient: 0.75 ± 0.01) was non-inferior to inter-reader (0.69 ± 0.02)
+      [...] Hereon, the analyses are based on the positive test cohort only ( n = 100), which are presented
+      in Table 4.'
     title: nnU-Net (Wilder-Smith et al.; TotalSegmentator task pleural_pericard_effusion) - Pericardial
       effusion detection (>50 mL) (DOI 10.3390/diagnostics12051045 (PMID 35626201))
     url: https://pubmed.ncbi.nlm.nih.gov/35626201/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -310,13 +339,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.75
-  model_id: totalseg-pleural_pericard_effusion
+  model_id: totalseg-pleural-pericard-effusion
   n_positive: null
   n_total: 200
   passes_protocol: false
   population: Univ. Hospital Basel chest CT, held-out test set
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.3390/diagnostics12051045 (PMID 35626201)
     peer_reviewed: true
@@ -327,6 +358,7 @@ records:
       (PMID 35626201))
     url: https://pubmed.ncbi.nlm.nih.gov/35626201/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -350,14 +382,16 @@ records:
       ci_high: null
       ci_low: null
       value: 0.89
-  model_id: totalseg-pleural_pericard_effusion
+  model_id: totalseg-pleural-pericard-effusion
   n_positive: null
   n_total: 96
   passes_protocol: false
   population: Univ. Hospital Basel chest CT test subset, n = 96 CTs as stated for the test dataset (median
     Dice; mean 0.84)
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
     peer_reviewed: true
@@ -367,6 +401,7 @@ records:
       (PMID 35797580))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -390,13 +425,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.71
-  model_id: totalseg-pleural_pericard_effusion
+  model_id: totalseg-pleural-pericard-effusion
   n_positive: null
   n_total: 34
   passes_protocol: false
   population: PleThora public dataset (NSCLC patients)
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
     peer_reviewed: true
@@ -406,6 +443,7 @@ records:
       (PMID 35797580))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -439,13 +477,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.98
-  model_id: totalseg-pleural_pericard_effusion
+  model_id: totalseg-pleural-pericard-effusion
   n_positive: null
   n_total: 96
   passes_protocol: false
   population: Univ. Hospital Basel chest CT, held-out test subset (effusion + negative cohort)
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
     peer_reviewed: true
@@ -455,6 +495,7 @@ records:
       detection (per case) (DOI 10.1097/RLI.0000000000000869 (PMID 35797580))
     url: https://pubmed.ncbi.nlm.nih.gov/35797580/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -480,13 +521,15 @@ records:
       ci_high: 0.997
       ci_low: 0.989
       value: 0.99
-  model_id: totalseg-pleural_pericard_effusion
+  model_id: totalseg-pleural-pericard-effusion
   n_positive: null
   n_total: 2234
   passes_protocol: false
   population: NLST public low-dose screening CT (2234 CTs, 1061 patients, soft-tissue kernel)
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_single_read
+  selection_overlap: []
   source:
     identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
     peer_reviewed: true
@@ -496,6 +539,7 @@ records:
       35797580))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -510,7 +554,7 @@ records:
   - Dice 0.658 < barra de 0.85
   id: pub.ts_liver_lesion_ct_dice
   kind: published
-  label: liver_lesions
+  label: liver_lesion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós'
@@ -519,14 +563,16 @@ records:
       ci_high: 0.761
       ci_low: 0.568
       value: 0.658
-  model_id: totalseg-liver_lesions
+  model_id: totalseg-liver-lesions
   n_positive: null
   n_total: 46
   passes_protocol: false
   population: 'Univ. Hospital Basel, held-out test set: 46 CTs containing 153 lesions (of 80 test studies:
     46 CTs and 34 MRIs)'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
     peer_reviewed: true
@@ -536,6 +582,7 @@ records:
       (PMID 41136714; PMC13481620))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -552,7 +599,7 @@ records:
   - Dice 0.590 < barra de 0.85
   id: pub.ts_liver_lesion_ct_dice_lits_external
   kind: published
-  label: liver_lesions
+  label: liver_lesion
   leakage: none
   leakage_note: null
   metrics:
@@ -560,14 +607,16 @@ records:
       ci_high: 0.65
       ci_low: 0.54
       value: 0.59
-  model_id: totalseg-liver_lesions
+  model_id: totalseg-liver-lesions
   n_positive: null
   n_total: null
   passes_protocol: false
   population: LiTS public contrast-enhanced abdominal CT test data, 131 lesions (n counts lesions), applied
     without fine-tuning
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
     peer_reviewed: true
@@ -576,6 +625,7 @@ records:
       (PMID 41136714; PMC13481620))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -591,7 +641,7 @@ records:
   - especificidade não publicado(a) neste registro
   id: pub.ts_liver_lesion_ct_sens
   kind: published
-  label: liver_lesions
+  label: liver_lesion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós'
@@ -600,14 +650,16 @@ records:
       ci_high: 0.837
       ci_low: 0.667
       value: 0.758
-  model_id: totalseg-liver_lesions
+  model_id: totalseg-liver-lesions
   n_positive: null
   n_total: 46
   passes_protocol: false
   population: 'Univ. Hospital Basel, held-out test set: 46 CTs containing 153 lesions (of 80 test studies:
     46 CTs and 34 MRIs)'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
     peer_reviewed: true
@@ -617,6 +669,7 @@ records:
       (DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Identidade dos pesos: o README do TotalSegmentator manda citar este artigo para a tarefa; não há
     hash publicado que ligue o artigo aos pesos da tarefa baixados.'
@@ -634,7 +687,7 @@ records:
   - especificidade não publicado(a) neste registro
   id: pub.ts_liver_lesion_ct_sens_lits_external
   kind: published
-  label: liver_lesions
+  label: liver_lesion
   leakage: none
   leakage_note: null
   metrics:
@@ -642,14 +695,16 @@ records:
       ci_high: 0.741
       ci_low: 0.555
       value: 0.657
-  model_id: totalseg-liver_lesions
+  model_id: totalseg-liver-lesions
   n_positive: null
   n_total: null
   passes_protocol: false
   population: LiTS public contrast-enhanced abdominal CT test data, 131 lesions (n counts lesions), applied
     without fine-tuning
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
     peer_reviewed: true
@@ -659,3 +714,4 @@ records:
       (DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620))
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
     verified_at_source: true
+  training_leakage: null

@@ -24,7 +24,9 @@
   radiologistas, AUROC 0,872 [0,848; 0,894]). Nível A aqui significa só *validação externa
   retrospectiva de algoritmo isolado* em um conjunto público; não é validação clínica. O nível A
   de tuberculose que `levels.json` chegou a mostrar foi **retratado** (ver "Nível A retratado").
-  Nenhuma condição tem nível B. A maior parte das condições de tórax medidas no NIH foi
+  **Uma condição tem nível B:** derrame pericárdico em TC (`totalseg-pleural-pericard-effusion`), pela validação publicada revisada por pares de Wilder-Smith et al., Diagnostics 2022 (DOI 10.3390/diagnostics12051045): sensibilidade 97,00% [91,48; 99,38] e especificidade 100,00% [96,38; 100,00] na coorte de teste do estudo (n = 200).
+  Não foi medida por este projeto; o artigo é internamente inconsistente quanto ao número de positivos (ressalva no registro `evidence/published/ct_mr.yaml`). Sem pontos de operação medidos, o achado aparece só com escore.
+  A maior parte das condições de tórax medidas no NIH foi
   **reprovada** (detalhe abaixo).
 - **Não houve validação clínica.** Nenhuma. Nenhum dado clínico de parceiro brasileiro foi
   analisado; o único dado brasileiro medido é o conjunto público BUS-BRA (US de mama), em medição
@@ -278,23 +280,25 @@ manifesto que cobre os pesos medidos):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 2 | 0 | 1 | 15 | 14 |
+| `ct` | 0 | 1 | 0 | 2 | 0 |
+| `cxr` | 2 | 0 | 1 | 16 | 14 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 1 | 27 | 16 |
+| **Todas** | 2 | 1 | 1 | 30 | 16 |
 <!-- kpi-levels:fim -->
 
-O catálogo tem 63 condições; 34 têm entrada em `levels.json` e 13 têm entrada de modelo
-distribuído. As demais entradas são de ids de modelo sem manifesto (inclusive os ids dos
-registros publicados em `evidence/published/`, que não casam com os manifestos) e ficam fora da
-contagem.
+O catálogo tem 63 condições; 34 têm entrada de modelo distribuído em `levels.json`. Os ids de
+modelo dos registros publicados em `evidence/published/` foram corrigidos para os ids dos
+manifestos (antes 140 de 148 não casavam e ficavam fora da contagem); a ingestão agora falha se um
+registro citar modelo sem manifesto.
 
 **Níveis vigentes** (registros gerados a partir de um commit, sem código sujo): **A** para
 cardiomegalia (`xrv-densenet121-res224-pc`) e opacidade pulmonar (`xrv-densenet121-res224-chex`,
-`mimic_ch`, `mimic_nb`), ambos no NIH; **C** para tuberculose / `xr-probe-tb` (hold-out interno);
+`mimic_ch`, `mimic_nb`), ambos no NIH; **B** para derrame pericárdico em TC
+(`totalseg-pleural-pericard-effusion`, validação publicada revisada por pares); **C** para tuberculose / `xr-probe-tb` (hold-out interno);
 fratura, câncer de mama em mamografia e a maior parte das condições de tórax medidas no NIH
 **refutados** (D);
 `xr-probe-tb.trained-montgomery` fora da contagem (não distribuído); FE e lesão mamária mantidas
@@ -351,7 +355,8 @@ corretamente). Para que esses resultados contem, a execução precisa ser refeit
   rotação do que ele possa ter tocado) está pendente; até lá, trate seu conteúdo como exposto.
   O mesmo vale para segredos do legado em `medai_config.json` e `docker-compose.yml` no histórico.
 - **Nenhum registro externo limpo aprovado.** Toda aprovação própria é interna, tem vazamento
-  possível/conhecido ou usou entrada derivada da referência. Não há condição em A nem em B.
+  possível/conhecido ou usou entrada derivada da referência. *(Desatualizado: ver "Níveis
+  vigentes" — há duas condições em A, medidas no NIH, e uma em B, por publicação.)*
 - **Licença de um dos dados de treino não conferida.** A sonda de lesão mamária em US foi ajustada
   numa cópia não oficial do BUSI cuja licença foi inferida do artigo; até conferir na fonte (ou
   reajustar em BUS-BRA/BrEaST), ela não sustenta evidência; o manifesto é só de pesquisa e o

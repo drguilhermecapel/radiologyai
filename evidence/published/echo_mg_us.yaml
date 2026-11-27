@@ -11,6 +11,8 @@ records:
   - Autorrelato do desenvolvedor no cartão do modelo (não revisado por pares).
   - 'nota do verificador: Developer self-report, not peer reviewed; bracket is SD over 3 splits, not a
     CI'
+  - rótulo publicado 'cancer' corresponde a 2 saídas do manifesto (malignancy_left, malignancy_right);
+    mantido sem trio único de nível
   - 'Derivado da mesma citação conferida (''Split 1: 0.9464''); o cartão diz ''The provided weights are
     from the first data split''.'
   - 'tipo de validação na fonte: internal'
@@ -43,7 +45,9 @@ records:
   population: RSNA Screening Mammography Breast Cancer Detection challenge data, 10% hold-out, 3 repeated
     splits (n not stated)
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: huggingface.co/ianpan/mammoscreen (model card; no DOI)
     peer_reviewed: false
@@ -52,6 +56,7 @@ records:
       (model card; no DOI))
     url: https://huggingface.co/ianpan/mammoscreen/raw/main/README.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - Única métrica é 'accuracy' em metadata.json do bundle, sem dataset, n ou split; o bundle declara 'not
     to be used for diagnostic purposes'.
@@ -87,7 +92,9 @@ records:
   passes_protocol: false
   population: Mayo Clinic data (dataset, n and split not described)
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: arXiv:2202.08238 (method reference cited by bundle)
     peer_reviewed: false
@@ -96,3 +103,4 @@ records:
       (BI-RADS A-D) (arXiv:2202.08238 (method reference cited by bundle))
     url: https://raw.githubusercontent.com/Project-MONAI/model-zoo/dev/models/breast_density_classification/configs/metadata.json
     verified_at_source: true
+  training_leakage: null

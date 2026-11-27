@@ -31,9 +31,12 @@ RECORD_FILES = ("cxr.yaml", "ct_mr.yaml", "echo_mg_us.yaml")
 
 # Ids de modelo usados pelos adaptadores (contrato do catálogo).
 OUR_MODEL_IDS = frozenset(
-    {f"xrv-densenet121-{s}" for s in ("all", "pc", "chex", "mimic_ch", "mimic_nb", "nih", "rsna")}
+    {
+        f"xrv-densenet121-res224-{s}"
+        for s in ("all", "pc", "chex", "mimic_ch", "mimic_nb", "nih", "rsna")
+    }
     | {
-        "xrv-resnet50-512-all",
+        "xrv-resnet50-res512-all",
         "xrv-pspnet-anatomy",
         "ct-biomarkers",
         "mammoscreen",
@@ -177,6 +180,27 @@ class TestGeneratedRecords:
             no_ci = any(m.ci_low is None or m.ci_high is None for m in rec.metrics.values())
             if rec.n_total is None or rec.n_positive is None or no_ci:
                 assert rec.passes_protocol is False, rec.id
+
+    def test_record_model_and_label_match_a_manifest(self) -> None:
+        # O pipeline busca o nível por (condição, id do manifesto, chave do rótulo).
+        manifests = REPO / "src" / "radiologyai" / "analysis" / "manifests"
+        for rec in _records():
+            path = manifests / f"{rec.model_id}.yaml"
+            assert path.is_file(), (rec.id, rec.model_id)
+            labels = yaml.safe_load(path.read_text(encoding="utf-8")).get("labels") or []
+            if not labels or any("sem trio único" in c for c in rec.caveats):
+                continue
+            keys = {(spec["key"], spec["condition_id"]) for spec in labels}
+            assert (rec.label, rec.condition_id) in keys, rec.id
+
+    def test_count_supplements_are_literal_in_the_record_quote(self) -> None:
+        by_id = {r.id: r for r in _records()}
+        for rec_id, sup in ingest.COUNT_SUPPLEMENTS.items():
+            rec = by_id[rec_id]
+            assert rec.source is not None
+            assert rec.n_positive == sup["n_positive"]
+            assert sup["quote"] in rec.source.quote
+            assert re.search(rf"(?<![\d.]){sup['printed']}(?![\d.])", sup["quote"])
 
     def test_internal_validation_declares_leakage(self) -> None:
         for rec in _records():

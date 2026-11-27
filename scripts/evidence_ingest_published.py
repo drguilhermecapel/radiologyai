@@ -47,6 +47,7 @@ if TYPE_CHECKING:
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_RESEARCH_DIR = Path("/root/medai-cache/research")
 DEFAULT_OUT = REPO / "evidence" / "published"
+MANIFESTS_DIR = REPO / "src" / "radiologyai" / "analysis" / "manifests"
 GENERATOR = "scripts/evidence_ingest_published.py"
 
 # Arquivo de pesquisa -> nome do arquivo de saída.
@@ -591,6 +592,10 @@ CONTEXT_REASONS: dict[str, str] = {
     ),
     "nao_e_evidencia_de_modelo": "caracteriza dataset ou rótulo, não um modelo",
     "nao_corresponde_a_rotulo": "métrica agregada que não corresponde a um rótulo do modelo",
+    "saida_nao_exposta": (
+        "a saída publicada não é exposta pelo manifesto do modelo que rodamos "
+        "(sem rótulo correspondente em analysis/manifests)"
+    ),
 }
 
 
@@ -615,12 +620,12 @@ MODEL_RULES: tuple[ModelRule, ...] = (
     # ---- RX de tórax
     ModelRule(
         r"^TorchXRayVision XRV-ResNet-resnet50-res512-all$",
-        "xrv-resnet50-512-all",
+        "xrv-resnet50-res512-all",
         caveat=_XRV_CAVEAT,
     ),
     ModelRule(
         r"^TorchXRayVision XRV-DenseNet121-densenet121-res224-all$",
-        "xrv-densenet121-all",
+        "xrv-densenet121-res224-all",
         caveat=_XRV_CAVEAT,
     ),
     ModelRule(
@@ -672,11 +677,11 @@ MODEL_RULES: tuple[ModelRule, ...] = (
     ),
     ModelRule(
         r"task pleural_pericard_effusion|^nnU-Net \((Sexauer|Wilder-Smith) et al\.\)$",
-        "totalseg-pleural_pericard_effusion",
+        "totalseg-pleural-pericard-effusion",
         caveat=_TS_TASK_CAVEAT,
     ),
     ModelRule(r"task liver_lesions_mr", None, "pesos_nao_disponiveis"),
-    ModelRule(r"task liver_lesions\)$", "totalseg-liver_lesions", caveat=_TS_TASK_CAVEAT),
+    ModelRule(r"task liver_lesions\)$", "totalseg-liver-lesions", caveat=_TS_TASK_CAVEAT),
     ModelRule(r"totalseg_get_phase", None, "modelo_nao_executado"),
     ModelRule(
         r"^MONAI brats_mri_segmentation bundle",
@@ -754,6 +759,32 @@ DERIVED: tuple[dict[str, Any], ...] = (
         ),
     },
 )
+
+# Contagens conferidas na fonte que a pesquisa não trazia (a ingestão punha
+# ``n_positive: None`` em todo registro). Cada uma vem de leitura literal do texto
+# completo citado em ``url`` (XML do PMC via E-utilities, normalizado só em
+# espaços, traços e entidades); ``printed`` tem de aparecer literalmente em
+# ``quote``. Nenhuma contagem é somada, estimada ou inferida de IC.
+COUNT_SUPPLEMENTS: dict[str, dict[str, Any]] = {
+    "pub.pericard_eff_detection": {
+        "n_positive": 100,
+        "printed": "100",
+        "quote": (
+            "Hereon, the analyses are based on the positive test cohort only ( n = 100), "
+            "which are presented in Table 4."
+        ),
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9139725/",
+        "location": "Wilder-Smith et al., Diagnostics 2022, seção 3.3 'Model Performance'",
+        "caveat": (
+            "Fonte internamente inconsistente: a seção 3.4 define positivo como volume de "
+            "referência > 50 mL (89 derrames assim no teste, seção 3.1) e soma volumes < 50 mL "
+            "aos negativos; mas os IC publicados (91,48–99,38% e 96,38–100,00%) só se "
+            "reproduzem exatamente por Clopper-Pearson com 97/100 e 100/100. Gravado o "
+            "denominador literal da seção 3.3 (n = 100); com 89 a condição também ficaria "
+            "acima do mínimo de 30 positivos."
+        ),
+    },
+}
 
 # Entradas fundidas num único registro (mesmo estudo, mesmo conjunto, mesma citação/URL).
 MERGES: dict[str, tuple[str, ...]] = {
@@ -1202,6 +1233,46 @@ def _context_item(
     }
 
 
+class NotExposedError(IngestError):
+    """O rótulo publicado não corresponde a nenhuma saída do manifesto: vai para contexto."""
+
+
+def manifest_label(model_id: str, label: str, condition_id: str) -> tuple[str, str | None]:
+    """Chave do rótulo no manifesto do modelo (o pipeline busca o nível por ela).
+
+    Devolve ``(chave, ressalva)``. Manifesto sem lista de rótulos (modelos de
+    segmentação sem saída por achado) mantém o rótulo publicado; correspondência
+    a mais de uma saída mantém o rótulo publicado com ressalva.
+
+    Raises:
+        IngestError: o modelo não tem manifesto (id desatualizado).
+        NotExposedError: o manifesto não expõe a saída publicada.
+    """
+    import yaml
+
+    path = MANIFESTS_DIR / f"{model_id}.yaml"
+    if not path.is_file():
+        raise IngestError(f"modelo {model_id!r} sem manifesto em {MANIFESTS_DIR}")
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    labels = data.get("labels") or []
+    if not labels:
+        return label, None
+    keys = [
+        str(spec["key"])
+        for spec in labels
+        if label in (spec.get("key"), spec.get("source_label"))
+        and spec.get("condition_id") == condition_id
+    ]
+    if not keys:
+        raise NotExposedError(f"{model_id}: rótulo {label!r} ({condition_id}) fora do manifesto")
+    if len(keys) > 1:
+        return label, (
+            f"rótulo publicado {label!r} corresponde a {len(keys)} saídas do manifesto "
+            f"({', '.join(sorted(keys))}); mantido sem trio único de nível"
+        )
+    return keys[0], None
+
+
 def _build_record(
     rec_id: str,
     entries: list[dict[str, Any]],
@@ -1253,6 +1324,9 @@ def _build_record(
     condition_id, label = _triple(rec_id.removeprefix("pub."), rule.model_id, population)
     if condition_id not in CONDITION_IDS:
         raise IngestError(f"{rec_id}: condição {condition_id!r} fora de CONDITIONS")
+    label, label_caveat = manifest_label(rule.model_id, label, condition_id)
+    if label_caveat:
+        caveats.append(label_caveat)
     n_values = {e["n"] for e in entries}
     n_total = first["n"] if len(n_values) == 1 else None
     if re.search(r"n counts lesions", population):
@@ -1261,12 +1335,22 @@ def _build_record(
     leakage, leak_note = _leakage(str(first["validation_type"]), rule.model_id)
     peer = is_peer_reviewed(first)
     verified = all(is_verified(e) for e in entries)
+    n_positive: int | None = None
+    supplement = COUNT_SUPPLEMENTS.get(rec_id)
+    if supplement is not None:
+        printed = str(supplement["printed"])
+        if int(printed) != supplement["n_positive"] or not re.search(
+            rf"(?<![\d.]){re.escape(printed)}(?![\d.])", normalize_text(supplement["quote"])
+        ):
+            raise IngestError(f"{rec_id}: contagem {printed!r} não está na citação do suplemento")
+        n_positive = int(supplement["n_positive"])
+        quote += " [...] " + supplement["quote"]
     passes, reasons = judge(
         kind="published",
         endpoint=endpoint,
         metrics=metrics,
         n_total=n_total,
-        n_positive=None,
+        n_positive=n_positive,
         peer_reviewed=peer,
         verified_at_source=verified,
         protocol=protocol,
@@ -1275,10 +1359,12 @@ def _build_record(
         caveats.insert(0, rule.caveat)
     if extra_caveat:
         caveats.append(extra_caveat)
-    if rule.model_id == "xrv-resnet50-512-all" and label in XRV_RESNET_UNTRAINED:
+    if supplement is not None:
         caveats.append(
-            "saída sem limiar de operação em models.py (np.nan): tratar como não treinada"
+            f"n_positive={n_positive}: {supplement['location']} ({supplement['url']}): "
+            f"'{supplement['quote']}'"
         )
+        caveats.append(str(supplement["caveat"]))
     caveats.append(f"tipo de validação na fonte: {first['validation_type']}")
     caveats.append(f"padrão de referência (fonte): {first['reference_standard']}")
     caveats.append("origem: " + ", ".join(f"{source_file}#{e['id']}" for e in entries))
@@ -1293,7 +1379,7 @@ def _build_record(
         "population": population,
         "reference_standard": reference_standard(first["reference_standard"], endpoint),
         "n_total": n_total,
-        "n_positive": None,
+        "n_positive": n_positive,
         "metrics": metrics,
         "leakage": leakage,
         "leakage_note": leak_note,
@@ -1323,6 +1409,7 @@ def build(research_dir: Path, protocol: Protocol) -> tuple[dict[str, Built], dic
     """Constrói registros e contexto por arquivo de saída. Devolve também os sha256 das entradas."""
     built: dict[str, Built] = {}
     hashes: dict[str, str] = {}
+    used_supplements: set[str] = set()
     for filename, out_name in INPUTS:
         path = research_dir / filename
         if not path.is_file():
@@ -1345,7 +1432,19 @@ def build(research_dir: Path, protocol: Protocol) -> tuple[dict[str, Built], dic
                 continue
             if entry["id"] in merged_members:
                 continue
-            records.append(_build_record(f"pub.{entry['id']}", [entry], rule, filename, protocol))
+            try:
+                rec = _build_record(f"pub.{entry['id']}", [entry], rule, filename, protocol)
+            except NotExposedError as exc:
+                why = str(exc)
+                if rule.model_id == "xrv-resnet50-res512-all" and any(
+                    f"'{name}'" in why for name in XRV_RESNET_UNTRAINED
+                ):
+                    why += "; saída sem limiar de operação em models.py (np.nan): não treinada"
+                context.append(
+                    _context_item(entry, filename, "saida_nao_exposta", why, rule.caveat)
+                )
+                continue
+            records.append(rec)
         for rec_id, members in MERGES.items():
             if not set(members) <= set(by_id):
                 continue
@@ -1368,8 +1467,12 @@ def build(research_dir: Path, protocol: Protocol) -> tuple[dict[str, Built], dic
                 )
             )
         records.sort(key=lambda r: r["id"])
+        used_supplements.update(r["id"] for r in records if r["id"] in COUNT_SUPPLEMENTS)
         context.sort(key=lambda c: c["source_entry"])
         built[out_name] = Built(records, context)
+    unused = sorted(set(COUNT_SUPPLEMENTS) - used_supplements)
+    if unused:
+        raise IngestError(f"suplementos de contagem sem registro correspondente: {unused}")
     return built, hashes
 
 

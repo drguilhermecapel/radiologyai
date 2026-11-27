@@ -26,7 +26,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -36,13 +36,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -51,6 +53,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -70,7 +73,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -80,13 +83,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -95,6 +100,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -114,7 +120,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -124,13 +130,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.9
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -139,6 +147,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -158,7 +167,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -168,13 +177,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -183,6 +194,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -202,7 +214,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -212,13 +224,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.94
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -227,6 +241,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -247,7 +262,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-enlarged-cardiomediastinum
   kind: published
-  label: Enlarged Cardiomediastinum
+  label: enlarged_cardiomediastinum
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -257,13 +272,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.78
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Enlarged Cardiomediastinum'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -272,6 +289,7 @@ records:
       (arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -292,7 +310,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -302,13 +320,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.74
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -317,6 +337,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -336,7 +357,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-lung-lesion
   kind: published
-  label: Lung Lesion
+  label: lung_lesion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -346,13 +367,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Lung Lesion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -361,6 +384,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -380,7 +404,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -390,13 +414,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -405,6 +431,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -424,7 +451,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -434,13 +461,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -449,6 +478,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -468,7 +498,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-chex-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -478,13 +508,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -493,6 +525,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -512,7 +545,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-google-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -522,13 +555,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.74
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -537,6 +572,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -555,7 +591,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-google-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -565,13 +601,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -580,6 +618,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -598,7 +637,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-google-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -608,13 +647,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -623,6 +664,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -641,7 +683,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -651,13 +693,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -666,6 +710,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -684,7 +729,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -694,13 +739,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -709,6 +756,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -727,7 +775,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -737,13 +785,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -752,6 +802,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -770,7 +821,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -780,13 +831,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -795,6 +848,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -813,7 +867,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -823,13 +877,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -838,6 +894,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -856,7 +913,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-enlarged-cardiomediastinum
   kind: published
-  label: Enlarged Cardiomediastinum
+  label: enlarged_cardiomediastinum
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -866,14 +923,16 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Enlarged
     Cardiomediastinum'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -882,6 +941,7 @@ records:
       (arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -901,7 +961,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -911,13 +971,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.74
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -926,6 +988,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -944,7 +1007,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-lung-lesion
   kind: published
-  label: Lung Lesion
+  label: lung_lesion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -954,13 +1017,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.82
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Lung Lesion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -969,6 +1034,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -987,7 +1053,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -997,13 +1063,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1012,6 +1080,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1030,7 +1099,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1040,13 +1109,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.82
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1055,6 +1126,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1073,7 +1145,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-mimic_ch-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1083,13 +1155,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.81
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1098,6 +1172,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1117,7 +1192,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1127,13 +1202,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.76
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1142,6 +1219,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1160,7 +1238,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1170,13 +1248,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1185,6 +1265,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1204,7 +1285,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1214,13 +1295,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.77
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1229,6 +1312,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1247,7 +1331,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1257,13 +1341,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1272,6 +1358,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1290,7 +1377,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1300,13 +1387,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1315,6 +1404,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1334,7 +1424,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-emphysema
   kind: published
-  label: Emphysema
+  label: emphysema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1344,13 +1434,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.73
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Emphysema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1359,6 +1451,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1378,7 +1471,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-fibrosis
   kind: published
-  label: Fibrosis
+  label: fibrosis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1388,13 +1481,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.72
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Fibrosis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1403,6 +1498,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1421,7 +1517,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-hernia
   kind: published
-  label: Hernia
+  label: hernia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1431,13 +1527,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Hernia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1446,6 +1544,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1465,7 +1564,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1475,13 +1574,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.68
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1490,6 +1591,7 @@ records:
       (arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1508,7 +1610,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-mass
   kind: published
-  label: Mass
+  label: mass
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1518,13 +1620,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.8
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Mass'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1533,6 +1637,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1552,7 +1657,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-nodule
   kind: published
-  label: Nodule
+  label: nodule
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1562,13 +1667,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.69
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Nodule'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1577,6 +1684,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1596,7 +1704,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1606,13 +1714,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.74
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1621,6 +1731,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1640,7 +1751,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1650,13 +1761,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.71
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1665,6 +1778,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1684,7 +1798,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-nih-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1694,13 +1808,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.75
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1709,6 +1825,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1729,7 +1846,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1739,13 +1856,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.77
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1755,6 +1874,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1774,7 +1894,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1784,13 +1904,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.93
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1800,6 +1922,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1819,7 +1942,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1829,13 +1952,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1845,6 +1970,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1864,7 +1990,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1874,13 +2000,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.97
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1890,6 +2018,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1909,7 +2038,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1919,13 +2048,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.95
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1935,6 +2066,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1954,7 +2086,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-emphysema
   kind: published
-  label: Emphysema
+  label: emphysema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -1964,13 +2096,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Emphysema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -1980,6 +2114,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -1999,7 +2134,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-fibrosis
   kind: published
-  label: Fibrosis
+  label: fibrosis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2009,13 +2144,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.94
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Fibrosis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2025,6 +2162,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2045,7 +2183,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2055,13 +2193,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.7
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2071,6 +2211,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2090,7 +2231,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-hernia
   kind: published
-  label: Hernia
+  label: hernia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2100,13 +2241,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.96
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Hernia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2116,6 +2259,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2135,7 +2279,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2145,13 +2289,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2161,6 +2307,7 @@ records:
       (arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2180,7 +2327,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-mass
   kind: published
-  label: Mass
+  label: mass
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2190,13 +2337,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Mass'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2206,6 +2355,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2226,7 +2376,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-nodule
   kind: published
-  label: Nodule
+  label: nodule
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2236,13 +2386,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.69
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Nodule'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2252,6 +2404,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2272,7 +2425,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2282,13 +2435,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.79
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2298,6 +2453,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2317,7 +2473,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2327,13 +2483,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.82
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2343,6 +2501,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2362,7 +2521,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-pc-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2372,13 +2531,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.81
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2388,6 +2549,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2407,7 +2569,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-rsna-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2417,13 +2579,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: RSNA (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2432,6 +2596,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2451,7 +2616,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-rsna-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2461,13 +2626,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: RSNA (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2476,6 +2643,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2496,7 +2664,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-siim-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -2506,14 +2674,16 @@ records:
       ci_high: null
       ci_low: null
       value: 0.79
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: 'SIIM (20% split of dataset, per BENCHMARKS.md); column ''Pneumothorax''; CORRECTED to internal:
     SIIM images are NIH-derived and NIH is in this weight set''s training list'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2522,6 +2692,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2542,7 +2713,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: none
   leakage_note: null
   metrics:
@@ -2550,13 +2721,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.67
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2566,6 +2739,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2585,7 +2759,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: none
   leakage_note: null
   metrics:
@@ -2593,13 +2767,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.9
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2609,6 +2785,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2628,7 +2805,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: none
   leakage_note: null
   metrics:
@@ -2636,13 +2813,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.93
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2652,6 +2831,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2671,7 +2851,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: none
   leakage_note: null
   metrics:
@@ -2679,13 +2859,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2695,6 +2877,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2714,7 +2897,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: none
   leakage_note: null
   metrics:
@@ -2722,13 +2905,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2738,6 +2923,7 @@ records:
       (arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2757,7 +2943,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: none
   leakage_note: null
   metrics:
@@ -2765,13 +2951,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2781,6 +2969,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2800,7 +2989,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: none
   leakage_note: null
   metrics:
@@ -2808,13 +2997,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2824,6 +3015,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2843,7 +3035,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res224-all-vin-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: none
   leakage_note: null
   metrics:
@@ -2851,13 +3043,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.93
-  model_id: xrv-densenet121-all
+  model_id: xrv-densenet121-res224-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2867,6 +3061,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2887,7 +3082,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: none
   leakage_note: null
   metrics:
@@ -2895,13 +3090,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.63
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2910,6 +3107,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2929,7 +3127,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: none
   leakage_note: null
   metrics:
@@ -2937,13 +3135,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2952,6 +3152,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -2972,7 +3173,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: none
   leakage_note: null
   metrics:
@@ -2980,13 +3181,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.74
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -2995,6 +3198,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3015,7 +3219,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: none
   leakage_note: null
   metrics:
@@ -3023,13 +3227,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.79
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3038,6 +3244,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3057,7 +3264,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: none
   leakage_note: null
   metrics:
@@ -3065,13 +3272,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.81
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3080,50 +3289,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
-- caveats:
-  - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
-    contagem de positivos; split 80/20 por paciente do próprio repositório.'
-  - 'saída sem limiar de operação em models.py (np.nan): tratar como não treinada'
-  - 'tipo de validação na fonte: external'
-  - 'padrão de referência (fonte): CheXpert dataset labels (automated labeler over radiology reports,
-    Irvin et al. arXiv:1901.07031); 20% patient-grouped split of the dataset as loaded by XRV (not stated
-    to be the 500-study radiologist-labelled test set)'
-  - 'origem: evidence-cxr.verified.md#cxr-xrv-res512-all-chex-enlarged-cardiomediastinum'
-  condition_id: cxr.enlarged_cardiomediastinum
-  dataset: CheXpert
-  endpoint: discrimination
-  failure_reasons:
-  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
-    revisada por pares ou diretriz
-  - n do conjunto de teste não publicado
-  - número de positivos não publicado; a barra exige >= 30 positivos
-  - AUROC 0.500 < barra de 0.80
-  - IC 95% de AUROC não publicado
-  id: pub.cxr-xrv-res512-all-chex-enlarged-cardiomediastinum
-  kind: published
-  label: Enlarged Cardiomediastinum
-  leakage: none
-  leakage_note: null
-  metrics:
-    auroc:
-      ci_high: null
-      ci_low: null
-      value: 0.5
-  model_id: xrv-resnet50-512-all
-  n_positive: null
-  n_total: null
-  passes_protocol: false
-  population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Enlarged Cardiomediastinum'
-  provenance: null
-  reference_standard: report_nlp
-  source:
-    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
-    peer_reviewed: false
-    quote: '|XRV-ResNet-resnet50-res512-all|23,538,642|0.63|0.84|0.74|0.79|0.5|0.58|0.50|0.71|0.81|-|0.67|0.61|-|'
-    title: 'TorchXRayVision XRV-ResNet-resnet50-res512-all - Enlarged cardiomediastinal silhouette (arXiv:2111.00595
-      (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
-    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
-    verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3144,7 +3310,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: none
   leakage_note: null
   metrics:
@@ -3152,13 +3318,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.58
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3167,50 +3335,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
-- caveats:
-  - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
-    contagem de positivos; split 80/20 por paciente do próprio repositório.'
-  - 'saída sem limiar de operação em models.py (np.nan): tratar como não treinada'
-  - 'tipo de validação na fonte: external'
-  - 'padrão de referência (fonte): CheXpert dataset labels (automated labeler over radiology reports,
-    Irvin et al. arXiv:1901.07031); 20% patient-grouped split of the dataset as loaded by XRV (not stated
-    to be the 500-study radiologist-labelled test set)'
-  - 'origem: evidence-cxr.verified.md#cxr-xrv-res512-all-chex-lung-lesion'
-  condition_id: cxr.lung_lesion
-  dataset: CheXpert
-  endpoint: discrimination
-  failure_reasons:
-  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
-    revisada por pares ou diretriz
-  - n do conjunto de teste não publicado
-  - número de positivos não publicado; a barra exige >= 30 positivos
-  - AUROC 0.500 < barra de 0.80
-  - IC 95% de AUROC não publicado
-  id: pub.cxr-xrv-res512-all-chex-lung-lesion
-  kind: published
-  label: Lung Lesion
-  leakage: none
-  leakage_note: null
-  metrics:
-    auroc:
-      ci_high: null
-      ci_low: null
-      value: 0.5
-  model_id: xrv-resnet50-512-all
-  n_positive: null
-  n_total: null
-  passes_protocol: false
-  population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Lung Lesion'
-  provenance: null
-  reference_standard: report_nlp
-  source:
-    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
-    peer_reviewed: false
-    quote: '|XRV-ResNet-resnet50-res512-all|23,538,642|0.63|0.84|0.74|0.79|0.5|0.58|0.50|0.71|0.81|-|0.67|0.61|-|'
-    title: 'TorchXRayVision XRV-ResNet-resnet50-res512-all - Lung lesion (nodule/mass) (arXiv:2111.00595
-      (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
-    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
-    verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3231,7 +3356,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: none
   leakage_note: null
   metrics:
@@ -3239,13 +3364,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.71
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3254,6 +3381,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3274,7 +3402,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: none
   leakage_note: null
   metrics:
@@ -3282,13 +3410,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.67
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3297,6 +3427,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3317,7 +3448,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-chex-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: none
   leakage_note: null
   metrics:
@@ -3325,13 +3456,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.61
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: CheXpert (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3340,6 +3473,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3358,7 +3492,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-google-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -3368,13 +3502,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3383,6 +3519,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3402,7 +3539,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-google-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -3412,13 +3549,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.7
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3427,6 +3566,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3445,7 +3585,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-google-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -3455,13 +3595,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: Google (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: radiologist_adjudicated
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3470,6 +3612,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3489,7 +3632,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: none
   leakage_note: null
   metrics:
@@ -3497,13 +3640,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.77
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3512,6 +3657,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3531,7 +3677,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: none
   leakage_note: null
   metrics:
@@ -3539,13 +3685,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.78
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3554,6 +3702,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3572,7 +3721,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: none
   leakage_note: null
   metrics:
@@ -3580,13 +3729,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3595,6 +3746,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3613,7 +3765,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: none
   leakage_note: null
   metrics:
@@ -3621,13 +3773,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3636,6 +3790,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3654,7 +3809,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: none
   leakage_note: null
   metrics:
@@ -3662,13 +3817,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.9
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3677,50 +3834,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
-- caveats:
-  - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
-    contagem de positivos; split 80/20 por paciente do próprio repositório.'
-  - 'saída sem limiar de operação em models.py (np.nan): tratar como não treinada'
-  - 'tipo de validação na fonte: external'
-  - 'padrão de referência (fonte): MIMIC-CXR with CheXpert-labeler labels (per BENCHMARKS.md heading ''MIMIC-CXR
-    (CheXpert labels)''); 20% hold-out'
-  - 'origem: evidence-cxr.verified.md#cxr-xrv-res512-all-mimic_ch-enlarged-cardiomediastinum'
-  condition_id: cxr.enlarged_cardiomediastinum
-  dataset: MIMIC-CXR
-  endpoint: discrimination
-  failure_reasons:
-  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
-    revisada por pares ou diretriz
-  - n do conjunto de teste não publicado
-  - número de positivos não publicado; a barra exige >= 30 positivos
-  - AUROC 0.500 < barra de 0.80
-  - IC 95% de AUROC não publicado
-  id: pub.cxr-xrv-res512-all-mimic_ch-enlarged-cardiomediastinum
-  kind: published
-  label: Enlarged Cardiomediastinum
-  leakage: none
-  leakage_note: null
-  metrics:
-    auroc:
-      ci_high: null
-      ci_low: null
-      value: 0.5
-  model_id: xrv-resnet50-512-all
-  n_positive: null
-  n_total: null
-  passes_protocol: false
-  population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Enlarged
-    Cardiomediastinum'
-  provenance: null
-  reference_standard: report_nlp
-  source:
-    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
-    peer_reviewed: false
-    quote: '|XRV-ResNet-resnet50-res512-all|0.77|0.78|0.88|0.87|0.50|0.66|0.5|0.77|0.9|-|0.77|0.72|-|'
-    title: 'TorchXRayVision XRV-ResNet-resnet50-res512-all - Enlarged cardiomediastinal silhouette (arXiv:2111.00595
-      (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
-    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
-    verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3740,7 +3854,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: none
   leakage_note: null
   metrics:
@@ -3748,13 +3862,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.66
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3763,49 +3879,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
-- caveats:
-  - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
-    contagem de positivos; split 80/20 por paciente do próprio repositório.'
-  - 'saída sem limiar de operação em models.py (np.nan): tratar como não treinada'
-  - 'tipo de validação na fonte: external'
-  - 'padrão de referência (fonte): MIMIC-CXR with CheXpert-labeler labels (per BENCHMARKS.md heading ''MIMIC-CXR
-    (CheXpert labels)''); 20% hold-out'
-  - 'origem: evidence-cxr.verified.md#cxr-xrv-res512-all-mimic_ch-lung-lesion'
-  condition_id: cxr.lung_lesion
-  dataset: MIMIC-CXR
-  endpoint: discrimination
-  failure_reasons:
-  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
-    revisada por pares ou diretriz
-  - n do conjunto de teste não publicado
-  - número de positivos não publicado; a barra exige >= 30 positivos
-  - AUROC 0.500 < barra de 0.80
-  - IC 95% de AUROC não publicado
-  id: pub.cxr-xrv-res512-all-mimic_ch-lung-lesion
-  kind: published
-  label: Lung Lesion
-  leakage: none
-  leakage_note: null
-  metrics:
-    auroc:
-      ci_high: null
-      ci_low: null
-      value: 0.5
-  model_id: xrv-resnet50-512-all
-  n_positive: null
-  n_total: null
-  passes_protocol: false
-  population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Lung Lesion'
-  provenance: null
-  reference_standard: report_nlp
-  source:
-    identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
-    peer_reviewed: false
-    quote: '|XRV-ResNet-resnet50-res512-all|0.77|0.78|0.88|0.87|0.50|0.66|0.5|0.77|0.9|-|0.77|0.72|-|'
-    title: 'TorchXRayVision XRV-ResNet-resnet50-res512-all - Lung lesion (nodule/mass) (arXiv:2111.00595
-      (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
-    url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
-    verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3825,7 +3899,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: none
   leakage_note: null
   metrics:
@@ -3833,13 +3907,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.77
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3848,6 +3924,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3867,7 +3944,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: none
   leakage_note: null
   metrics:
@@ -3875,13 +3952,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.77
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3890,6 +3969,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3909,7 +3989,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-mimic_ch-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: none
   leakage_note: null
   metrics:
@@ -3917,13 +3997,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.72
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: MIMIC-CXR (CheXpert labels) (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3932,6 +4014,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3951,7 +4034,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -3961,13 +4044,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.78
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -3976,6 +4061,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -3994,7 +4080,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4004,13 +4090,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.9
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4019,6 +4107,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4038,7 +4127,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4048,13 +4137,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.78
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4063,6 +4154,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4081,7 +4173,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4091,13 +4183,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.89
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4106,6 +4200,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4124,7 +4219,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4134,13 +4229,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4149,6 +4246,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4167,7 +4265,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-emphysema
   kind: published
-  label: Emphysema
+  label: emphysema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4177,13 +4275,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Emphysema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4192,6 +4292,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4211,7 +4312,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-fibrosis
   kind: published
-  label: Fibrosis
+  label: fibrosis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4221,13 +4322,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.76
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Fibrosis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4236,6 +4339,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4254,7 +4358,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-hernia
   kind: published
-  label: Hernia
+  label: hernia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4264,13 +4368,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.92
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Hernia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4279,6 +4385,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4298,7 +4405,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4308,13 +4415,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.69
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4323,6 +4432,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4341,7 +4451,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-mass
   kind: published
-  label: Mass
+  label: mass
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4351,13 +4461,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.82
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Mass'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4366,6 +4478,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4385,7 +4498,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-nodule
   kind: published
-  label: Nodule
+  label: nodule
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4395,13 +4508,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.76
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Nodule'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4410,6 +4525,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4429,7 +4545,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4439,13 +4555,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.76
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4454,6 +4572,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4473,7 +4592,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4483,13 +4602,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.71
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4498,6 +4619,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4516,7 +4638,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-nih-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4526,13 +4648,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.84
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: NIH ChestX-ray14 (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4541,6 +4665,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4560,7 +4685,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4570,13 +4695,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.8
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4586,6 +4713,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4605,7 +4733,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4615,13 +4743,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.94
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4631,6 +4761,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4650,7 +4781,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4660,13 +4791,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.88
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4676,6 +4809,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4695,7 +4829,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-edema
   kind: published
-  label: Edema
+  label: pulmonary_edema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4705,13 +4839,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.97
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Edema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4721,6 +4857,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4740,7 +4877,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4750,13 +4887,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.95
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4766,6 +4905,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4785,7 +4925,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-emphysema
   kind: published
-  label: Emphysema
+  label: emphysema
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4795,13 +4935,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Emphysema'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4811,6 +4953,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4830,7 +4973,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-fibrosis
   kind: published
-  label: Fibrosis
+  label: fibrosis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4840,13 +4983,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.96
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Fibrosis'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4856,6 +5001,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4875,7 +5021,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-fracture
   kind: published
-  label: Fracture
+  label: fracture
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4885,13 +5031,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.86
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Fracture'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4901,6 +5049,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4920,7 +5069,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-hernia
   kind: published
-  label: Hernia
+  label: hernia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4930,13 +5079,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.95
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Hernia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4946,6 +5097,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -4965,7 +5117,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -4975,13 +5127,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -4991,6 +5145,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5010,7 +5165,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-mass
   kind: published
-  label: Mass
+  label: mass
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5020,13 +5175,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Mass'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5036,6 +5193,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5056,7 +5214,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-nodule
   kind: published
-  label: Nodule
+  label: nodule
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5066,13 +5224,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.76
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Nodule'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5082,6 +5242,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5101,7 +5262,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5111,13 +5272,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5127,6 +5290,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5146,7 +5310,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5156,13 +5320,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.81
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5172,6 +5338,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5191,7 +5358,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-pc-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5201,13 +5368,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: PadChest (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: report_nlp
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5217,6 +5386,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5236,7 +5406,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-rsna-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5246,13 +5416,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: RSNA (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5261,6 +5433,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5280,7 +5453,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-rsna-pneumonia
   kind: published
-  label: Pneumonia
+  label: pneumonia
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5290,13 +5463,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.87
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: RSNA (20% split of dataset, per BENCHMARKS.md); column 'Pneumonia'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5305,6 +5480,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5324,7 +5500,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-siim-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5334,13 +5510,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: SIIM (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: expert_segmentation
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5349,6 +5527,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5369,7 +5548,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-atelectasis
   kind: published
-  label: Atelectasis
+  label: atelectasis
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5379,13 +5558,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.6
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Atelectasis'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5395,6 +5576,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5414,7 +5596,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-cardiomegaly
   kind: published
-  label: Cardiomegaly
+  label: cardiomegaly
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5424,13 +5606,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Cardiomegaly'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5440,6 +5624,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5459,7 +5644,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-consolidation
   kind: published
-  label: Consolidation
+  label: consolidation
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5469,13 +5654,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.91
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Consolidation'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5485,6 +5672,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5504,7 +5692,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-effusion
   kind: published
-  label: Effusion
+  label: pleural_effusion
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5514,13 +5702,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.85
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Effusion'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5530,6 +5720,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5549,7 +5740,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-infiltration
   kind: published
-  label: Infiltration
+  label: infiltration
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5559,13 +5750,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.82
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Infiltration'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5575,6 +5768,7 @@ records:
       (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5595,7 +5789,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-lung-opacity
   kind: published
-  label: Lung Opacity
+  label: lung_opacity
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5605,13 +5799,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.71
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Lung Opacity'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5621,6 +5817,7 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5641,7 +5838,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-pleural-thickening
   kind: published
-  label: Pleural_Thickening
+  label: pleural_thickening
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5651,13 +5848,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.79
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Pleural_Thickening'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5667,6 +5866,7 @@ records:
       paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null
 - caveats:
   - 'Fonte: BENCHMARKS.md do TorchXRayVision (repositório, não revisado por pares), sem IC, sem n e sem
     contagem de positivos; split 80/20 por paciente do próprio repositório.'
@@ -5687,7 +5887,7 @@ records:
   - IC 95% de AUROC não publicado
   id: pub.cxr-xrv-res512-all-vin-pneumothorax
   kind: published
-  label: Pneumothorax
+  label: pneumothorax
   leakage: possible
   leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
     em relação aos pesos distribuídos não verificável por nós; SIIM/RSNA/Google são imagens do NIH (Filice
@@ -5697,13 +5897,15 @@ records:
       ci_high: null
       ci_low: null
       value: 0.69
-  model_id: xrv-resnet50-512-all
+  model_id: xrv-resnet50-res512-all
   n_positive: null
   n_total: null
   passes_protocol: false
   population: VinBrain (20% split of dataset, per BENCHMARKS.md); column 'Pneumothorax'
   provenance: null
+  reference_derived_input: null
   reference_standard: other
+  selection_overlap: []
   source:
     identifier: 'arXiv:2111.00595 (library paper); repo file BENCHMARKS.md, ''Results updated: 07/23/2023'''
     peer_reviewed: false
@@ -5713,3 +5915,4 @@ records:
       repo file BENCHMARKS.md, ''Results updated: 07/23/2023'')'
     url: https://raw.githubusercontent.com/mlmed/torchxrayvision/master/BENCHMARKS.md
     verified_at_source: true
+  training_leakage: null

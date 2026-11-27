@@ -3,56 +3,38 @@
     {
       "basis": [],
       "condition_id": "ct.focal_liver_lesion",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "liver_lesions",
+      "label": "liver_lesion",
       "level": "D",
-      "limited_by": [
-        "modelo 'totalseg-liver_lesions' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "totalseg-liver_lesions",
+      "limited_by": [],
+      "model_id": "totalseg-liver-lesions",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
     {
-      "basis": [],
-      "condition_id": "ct.pericardial_effusion",
-      "distributed": false,
-      "headline": null,
-      "label": "pericardial_effusion",
-      "level": "D",
-      "limited_by": [
-        "modelo 'totalseg-pleural_pericard_effusion' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
+      "basis": [
+        "pub.pericard_eff_detection"
       ],
-      "model_id": "totalseg-pleural_pericard_effusion",
+      "condition_id": "ct.pericardial_effusion",
+      "distributed": true,
+      "headline": "B: sensitivity 0.970 [0.915, 0.994] · Univ. Hospital Basel (interno) · n=200",
+      "label": "pericardial_effusion",
+      "level": "B",
+      "limited_by": [],
+      "model_id": "totalseg-pleural-pericard-effusion",
       "refuted_by_measurement": false,
-      "visibility": "research"
+      "visibility": "main"
     },
     {
       "basis": [],
       "condition_id": "ct.pleural_effusion",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
       "label": "pleural_effusion",
       "level": "D",
-      "limited_by": [
-        "modelo 'totalseg-pleural_pericard_effusion' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "totalseg-pleural_pericard_effusion",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.atelectasis",
-      "distributed": false,
-      "headline": null,
-      "label": "Atelectasis",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "totalseg-pleural-pericard-effusion",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -139,28 +121,12 @@
     {
       "basis": [],
       "condition_id": "cxr.atelectasis",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Atelectasis",
+      "label": "atelectasis",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.cardiomegaly",
-      "distributed": false,
-      "headline": null,
-      "label": "Cardiomegaly",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -251,28 +217,12 @@
     {
       "basis": [],
       "condition_id": "cxr.cardiomegaly",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Cardiomegaly",
+      "label": "cardiomegaly",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.consolidation",
-      "distributed": false,
-      "headline": null,
-      "label": "Consolidation",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -359,28 +309,12 @@
     {
       "basis": [],
       "condition_id": "cxr.consolidation",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Consolidation",
+      "label": "consolidation",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.emphysema",
-      "distributed": false,
-      "headline": null,
-      "label": "Emphysema",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -425,56 +359,24 @@
     {
       "basis": [],
       "condition_id": "cxr.emphysema",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Emphysema",
+      "label": "emphysema",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
     {
       "basis": [],
       "condition_id": "cxr.enlarged_cardiomediastinum",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Enlarged Cardiomediastinum",
+      "label": "enlarged_cardiomediastinum",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.enlarged_cardiomediastinum",
-      "distributed": false,
-      "headline": null,
-      "label": "Enlarged Cardiomediastinum",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.fracture",
-      "distributed": false,
-      "headline": null,
-      "label": "Fracture",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -541,28 +443,12 @@
     {
       "basis": [],
       "condition_id": "cxr.fracture",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Fracture",
+      "label": "fracture",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.hernia",
-      "distributed": false,
-      "headline": null,
-      "label": "Hernia",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -605,28 +491,12 @@
     {
       "basis": [],
       "condition_id": "cxr.hernia",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Hernia",
+      "label": "hernia",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.infiltration",
-      "distributed": false,
-      "headline": null,
-      "label": "Infiltration",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -671,28 +541,12 @@
     {
       "basis": [],
       "condition_id": "cxr.infiltration",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Infiltration",
+      "label": "infiltration",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.lung_lesion",
-      "distributed": false,
-      "headline": null,
-      "label": "Lung Lesion",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -752,34 +606,6 @@
     },
     {
       "basis": [],
-      "condition_id": "cxr.lung_lesion",
-      "distributed": false,
-      "headline": null,
-      "label": "Lung Lesion",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.lung_mass",
-      "distributed": false,
-      "headline": null,
-      "label": "Mass",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
       "condition_id": "cxr.lung_mass",
       "distributed": true,
       "headline": null,
@@ -819,28 +645,12 @@
     {
       "basis": [],
       "condition_id": "cxr.lung_mass",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Mass",
+      "label": "mass",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.lung_nodule",
-      "distributed": false,
-      "headline": null,
-      "label": "Nodule",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -885,28 +695,12 @@
     {
       "basis": [],
       "condition_id": "cxr.lung_nodule",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Nodule",
+      "label": "nodule",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.lung_opacity",
-      "distributed": false,
-      "headline": null,
-      "label": "Lung Opacity",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -969,28 +763,12 @@
     {
       "basis": [],
       "condition_id": "cxr.lung_opacity",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Lung Opacity",
+      "label": "lung_opacity",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pleural_effusion",
-      "distributed": false,
-      "headline": null,
-      "label": "Effusion",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1077,28 +855,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pleural_effusion",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Effusion",
+      "label": "pleural_effusion",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pleural_thickening",
-      "distributed": false,
-      "headline": null,
-      "label": "Pleural_Thickening",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1143,28 +905,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pleural_thickening",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Pleural_Thickening",
+      "label": "pleural_thickening",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pneumonia",
-      "distributed": false,
-      "headline": null,
-      "label": "Pneumonia",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1251,28 +997,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pneumonia",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Pneumonia",
+      "label": "pneumonia",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pneumothorax",
-      "distributed": false,
-      "headline": null,
-      "label": "Pneumothorax",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1363,28 +1093,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pneumothorax",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Pneumothorax",
+      "label": "pneumothorax",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pulmonary_edema",
-      "distributed": false,
-      "headline": null,
-      "label": "Edema",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1471,28 +1185,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pulmonary_edema",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Edema",
+      "label": "pulmonary_edema",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
-      "condition_id": "cxr.pulmonary_fibrosis",
-      "distributed": false,
-      "headline": null,
-      "label": "Fibrosis",
-      "level": "D",
-      "limited_by": [
-        "modelo 'xrv-densenet121-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-densenet121-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1537,14 +1235,12 @@
     {
       "basis": [],
       "condition_id": "cxr.pulmonary_fibrosis",
-      "distributed": false,
+      "distributed": true,
       "headline": null,
-      "label": "Fibrosis",
+      "label": "fibrosis",
       "level": "D",
-      "limited_by": [
-        "modelo 'xrv-resnet50-512-all' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
-      ],
-      "model_id": "xrv-resnet50-512-all",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
       "refuted_by_measurement": false,
       "visibility": "research"
     },
@@ -1795,6 +1491,6 @@
       "visibility": "research"
     }
   ],
-  "evidence_digest": "75c1d89daa4e308305bd95b299f0502815236862c04e55bcbd935e309a380c02",
+  "evidence_digest": "8a8e4ace478a6612e27357255b7eb12b49e0f5a8977510db6f75ae435a9fb83b",
   "protocol_id": "2026-11-v1"
 }

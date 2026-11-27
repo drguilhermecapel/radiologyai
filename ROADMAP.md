@@ -115,13 +115,14 @@ reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `cxr` | 2 | 0 | 1 | 15 | 14 |
+| `ct` | 0 | 1 | 0 | 2 | 0 |
+| `cxr` | 2 | 0 | 1 | 16 | 14 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 1 | 27 | 16 |
+| **Todas** | 2 | 1 | 1 | 30 | 16 |
 <!-- kpi-levels:fim -->
 
 A tabela é transcrita de `src/radiologyai/catalog/levels.json` contando **só entradas
