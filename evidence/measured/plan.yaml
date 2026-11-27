@@ -389,12 +389,27 @@ jobs:
       medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split
       do TorchXRayVision põe a maior parte do teste oficial no treino; protocolo §8.2).
   - id: mammoscreen@cmmd
-    status: pending
+    status: measure
     model_id: mammoscreen
     dataset_id: cmmd
-    reason: >-
-      medição pendente: 80 de 300 mamas da amostra pré-definida
-      (spikes/mammo/meta/cmmd_sample300.txt) inferidas; a fila parou em --limit 100.
+    label: malignancy
+    condition_id: mg.breast_cancer
+    predictions: mammoscreen/cmmd/evidence.parquet
+    score_scale: probability
+    training_data: [cbis-ddsm, rsna-screening-mammo]
+    reference_standard: histopathology
+    population: >-
+      CMMD (TCIA, CC BY 4.0; mamografia digital chinesa, pacientes biopsiadas); amostra
+      pré-definida de 300 pacientes (150 benignas, 150 malignas;
+      spikes/mammo/meta/cmmd_sample300.txt), 315 mamas rotuladas por biópsia
+    weights:
+      model: /root/medai-cache/weights/registry/mammoscreen/model.safetensors
+    manifest: mammoscreen
+    caveats:
+      - "CMMD só tem mamas biopsiadas: mede benigno x maligno entre lesões suspeitas, não rastreamento."
+      - "Prevalência da amostra (~48% maligno) fixada pelo desenho; VPP/VPN não generalizam."
+      - "Unidade = mama (CC + MLO); mama contralateral sem biópsia excluída."
+      - "Recorte prévio por mammo-crop (sha256 57bd1f259c2b1588d96953195665bca3972e0954194d8eaeaf2bd12af47591d2, conferido no manifesto mammo-crop)."
   - id: totalseg-cerebral-bleed@cq500
     status: pending
     model_id: totalseg-cerebral-bleed

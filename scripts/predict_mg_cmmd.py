@@ -261,6 +261,26 @@ def _roles(images: tuple[Any, ...]) -> dict[str, int]:
     return roles
 
 
+def cmd_evidence(args: argparse.Namespace) -> int:
+    """Grava ``evidence.parquet`` (formato da fábrica de evidência): uma linha por mama."""
+    import pandas as pd
+
+    df = pd.read_parquet(args.out)
+    out = pd.DataFrame(
+        {
+            "image_id": df["breast_id"].astype(str),  # unidade de análise = mama
+            "patient_id": df["patient_id"].astype(str),  # bootstrap agrupado por paciente
+            "sex": "F",
+            "y_true": df["y_true"].astype(int),
+            "y_score": df["y_score"].astype(float),
+        }
+    )
+    dst = args.out.with_name("evidence.parquet")
+    out.to_parquet(dst, index=False)
+    print(f"{len(out)} mamas de {out['patient_id'].nunique()} pacientes -> {dst}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -276,7 +296,11 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--out", type=Path, default=DEFAULT_OUT)
     pr.add_argument("--weights-dir", type=Path, default=DEFAULT_WEIGHTS)
     pr.add_argument("--limit", type=int, default=0, help="só os primeiros N pacientes da lista")
+    ev = sub.add_parser("evidence", help="converte o parquet de predições para a fábrica")
+    ev.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args(argv)
+    if args.cmd == "evidence":
+        return cmd_evidence(args)
     if args.cmd == "download":
         return cmd_download(args)
     return cmd_predict(args)
