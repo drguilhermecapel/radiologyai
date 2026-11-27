@@ -93,6 +93,10 @@ número); o README do v1 alegava 0,94 sem ter medido nada.
 população brasileira, ou desempenho de um modelo do produto. É um modelo de referência de
 terceiros, sem calibração, sobre rótulos minerados por NLP.
 
+Relatos de execuções em Colab de 2026-11-25 ([NIH-1000](docs/evaluation/phase1-nih1000-baseline.md),
+[coorte inédita do NIH](docs/evaluation/phase1-nih-unseen-benchmark.md)) **não têm artefato
+commitado** e não contam como medição — ver [HONEST_STATUS.md](HONEST_STATUS.md).
+
 **Reprodução:** [`notebooks/01_baseline_nih_cxr14_colab.ipynb`](notebooks/01_baseline_nih_cxr14_colab.ipynb).
 **Próxima medição contra rótulo de radiologistas:** CheXpert (validação, 3 radiologistas) —
 [`notebooks/02_chexpert_e_credenciamento.ipynb`](notebooks/02_chexpert_e_credenciamento.ipynb) e
@@ -111,6 +115,8 @@ terceiros, sem calibração, sobre rótulos minerados por NLP.
 - **[MODEL_LICENSES.md](MODEL_LICENSES.md)** — licença de cada modelo de terceiros usado ou
   planejado
 - **[docs/access/README.md](docs/access/README.md)** — acesso a datasets (CheXpert, PhysioNet)
+- **[docs/evaluation/](docs/evaluation/phase1-nih1000-baseline.md)** — relatos exploratórios de
+  Colab, sem artefato commitado (não verificáveis)
 - **[docs/datasheets/](docs/datasheets/README.md)** — datasheets de datasets
 - **[docs/model-cards/](docs/model-cards/README.md)** — onde estão os cartões de modelo (manifestos)
 - `docs/OPENAPI_SPEC.yaml` — contrato OpenAPI gerado pela aplicação e versionado

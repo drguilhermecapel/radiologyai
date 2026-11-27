@@ -12,9 +12,10 @@
   dessas sondas foi avaliada sob o protocolo pré-registrado até esta data.
 - **Todas as métricas de desempenho publicadas pela versão legada (v1) deste repositório foram
   fabricadas.** Não correspondiam a nenhuma medição.
-- **Existem hoje duas medições reais**, ambas do mesmo modelo de terceiros no mesmo dataset
-  público (ver abaixo). Nenhuma outra métrica deve ser lida neste repositório sem o caminho do
-  artefato que a sustenta.
+- **Existem hoje duas medições reais com artefato no repositório**, ambas do mesmo modelo de
+  terceiros no mesmo dataset público (ver abaixo). Há também dois relatos de execuções em Colab
+  **sem artefato commitado** (ver "Relatos sem artefato"), que não contam como medição. Nenhuma
+  outra métrica deve ser lida neste repositório sem o caminho do artefato que a sustenta.
 - **Não houve validação clínica.** Nenhuma. Nenhum dado de paciente brasileiro foi analisado.
 - **Não é aprovado, registrado ou notificado em nenhuma agência regulatória** (ANVISA, FDA,
   CE/MDR).
@@ -78,6 +79,28 @@ calibração. **Continua não havendo validação clínica.** A única métrica 
 README do v1 alegava e pior do que a expectativa registrada antes de medir; relatório completo em
 [`reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md`](reports/EVALUATION_nih-chestx-ray14_xrv-densenet121-pc__20260912T215742Z.md).
 
+## Relatos sem artefato (conferidos em 2026-11-27)
+
+Dois documentos incorporados de `main` relatam execuções em Google Colab de 2026-11-25:
+
+- [`docs/evaluation/phase1-nih1000-baseline.md`](docs/evaluation/phase1-nih1000-baseline.md) —
+  amostra de 1.000 pacientes do NIH ChestX-ray14, `xrv-densenet121-pc`, discriminação e
+  comparação de calibração por temperatura e por Platt;
+- [`docs/evaluation/phase1-nih-unseen-benchmark.md`](docs/evaluation/phase1-nih-unseen-benchmark.md) —
+  outra amostra de 1.000 pacientes do NIH, `xrv-densenet121-pc` contra `densenet121-res224-all`,
+  calibração de Platt e uma execução do portão de regressão.
+
+**Nenhum número desses dois documentos tem artefato no repositório** (nem `metrics.json` em
+`artifacts/eval/`, nem predições, nem o manifest da amostra; o próprio relato da coorte inédita
+diz que o ZIP do Colab não foi recuperado). Por isso eles **não** são repetidos aqui, no README nem
+no ROADMAP, e não sustentam nenhum nível de evidência. Além disso: o critério "≥ 0,70 no limite
+inferior do IC" citado no relato NIH-1000 não tem registro de pré-especificação no repositório e
+não é o do protocolo vigente; o "piloto de 64 exames" citado nos dois relatos também não tem
+artefato; e o modelo `densenet121-res224-all` foi treinado com dados do NIH, de modo que a
+comparação entre os dois modelos não é externa para `all` (o portão de regressão bloqueou isso,
+corretamente). Para que esses resultados contem, a execução precisa ser refeita com
+`radiologyai evaluate` (ou `.github/workflows/eval.yml`) e o artefato commitado.
+
 ## Pendências que ainda não foram resolvidas
 
 - **`medai_security.db` continua no histórico git.** O arquivo SQLite do legado saiu da árvore,
@@ -106,4 +129,4 @@ pré-registrado em [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md).
 
 ---
 
-*Última atualização: 25 de novembro de 2026.*
+*Última atualização: 27 de novembro de 2026.*

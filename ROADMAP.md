@@ -2,7 +2,7 @@
 
 **O maior número possível de condições, cada uma com a confiabilidade científica que de fato tem.**
 
-Documento de planejamento. Versão 2.0 — novembro/2026 (estado conferido contra a árvore em 2026-11-25). Substitui a versão 1.0 (setembro/2026),
+Documento de planejamento. Versão 2.0 — novembro/2026 (estado conferido contra a árvore em 2026-11-27; marcas de conclusão da v1.0 registradas em `main` incorporadas ao §1). Substitui a versão 1.0 (setembro/2026),
 que continua no histórico git.
 Autor do projeto: Dr. Guilherme Capel Pasqua (CRM-SP 175873).
 
@@ -54,13 +54,16 @@ está no histórico git deste arquivo.
 |---|---|
 | Código legado | removido da árvore (commit `c25f686`); recuperável no histórico (`16fdd47`) |
 | Núcleo v2 `src/radiologyai/` | DICOM, des-identificação, plugins de modalidade, model cards com sha256, inferência falha-fechada, calibração, abstenção, Grad-CAM real, auditoria encadeada, API |
+| Entregas da Fase 1–2 da v1.0 (marcadas como concluídas em `main`, conferidas na árvore) | `calibration/temperature.py`, `calibration/platt.py` e `calibration/reliability.py` (ECE e diagrama de confiabilidade) — calibração sobre dado real ainda não commitada como artefato; `calibration/abstention.py` (três bandas); `explain/gradcam.py` com teste de gradiente nulo; `api/` FastAPI; `persistence/audit.py`; SRS, `scripts/trace.py` e portão no CI; backend ONNX (`models/backends/onnx.py`, sha256 verificado, em `build_backend`) e trava de regressão (`evaluation/regression.py`, `tests/evaluation/test_baseline_regression.py`, CLI `radiologyai check-regression`) — **ambos sem execução sobre dado real do CheXpert/NIH**; `Dockerfile` (`python:3.11-slim`, `--workers 1`, não-root, *healthcheck*) e `.dockerignore`; workflow manual de avaliação reprodutível `.github/workflows/eval.yml` |
+| Lateralidade | REQ-043 (RISK-006): `Laterality`/`ImageLaterality` propagadas em `StudyMetadata`, conflito ou código inválido rejeitado no RX, pré-processamento sem inversão esquerda-direita |
 | Requisitos rastreados | `REQ-NNN.md` em [`docs/regulatory/06-requirements/`](docs/regulatory/06-requirements/), cada um com teste verificador; contagem na [matriz gerada](docs/regulatory/13-traceability.md); portão `scripts/trace.py --check` no CI |
-| Medições de desempenho | **duas** execuções do mesmo modelo de terceiros no NIH ChestX-ray14; AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` |
+| Medições de desempenho | **duas** execuções do mesmo modelo de terceiros no NIH ChestX-ray14; AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`. Os relatos de Colab de 2026-11-25 em [`docs/evaluation/`](docs/evaluation/phase1-nih1000-baseline.md) **não têm artefato commitado** e não contam como medição (ver [`HONEST_STATUS.md`](HONEST_STATUS.md)) |
 | Camada de análise `src/radiologyai/analysis/` | manifestos por modelo (`available` com pesos sha256, ou `planned` com motivo), adaptadores para RX, TC, RM, mamografia, US e eco, biomarcadores de TC com pré-condições, sondas lineares; verificação em andamento |
 | Fábrica de evidência `src/radiologyai/evidence/` | predições → medição sob o protocolo → registro com proveniência → `levels.json`; nenhum registro medido commitado ainda |
 | Plataforma | API, persistência, fila, laudo preliminar (PDF, DICOM SR, FHIR), DICOMweb e frontend no código; verificação em andamento |
 | Catálogo de condições | esquema, regra de nível e protocolo pré-registrado commitados (`src/radiologyai/catalog/`); `conditions.yaml` ainda **vazio**; propostas e evidência publicada conferida em `evidence/published/` |
 | Validação clínica | **nenhuma** |
+| Governança do repositório | `main` é o ramo padrão e está protegida; restam 6 ramos remotos (conferido pela API do GitHub em 2026-11-27); PRs obsoletos fechados e ramos mortos podados conforme registrado em `main` |
 | Pendência de governança | `medai_security.db` continua no **histórico** git (presente em `3f5ae26`, `c80c22e`, `0b89c95`); expurgo com `git filter-repo` pendente |
 
 ---
@@ -140,7 +143,7 @@ Engenharia acontece em paralelo, em todos eles.
 
 | Portão | Pergunta que responde | Critério de saída (verificável) | Estado |
 |---|---|---|---|
-| **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; expurgo de `medai_security.db` do histórico e governança de branches pendentes |
+| **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; `main` protegida; expurgo de `medai_security.db` do histórico pendente |
 | **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — esquema e protocolo prontos; medições sendo produzidas |
 | **G2 — Modelo próprio + validação externa retrospectiva brasileira** | Funciona em dado brasileiro de vários centros, que nunca vimos? | Protocolo por condição aprovado em CEP (Lei 14.874/2024; dispensa de TCLE pela Res. CNS 466/2012 item IV.8 quando justificável); dados de ≥ 2 centros brasileiros des-identificados pelo controlador; relatório STARD-AI/CLAIM; conjunto de teste sequestrado | não iniciado — depende de parceria institucional |
 | **G3 — Estudo de leitores MRMC** | O médico assistido erra menos? | Estudo multi-leitor multi-caso com padrão de referência e desenho pré-especificado (Obuchowski & Bullen 2022, DOI 10.1148/radiol.211593) | não iniciado |
@@ -375,7 +378,7 @@ Os perigos-semente H-01…H-10 do v1.0 viraram `RISK-001`…`RISK-010` no arquiv
 | RISK-003 (H-03) | Entrada fora de distribuição processada em silêncio | gate de escopo antes do modelo (REQ-031, REQ-042); falha alta (REQ-001) |
 | RISK-004 (H-04) | Descasamento pesos/código | sha256 verificado (REQ-020); falha fechada (REQ-030) |
 | RISK-005 (H-05) | Má interpretação DICOM | Modality LUT, MONOCHROME1 (REQ-005, REQ-006) |
-| RISK-006 (H-06) | Erro de lateralidade | lateralidade do DICOM, nunca do pixel |
+| RISK-006 (H-06) | Erro de lateralidade | lateralidade do DICOM, nunca do pixel; RX (REQ-043) e mamografia (REQ-141); TC, US e eco pendentes |
 | RISK-007 (H-07) | Desempenho real diverge do declarado | avaliação reprodutível, nível calculado, auditoria (REQ-050, REQ-090, REQ-093, REQ-070) |
 | RISK-008 (H-08) | Explicabilidade enganosa | Grad-CAM de gradiente real (REQ-060) |
 | RISK-009 (H-09) | Vazamento de dado pessoal | des-identificação PS3.15 (REQ-010, REQ-011) |
@@ -393,19 +396,19 @@ aplicável, acesso não autorizado) — ver o arquivo de risco, cuja coluna de r
 |---|---|---|
 | 01 | [Uso pretendido](docs/regulatory/01-intended-use.md) | v0.2 — escopo multimodal de pesquisa, sem alegação clínica |
 | 02 | [Classificação de segurança](docs/regulatory/02-software-safety-classification.md) | v0.1 — Classe C |
-| 03 | [Plano de gestão de risco](docs/regulatory/03-risk-management-plan.md) | v0.1 |
-| 04 | [Arquivo de risco](docs/regulatory/04-risk-file.md) | v0.2 — RISK-001…RISK-020, ligados aos requisitos |
-| 05 | [Plano de desenvolvimento](docs/regulatory/05-development-plan.md) | v0.1 |
+| 03 | [Plano de gestão de risco](docs/regulatory/03-risk-management-plan.md) | v0.2 |
+| 04 | [Arquivo de risco](docs/regulatory/04-risk-file.md) | v0.3 — RISK-001…RISK-020, ligados aos requisitos; FMEA H-01…H-10 com testes |
+| 05 | [Plano de desenvolvimento](docs/regulatory/05-development-plan.md) | v0.2 |
 | 06 | [Requisitos](docs/regulatory/06-requirements/) | todos com teste verificador (portão de CI) |
-| 07 | [Arquitetura](docs/regulatory/07-architecture.md) | v0.2 — conferida contra a árvore |
+| 07 | [Arquitetura](docs/regulatory/07-architecture.md) | v0.3 — conferida contra a árvore |
 | 08 | [Lista SOUP](docs/regulatory/08-soup-list.md) | gerada por `scripts/soup.py` |
-| 09 | [Plano de verificação](docs/regulatory/09-verification-plan.md) | v0.2 |
-| 10 | [Plano de avaliação clínica](docs/regulatory/10-clinical-evaluation-plan.md) | v0.1 — critérios = protocolo |
-| 11 | [Cibersegurança e LGPD](docs/regulatory/11-cybersecurity-lgpd.md) | v0.2 |
-| 12 | [Rotulagem / IFU](docs/regulatory/12-labeling-ifu.md) | rascunho pt-BR, uso em pesquisa |
+| 09 | [Plano de verificação](docs/regulatory/09-verification-plan.md) | v0.3 |
+| 10 | [Plano de avaliação clínica](docs/regulatory/10-clinical-evaluation-plan.md) | v0.2 — critérios = protocolo; modelo próprio de RX pré-especificado |
+| 11 | [Cibersegurança e LGPD](docs/regulatory/11-cybersecurity-lgpd.md) | v0.3 |
+| 12 | [Rotulagem / IFU](docs/regulatory/12-labeling-ifu.md) | v0.2 — rascunho pt-BR, uso em pesquisa |
 | 13 | [Rastreabilidade](docs/regulatory/13-traceability.md) | gerada por `scripts/trace.py` |
-| 14 | [Controle de mudanças](docs/regulatory/14-change-control.md) | v0.1 |
-| 15 | [Vigilância pós-mercado](docs/regulatory/15-post-market-surveillance.md) | v0.1 — plano para G6 |
+| 14 | [Controle de mudanças](docs/regulatory/14-change-control.md) | v0.2 |
+| 15 | [Vigilância pós-mercado](docs/regulatory/15-post-market-surveillance.md) | v0.2 — plano para G6 |
 | 16 | Model cards e datasheets | `docs/model-cards/`, `docs/datasheets/` — por artefato |
 
 ### 8.5 Rastreabilidade imposta pelo CI
@@ -482,7 +485,10 @@ pseudonimizado — ainda dado pessoal sensível — e não sai do ambiente do pa
 Toda PR roda, em CPU: `ruff check` + `ruff format --check`, `mypy --strict`, pytest (unitário e
 integração; testes que precisam de pesos reais pulam de forma limpa quando os pesos não estão
 presentes, mas são executados onde estão), `scripts/trace.py --check`, `scripts/soup.py --check`
-e `scripts/check_honesty.py`.
+e `scripts/check_honesty.py`. A trava de regressão (`radiologyai check-regression`) compara cada
+`metrics.json` novo com a linha de base e reprova queda de AUROC macro, perda de rótulos avaliados
+ou dataset não externo ao treino; `.github/workflows/eval.yml` executa `radiologyai evaluate` sob
+demanda com semente e manifest explícitos.
 
 `scripts/check_honesty.py` é o guardião que mais importa. Quebra o build em: alegação numérica de
 desempenho em Markdown sem proveniência na mesma linha; `np.random`/`random` fora da avaliação;
