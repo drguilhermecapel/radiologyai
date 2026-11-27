@@ -117,11 +117,11 @@ reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.
 |---|---:|---:|---:|---:|---:|
 | `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
-| `mg` | 0 | 0 | 0 | 2 | 0 |
+| `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 1 | 12 | 1 |
+| **Todas** | 0 | 0 | 1 | 12 | 2 |
 <!-- kpi-levels:fim -->
 
 A tabela é transcrita de `src/radiologyai/catalog/levels.json` contando **só entradas
@@ -157,7 +157,7 @@ Engenharia acontece em paralelo, em todos eles.
 | Portão | Pergunta que responde | Critério de saída (verificável) | Estado |
 |---|---|---|---|
 | **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; `main` protegida; expurgo de `medai_security.db` do histórico pendente |
-| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — 15 registros medidos, nenhum externo limpo aprovado; A retratado; re-medição de checkout limpo pendente; NIH, CMMD e CQ500 com inferência incompleta |
+| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — 15 registros medidos, nenhum externo limpo aprovado; A retratado; re-medição de checkout limpo pendente; câncer de mama refutado no CMMD; NIH e CQ500 com inferência incompleta |
 | **G2 — Modelo próprio + validação externa retrospectiva brasileira** | Funciona em dado brasileiro de vários centros, que nunca vimos? | Protocolo por condição aprovado em CEP (Lei 14.874/2024; dispensa de TCLE pela Res. CNS 466/2012 item IV.8 quando justificável); dados de ≥ 2 centros brasileiros des-identificados pelo controlador; relatório STARD-AI/CLAIM; conjunto de teste sequestrado | não iniciado — depende de parceria institucional |
 | **G3 — Estudo de leitores MRMC** | O médico assistido erra menos? | Estudo multi-leitor multi-caso com padrão de referência e desenho pré-especificado (Obuchowski & Bullen 2022, DOI 10.1148/radiol.211593) | não iniciado |
 | **G4 — Piloto prospectivo silencioso** | Funciona no fluxo real, sem influenciar o cuidado? | Execução em paralelo ao fluxo, saídas **ocultas** do médico assistente, comparação posterior; relato DECIDE-AI (DOI 10.1038/s41591-022-01772-9); protocolo CEP | não iniciado |
@@ -225,7 +225,7 @@ sem protocolo).
 
 | Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
 |---|---|---|---|---|
-| Escore de câncer | `ianpan/mammoscreen` + recorte `ianpan/mammo-crop` (código e pesos Apache-2.0; `commercial_use: unclear` porque os termos dos dados de treino não foram lidos); código vendorizado sem execução remota (REQ-142); exige VOI LUT completa (REQ-140) | escore por mama (CC + MLO) | **D**: o cartão do modelo relata só hold-out interno, sem IC; CBIS-DDSM foi usado no pré-treino e **não** é externo; CMMD (CC BY 4.0) é externo, mas só tem doença biopsiada (benigno vs maligno), não rastreamento | adaptador disponível; medição no CMMD pendente (80 de 300 mamas; `evidence/measured/ledger.yaml`) |
+| Escore de câncer | `ianpan/mammoscreen` + recorte `ianpan/mammo-crop` (código e pesos Apache-2.0; `commercial_use: unclear` porque os termos dos dados de treino não foram lidos); código vendorizado sem execução remota (REQ-142); exige VOI LUT completa (REQ-140) | escore por mama (CC + MLO) | **D**: o cartão do modelo relata só hold-out interno, sem IC; CBIS-DDSM foi usado no pré-treino e **não** é externo; CMMD (CC BY 4.0) é externo, mas só tem doença biopsiada (benigno vs maligno), não rastreamento | adaptador disponível; **refutado** no CMMD: AUROC 0,790 [0,715; 0,859], n=156 mamas de teste (`evidence/measured/cmmd/mammoscreen/malignancy.json`) |
 | Densidade mamária | cabeça de densidade do mammoscreen; bundle MONAI `breast_density_classification` (Apache-2.0, "not to be used for diagnostic purposes") | categoria A–D | **D** — nenhuma métrica publicada com proveniência | adaptadores disponíveis |
 | Risco em 5 anos | Mirai (MIT; "not intended ... for any other clinical use") | risco futuro, **não** detecção | nenhum dado disponível tem seguimento para medir | **planejado**: *snapshots* em pickle legado do pacote `onconet`, sem dado para verificar |
 

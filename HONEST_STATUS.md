@@ -115,6 +115,7 @@ validação clínica**.
 | Lesão mamária maligna / `us-probe-breast-malignancy` | BrEaST-Lesions-USG (Polônia), externo, `possible` | AUROC 0,820 [0,740; 0,893], n=126 — `evidence/measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
 | Lesão hepática maligna / `us-probe-liver-lesion-malignancy` | Zenodo 7272660, interno, `known` | AUROC 0,811 [0,609; 0,848], n=362 — `evidence/measured/liver-lesion-us-7272660/us-probe-liver-lesion-malignancy/liver_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
 | FE reduzida / `medsam2-echo-lv` (sem prompt) | CAMUS, externo, `possible` | ICC 0,000 [−0,031; 0,017], n=100 — `evidence/measured/camus/medsam2-echo-lv/lv_ef.prompt_free.json` | sem a caixa do usuário a FE não concorda com a referência |
+| Câncer de mama / `mammoscreen` | CMMD (TCIA, biópsia), externo, treino sem sobreposição | AUROC 0,790 [0,715; 0,859], metade de teste n=156 mamas (75 malignas) — `evidence/measured/cmmd/mammoscreen/malignancy.json` | **refuta** `mg.breast_cancer` pela regra do protocolo (AUROC < 0,80 e limite inferior < 0,75); só mede benigno x maligno em lesões biopsiadas, não rastreamento |
 
 **Não elegíveis (abaixo dos mínimos; não aprovam nem refutam):**
 
@@ -130,8 +131,8 @@ validação clínica**.
 `xrv-densenet121-res224-pc@nih-cxr14-test`, `xrv-densenet121-res224-chex@nih-cxr14-test`,
 `xrv-densenet121-res224-mimic_nb@nih-cxr14-test`, `xrv-densenet121-res224-mimic_ch@nih-cxr14-test`,
 `xrv-densenet121-res224-all@nih-cxr14-test` e `xrv-densenet121-res224-nih@nih-cxr14-test` (7 de 10
-fragmentos do teste oficial do NIH; `all` e `nih` serão `known` mesmo completos),
-`mammoscreen@cmmd` (80 de 300 mamas) e `totalseg-cerebral-bleed@cq500` (5 de 80 exames). Itens
+fragmentos do teste oficial do NIH; `all` e `nih` serão `known` mesmo completos) e
+`totalseg-cerebral-bleed@cq500` (5 de 80 exames). Itens
 excluídos do plano (provas de caminho, calibração de portões, execuções de fumaça) e o motivo de
 cada um estão no ledger.
 
@@ -146,11 +147,11 @@ manifesto que cobre os pesos medidos):
 |---|---:|---:|---:|---:|---:|
 | `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
-| `mg` | 0 | 0 | 0 | 2 | 0 |
+| `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 1 | 12 | 1 |
+| **Todas** | 0 | 0 | 1 | 12 | 2 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada em `levels.json` e 13 têm entrada de modelo
@@ -159,7 +160,7 @@ registros publicados em `evidence/published/`, que não casam com os manifestos)
 contagem.
 
 **Níveis vigentes** (registros gerados a partir de um commit, sem código sujo): **C** só para
-tuberculose / `xr-probe-tb` (hold-out interno); fratura **refutada** (D);
+tuberculose / `xr-probe-tb` (hold-out interno); fratura e câncer de mama em mamografia **refutados** (D);
 `xr-probe-tb.trained-montgomery` fora da contagem (não distribuído); FE e lesão mamária mantidas
 em **D** apesar de aprovarem (manifesto só de pesquisa e entrada derivada da referência). Esta
 tabela muda quando `levels.json` mudar — o CI (`tests/unit/test_status_docs_levels.py`) falha se

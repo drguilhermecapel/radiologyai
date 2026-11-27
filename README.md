@@ -50,11 +50,11 @@ se divergir):
 |---|---:|---:|---:|---:|---:|
 | `cxr` | 0 | 0 | 1 | 0 | 0 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
-| `mg` | 0 | 0 | 0 | 2 | 0 |
+| `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 0 | 0 | 1 | 12 | 1 |
+| **Todas** | 0 | 0 | 1 | 12 | 2 |
 <!-- kpi-levels:fim -->
 
 Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **C** só

@@ -620,6 +620,20 @@
       "visibility": "research"
     },
     {
+      "basis": [
+        "measured:cmmd:mammoscreen:malignancy:discrimination"
+      ],
+      "condition_id": "mg.breast_cancer",
+      "distributed": true,
+      "headline": "refutado por medição própria em cmmd: AUROC 0.7896 < auroc_min 0.8; limite inferior do IC da AUROC 0.7154 < auroc_ci_low_min 0.75",
+      "label": "malignancy",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "mammoscreen",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
       "basis": [],
       "condition_id": "mg.breast_density",
       "distributed": true,
@@ -779,6 +793,6 @@
       "visibility": "research"
     }
   ],
-  "evidence_digest": "cdcb2b0fb70e5c97b36b6890544f4c963768bfdc0b809d3d3d22f191568d36e3",
+  "evidence_digest": "60e943e7d6df9957a2d1054ca20b23fa2737fb0ad6d7e79f16ff3e40bb8a0f10",
   "protocol_id": "2026-11-v1"
 }
