@@ -1,0 +1,421 @@
+# Gerado por scripts/evidence_run.py --plan; não editar à mão.
+# Desfecho de cada item de evidence/measured/plan.yaml. Itens 'pendente' e
+# 'excluido' não têm registro: nenhuma métrica é extrapolada de conjunto incompleto.
+format: radiologyai.evidence/ledger-v1
+protocol_id: 2026-11-v1
+plan: evidence/measured/plan.yaml
+entries:
+- job: xr-probe-tb@tb-montgomery
+  outcome: nao_elegivel
+  model_id: xr-probe-tb
+  dataset_id: tb-montgomery
+  label: tuberculosis
+  condition_id: cxr.tuberculosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/tb-montgomery/xr-probe-tb/tuberculosis.json
+  kind: measured_external
+  leakage: none
+  n_total: 69
+  n_positive: 29
+  reasons:
+  - 'não elegível: pacientes positivos 29 < min_positive 30'
+- job: xr-probe-tb@tb-shenzhen
+  outcome: aprovado
+  model_id: xr-probe-tb
+  dataset_id: tb-shenzhen
+  label: tuberculosis
+  condition_id: cxr.tuberculosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/tb-shenzhen/xr-probe-tb/tuberculosis.json
+  kind: measured_internal
+  leakage: known
+  n_total: 331
+  n_positive: 168
+  reasons: []
+- job: xr-probe-tb.trained-montgomery@tb-shenzhen
+  outcome: aprovado
+  model_id: xr-probe-tb.trained-montgomery
+  dataset_id: tb-shenzhen
+  label: tuberculosis
+  condition_id: cxr.tuberculosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/tb-shenzhen/xr-probe-tb.trained-montgomery/tuberculosis.json
+  kind: measured_external
+  leakage: none
+  n_total: 331
+  n_positive: 168
+  reasons: []
+- job: xr-probe-fracture@fracatlas
+  outcome: aprovado
+  model_id: xr-probe-fracture
+  dataset_id: fracatlas
+  label: fracture
+  condition_id: msk_xr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/fracatlas/xr-probe-fracture/fracture.json
+  kind: measured_internal
+  leakage: known
+  n_total: 989
+  n_positive: 359
+  reasons: []
+- job: xr-probe-fracture@grazpedwri-dx-sample
+  outcome: reprovado
+  model_id: xr-probe-fracture
+  dataset_id: grazpedwri-dx-sample
+  label: fracture
+  condition_id: msk_xr.fracture
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json
+  kind: measured_external
+  leakage: none
+  n_total: 632
+  n_positive: 379
+  reasons:
+  - AUROC 0.6898 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.6327 < auroc_ci_low_min 0.75
+- job: xr-probe-grazpedwri-osteopenia@test30
+  outcome: nao_elegivel
+  model_id: xr-probe-grazpedwri-osteopenia
+  dataset_id: grazpedwri-dx-sample-test30
+  label: osteopenia
+  condition_id: msk_xr.osteopenia
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/grazpedwri-dx-sample-test30/xr-probe-grazpedwri-osteopenia/osteopenia.json
+  kind: measured_internal
+  leakage: known
+  n_total: 188
+  n_positive: 24
+  reasons:
+  - 'não elegível: pacientes positivos 11 < min_positive 30'
+- job: xr-probe-grazpedwri-metal@test30
+  outcome: nao_elegivel
+  model_id: xr-probe-grazpedwri-metal
+  dataset_id: grazpedwri-dx-sample-test30
+  label: metal
+  condition_id: msk_xr.metal
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/grazpedwri-dx-sample-test30/xr-probe-grazpedwri-metal/metal.json
+  kind: measured_internal
+  leakage: known
+  n_total: 202
+  n_positive: 10
+  reasons:
+  - 'não elegível: pacientes positivos 1 < min_positive 30'
+- job: xr-probe-grazpedwri-cast@test30
+  outcome: nao_elegivel
+  model_id: xr-probe-grazpedwri-cast
+  dataset_id: grazpedwri-dx-sample-test30
+  label: cast
+  condition_id: msk_xr.cast
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/grazpedwri-dx-sample-test30/xr-probe-grazpedwri-cast/cast.json
+  kind: measured_internal
+  leakage: known
+  n_total: 188
+  n_positive: 48
+  reasons:
+  - 'não elegível: pacientes positivos 12 < min_positive 30'
+- job: us-probe-breast-malignancy@busi
+  outcome: aprovado
+  model_id: us-probe-breast-malignancy
+  dataset_id: busi
+  label: breast_lesion_malignant
+  condition_id: us.breast_lesion_malignancy
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/busi/us-probe-breast-malignancy/breast_lesion_malignant.json
+  kind: measured_internal
+  leakage: known
+  n_total: 323
+  n_positive: 104
+  reasons: []
+- job: us-probe-breast-malignancy@breast-lesions-usg
+  outcome: reprovado
+  model_id: us-probe-breast-malignancy
+  dataset_id: breast-lesions-usg
+  label: breast_lesion_malignant
+  condition_id: us.breast_lesion_malignancy
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json
+  kind: measured_external
+  leakage: possible
+  n_total: 126
+  n_positive: 49
+  reasons:
+  - limite inferior do IC da AUROC 0.7397 < auroc_ci_low_min 0.75
+- job: us-probe-breast-malignancy@bus-bra
+  outcome: aprovado
+  model_id: us-probe-breast-malignancy
+  dataset_id: bus-bra
+  label: breast_lesion_malignant
+  condition_id: us.breast_lesion_malignancy
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/bus-bra/us-probe-breast-malignancy/breast_lesion_malignant.json
+  kind: measured_external
+  leakage: possible
+  n_total: 934
+  n_positive: 299
+  reasons: []
+- job: us-probe-liver-lesion-malignancy@liver-lesion-us-7272660
+  outcome: reprovado
+  model_id: us-probe-liver-lesion-malignancy
+  dataset_id: liver-lesion-us-7272660
+  label: liver_lesion_malignant
+  condition_id: us.liver_lesion_malignancy
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/liver-lesion-us-7272660/us-probe-liver-lesion-malignancy/liver_lesion_malignant.json
+  kind: measured_internal
+  leakage: known
+  n_total: 362
+  n_positive: 229
+  reasons:
+  - limite inferior do IC da AUROC 0.6093 < auroc_ci_low_min 0.75
+- job: us-probe-liver-steatosis@byra-fatty-liver
+  outcome: nao_elegivel
+  model_id: us-probe-liver-steatosis
+  dataset_id: byra-fatty-liver
+  label: liver_steatosis
+  condition_id: us.hepatic_steatosis
+  endpoint: discrimination
+  awaiting_condition: false
+  record: measured/byra-fatty-liver/us-probe-liver-steatosis/liver_steatosis.json
+  kind: measured_internal
+  leakage: known
+  n_total: 28
+  n_positive: 19
+  reasons:
+  - 'não elegível: pacientes positivos 19 < min_positive 30'
+  - 'não elegível: pacientes negativos 9 < min_negative 30'
+  - AUROC 0.7310 < auroc_min 0.8
+  - limite inferior do IC da AUROC 0.5088 < auroc_ci_low_min 0.75
+- job: medsam2-echo-lv@camus:box
+  outcome: aprovado
+  model_id: medsam2-echo-lv
+  dataset_id: camus
+  label: lv_ef
+  condition_id: echo.reduced_lvef
+  endpoint: agreement
+  awaiting_condition: false
+  record: measured/camus/medsam2-echo-lv/lv_ef.json
+  kind: measured_external
+  leakage: possible
+  n_total: 100
+  n_positive: 100
+  reasons: []
+- job: medsam2-echo-lv@camus:prompt-free
+  outcome: reprovado
+  model_id: medsam2-echo-lv
+  dataset_id: camus
+  label: lv_ef.prompt_free
+  condition_id: echo.reduced_lvef
+  endpoint: agreement
+  awaiting_condition: false
+  record: measured/camus/medsam2-echo-lv/lv_ef.prompt_free.json
+  kind: measured_external
+  leakage: possible
+  n_total: 100
+  n_positive: 100
+  reasons:
+  - ICC(2,1) 0.0001 < icc_min 0.75
+- job: medsam2-echo-lv@camus:per-instant
+  outcome: excluido
+  model_id: medsam2-echo-lv
+  dataset_id: camus
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'ef_per_instant.parquet é análise secundária: a referência é recalculada das máscaras de referência
+    por instante, não a FE oficial do CAMUS; o desfecho primário é ef.parquet.'
+- job: xrv-densenet121-res224-pc@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-pc
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
+    a fila parou no fragmento 7 e não houve merge.'
+- job: xrv-densenet121-res224-chex@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-chex
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
+    a fila parou no fragmento 7 e não houve merge.'
+- job: xrv-densenet121-res224-mimic_nb@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-mimic_nb
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
+    a fila parou no fragmento 7 e não houve merge.'
+- job: xrv-densenet121-res224-mimic_ch@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-mimic_ch
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: inferência no teste oficial do NIH em 7 de 10 fragmentos (17920 de 25596 imagens);
+    a fila parou no fragmento 7 e não houve merge.'
+- job: xrv-densenet121-res224-all@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-all
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split do TorchXRayVision
+    põe a maior parte do teste oficial no treino; protocolo §8.2).'
+- job: xrv-densenet121-res224-nih@nih-cxr14-test
+  outcome: pendente
+  model_id: xrv-densenet121-res224-nih
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: 7 de 10 fragmentos. Mesmo completa, será leakage known (o split do TorchXRayVision
+    põe a maior parte do teste oficial no treino; protocolo §8.2).'
+- job: mammoscreen@cmmd
+  outcome: pendente
+  model_id: mammoscreen
+  dataset_id: cmmd
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: 80 de 300 mamas da amostra pré-definida (spikes/mammo/meta/cmmd_sample300.txt)
+    inferidas; a fila parou em --limit 100.'
+- job: totalseg-cerebral-bleed@cq500
+  outcome: pendente
+  model_id: totalseg-cerebral-bleed
+  dataset_id: cq500
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'medição pendente: 5 de 80 exames da seleção pré-definida (40 com e 40 sem HIC, ordem sha256) processados;
+    o parquet consolidado tem 2 linhas.'
+- job: xrv-densenet121-pc@nih-cxr14-sample300
+  outcome: excluido
+  model_id: xrv-densenet121-pc
+  dataset_id: nih-cxr14
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - prova de caminho da fábrica (300 imagens) sem procedimento de seleção documentado e com id de modelo
+    fora dos manifestos; não é conjunto de avaliação pré-especificado.
+- job: gates@xr-mixed
+  outcome: excluido
+  model_id: null
+  dataset_id: null
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - '_gates/: calibração dos portões de vista e de fora-de-distribuição (limiar do autoencoder), não avaliação
+    de condição.'
+- job: ct-samples
+  outcome: excluido
+  model_id: null
+  dataset_id: null
+  label: null
+  condition_id: null
+  endpoint: discrimination
+  awaiting_condition: false
+  record: null
+  kind: null
+  leakage: null
+  n_total: null
+  n_positive: null
+  reasons:
+  - 'ct-samples/: execuções de fumaça de TC/RM em exames isolados (sem rótulo de condição).'

@@ -1,0 +1,242 @@
+{
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "us-probe-breast-malignancy@breast-lesions-usg",
+    "predictions_file": "us-probe-breast-malignancy/breast/breast_lesion_malignant.parquet",
+    "predictions_sha256": "d95e2c6b736c56765c90565821c297a16387e0822bbd918bc2878e02cd190fce",
+    "score_column": "y_score"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json#report",
+      "name": "breast_lesion_malignant:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de breast-lesions-usg",
+      "threshold": -0.8363790461386951
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json#report",
+      "name": "breast_lesion_malignant:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de breast-lesions-usg",
+      "threshold": 2.0283114041389294
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (126 pacientes) e métricas reportadas na metade de teste (126 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Referência do dataset: biópsia (197) ou seguimento clínico (55).",
+      "Região = caixa da máscara de referência + 25% (oráculo da caixa do usuário)."
+    ],
+    "condition_id": "us.breast_lesion_malignancy",
+    "dataset": "breast-lesions-usg",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "limite inferior do IC da AUROC 0.7397 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:breast-lesions-usg:us-probe-breast-malignancy:breast_lesion_malignant:discrimination",
+    "kind": "measured_external",
+    "label": "breast_lesion_malignant",
+    "leakage": "possible",
+    "leakage_note": "sobreposição plausível declarada na tabela: busi, pmc-15m",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.8493300869863072,
+        "ci_low": 0.6569503682799777,
+        "value": 0.7546143339805609
+      },
+      "auroc": {
+        "ci_high": 0.8931950702358865,
+        "ci_low": 0.7397164060429368,
+        "value": 0.8195070235886562
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.20346460656767928,
+        "ci_low": 0.12481609068165099,
+        "value": 0.15149230557673957
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.2586812307275155,
+        "ci_low": 0.14268943308597948,
+        "value": 0.17691969881744207
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.6530612244897959,
+        "ci_low": 0.3673469387755102,
+        "value": 0.5102040816326531
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.948051948051948,
+        "ci_low": 0.7922077922077922,
+        "value": 0.8701298701298701
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 0.9795918367346939,
+        "ci_low": 0.8163265306122449,
+        "value": 0.8979591836734694
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.6363636363636364,
+        "ci_low": 0.4025974025974026,
+        "value": 0.5194805194805194
+      }
+    },
+    "model_id": "us-probe-breast-malignancy",
+    "n_positive": 49,
+    "n_total": 126,
+    "passes_protocol": false,
+    "population": "BrEaST-Lesions-USG (TCIA, Polônia), uma imagem por paciente",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-breast-malignancy@breast-lesions-usg",
+      "created_at": "2026-11-27T13:49:24.144526Z",
+      "dataset_id": "breast-lesions-usg",
+      "dataset_sha256": "44bfac2dc4a758fc0762660ba2dd94da7b5f4cd2aaba2943b161da95aec967e8",
+      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "open_clip_pytorch_model.bin": "52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be",
+        "probe.safetensors": "ba535eb0180c3a47d34cbc4a3b1f363d1fce3149076b8dedd331ef606c6b660c"
+      }
+    },
+    "reference_standard": "other",
+    "source": null
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.8493300869863072,
+      "ci_low": 0.6569503682799777,
+      "value": 0.7546143339805609
+    },
+    "auroc": {
+      "ci_high": 0.8931950702358865,
+      "ci_low": 0.7397164060429368,
+      "value": 0.8195070235886562
+    },
+    "calibration": {
+      "n_fit_samples": 126,
+      "nll_after": 0.5764498895692944,
+      "nll_before": 0.6419671406727889,
+      "temperature": 2.0194269613620905
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 126,
+      "n_neg": 77,
+      "n_neg_patients": 77,
+      "n_patients": 126,
+      "n_pos": 49,
+      "n_pos_patients": 49
+    },
+    "ece_after": {
+      "ci_high": 0.20346460656767928,
+      "ci_low": 0.12481609068165099,
+      "value": 0.15149230557673957
+    },
+    "ece_before": {
+      "ci_high": 0.2586812307275155,
+      "ci_low": 0.14268943308597948,
+      "value": 0.17691969881744207
+    },
+    "label": "breast_lesion_malignant",
+    "operating_point_errors": [],
+    "prevalence": 0.3888888888888889,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.46938775510204084,
+      "calibration_specificity": 0.9090909090909091,
+      "npv": {
+        "ci_high": 0.7954606549364613,
+        "ci_low": 0.681306990881459,
+        "value": 0.7362637362637363
+      },
+      "ppv": {
+        "ci_high": 0.8518518518518519,
+        "ci_low": 0.5833333333333334,
+        "value": 0.7142857142857143
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.6530612244897959,
+        "ci_low": 0.3673469387755102,
+        "value": 0.5102040816326531
+      },
+      "specificity": {
+        "ci_high": 0.948051948051948,
+        "ci_low": 0.7922077922077922,
+        "value": 0.8701298701298701
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": 2.0283114041389294
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9183673469387755,
+      "calibration_specificity": 0.45454545454545453,
+      "npv": {
+        "ci_high": 0.972972972972973,
+        "ci_low": 0.803921568627451,
+        "value": 0.8888888888888888
+      },
+      "ppv": {
+        "ci_high": 0.6111111111111112,
+        "ci_low": 0.4835164835164835,
+        "value": 0.5432098765432098
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.9795918367346939,
+        "ci_low": 0.8163265306122449,
+        "value": 0.8979591836734694
+      },
+      "specificity": {
+        "ci_high": 0.6363636363636364,
+        "ci_low": 0.4025974025974026,
+        "value": 0.5194805194805194
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -0.8363790461386951
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 126,
+        "n_neg": 77,
+        "n_neg_patients": 77,
+        "n_patients": 126,
+        "n_pos": 49,
+        "n_pos_patients": 49
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 126,
+        "n_neg": 77,
+        "n_neg_patients": 77,
+        "n_patients": 126,
+        "n_pos": 49,
+        "n_pos_patients": 49
+      }
+    },
+    "subgroups": [],
+    "subgroups_unavailable": [
+      "sex: subgrupo não avaliável: metadado ausente",
+      "age_band: subgrupo não avaliável: metadado ausente",
+      "view: subgrupo não avaliável: metadado ausente"
+    ]
+  }
+}

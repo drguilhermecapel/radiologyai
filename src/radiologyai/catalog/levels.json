@@ -391,6 +391,52 @@
       "visibility": "research"
     },
     {
+      "basis": [
+        "measured:tb-shenzhen:xr-probe-tb:tuberculosis:discrimination"
+      ],
+      "condition_id": "cxr.tuberculosis",
+      "headline": "C: auroc 0.982 [0.969, 0.992] · tb-shenzhen · n=331",
+      "label": "tuberculosis",
+      "level": "C",
+      "model_id": "xr-probe-tb",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:tb-shenzhen:xr-probe-tb.trained-montgomery:tuberculosis:discrimination"
+      ],
+      "condition_id": "cxr.tuberculosis",
+      "headline": "A: auroc 0.944 [0.919, 0.966] · tb-shenzhen · n=331",
+      "label": "tuberculosis",
+      "level": "A",
+      "model_id": "xr-probe-tb.trained-montgomery",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:camus:medsam2-echo-lv:lv_ef:agreement"
+      ],
+      "condition_id": "echo.reduced_lvef",
+      "headline": "C: icc 0.861 [0.769, 0.913] · camus · n=100",
+      "label": "lv_ef",
+      "level": "C",
+      "model_id": "medsam2-echo-lv",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [],
+      "condition_id": "echo.reduced_lvef",
+      "headline": null,
+      "label": "lv_ef.prompt_free",
+      "level": "D",
+      "model_id": "medsam2-echo-lv",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
       "basis": [],
       "condition_id": "mg.breast_cancer",
       "headline": null,
@@ -449,8 +495,83 @@
       "model_id": "lst-ai",
       "refuted_by_measurement": false,
       "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.cast",
+      "headline": null,
+      "label": "cast",
+      "level": "D",
+      "model_id": "xr-probe-grazpedwri-cast",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:grazpedwri-dx-sample:xr-probe-fracture:fracture:discrimination"
+      ],
+      "condition_id": "msk_xr.fracture",
+      "headline": "refutado por medição própria em grazpedwri-dx-sample: AUROC 0.6898 < auroc_min 0.8; limite inferior do IC da AUROC 0.6327 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "model_id": "xr-probe-fracture",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.metal",
+      "headline": null,
+      "label": "metal",
+      "level": "D",
+      "model_id": "xr-probe-grazpedwri-metal",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.osteopenia",
+      "headline": null,
+      "label": "osteopenia",
+      "level": "D",
+      "model_id": "xr-probe-grazpedwri-osteopenia",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:bus-bra:us-probe-breast-malignancy:breast_lesion_malignant:discrimination",
+        "measured:busi:us-probe-breast-malignancy:breast_lesion_malignant:discrimination"
+      ],
+      "condition_id": "us.breast_lesion_malignancy",
+      "headline": "C: auroc 0.860 [0.830, 0.888] · bus-bra · n=934",
+      "label": "breast_lesion_malignant",
+      "level": "C",
+      "model_id": "us-probe-breast-malignancy",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [],
+      "condition_id": "us.hepatic_steatosis",
+      "headline": null,
+      "label": "liver_steatosis",
+      "level": "D",
+      "model_id": "us-probe-liver-steatosis",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "us.liver_lesion_malignancy",
+      "headline": null,
+      "label": "liver_lesion_malignant",
+      "level": "D",
+      "model_id": "us-probe-liver-lesion-malignancy",
+      "refuted_by_measurement": false,
+      "visibility": "research"
     }
   ],
-  "evidence_digest": "de1a11d70d789305454841570019e1988bcd4c3f28fd46a631c716d7cedb9f8d",
+  "evidence_digest": "fbae075eb6ede8b6f25accbcf9bef0a15dcfb10a9798e5a446981408c8b46e2e",
   "protocol_id": "2026-11-v1"
 }

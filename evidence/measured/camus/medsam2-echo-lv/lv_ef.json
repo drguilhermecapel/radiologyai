@@ -1,0 +1,113 @@
+{
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "measured_column": "y_pred",
+    "n_abstained_excluded": 0,
+    "n_rows_outside_filter": 100,
+    "plan_job": "medsam2-echo-lv@camus:box",
+    "predictions_file": "medsam2-echo-lv/camus/ef.parquet",
+    "predictions_sha256": "18e8a5a6ec12887a7d78ee593d00c7ad25e562372f2a1ec2b4da7ae002cf8152",
+    "reference_column": "y_true",
+    "where": {
+      "mode": "oracle_box"
+    }
+  },
+  "operating_points": [],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "ICC(2,1): dois fatores, efeitos aleatórios, concordância absoluta.",
+      "n_positive = casos com medida de referência (desfecho contínuo).",
+      "IC: IC95% bootstrap percentílico por paciente (cluster); B=2000, seed=20261124.",
+      "FE biplanar de Simpson das máscaras do MedSAM2 contra a FE de referência do CAMUS (Info_*.cfg, contornos de especialista).",
+      "Caixa do VE = caixa da máscara de referência + 5 px (oráculo da caixa que o usuário desenha no uso assistido); corte e quadros ED/ES do CAMUS."
+    ],
+    "condition_id": "echo.reduced_lvef",
+    "dataset": "camus",
+    "endpoint": "agreement",
+    "failure_reasons": [],
+    "id": "measured:camus:medsam2-echo-lv:lv_ef:agreement",
+    "kind": "measured_external",
+    "label": "lv_ef",
+    "leakage": "possible",
+    "leakage_note": "sobreposição plausível declarada na tabela: medsam2-training-corpus",
+    "metrics": {
+      "bland_altman_bias": {
+        "ci_high": -1.967547019629814,
+        "ci_low": -4.144296530933629,
+        "value": -3.0301926261059373
+      },
+      "bland_altman_loa_high": {
+        "ci_high": 9.951484676820025,
+        "ci_low": 5.732562812477593,
+        "value": 7.94922745768883
+      },
+      "bland_altman_loa_low": {
+        "ci_high": -11.433937364493824,
+        "ci_low": -16.67029232876273,
+        "value": -14.009612709900704
+      },
+      "icc": {
+        "ci_high": 0.9130112934181785,
+        "ci_low": 0.7691526532868352,
+        "value": 0.8607505191140472
+      },
+      "mae": {
+        "ci_high": 5.657208909478874,
+        "ci_low": 4.06093024038124,
+        "value": 4.81864428132875
+      }
+    },
+    "model_id": "medsam2-echo-lv",
+    "n_positive": 100,
+    "n_total": 100,
+    "passes_protocol": true,
+    "population": "CAMUS (Lyon), partições oficiais testing + validation, 100 pacientes, A4C + A2C",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job medsam2-echo-lv@camus:box",
+      "created_at": "2026-11-27T13:49:26.578221Z",
+      "dataset_id": "camus",
+      "dataset_sha256": "b764b67df5493372affc9bfb1390e1dee068d89559a300b54dec144263ab1e12",
+      "git_sha": "5ab12ac937c49984714ef2060035950d5dc896a5",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "MedSAM2_US_Heart.pt": "295c0ff8912c99947c364287bbecd1cd36963f0c0ac67a042d292f0dedf8d933"
+      }
+    },
+    "reference_standard": "expert_segmentation",
+    "source": null
+  },
+  "report": {
+    "bias": {
+      "ci_high": -1.967547019629814,
+      "ci_low": -4.144296530933629,
+      "value": -3.0301926261059373
+    },
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster); B=2000, seed=20261124",
+    "icc": {
+      "ci_high": 0.9130112934181785,
+      "ci_low": 0.7691526532868352,
+      "value": 0.8607505191140472
+    },
+    "icc_form": "ICC(2,1)",
+    "loa_high": {
+      "ci_high": 9.951484676820025,
+      "ci_low": 5.732562812477593,
+      "value": 7.94922745768883
+    },
+    "loa_low": {
+      "ci_high": -11.433937364493824,
+      "ci_low": -16.67029232876273,
+      "value": -14.009612709900704
+    },
+    "mae": {
+      "ci_high": 5.657208909478874,
+      "ci_low": 4.06093024038124,
+      "value": 4.81864428132875
+    },
+    "n_cases": 100,
+    "n_patients": 100
+  }
+}
