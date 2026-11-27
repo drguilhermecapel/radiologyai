@@ -127,7 +127,10 @@ def test_catalog_level_controls_visibility_and_points_control_decision(
             {"label": "bright", "point": op("rule_in", 0.7)},
         ],
     )
-    levels = {BRIGHT: EvidenceLevel.A}
+    # Nível B (publicado, pontos do manifesto com origem). A e C, medidos pelo
+    # projeto em pontos do protocolo, só decidem com pontos da política: ver
+    # test_analysis_pipeline_safety.py (REQ-168).
+    levels = {BRIGHT: EvidenceLevel.B}
     decisions = [
         run(make_registry, make_catalog, store, [manifest], exam(lv), levels).findings[0].decision
         for lv in (40, 128, 220)
@@ -135,7 +138,7 @@ def test_catalog_level_controls_visibility_and_points_control_decision(
     assert decisions == ["negative", "indeterminate", "positive"]
     result = run(make_registry, make_catalog, store, [manifest], exam(220), levels)
     main = result.main_findings()
-    assert main[0].evidence_level is EvidenceLevel.A
+    assert main[0].evidence_level is EvidenceLevel.B
     assert main[0].op_normalized is not None
     assert main[0].op_normalized > 0.5
     assert result.provenance[0].model_id == "fake-bright"

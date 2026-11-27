@@ -22,6 +22,11 @@ sens_spec_ci_low_min: 0.80
 
 # Continuous measurements compared with a clinical reference (e.g. ejection fraction).
 icc_min: 0.75
+# Abstention tolerated in the agreement endpoint (cases with a reference value and no
+# model measurement). Protocol 2026-11-v1 pre-registered NO tolerance, so it is zero:
+# this line states that conservative reading explicitly, it adds no new leeway.
+# Tolerating abstention requires a new protocol_id written before measuring.
+max_abstention_fraction: 0.0
 
 # Statistics.
 ci_level: 0.95

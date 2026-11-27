@@ -614,22 +614,23 @@ def ingest(
                     )
                 series_ids.append(series.id)
             study_id = study.id
-        append_event(
-            db,
-            "study.ingested",
-            actor_id=user_id,
-            actor_username=username,
-            subject_type="study",
-            subject_id=study_id,
-            payload={
-                "source": source,
-                "n_images": len(images),
-                "input_sha256": [i.meta.content_sha256 for i in images],
-                "exam_type": chosen.value,
-                "exam_type_source": origin,
-                "human_metadata": sorted(prepared[0].overrides),
-            },
-        )
+            append_event(
+                None,
+                "study.ingested",
+                actor_id=user_id,
+                actor_username=username,
+                subject_type="study",
+                subject_id=study_id,
+                payload={
+                    "source": source,
+                    "n_images": len(images),
+                    "input_sha256": [i.meta.content_sha256 for i in images],
+                    "exam_type": chosen.value,
+                    "exam_type_source": origin,
+                    "human_metadata": sorted(prepared[0].overrides),
+                },
+                session=session,
+            )
         if on_decoded is not None:
             for sid, image in zip(series_ids, images, strict=True):
                 on_decoded(sid, image)

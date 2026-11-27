@@ -11,7 +11,8 @@ referencia o estudo des-identificado, não o original no PACS.
 from __future__ import annotations
 
 import importlib.util
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict
@@ -21,7 +22,14 @@ from radiologyai.errors import BackendUnavailableError, ConfigurationError, Radi
 if TYPE_CHECKING:
     from radiologyai.persistence.config import PlatformSettings
 
-__all__ = ["DicomwebError", "DicomwebGateway", "StudySummary"]
+__all__ = [
+    "DicomwebError",
+    "DicomwebGateway",
+    "ImportTooLargeError",
+    "StoreOutcome",
+    "StudySummary",
+    "store_outcome",
+]
 
 _SAFE_TAGS = {
     "0020000D": "study_instance_uid",
@@ -34,6 +42,40 @@ _SAFE_TAGS = {
 
 class DicomwebError(RadiologyAIError):
     """Falha de comunicação ou resposta inválida do servidor DICOMweb."""
+
+
+class ImportTooLargeError(DicomwebError):
+    """Estudo remoto acima dos limites de importação (instâncias ou bytes)."""
+
+
+@dataclass(frozen=True, slots=True)
+class StoreOutcome:
+    """O que o servidor CONFIRMOU no STOW-RS: armazenados e recusados (com motivo)."""
+
+    stored: tuple[str, ...]
+    failed: tuple[tuple[str, str], ...]
+
+
+def store_outcome(response: Any, sent: Sequence[str]) -> StoreOutcome:
+    """Lê a resposta STOW-RS (PS3.18 §10.5): ``ReferencedSOPSequence`` e ``FailedSOPSequence``.
+
+    Só conta como armazenado o que o servidor listou em ``ReferencedSOPSequence``;
+    o enviado que não aparece em lugar nenhum é falha "não confirmado". Uma
+    resposta 202 com ``FailedSOPSequence`` NÃO é sucesso.
+    """
+    stored: list[str] = []
+    failed: list[tuple[str, str]] = []
+    for item in getattr(response, "ReferencedSOPSequence", None) or []:
+        uid = str(getattr(item, "ReferencedSOPInstanceUID", "") or "")
+        if uid:
+            stored.append(uid)
+    for item in getattr(response, "FailedSOPSequence", None) or []:
+        uid = str(getattr(item, "ReferencedSOPInstanceUID", "") or "")
+        reason = getattr(item, "FailureReason", None)
+        failed.append((uid, f"FailureReason {reason}" if reason is not None else "recusado"))
+    seen = set(stored) | {uid for uid, _ in failed}
+    failed.extend((uid, "não confirmado pelo servidor") for uid in sent if uid not in seen)
+    return StoreOutcome(tuple(stored), tuple(failed))
 
 
 class StudySummary(BaseModel):
@@ -128,8 +170,32 @@ class DicomwebGateway:
         except Exception as exc:  # noqa: BLE001 - reembalado com contexto
             raise DicomwebError(f"WADO falhou para o estudo: {exc}") from exc
 
+    def count_instances(self, study_instance_uid: str, *, limit: int) -> int:
+        """QIDO-RS das instâncias do estudo (só a contagem, limitada a ``limit``).
+
+        Uma única página de ``limit`` itens: basta para saber se o estudo cabe no
+        limite, sem paginar indefinidamente um servidor que ignore ``offset``.
+        """
+        try:
+            items = self._client.search_for_instances(
+                study_instance_uid=study_instance_uid, limit=limit, get_remaining=False
+            )
+        except Exception as exc:  # noqa: BLE001 - reembalado com contexto
+            raise DicomwebError(f"QIDO de instâncias falhou: {exc}") from exc
+        return len(items)
+
+    def iter_study(self, study_instance_uid: str) -> Iterator[Any]:
+        """WADO-RS instância a instância (não carrega o estudo inteiro na memória)."""
+        try:
+            yield from self._client.iter_study(study_instance_uid)
+        except Exception as exc:  # noqa: BLE001 - reembalado com contexto
+            raise DicomwebError(f"WADO falhou para o estudo: {exc}") from exc
+
     def store(self, datasets: Sequence[Any]) -> Any:
-        """STOW-RS de objetos (SR/SEG gerados aqui), sempre como DICOM Part 10."""
+        """STOW-RS de objetos (SR/SEG gerados aqui), sempre como DICOM Part 10.
+
+        Devolve a resposta do servidor; leia-a com :func:`store_outcome`.
+        """
         import io
 
         import pydicom

@@ -32,6 +32,7 @@ __all__ = [
     "ErrorOut",
     "ExamTypeIn",
     "ExportOut",
+    "ExportSkipOut",
     "HealthOut",
     "HealthzOut",
     "LoginIn",
@@ -326,6 +327,24 @@ class AnalysisOut(_Out):
         description="Para cada achado exibido em result.findings, o índice no resultado completo "
         "(use-o em ReviewIn.finding_idx)."
     )
+    segmentation_indices: tuple[int, ...] | None = Field(
+        default=None,
+        description="Para cada segmentação exibida em result.segmentations, o índice no resultado "
+        "completo (use-o em /analyses/{id}/segmentations/{seg_index}/frames/{index}).",
+    )
+    hidden_research_artifacts: int = Field(
+        default=0,
+        description="Segmentações e medidas exploratórias omitidas (sem achado A-C ligado).",
+    )
+    research_segmentation_indices: tuple[int, ...] = Field(
+        default=(),
+        description="Índices (no resultado completo) das segmentações exploratórias; só "
+        "aparecem na visão de pesquisa e exigem marca d'água.",
+    )
+    research_measurement_names: tuple[str, ...] = Field(
+        default=(),
+        description="Nomes das medidas exploratórias exibidas na visão de pesquisa.",
+    )
     result: AnalysisResult | None
     reviews: tuple[ReviewOut, ...]
 
@@ -364,9 +383,19 @@ class ReportOut(_Out):
     downloads: dict[str, str]
 
 
+class ExportSkipOut(_Out):
+    seg_index: int
+    reason: str
+
+
 class ExportOut(_Out):
-    stored_sop_instance_uids: tuple[str, ...]
+    stored_sop_instance_uids: tuple[str, ...] = Field(
+        description="Somente os objetos que o servidor CONFIRMOU (ReferencedSOPSequence)."
+    )
     destination: str
+    skipped: tuple[ExportSkipOut, ...] = Field(
+        default=(), description="SEGs do laudo que não puderam ser gerados, com o motivo."
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -426,6 +455,10 @@ class CatalogEntryOut(_Out):
     label: str
     level: Literal["A", "B", "C", "D"]
     visibility: Literal["main", "research"]
+    restricted_by_manifest: bool = Field(
+        default=False,
+        description="Nível medido A-C, mas o manifesto restringe o modelo ao modo pesquisa.",
+    )
     headline: str | None
     basis: tuple[str, ...]
 
@@ -485,6 +518,9 @@ class AuditVerifyOut(_Out):
     last_hash: str
     broken_at_seq: int | None
     detail: str | None
+    anchored_seq: int | None = Field(
+        default=None, description="Seq do último checkpoint externo conferido (fora do banco)."
+    )
 
 
 class DicomwebSearchOut(_Out):

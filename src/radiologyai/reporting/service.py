@@ -28,9 +28,12 @@ from radiologyai.reporting.content import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sqlalchemy.orm import Session
 
     from radiologyai.analysis.types import AnalysisResult
+    from radiologyai.catalog.schema import EvidenceLevel
     from radiologyai.persistence.models import Analysis, Report
     from radiologyai.reporting.pdf import SignOff
     from radiologyai.worker.runtime import Platform
@@ -39,12 +42,14 @@ __all__ = [
     "Integrity",
     "ReportStateError",
     "create_report",
+    "current_level_fn",
     "integrity",
     "latest_reviews",
     "load_result",
     "render_document",
     "sign_off",
     "sign_report",
+    "signing_key",
 ]
 
 
@@ -101,11 +106,37 @@ def latest_reviews(session: Session, analysis_id: str) -> dict[int, ReviewInfo]:
     return out
 
 
+def current_level_fn(platform: Platform) -> Callable[[str, str, str], EvidenceLevel]:
+    """Nível efetivo AGORA de (condição, modelo, rótulo): catálogo corrente + manifesto.
+
+    Mesma regra do pipeline: condição fora do catálogo é D; manifesto com
+    ``visibility_default: research`` rebaixa a D.
+    """
+    from radiologyai.catalog.schema import EvidenceLevel
+
+    engine = platform.engine
+    catalog, registry = engine.catalog, engine.registry
+
+    def level(condition_id: str, model_id: str, label: str) -> EvidenceLevel:
+        if not catalog.has(condition_id):
+            return EvidenceLevel.D
+        value = catalog.level(condition_id, model_id, label)
+        if registry.has(model_id) and registry.manifest(model_id).visibility_default == "research":
+            return EvidenceLevel.D
+        return value
+
+    return level
+
+
 def create_report(platform: Platform, analysis_id: str, *, user_id: str, username: str) -> str:
     """Cria o instantâneo do laudo; devolve o id.
 
+    Recusa análise em que nenhum modelo concluiu (todos indisponíveis, com
+    falha ou em abstenção): um laudo "sem achados A-C" dela leria como exame
+    analisado. O nível de cada achado é reconferido contra o catálogo corrente.
+
     Raises:
-        ReportStateError: análise inexistente ou não concluída.
+        ReportStateError: análise inexistente, não concluída ou sem modelo concluído.
     """
     from radiologyai.persistence.audit import append_event
     from radiologyai.persistence.models import Analysis, Report, Study
@@ -118,6 +149,12 @@ def create_report(platform: Platform, analysis_id: str, *, user_id: str, usernam
         if analysis.state != "completed":
             raise ReportStateError(f"análise {analysis_id} está {analysis.state!r}")
         result = load_result(analysis)
+        completed = sum(r.status == "completed" for r in result.runs)
+        if result.status in ("failed", "abstained") or completed == 0:
+            raise ReportStateError(
+                f"nenhum modelo concluiu nesta análise (status {result.status!r}); "
+                "não há análise a laudar — nenhum laudo é emitido"
+            )
         study = session.get(Study, analysis.study_id)
         assert study is not None
         content = build_report_content(
@@ -130,6 +167,7 @@ def create_report(platform: Platform, analysis_id: str, *, user_id: str, usernam
             reviews=latest_reviews(session, analysis_id),
             catalog=catalog,
             study_warnings=tuple(study.warnings or ()),
+            current_level=current_level_fn(platform),
         )
         content_bytes = canonical_bytes(content.model_dump(mode="json"))
         report = Report(
@@ -140,21 +178,24 @@ def create_report(platform: Platform, analysis_id: str, *, user_id: str, usernam
             result_sha256=str(analysis.result_sha256),
         )
         session.add(report)
-    append_event(
-        platform.db,
-        "report.created",
-        actor_id=user_id,
-        actor_username=username,
-        subject_type="report",
-        subject_id=report.id,
-        payload={
-            "analysis_id": analysis_id,
-            "report_sha256": report.report_sha256,
-            "result_sha256": report.result_sha256,
-            "n_findings": len(content.findings),
-            "unreviewed": content.unreviewed_findings,
-        },
-    )
+        session.flush()
+        append_event(
+            None,
+            "report.created",
+            actor_id=user_id,
+            actor_username=username,
+            subject_type="report",
+            subject_id=report.id,
+            payload={
+                "analysis_id": analysis_id,
+                "report_sha256": report.report_sha256,
+                "result_sha256": report.result_sha256,
+                "n_findings": len(content.findings),
+                "unreviewed": content.unreviewed_findings,
+                "demoted": content.demoted_findings,
+            },
+            session=session,
+        )
     return report.id
 
 
@@ -165,8 +206,28 @@ class Integrity:
     signature_valid: bool | None
 
 
-def integrity(report: Report, analysis: Analysis) -> Integrity:
-    """Recalcula os três hashes: conteúdo, resultado e assinatura."""
+def signing_key(platform: Platform) -> bytes:
+    """Chave HMAC da assinatura.
+
+    Raises:
+        ReportStateError: nenhuma chave de servidor configurada.
+    """
+    from radiologyai.persistence.config import server_key
+
+    key = server_key(platform.settings)
+    if key is None:
+        raise ReportStateError(
+            "sem MEDAI_SIGNING_KEY (nem MEDAI_DEIDENT_KEY): laudos não podem ser assinados "
+            "nem verificados"
+        )
+    return key
+
+
+def integrity(report: Report, analysis: Analysis, key: bytes | None = None) -> Integrity:
+    """Recalcula os três hashes: conteúdo, resultado e assinatura (HMAC com ``key``).
+
+    Laudo assinado sem chave disponível para conferir tem ``signature_valid=False``.
+    """
     content_ok = sha256_hex(report.content_json.encode("utf-8")) == report.report_sha256
     result_ok = (
         analysis.result_json is not None
@@ -175,14 +236,26 @@ def integrity(report: Report, analysis: Analysis) -> Integrity:
     )
     signature: bool | None = None
     if report.signed_at is not None:
-        expected = signature_digest(
-            report_id=report.id,
-            report_sha256=report.report_sha256,
-            result_sha256=report.result_sha256,
-            signer_id=str(report.signed_by),
-            signed_at=report.signed_at,
+        import hmac
+
+        expected = (
+            None
+            if key is None
+            else signature_digest(
+                report_id=report.id,
+                report_sha256=report.report_sha256,
+                result_sha256=report.result_sha256,
+                signer_id=str(report.signed_by),
+                signed_at=report.signed_at,
+                key=key,
+            )
         )
-        signature = content_ok and result_ok and expected == report.signature_sha256
+        signature = (
+            content_ok
+            and result_ok
+            and expected is not None
+            and hmac.compare_digest(expected, report.signature_sha256 or "")
+        )
     return Integrity(content_ok, result_ok, signature)
 
 
@@ -197,10 +270,16 @@ def sign_report(
 ) -> None:
     """Assina o laudo (a senha já foi conferida por quem chama).
 
+    A gravação é um ``UPDATE`` condicional (``signed_at IS NULL`` e os dois
+    hashes): de duas assinaturas concorrentes, só uma vence; a outra recebe
+    ``ReportStateError``. O evento ``report.signed`` entra na MESMA transação.
+
     Raises:
         ReportStateError: laudo inexistente, já assinado, hashes divergentes do
             que está gravado, integridade reprovada ou achados não revisados.
     """
+    from sqlalchemy import update
+
     from radiologyai.persistence.audit import append_event
     from radiologyai.persistence.models import Analysis, Report, utcnow
 
@@ -217,7 +296,8 @@ def sign_report(
             )
         analysis = session.get(Analysis, report.analysis_id)
         assert analysis is not None
-        check = integrity(report, analysis)
+        key = signing_key(platform)
+        check = integrity(report, analysis, key)
         if not (check.content_matches_hash and check.result_matches_hash):
             raise ReportStateError("integridade reprovada: conteúdo ou resultado alterado")
         content = ReportContent.model_validate_json(report.content_json)
@@ -227,29 +307,41 @@ def sign_report(
                 "revise todos antes de assinar"
             )
         signed_at = utcnow()
-        report.signed_by = user_id
-        report.signed_at = signed_at
-        report.signature_sha256 = signature_digest(
+        sig = signature_digest(
             report_id=report.id,
             report_sha256=report.report_sha256,
             result_sha256=report.result_sha256,
             signer_id=user_id,
             signed_at=signed_at,
+            key=key,
         )
-        sig = report.signature_sha256
-    append_event(
-        platform.db,
-        "report.signed",
-        actor_id=user_id,
-        actor_username=username,
-        subject_type="report",
-        subject_id=report_id,
-        payload={
-            "report_sha256": report_sha256,
-            "result_sha256": result_sha256,
-            "signature_sha256": sig,
-        },
-    )
+        won = session.execute(
+            update(Report)
+            .where(
+                Report.id == report_id,
+                Report.signed_at.is_(None),
+                Report.report_sha256 == report_sha256,
+                Report.result_sha256 == result_sha256,
+            )
+            .values(signed_by=user_id, signed_at=signed_at, signature_sha256=sig)
+            .execution_options(synchronize_session=False)
+        )
+        if won.rowcount != 1:  # type: ignore[attr-defined]
+            raise ReportStateError("laudo já assinado (assinatura concorrente); nada foi alterado")
+        append_event(
+            None,
+            "report.signed",
+            actor_id=user_id,
+            actor_username=username,
+            subject_type="report",
+            subject_id=report_id,
+            payload={
+                "report_sha256": report_sha256,
+                "result_sha256": result_sha256,
+                "signature_sha256": sig,
+            },
+            session=session,
+        )
 
 
 def sign_off(session: Session, report: Report) -> SignOff:
@@ -319,7 +411,9 @@ def render_document(
             raise ReportStateError(f"laudo {report_id} inexistente")
         analysis = session.get(Analysis, report.analysis_id)
         assert analysis is not None
-        check = integrity(report, analysis)
+        from radiologyai.persistence.config import server_key
+
+        check = integrity(report, analysis, server_key(platform.settings))
         if not (check.content_matches_hash and check.result_matches_hash):
             raise ReportStateError("integridade reprovada: o laudo não pode ser emitido")
         if check.signature_valid is False:
@@ -355,6 +449,11 @@ def render_document(
                 result = load_result(analysis)
                 if seg_index is None or not 0 <= seg_index < len(result.segmentations):
                     raise ReportFormatError(f"segmentação {seg_index} inexistente nesta análise")
+                if seg_index not in {item.idx for item in content.segmentations}:
+                    raise ReportFormatError(
+                        f"segmentação {seg_index} não acompanha este laudo: exploratória (sem "
+                        "achado A-C ligado) ou só de achado rejeitado pelo médico"
+                    )
                 seg = result.segmentations[seg_index]
                 if seg.image_idx not in sources:
                     raise ReportFormatError("DICOM SEG exige imagem de origem DICOM")

@@ -60,7 +60,11 @@ def verify(
     principal: Annotated[Principal, Depends(require(_P))],
     platform: Annotated[Platform, Depends(get_platform)],
 ) -> AuditVerifyOut:
-    """Recalcula a cadeia inteira; aponta o primeiro evento adulterado ou elo quebrado."""
+    """Recalcula a cadeia inteira; aponta o primeiro evento adulterado ou elo quebrado.
+
+    Compara também com o último checkpoint externo (fora do banco):
+    eventos recentes apagados reprovam a verificação.
+    """
     from radiologyai.persistence.audit import verify_chain
 
     del principal
@@ -72,4 +76,5 @@ def verify(
         last_hash=status.last_hash,
         broken_at_seq=status.broken_at_seq,
         detail=status.detail,
+        anchored_seq=status.anchored_seq,
     )

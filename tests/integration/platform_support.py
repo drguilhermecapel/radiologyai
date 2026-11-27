@@ -24,6 +24,7 @@ from radiologyai.analysis.base import (
     LabelMap,
     ModelAdapter,
     ModelInputs,
+    RawMeasurement,
     ResolvedWeights,
     Score,
 )
@@ -64,7 +65,21 @@ class PixelMean(ModelAdapter):
         mask = (image.pixels > image.pixels.mean()).astype(np.uint8)
         return AdapterOutput(
             scores=[Score("bright", mean, "sigmoid"), Score("dark", 1.0 - mean, "sigmoid")],
-            labelmaps=[LabelMap(name="bright_region", array=mask, labels={1: "bright_region"})],
+            # ``bright_region`` liga-se ao achado ``bright`` (nível B); ``dark_region``
+            # e a medida ``dark_fraction`` só ao rótulo ``dark`` (nível D): exploratórios.
+            labelmaps=[
+                LabelMap(name="bright_region", array=mask, labels={1: "bright"}),
+                LabelMap(name="dark_region", array=(1 - mask).astype(np.uint8), labels={1: "dark"}),
+            ],
+            measurements=[
+                RawMeasurement(
+                    key="dark_fraction",
+                    value=float(1.0 - mask.mean()),
+                    unit="1",
+                    method="fração de pixels abaixo da média (dublê)",
+                    derived_from=["dark_region"],
+                )
+            ],
         )
 
     def explain(self, inputs: ModelInputs, labels: Sequence[str]) -> list[ExplanationMap]:
@@ -125,6 +140,13 @@ def manifest(model_id: str = "fake-pixel-mean") -> dict[str, Any]:
     }
 
 
+def research_manifest() -> dict[str, Any]:
+    """Modelo de rota ``research``: só roda em modo pesquisa (nenhum nível no catálogo)."""
+    data = manifest("fake-research-seg")
+    data.update(route="research")
+    return data
+
+
 def planned_manifest() -> dict[str, Any]:
     data = manifest("fake-planned")
     data.update(status="planned", planned_reason="ainda não roda de verdade")
@@ -134,7 +156,7 @@ def planned_manifest() -> dict[str, Any]:
 def build_registry(tmp: Path) -> Registry:
     manifest_dir, weights_dir = tmp / "manifests", tmp / "weights"
     manifest_dir.mkdir(parents=True, exist_ok=True)
-    for data in (manifest(), planned_manifest()):
+    for data in (manifest(), research_manifest(), planned_manifest()):
         (manifest_dir / f"{data['id']}.yaml").write_text(yaml.safe_dump(data), encoding="utf-8")
         if data["status"] == "available":
             target = weights_dir / data["id"] / "main.bin"

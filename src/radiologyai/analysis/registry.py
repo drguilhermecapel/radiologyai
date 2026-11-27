@@ -94,7 +94,7 @@ class Registry:
         self._manifest_sha: dict[str, str] = {}
         self._manifest_path: dict[str, Path] = {}
         self._loaded: OrderedDict[str, ModelAdapter] = OrderedDict()
-        self._hash_cache: dict[tuple[str, int, int], str] = {}
+        self._hash_cache: dict[tuple[str, int, int, int, int], str] = {}
         self._lock = threading.RLock()
         self._load_manifests()
 
@@ -180,8 +180,12 @@ class Registry:
         return self.weights_dir / model_id
 
     def _hash(self, path: Path) -> str:
+        # ``st_ctime_ns`` muda em QUALQUER escrita ou troca de metadados e não pode
+        # ser restaurado por ``utime`` (ao contrário de ``mtime``); ``st_ino`` pega a
+        # troca do arquivo por outro. Sobrescrever com o mesmo tamanho e o mtime
+        # antigo invalida o cache.
         stat = path.stat()
-        key = (str(path.resolve()), stat.st_size, stat.st_mtime_ns)
+        key = (str(path.resolve()), stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino)
         if key not in self._hash_cache:
             self._hash_cache[key] = sha256_file(path)
         return self._hash_cache[key]
@@ -252,16 +256,47 @@ class Registry:
             )
         return ResolvedWeights(files=files, sha256=hashes, unsafe_pickle=unsafe)
 
-    def _extracted_dir(self, model_id: str, weight: WeightFile) -> Path:
-        target = self.model_dir(model_id) / f"{weight.key}.extracted"
+    def _extracted_files(self, root: Path) -> dict[str, str]:
+        """sha256 de cada arquivo extraído (caminho relativo POSIX), sem o marcador."""
+        return {
+            path.relative_to(root).as_posix(): self._hash(path)
+            for path in sorted(root.rglob("*"))
+            if path.is_file() and path.name != _EXTRACT_MARKER
+        }
+
+    def _extraction_intact(self, target: Path, archive_sha256: str) -> bool:
+        """O diretório extraído confere arquivo a arquivo com o registrado na extração?"""
+        import json
+
         marker = target / _EXTRACT_MARKER
-        if marker.is_file() and marker.read_text(encoding="utf-8").strip() == weight.sha256:
+        if not marker.is_file():
+            return False
+        try:
+            recorded = json.loads(marker.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False  # marcador antigo (só o hash do arquivo) ou corrompido: re-extrai
+        if not isinstance(recorded, dict) or recorded.get("archive_sha256") != archive_sha256:
+            return False
+        return bool(recorded.get("files") == self._extracted_files(target))
+
+    def _extracted_dir(self, model_id: str, weight: WeightFile) -> Path:
+        """Diretório extraído do arquivo de pesos, re-hasheado a cada uso.
+
+        O marcador guarda o sha256 de CADA arquivo extraído; arquivo alterado,
+        trocado, removido ou acrescentado depois da extração faz re-extrair do
+        arquivo verificado — o checkpoint carregado é sempre o do hash fixado.
+        """
+        import json
+
+        target = self.model_dir(model_id) / f"{weight.key}.extracted"
+        if self._extraction_intact(target, weight.sha256):
             return target
         archive = self.model_dir(model_id) / weight.filename
         tmp = Path(tempfile.mkdtemp(dir=self.model_dir(model_id), prefix=".extract-"))
         try:
             safe_extract(archive, tmp, weight.extract, model_id=model_id)
-            (tmp / _EXTRACT_MARKER).write_text(weight.sha256, encoding="utf-8")
+            record = {"archive_sha256": weight.sha256, "files": self._extracted_files(tmp)}
+            (tmp / _EXTRACT_MARKER).write_text(json.dumps(record, sort_keys=True), encoding="utf-8")
             if target.exists():
                 shutil.rmtree(target)
             Path(tmp).replace(target)

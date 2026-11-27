@@ -240,7 +240,7 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
                         />
                         <span>
                           {m.name} <span className="muted small">({m.id})</span>
-                          {m.commercial_use === "no" ? (
+                          {m.commercial_use !== "yes" ? (
                             <>
                               {" "}
                               <Pill tone="warn">{t("findings.noncommercial")}</Pill>

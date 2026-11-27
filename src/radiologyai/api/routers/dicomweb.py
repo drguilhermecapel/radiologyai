@@ -53,21 +53,44 @@ def import_study(
     platform: Annotated[Platform, Depends(get_platform)],
     body: DicomwebImportIn,
 ) -> StudyOut:
-    """WADO-RS do estudo inteiro -> ingestão (des-identificação na entrada)."""
+    """WADO-RS do estudo -> ingestão (des-identificação na entrada).
+
+    Os mesmos limites do envio de arquivos valem aqui: no máximo
+    ``max_zip_members`` instâncias (conferido por QIDO antes de baixar) e
+    ``max_uncompressed_bytes`` no total; as instâncias são gravadas uma a uma
+    em disco, nunca o estudo inteiro na memória. Acima do limite: 413.
+    """
     import io
 
-    from radiologyai.interop.dicomweb import DicomwebGateway
+    from radiologyai.interop.dicomweb import DicomwebGateway, ImportTooLargeError
     from radiologyai.interop.ingest import ingest
 
-    gateway = DicomwebGateway.from_settings(platform.settings)
-    datasets = gateway.retrieve_study(body.study_instance_uid)
+    settings = platform.settings
+    gateway = DicomwebGateway.from_settings(settings)
+    count = gateway.count_instances(body.study_instance_uid, limit=settings.max_zip_members + 1)
+    if count > settings.max_zip_members:
+        raise ImportTooLargeError(
+            f"estudo com mais de {settings.max_zip_members} instâncias excede o limite"
+        )
     with tempfile.TemporaryDirectory(prefix="radiologyai-wado-") as tmp:
         items: list[tuple[str, Path]] = []
-        for n, ds in enumerate(datasets):
+        total = 0
+        for n, ds in enumerate(gateway.iter_study(body.study_instance_uid)):
+            if n >= settings.max_zip_members:
+                raise ImportTooLargeError(
+                    f"estudo excede o limite de {settings.max_zip_members} instâncias"
+                )
             buf = io.BytesIO()
             ds.save_as(buf, enforce_file_format=True)
+            data = buf.getvalue()
+            del ds, buf
+            total += len(data)
+            if total > settings.max_uncompressed_bytes:
+                raise ImportTooLargeError(
+                    f"estudo excede o limite de {settings.max_uncompressed_bytes} bytes"
+                )
             target = Path(tmp) / f"wado-{n:06d}.dcm"
-            target.write_bytes(buf.getvalue())
+            target.write_bytes(data)
             items.append((target.name, target))
         result = ingest(
             items,

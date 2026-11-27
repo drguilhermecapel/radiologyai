@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,25 @@ def write_measured(
     return path
 
 
+@dataclass(frozen=True)
+class LoadedEvidence:
+    """Um registro lido de ``evidence/`` e, se medido, o envelope que o sustenta."""
+
+    record: EvidenceRecord
+    envelope: MeasuredEvidence | None
+    path: Path
+
+
+def _evidence_from(data: Any, path: Path) -> list[LoadedEvidence]:
+    if isinstance(data, dict) and "record" in data:
+        try:
+            env = MeasuredEvidence.model_validate(data)
+        except ValidationError as exc:
+            raise EvidenceError(f"envelope de evidência inválido em {path}: {exc}") from exc
+        return [LoadedEvidence(env.record, env, path)]
+    return [LoadedEvidence(r, None, path) for r in _records_from(data, path)]
+
+
 def _records_from(data: Any, path: Path) -> list[EvidenceRecord]:
     if isinstance(data, dict) and "record" in data:
         try:
@@ -136,20 +156,28 @@ def evidence_files(root: Path = EVIDENCE_ROOT) -> list[Path]:
     return files
 
 
-def load_records(root: Path = EVIDENCE_ROOT) -> list[EvidenceRecord]:
-    """Todos os registros de ``measured/`` e ``published/``.
+def load_evidence(root: Path = EVIDENCE_ROOT) -> list[LoadedEvidence]:
+    """Todos os registros de ``measured/`` e ``published/``, com o envelope dos medidos.
 
     Raises:
         EvidenceError: arquivo inválido, ou dois registros com o mesmo id.
     """
-    records: list[EvidenceRecord] = []
+    loaded: list[LoadedEvidence] = []
     origin: dict[str, Path] = {}
     for path in evidence_files(root):
-        for rec in _records_from(_read(path), path):
-            if rec.id in origin:
-                raise EvidenceError(
-                    f"id de evidência duplicado {rec.id!r}: {origin[rec.id]} e {path}"
-                )
-            origin[rec.id] = path
-            records.append(rec)
-    return records
+        for item in _evidence_from(_read(path), path):
+            rid = item.record.id
+            if rid in origin:
+                raise EvidenceError(f"id de evidência duplicado {rid!r}: {origin[rid]} e {path}")
+            origin[rid] = path
+            loaded.append(item)
+    return loaded
+
+
+def load_records(root: Path = EVIDENCE_ROOT) -> list[EvidenceRecord]:
+    """Todos os registros de ``measured/`` e ``published/`` (sem os envelopes).
+
+    Raises:
+        EvidenceError: arquivo inválido, ou dois registros com o mesmo id.
+    """
+    return [item.record for item in load_evidence(root)]

@@ -30,8 +30,8 @@ weights:
 license:
   code: Apache-2.0
   weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
-  training_data_terms: MIMIC-CXR (PhysioNet Credentialed Health Data License; rótulos NegBio)
-  commercial_use: unclear
+  training_data_terms: MIMIC-CXR (PhysioNet Credentialed Health Data License; rótulos NegBio); tratado como não comercial, como o chexzero (mesmo dado de treino)
+  commercial_use: 'no'
   evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0); os pesos são distribuídos
     como assets de release do mesmo repositório sem licença própria declarada
 applicability:

@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from radiologyai.errors import EvaluationError
-from radiologyai.evaluation.metrics import ClusterBootstrap, bootstrap_method, percentile_ci
+from radiologyai.evaluation.metrics import ClusterBootstrap, bootstrap_interval, bootstrap_method
 
 if TYPE_CHECKING:
     import numpy as np
@@ -41,11 +41,19 @@ class Interval(_Frozen):
     value: float
     ci_low: float | None = None
     ci_high: float | None = None
+    # réplicas de bootstrap com estatística definida / total (None: sem bootstrap)
+    n_defined_replicates: int | None = None
+    n_replicates: int | None = None
 
 
 class AgreementReport(_Frozen):
-    n_cases: int
-    n_patients: int
+    n_cases: int  # casos com medida do modelo E referência (entram na concordância)
+    n_patients: int  # pacientes desses casos
+    # Abstenções: casos com referência e SEM medida do modelo. Contam no denominador
+    # (n_cases_with_reference) e na elegibilidade; nunca somem do relato.
+    n_abstained: int = 0
+    n_cases_with_reference: int | None = None  # None = relatório antigo, sem a contagem
+    n_patients_with_reference: int | None = None
     icc_form: str
     icc: Interval
     bias: Interval  # média de (modelo - referência)
@@ -134,8 +142,14 @@ def evaluate_agreement(
     n_bootstrap: int,
     ci_level: float = 0.95,
     form: ICCForm = "2,1",
+    abstained_patient_ids: Sequence[str] = (),
 ) -> AgreementReport:
-    """ICC, Bland-Altman e MAE com IC por bootstrap de paciente."""
+    """ICC, Bland-Altman e MAE com IC por bootstrap de paciente.
+
+    ``abstained_patient_ids``: um id de paciente por caso com referência e sem medida
+    do modelo. Não entram no ICC (não há par), mas são contados no relatório para que
+    a elegibilidade e o limite de abstenção os vejam.
+    """
     import numpy as np
 
     m = np.asarray(measured, dtype=np.float64)
@@ -155,12 +169,23 @@ def evaluate_agreement(
     arr = np.asarray(samples, dtype=np.float64)
 
     def interval(i: int) -> Interval:
-        lo, hi = percentile_ci(arr[:, i], ci_level)
-        return Interval(value=point[i], ci_low=lo, ci_high=hi)
+        ci = bootstrap_interval(arr[:, i], ci_level)
+        return Interval(
+            value=point[i],
+            ci_low=ci.low,
+            ci_high=ci.high,
+            n_defined_replicates=ci.n_defined,
+            n_replicates=ci.n_replicates,
+        )
 
+    kept_patients = {str(p) for p in patient_ids}
+    abstained = [str(p) for p in abstained_patient_ids]
     return AgreementReport(
         n_cases=int(m.size),
-        n_patients=len({str(p) for p in patient_ids}),
+        n_patients=len(kept_patients),
+        n_abstained=len(abstained),
+        n_cases_with_reference=int(m.size) + len(abstained),
+        n_patients_with_reference=len(kept_patients | set(abstained)),
         icc_form=f"ICC({form})",
         icc=interval(0),
         bias=interval(1),

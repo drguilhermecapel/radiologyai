@@ -10,7 +10,13 @@ from sqlalchemy import select
 from radiologyai.api.app import API_PREFIX
 from radiologyai.api.deps import Principal, get_platform, perm, require
 from radiologyai.api.routers.studies import _ERRORS
-from radiologyai.api.schemas import ExportOut, ReportIntegrity, ReportOut, SignIn
+from radiologyai.api.schemas import (
+    ExportOut,
+    ExportSkipOut,
+    ReportIntegrity,
+    ReportOut,
+    SignIn,
+)
 from radiologyai.persistence.models import Analysis, Report, User
 from radiologyai.persistence.security import Permission
 from radiologyai.reporting.content import ReportContent
@@ -20,7 +26,8 @@ router = APIRouter(tags=["reports"])
 
 
 def report_out(platform: Platform, report_id: str) -> ReportOut:
-    from radiologyai.reporting.service import integrity, load_result
+    from radiologyai.persistence.config import server_key
+    from radiologyai.reporting.service import integrity
 
     with platform.db.session() as session:
         report = session.get(Report, report_id)
@@ -28,14 +35,16 @@ def report_out(platform: Platform, report_id: str) -> ReportOut:
             raise HTTPException(status_code=404, detail="laudo inexistente")
         analysis = session.get(Analysis, report.analysis_id)
         assert analysis is not None
-        check = integrity(report, analysis)
+        check = integrity(report, analysis, server_key(platform.settings))
         signer = session.get(User, report.signed_by) if report.signed_by else None
         content = ReportContent.model_validate_json(report.content_json)
         base = f"{API_PREFIX}/reports/{report.id}"
         downloads = {"pdf": f"{base}/pdf", "fhir": f"{base}/fhir", "sr": f"{base}/sr"}
         if check.result_matches_hash:
-            for i in range(len(load_result(analysis).segmentations)):
-                downloads[f"seg/{i}"] = f"{base}/seg/{i}"
+            # Só segmentações ligadas a achado A-C do laudo não rejeitado; máscara
+            # exploratória nunca vira SEG nem sai para o PACS.
+            for item in content.segmentations:
+                downloads[f"seg/{item.idx}"] = f"{base}/seg/{item.idx}"
         return ReportOut(
             id=report.id,
             analysis_id=report.analysis_id,
@@ -133,15 +142,16 @@ def sign(
     report_id: str,
     body: SignIn,
 ) -> ReportOut:
-    """Assina: exige a senha do médico e os dois hashes que ele viu (laudo e resultado)."""
-    from radiologyai.persistence.models import User as UserRow
-    from radiologyai.persistence.security import verify_password
+    """Assina: exige a senha do médico e os dois hashes que ele viu (laudo e resultado).
+
+    A senha errada é auditada (``auth.reauth_failed``) e limitada como o login:
+    na quinta falha em 15 minutos as sessões do usuário são revogadas e novas
+    tentativas recebem 429.
+    """
+    from radiologyai.persistence.users import reauthenticate
     from radiologyai.reporting.service import sign_report
 
-    with platform.db.session() as session:
-        user = session.get(UserRow, principal.user_id)
-        ok = user is not None and verify_password(user.password_hash, body.password)
-    if not ok:
+    if not reauthenticate(platform.db, principal.user_id, body.password):
         raise HTTPException(status_code=401, detail="reautenticação falhou: senha incorreta")
     sign_report(
         platform,
@@ -243,15 +253,22 @@ def export(
     platform: Annotated[Platform, Depends(get_platform)],
     report_id: str,
 ) -> ExportOut:
-    """Envia o SR (e SEGs) ao PACS por STOW-RS. Só laudos ASSINADOS saem do sistema."""
+    """Envia o SR (e os SEGs do laudo) ao PACS por STOW-RS. Só laudos ASSINADOS saem.
+
+    Só vão os SEGs listados em ``content.segmentations`` (ligados a achado A-C
+    não rejeitado). ``stored_sop_instance_uids`` lista apenas o que o servidor
+    CONFIRMOU; SEG que não pôde ser gerado aparece em ``skipped``. Se o servidor
+    recusar ou não confirmar algum objeto, a exportação é auditada como parcial
+    e a resposta é 502 — nunca um sucesso.
+    """
     import io
 
     import pydicom
 
-    from radiologyai.interop.dicomweb import DicomwebGateway
+    from radiologyai.interop.dicomweb import DicomwebError, DicomwebGateway, store_outcome
     from radiologyai.persistence.audit import append_event
     from radiologyai.reporting.dicom_sr import ReportFormatError
-    from radiologyai.reporting.service import load_result, render_document
+    from radiologyai.reporting.service import render_document
 
     with platform.db.session() as session:
         report = session.get(Report, report_id)
@@ -259,26 +276,42 @@ def export(
             raise HTTPException(status_code=404, detail="laudo inexistente")
         if report.signed_at is None:
             raise HTTPException(status_code=409, detail="só laudos assinados são exportados")
-        analysis = session.get(Analysis, report.analysis_id)
-        assert analysis is not None
-        n_segs = len(load_result(analysis).segmentations)
+        content = ReportContent.model_validate_json(report.content_json)
     gateway = DicomwebGateway.from_settings(platform.settings)
     documents = [render_document(platform, report_id, "sr")[0]]
-    for i in range(n_segs):
+    skipped: list[ExportSkipOut] = []
+    for item in content.segmentations:
         try:
-            documents.append(render_document(platform, report_id, "seg", seg_index=i)[0])
-        except ReportFormatError:
-            continue
+            documents.append(render_document(platform, report_id, "seg", seg_index=item.idx)[0])
+        except ReportFormatError as exc:
+            skipped.append(ExportSkipOut(seg_index=item.idx, reason=str(exc)))
     datasets = [pydicom.dcmread(io.BytesIO(d)) for d in documents]
-    gateway.store(datasets)
-    uids = tuple(str(ds.SOPInstanceUID) for ds in datasets)
+    sent = [str(ds.SOPInstanceUID) for ds in datasets]
+    response = gateway.store(datasets)
+    outcome = store_outcome(response, sent)
+    payload = {
+        "destination": gateway.url,
+        "sop_instance_uids": list(outcome.stored),
+        "failed": [{"sop_instance_uid": u, "reason": r} for u, r in outcome.failed],
+        "skipped_segmentations": [s.model_dump() for s in skipped],
+    }
     append_event(
         platform.db,
-        "report.exported",
+        "report.export_partial" if outcome.failed else "report.exported",
         actor_id=principal.user_id,
         actor_username=principal.username,
         subject_type="report",
         subject_id=report_id,
-        payload={"destination": gateway.url, "sop_instance_uids": list(uids)},
+        payload=payload,
     )
-    return ExportOut(stored_sop_instance_uids=uids, destination=gateway.url)
+    if outcome.failed:
+        detail = "; ".join(f"{u}: {r}" for u, r in outcome.failed)
+        raise DicomwebError(
+            f"exportação parcial: {len(outcome.failed)} objeto(s) não armazenado(s) em "
+            f"{gateway.url} ({detail}); confirmados: {len(outcome.stored)}"
+        )
+    return ExportOut(
+        stored_sop_instance_uids=outcome.stored,
+        destination=gateway.url,
+        skipped=tuple(skipped),
+    )

@@ -7,8 +7,11 @@ torna a objeção automática.
 
 Quebra o build em qualquer um destes:
 
-1. Alegação numérica de desempenho em Markdown fora de ``legacy/`` que não
-   esteja num bloco gerado a partir de ``artifacts/eval/``.
+1. Alegação numérica de desempenho (AUROC, AUPRC, AUC, ICC, Dice, ECE,
+   sensibilidade, especificidade, acurácia, VPP/VPN, MAE; ponto ou vírgula
+   decimal; também em tabelas cujo cabeçalho nomeia a métrica) em Markdown fora de
+   ``legacy/`` ou em docstring/comentário de ``src/``, sem proveniência na linha
+   (``artifacts/eval/``, ``evidence/``, marca ``NÃO VERIFICÁVEL``...).
 2. ``np.random`` / ``random.`` fora dos locais permitidos.
 3. Campo sha256 em model card que não seja 64 hex minúsculos.
 4. ``except ImportError`` em ``src/`` (detectado por AST, não por texto).
@@ -40,6 +43,24 @@ EXCLUDED_DIRS = {"legacy", ".git", ".venv", "artifacts", "node_modules", "__pyca
 HONESTY_DOCS = {"HONEST_STATUS.md", "ROADMAP.md"}
 
 # 1. Alegação de desempenho
+METRIC_WORDS = (
+    r"(?:AU(?:ROC|PRC|C)|ICC|Dice|ECE|F1|kappa|MAE|sensibilidade|especificidade|"
+    r"sensitivity|specificity|acur[áa]cia|accuracy|precis[ãa]o|VPP|VPN|PPV|NPV)"
+)
+METRIC_RE = re.compile(r"\b" + METRIC_WORDS + r"\b", re.I)
+# Número decimal (ponto ou vírgula) ou porcentagem. Não casa dentro de parênteses
+# colados (``ICC(2,1)`` é a forma, não um valor) nem no meio de identificadores.
+NUMBER = r"(?<![\w(.,])\d+(?:[.,]\d+)?\s*%|(?<![\w(.,])\d+[.,]\d+(?![\d)])"
+# Entre a métrica e o número, um comparador ou palavra de limiar indica barra do
+# protocolo ("AUROC >= 0,80", "ICC mínimo 0,75"), não resultado alegado.
+THRESHOLD_GAP = re.compile(
+    r"[≥≤<>]|m[íi]nim|barra|limiar|\balvo\b|\bmeta\b|threshold|target|_min\b|piso|"
+    r"\bacima de\b|\babaixo de\b|\bat least\b",
+    re.I,
+)
+METRIC_NUMBER_RE = re.compile(
+    r"\b" + METRIC_WORDS + r"\b(?P<gap>[^\n]{0,40}?)(?P<num>" + NUMBER + r")", re.I
+)
 PERF_PATTERNS = (
     re.compile(
         r"\b\d{2,3}(?:[.,]\d+)?\s*%\s*(?:de\s+)?"
@@ -52,10 +73,75 @@ PERF_PATTERNS = (
 )
 # Um bloco só pode alegar número se citar sua proveniência.
 PROVENANCE = re.compile(
-    r"artifacts/eval/|reports/EVALUATION_|METAS|RETRATAD|fabricad|"
-    r"N[ÃA]O MEDIDA|sint[ée]tic|HONEST_STATUS|legacy/|relatório da v1",
+    r"artifacts/eval/|reports/EVALUATION_|evidence/measured/|evidence/published/|"
+    r"evidence/selection/|levels\.json|METAS|RETRATAD|fabricad|"
+    r"N[ÃA]O MEDIDA|N[ÃA]O VERIFIC[ÁA]VEL|sint[ée]tic|HONEST_STATUS|legacy/|relatório da v1",
     re.I,
 )
+# Documentos que definem os limiares pré-registrados (barra, não resultado).
+THRESHOLD_DOCS = {
+    "docs/protocolo-evidencia.md",
+    "docs/regulatory/10-clinical-evaluation-plan.md",
+}
+GENERATED_REPORT = re.compile(r"^reports/EVALUATION_[^/]*?_(?P<run>[^/_][^/]*__\d{8}T\d{6}Z)\.md$")
+TABLE_ROW = re.compile(r"^\s*\|")
+TABLE_SEPARATOR = re.compile(r"^\s*\|?\s*:?-{3,}")
+TABLE_NUMBER = re.compile(NUMBER)
+
+
+def claims_in_line(line: str, *, phrases: bool = True) -> bool:
+    """A linha alega um número de desempenho (sem olhar a proveniência)?
+
+    ``phrases=False`` dispensa as frases de alegação ("validado clinicamente"),
+    usado em código-fonte, onde aparecem em negações ("nenhum modelo validado
+    clinicamente"); o número de métrica continua sendo verificado.
+    """
+    if phrases and any(p.search(line) for p in PERF_PATTERNS):
+        return True
+    return any(not THRESHOLD_GAP.search(m.group("gap")) for m in METRIC_NUMBER_RE.finditer(line))
+
+
+def claim_lines(lines: list[str]) -> list[int]:
+    """Índices (base 0) das linhas com alegação sem proveniência.
+
+    Tabelas: se o cabeçalho nomeia uma métrica, toda linha de dados com número é
+    alegação; a proveniência pode estar na própria linha, no cabeçalho ou nas três
+    linhas antes da tabela (a legenda).
+    """
+    out: list[int] = []
+    header: int | None = None  # índice do cabeçalho de tabela com métrica
+    for i, line in enumerate(lines):
+        if TABLE_ROW.match(line):
+            if header is None and i + 1 < len(lines) and TABLE_SEPARATOR.match(lines[i + 1]):
+                header = i if METRIC_RE.search(line) else -1
+            elif header is not None and header >= 0 and not TABLE_SEPARATOR.match(line):
+                context = lines[max(0, header - 3) : header + 1]
+                if TABLE_NUMBER.search(line) and not (
+                    PROVENANCE.search(line) or any(PROVENANCE.search(c) for c in context)
+                ):
+                    out.append(i)
+                    continue
+        else:
+            header = None
+        if claims_in_line(line) and not PROVENANCE.search(line):
+            out.append(i)
+    return out
+
+
+def text_chunks(path: Path) -> list[tuple[int, str]]:
+    """Linhas de docstrings, strings e comentários de um .py, com o número da linha."""
+    source = path.read_text(encoding="utf-8")
+    out: list[tuple[int, str]] = []
+    try:
+        tokens = list(tokenize.generate_tokens(io.StringIO(source).readline))
+    except (tokenize.TokenError, IndentationError):
+        return out
+    for tok in tokens:
+        if tok.type in (tokenize.STRING, tokenize.COMMENT):
+            for offset, text in enumerate(tok.string.splitlines()):
+                out.append((tok.start[0] + offset, text))
+    return out
+
 
 # 2. Aleatoriedade
 RANDOM_RE = re.compile(
@@ -135,20 +221,40 @@ def rule_1_performance_claims() -> list[Violation]:
     out: list[Violation] = []
     for path in walk(REPO, ".md"):
         rel = path.relative_to(REPO).as_posix()
-        if path.name in HONESTY_DOCS:
+        if path.name in HONESTY_DOCS or rel in THRESHOLD_DOCS:
             continue
-        for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            for pattern in PERF_PATTERNS:
-                if pattern.search(line) and not PROVENANCE.search(line):
+        generated = GENERATED_REPORT.match(rel)
+        if (
+            generated
+            and (REPO / "artifacts" / "eval" / generated["run"] / "metrics.json").is_file()
+        ):
+            # Relatório gerado por scripts/report.py a partir de um artefato existente:
+            # o arquivo inteiro tem a proveniência do seu metrics.json.
+            continue
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for idx in claim_lines(lines):
+            out.append(
+                Violation(
+                    "R1-desempenho",
+                    rel,
+                    idx + 1,
+                    f"alegação sem proveniência: {lines[idx].strip()[:90]}",
+                )
+            )
+    if SRC.is_dir():
+        for path in walk(SRC, ".py"):
+            rel = path.relative_to(REPO).as_posix()
+            for lineno, text in text_chunks(path):
+                if claims_in_line(text, phrases=False) and not PROVENANCE.search(text):
                     out.append(
                         Violation(
                             "R1-desempenho",
                             rel,
-                            i,
-                            f"alegação sem proveniência: {line.strip()[:90]}",
+                            lineno,
+                            f"alegação sem proveniência em docstring/comentário: "
+                            f"{text.strip()[:90]}",
                         )
                     )
-                    break
     return out
 
 

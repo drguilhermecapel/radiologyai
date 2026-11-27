@@ -143,3 +143,17 @@ class MultiRole(_Base):
 class BadExplanation(Brightness):
     def explain(self, inputs: ModelInputs, labels: Sequence[str]) -> list[ExplanationMap]:
         raise RuntimeError("mapa falhou")
+
+
+class PointPlacementExplanation(Brightness):
+    """Mapa com placement 'point' (o contrato exige bbox): deve virar aviso, nunca falha."""
+
+    def explain(self, inputs: ModelInputs, labels: Sequence[str]) -> list[ExplanationMap]:
+        image = inputs.single.pixels
+        point = Primitive(type="point", xy=((1.0, 1.0),))
+        return [
+            ExplanationMap(
+                label=label, heatmap=np.zeros_like(image, dtype=np.float32), placement=point
+            )
+            for label in labels
+        ]

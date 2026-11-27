@@ -107,15 +107,17 @@ def update(
             user.password_hash = hash_password(body.password)
             changed.append("password")
         user.updated_at = utcnow()
-    if {"role", "active", "password"} & set(changed):
-        revoke_user_sessions(platform.db, user_id)
-    append_event(
-        platform.db,
-        "user.updated",
-        actor_id=principal.user_id,
-        actor_username=principal.username,
-        subject_type="user",
-        subject_id=user_id,
-        payload={"fields": changed, "role": user.role, "active": user.active},
-    )
+        session.flush()
+        if {"role", "active", "password"} & set(changed):
+            revoke_user_sessions(None, user_id, session=session)
+        append_event(
+            None,
+            "user.updated",
+            actor_id=principal.user_id,
+            actor_username=principal.username,
+            subject_type="user",
+            subject_id=user_id,
+            payload={"fields": changed, "role": user.role, "active": user.active},
+            session=session,
+        )
     return user_out(user)

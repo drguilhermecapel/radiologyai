@@ -37,7 +37,7 @@ export const pt = {
   "research.toggle.help":
     "Mostra achados de nível D (exploratórios). Só para pesquisa; nunca entram no laudo.",
   "research.banner":
-    "MODO PESQUISA ATIVO — achados de nível D são exploratórios, sem validação, não entram no laudo e não devem orientar conduta.",
+    "MODO PESQUISA ATIVO — achados de nível D são exploratórios, sem medição aprovada no protocolo, não entram no laudo e não devem orientar conduta.",
   "research.hidden": "{count} achado(s) exploratório(s) de nível D ocultos (ative o modo pesquisa).",
 
   "login.title": "Entrar",
@@ -193,16 +193,16 @@ export const pt = {
 
   "level.a.label": "Nível A",
   "level.a.meaning":
-    "Validado externamente por medição nossa em dados independentes. Ainda assim é achado sugerido para confirmação médica.",
+    "Medido por este projeto em dado externo, sem sobreposição conhecida ou plausível com o treino nem com a seleção do modelo, e aprovado no protocolo pré-registrado. Ainda assim é achado sugerido para confirmação médica.",
   "level.b.label": "Nível B",
   "level.b.meaning":
-    "Validação publicada e revisada por pares ou limiar de diretriz, com a citação conferida na fonte.",
+    "Desempenho publicado em estudo revisado por pares, ou limiar de diretriz, com citação conferida na fonte. Não é medição deste projeto.",
   "level.c.label": "Nível C",
   "level.c.meaning":
-    "Validação interna nossa (mesma origem dos dados de desenvolvimento). Evidência mais fraca: interprete com cautela.",
+    "Medido por este projeto e aprovado no protocolo, mas em hold-out interno (mesma origem do treino) ou em dado externo com sobreposição conhecida ou possível com o treino ou com a seleção do modelo, ou com entrada derivada do padrão de referência. Evidência fraca: veja as ressalvas da entrada.",
   "level.d.label": "Nível D",
   "level.d.meaning":
-    "Exploratório, sem validação suficiente. Só no modo pesquisa; nunca entra no laudo sozinho.",
+    "Exploratório: sem medição aprovada, refutado por medição própria ou limitado (modelo não distribuído, termo de uso só de pesquisa); só no modo pesquisa. Nunca entra no laudo.",
 
   "decision.positive": "Positivo no ponto de operação",
   "decision.negative": "Negativo no ponto de operação",
@@ -238,7 +238,7 @@ export const pt = {
   "findings.manifest": "Manifesto (sha256)",
   "findings.license": "Licença dos pesos: {license}",
   "findings.commercial": "Uso comercial: {value}",
-  "findings.noncommercial": "Pesos não comerciais (uso só em pesquisa)",
+  "findings.noncommercial": "Uso comercial não permitido ou não confirmado (só pesquisa)",
   "findings.code": "Código: {scheme} {value} — {meaning}",
   "findings.showHeatmap": "Mostrar mapa",
   "findings.runs": "Execuções dos modelos",
@@ -270,7 +270,7 @@ export const pt = {
   "abst.acquisition_precondition_not_met": "pré-condição de aquisição não atendida",
   "abst.unsupported_input": "entrada não suportada",
   "abst.required_input_missing": "entrada obrigatória ausente",
-  "abst.unvalidated_population": "população não validada (ex.: idade)",
+  "abst.unvalidated_population": "população fora da avaliada (ex.: idade)",
   "abst.upstream_model_unavailable": "modelo de que depende está indisponível",
 
   "rv.title": "Revisão médica",
@@ -412,7 +412,7 @@ export const en: Messages = {
   "research.toggle.help":
     "Shows level D (exploratory) findings. Research only; they never enter the report.",
   "research.banner":
-    "RESEARCH MODE ON — level D findings are exploratory, unvalidated, excluded from the report and must not guide care.",
+    "RESEARCH MODE ON — level D findings are exploratory, with no passing protocol measurement, excluded from the report and must not guide care.",
   "research.hidden": "{count} exploratory level D finding(s) hidden (turn on research mode).",
 
   "login.title": "Sign in",
@@ -568,16 +568,16 @@ export const en: Messages = {
 
   "level.a.label": "Level A",
   "level.a.meaning":
-    "Externally validated by our own measurement on independent data. Still a suggested finding for physician confirmation.",
+    "Measured by this project on external data, with no known or plausible overlap with the model's training or selection data, and passing the pre-registered protocol. Still a suggested finding for physician confirmation.",
   "level.b.label": "Level B",
   "level.b.meaning":
-    "Peer-reviewed published validation or guideline threshold, with the quote verified at the source.",
+    "Performance published in a peer-reviewed study, or a guideline threshold, with the quote checked at the source. Not a measurement by this project.",
   "level.c.label": "Level C",
   "level.c.meaning":
-    "Our internal validation (same source as development data). Weaker evidence: interpret with caution.",
+    "Measured by this project and passing the protocol, but on an internal hold-out (same source as training), on external data with known or possible overlap with the model's training or selection data, or with input derived from the reference standard. Weak evidence: see the entry's caveats.",
   "level.d.label": "Level D",
   "level.d.meaning":
-    "Exploratory, insufficiently validated. Research mode only; never enters the report on its own.",
+    "Exploratory: no passing measurement, refuted by our own measurement, or held back (model not distributed, research-only terms); research mode only. Never enters the report.",
 
   "decision.positive": "Positive at the operating point",
   "decision.negative": "Negative at the operating point",
@@ -613,7 +613,7 @@ export const en: Messages = {
   "findings.manifest": "Manifest (sha256)",
   "findings.license": "Weights licence: {license}",
   "findings.commercial": "Commercial use: {value}",
-  "findings.noncommercial": "Non-commercial weights (research use only)",
+  "findings.noncommercial": "Commercial use not permitted or not confirmed (research only)",
   "findings.code": "Code: {scheme} {value} — {meaning}",
   "findings.showHeatmap": "Show map",
   "findings.runs": "Model runs",
@@ -645,7 +645,7 @@ export const en: Messages = {
   "abst.acquisition_precondition_not_met": "acquisition precondition not met",
   "abst.unsupported_input": "unsupported input",
   "abst.required_input_missing": "required input missing",
-  "abst.unvalidated_population": "unvalidated population (e.g. age)",
+  "abst.unvalidated_population": "population outside the one evaluated (e.g. age)",
   "abst.upstream_model_unavailable": "upstream model unavailable",
 
   "rv.title": "Physician review",

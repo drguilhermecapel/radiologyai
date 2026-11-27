@@ -1,0 +1,33 @@
+# Seleção do codificador das sondas de RX (RAD-DINO) — registro de auditoria.
+#
+# compare.json (ao lado) é a saída de scripts/probe_fit_xr_compare_encoders.py, copiada
+# sem alteração de /root/medai-cache/eval-preds/_encoder_selection/compare.json
+# (gravado em 2026-11-24T17:13:37Z). O codificador RAD-DINO foi ESCOLHIDO comparando a
+# AUROC externa destas transferências; por isso os datasets abaixo são dados de
+# seleção de todas as sondas RAD-DINO e avaliar nelas é vazamento "known"
+# (radiologyai.evidence.leakage, campo selection_data de evidence/measured/plan.yaml).
+#
+# Isto NÃO é medição de desempenho do produto: embeddings do spike com
+# pré-processamento próprio; nenhum registro de evidence/measured/ sai daqui.
+format: radiologyai.evidence/selection-v1
+decision: codificador das sondas de RX = RAD-DINO (microsoft/rad-dino, revisão 110cbc18)
+script: scripts/probe_fit_xr_compare_encoders.py
+results: evidence/selection/xr-encoder/compare.json
+results_sha256: 8d69fe16115451054951a415746b88e4926f93757d23171229f54bf505e31f70
+compared: [xrv, raddino, biomedclip]
+selection_data:
+  - key: tb-shenzhen
+    use: treino (Shenzhen -> Montgomery) e teste externo inteiro (Montgomery -> Shenzhen)
+  - key: tb-montgomery
+    use: treino (Montgomery -> Shenzhen) e teste externo inteiro (Shenzhen -> Montgomery)
+  - key: fracatlas
+    use: treino das sondas de comparação de fratura (2 mil imagens)
+  - key: grazpedwri-dx-sample
+    use: teste externo da comparação de fratura (amostra local de 400 pacientes)
+applies_to:
+  - xr-probe-tb
+  - xr-probe-tb.trained-montgomery
+  - xr-probe-fracture
+  - xr-probe-grazpedwri-osteopenia
+  - xr-probe-grazpedwri-metal
+  - xr-probe-grazpedwri-cast

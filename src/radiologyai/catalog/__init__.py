@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from radiologyai.catalog.catalog import Catalog, load_protocol
 from radiologyai.catalog.schema import (
+    LEVEL_MEANING_PT,
     CodedConcept,
     Condition,
     ConditionSource,
@@ -31,6 +32,7 @@ __all__ = [
     "Condition",
     "ConditionSource",
     "EvidenceLevel",
+    "LEVEL_MEANING_PT",
     "EvidenceRecord",
     "EvidenceSource",
     "LevelEntry",

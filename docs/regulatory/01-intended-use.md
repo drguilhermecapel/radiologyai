@@ -53,8 +53,9 @@ Finalidades permitidas:
 | Ultrassonografia | `US` | mama, fígado | lesão mamária, esteatose, segmentação interativa | imagem B-mode; anotações gravadas no pixel tratadas como risco de vazamento |
 | Ecocardiografia | `US` | apical 2 e 4 câmaras | traçado assistido do VE e FE por Simpson | **somente modo pesquisa**; contorno confirmado pelo médico |
 
-Condições de nível **D** (zero-shot ou sem validação por condição) aparecem **somente no modo
-pesquisa**, nunca sozinhas no laudo (REQ-091).
+Condições de nível **D** (zero-shot, sem medição aprovada por condição, refutadas ou limitadas)
+aparecem **somente no modo pesquisa** e nunca entram no laudo, no PDF, no SR, na SEG, no FHIR nem
+na exportação ao PACS (REQ-091).
 
 ### 2.1 Usuário pretendido
 

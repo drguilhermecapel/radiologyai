@@ -33,7 +33,7 @@ license:
   weights: Apache-2.0 (front-matter do cartão wanglab/medsam-vit-base)
   training_data_terms: MedSAM foi treinado em 1,57 milhão de pares imagem-máscara de bases públicas, várias
     com termos não comerciais; BUSI e CAMUS estão entre os dados de treino/validação interna do artigo
-  commercial_use: unclear
+  commercial_use: 'no'
   evidence: cartão de wanglab/medsam-vit-base no Hugging Face (revisão de8488bca37bb1d4fb190f612c516126d739ce3b,
     "license apache-2.0"); LICENSE de bowang-lab/MedSAM (Apache-2.0)
 applicability:

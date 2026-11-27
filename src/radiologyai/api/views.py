@@ -120,17 +120,31 @@ def review_out(r: Review, username: str) -> ReviewOut:
 
 
 def filter_research(result: AnalysisResult) -> tuple[AnalysisResult, int]:
-    """Remove achados de nível D (e explicações só deles); devolve o resultado e quantos saíram.
+    """Remove a saída exploratória; devolve o resultado e quantos ACHADOS saíram.
 
-    A ordem é preservada; ``AnalysisOut.finding_indices`` dá, para cada achado
-    exibido, o índice no resultado COMPLETO — é esse índice que a revisão usa.
+    Saem os achados de nível D, as explicações só deles e as segmentações e
+    medidas sem achado A-C ligado (:mod:`radiologyai.reporting.exposure`) —
+    máscara ou volume de modelo nível D nunca aparece na visão padrão.
+
+    A ordem é preservada; ``AnalysisOut.finding_indices`` e
+    ``AnalysisOut.segmentation_indices`` dão, para cada item exibido, o índice
+    no resultado COMPLETO — é esse índice que a revisão e os quadros usam.
     """
+    from radiologyai.reporting.exposure import main_exposure
+
     kept = [f for f in result.findings if f.visibility == "main"]
     hidden = len(result.findings) - len(kept)
     referenced = {eid for f in kept for eid in f.explanation_ids}
+    exposure = main_exposure(result)
     data: dict[str, Any] = result.model_dump()
     data["findings"] = [f.model_dump() for f in kept]
     data["explanations"] = [e.model_dump() for e in result.explanations if e.id in referenced]
+    data["segmentations"] = [
+        s.model_dump() for i, s in enumerate(result.segmentations) if i in exposure.segmentations
+    ]
+    data["measurements"] = [
+        m.model_dump() for i, m in enumerate(result.measurements) if i in exposure.measurements
+    ]
     from radiologyai.analysis.types import AnalysisResult as Result
 
     return Result.model_validate(data), hidden
@@ -142,15 +156,39 @@ def analysis_out(
     from sqlalchemy import select
 
     from radiologyai.persistence.models import Review, User
+    from radiologyai.reporting.exposure import main_exposure
 
     hidden = 0
+    hidden_artifacts = 0
     shown = result
     indices: tuple[int, ...] | None = None
+    seg_indices: tuple[int, ...] | None = None
+    research_segs: tuple[int, ...] = ()
+    research_measures: tuple[str, ...] = ()
     if result is not None:
+        exposure = main_exposure(result)
         indices = tuple(
             i for i, f in enumerate(result.findings) if research_view or f.visibility == "main"
         )
-        if not research_view:
+        seg_indices = tuple(
+            i
+            for i in range(len(result.segmentations))
+            if research_view or i in exposure.segmentations
+        )
+        hidden_artifacts = (
+            len(result.segmentations)
+            - len(exposure.segmentations)
+            + len(result.measurements)
+            - len(exposure.measurements)
+        )
+        if research_view:
+            research_segs = tuple(
+                i for i in range(len(result.segmentations)) if i not in exposure.segmentations
+            )
+            research_measures = tuple(
+                m.name for i, m in enumerate(result.measurements) if i not in exposure.measurements
+            )
+        else:
             shown, hidden = filter_research(result)
     reviews = session.execute(
         select(Review, User.username)
@@ -177,6 +215,10 @@ def analysis_out(
         research_view=research_view,
         hidden_research_findings=hidden,
         finding_indices=indices,
+        segmentation_indices=seg_indices,
+        hidden_research_artifacts=0 if research_view else hidden_artifacts,
+        research_segmentation_indices=research_segs,
+        research_measurement_names=research_measures,
         result=shown,
         reviews=tuple(review_out(r, u) for r, u in reviews),
     )

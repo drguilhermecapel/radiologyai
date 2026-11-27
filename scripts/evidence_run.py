@@ -79,6 +79,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="chave de dataset de treino do modelo (repetível); controla o vazamento",
     )
     p.add_argument("--no-training-data-declared", action="store_true")
+    p.add_argument(
+        "--selection-data",
+        action="append",
+        default=[],
+        help="chave de dataset usado para ESCOLHER o modelo/codificador (repetível); "
+        "avaliar nele é vazamento",
+    )
+    p.add_argument(
+        "--reference-derived-input",
+        help="descrição da entrada do modelo derivada do padrão de referência (ex.: caixa)",
+    )
     p.add_argument("--weights", action="append", type=Path, default=[], help="arquivo de pesos")
     p.add_argument("--weights-sha256", action="append", default=[], help="NOME=sha256")
     p.add_argument(
@@ -201,7 +212,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         protocol = load_protocol()
         lineage(args.dataset_id)
-        for key in args.training_data:
+        for key in (*args.training_data, *args.selection_data):
             lineage(key)
         if not args.training_data and not args.no_training_data_declared:
             raise SystemExit(
@@ -261,7 +272,9 @@ def main(argv: list[str] | None = None) -> int:
                 condition_id=conditions[label],
                 dataset_id=args.dataset_id,
                 training_data=tuple(args.training_data),
+                selection_data=tuple(args.selection_data),
                 internal_holdout=args.internal_holdout,
+                reference_derived_input=args.reference_derived_input,
                 reference_standard=args.reference_standard,
                 population=args.population,
                 weights_sha256=weights,

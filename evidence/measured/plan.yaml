@@ -10,6 +10,15 @@
 #     NIH-CXR, PadChest e BRAX.
 #   BiomedCLIP (cartão, revisão 9f341de2): PMC-15M (figuras do PubMed Central).
 #
+# selection_data: datasets em que o modelo, o codificador ou hiperparâmetros foram
+# ESCOLHIDOS comparando desempenho. O RAD-DINO foi escolhido pela AUROC externa de
+# sondas de comparação em tb-shenzhen, tb-montgomery (TB, nos dois sentidos) e
+# fracatlas -> grazpedwri-dx-sample (fratura): evidence/selection/xr-encoder/. Avaliar
+# uma sonda RAD-DINO num deles é vazamento "known" (estimativa otimista, nunca nível A).
+#
+# reference_derived_input: a entrada do modelo foi derivada do padrão de referência
+# (caixa da máscara de referência, quadros ED/ES anotados). O registro não sustenta A.
+#
 # status: measure  -> mede e grava o registro (aprovado, reprovado ou não elegível)
 #         pending  -> conjunto incompleto: NENHUMA métrica é calculada ("medição pendente")
 #         excluded -> não é conjunto de avaliação de condição; motivo declarado
@@ -27,6 +36,7 @@ jobs:
     predictions: xr-probe-tb/tb-montgomery/tuberculosis.parquet
     score_scale: logit
     training_data: [tb-shenzhen, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     reference_standard: other
     population: >-
       NLM Montgomery County (Maryland, EUA), programa de controle de TB; conjunto inteiro
@@ -48,6 +58,7 @@ jobs:
     predictions: xr-probe-tb/tb-shenzhen/tuberculosis.parquet
     score_scale: logit
     training_data: [tb-shenzhen, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     internal_holdout: true
     reference_standard: other
     population: NLM Shenzhen No.3 People's Hospital (China); conjunto inteiro (662 casos)
@@ -68,6 +79,7 @@ jobs:
     predictions: xr-probe-tb.trained-montgomery/tb-shenzhen/tuberculosis.parquet
     score_scale: logit
     training_data: [tb-montgomery, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     reference_standard: other
     population: NLM Shenzhen No.3 People's Hospital (China); conjunto inteiro (662 casos)
     weights:
@@ -87,6 +99,7 @@ jobs:
     predictions: xr-probe-fracture/fracatlas/fracture.parquet
     score_scale: logit
     training_data: [fracatlas, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     internal_holdout: true
     reference_standard: other
     population: >-
@@ -109,6 +122,7 @@ jobs:
     predictions: xr-probe-fracture/grazpedwri-sample/fracture.parquet
     score_scale: logit
     training_data: [fracatlas, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     reference_standard: other
     population: >-
       GRAZPEDWRI-DX (Graz, Áustria), trauma de punho PEDIÁTRICO; amostra de 400 pacientes
@@ -130,6 +144,7 @@ jobs:
     predictions: xr-probe-grazpedwri-osteopenia/grazpedwri-sample-test30/osteopenia.parquet
     score_scale: logit
     training_data: [grazpedwri-dx, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     internal_holdout: true
     reference_standard: other
     population: GRAZPEDWRI-DX, 30% dos pacientes da amostra local (hold-out por paciente)
@@ -149,6 +164,7 @@ jobs:
     predictions: xr-probe-grazpedwri-metal/grazpedwri-sample-test30/metal.parquet
     score_scale: logit
     training_data: [grazpedwri-dx, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     internal_holdout: true
     reference_standard: other
     population: GRAZPEDWRI-DX, 30% dos pacientes da amostra local (hold-out por paciente)
@@ -169,6 +185,7 @@ jobs:
     predictions: xr-probe-grazpedwri-cast/grazpedwri-sample-test30/cast.parquet
     score_scale: logit
     training_data: [grazpedwri-dx, mimic-cxr, chexpert, nih-cxr14, padchest, brax]
+    selection_data: [tb-shenzhen, tb-montgomery, fracatlas, grazpedwri-dx-sample]
     internal_holdout: true
     reference_standard: other
     population: GRAZPEDWRI-DX, 30% dos pacientes da amostra local (hold-out por paciente)
@@ -192,6 +209,7 @@ jobs:
     training_data: [busi, pmc-15m]
     internal_holdout: true
     reference_standard: other
+    reference_derived_input: "região = caixa da máscara de referência + 25%"
     population: BUSI (Baheya, Cairo), deduplicado por dHash (630 de 647 imagens com lesão)
     weights:
       encoder: /root/medai-cache/weights/registry/us-probe-breast-malignancy/open_clip_pytorch_model.bin
@@ -210,6 +228,7 @@ jobs:
     score_scale: logit
     training_data: [busi, pmc-15m]
     reference_standard: other
+    reference_derived_input: "região = caixa da máscara de referência + 25%"
     population: BrEaST-Lesions-USG (TCIA, Polônia), uma imagem por paciente
     weights:
       encoder: /root/medai-cache/weights/registry/us-probe-breast-malignancy/open_clip_pytorch_model.bin
@@ -228,6 +247,7 @@ jobs:
     score_scale: logit
     training_data: [busi, pmc-15m]
     reference_standard: other
+    reference_derived_input: "região = caixa da máscara de referência + 25%"
     population: BUS-BRA (Brasil), 1875 imagens de 1064 pacientes
     weights:
       encoder: /root/medai-cache/weights/registry/us-probe-breast-malignancy/open_clip_pytorch_model.bin
@@ -247,6 +267,7 @@ jobs:
     training_data: [liver-lesion-us-7272660, pmc-15m]
     internal_holdout: true
     reference_standard: other
+    reference_derived_input: "região = caixa do polígono de referência da massa + 25%"
     population: Zenodo 7272660 (Xu et al.), massas hepáticas benignas e malignas, deduplicado
     weights:
       encoder: /root/medai-cache/weights/registry/us-probe-liver-lesion-malignancy/open_clip_pytorch_model.bin
@@ -288,6 +309,7 @@ jobs:
     where: {mode: oracle_box}
     training_data: [medsam2-training-corpus]
     reference_standard: expert_segmentation
+    reference_derived_input: "caixa do VE = caixa da máscara de referência + 5 px; quadros ED/ES e corte anotados no CAMUS"
     population: CAMUS (Lyon), partições oficiais testing + validation, 100 pacientes, A4C + A2C
     weights:
       checkpoint: /root/medai-cache/weights/registry/medsam2-echo-lv/MedSAM2_US_Heart.pt
@@ -308,6 +330,7 @@ jobs:
     where: {mode: prompt_free}
     training_data: [medsam2-training-corpus]
     reference_standard: expert_segmentation
+    reference_derived_input: "quadros ED/ES e corte anotados no CAMUS (a caixa vem do atlas de treino)"
     population: CAMUS (Lyon), partições oficiais testing + validation, 100 pacientes, A4C + A2C
     weights:
       checkpoint: /root/medai-cache/weights/registry/medsam2-echo-lv/MedSAM2_US_Heart.pt

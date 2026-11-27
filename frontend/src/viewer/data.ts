@@ -37,13 +37,20 @@ export function seriesFrameUrl(seriesId: string, index: number, maxDim: number):
   return `/api/v1/series/${encodeURIComponent(seriesId)}/frames/${index}?max_dim=${maxDim}`;
 }
 
+/**
+ * Quadro de segmentação. ``segIndex`` é o índice no resultado COMPLETO
+ * (``AnalysisOut.segmentation_indices``); segmentação exploratória só é
+ * servida com ``include_research=true`` a papel com modo pesquisa.
+ */
 export function segmentationFrameUrl(
   analysisId: string,
   segIndex: number,
   index: number,
   maxDim: number,
+  includeResearch = false,
 ): string {
-  return `/api/v1/analyses/${encodeURIComponent(analysisId)}/segmentations/${segIndex}/frames/${index}?max_dim=${maxDim}`;
+  const research = includeResearch ? "&include_research=true" : "";
+  return `/api/v1/analyses/${encodeURIComponent(analysisId)}/segmentations/${segIndex}/frames/${index}?max_dim=${maxDim}${research}`;
 }
 
 export function getSeriesFrame(seriesId: string, index: number, maxDim: number): Promise<Frame> {
@@ -56,8 +63,9 @@ export function getSegmentationFrame(
   segIndex: number,
   index: number,
   maxDim: number,
+  includeResearch = false,
 ): Promise<Frame> {
-  const url = segmentationFrameUrl(analysisId, segIndex, index, maxDim);
+  const url = segmentationFrameUrl(analysisId, segIndex, index, maxDim, includeResearch);
   return remember(cache, url, () => loadFrame(url));
 }
 

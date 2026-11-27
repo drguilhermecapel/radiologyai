@@ -1,7 +1,7 @@
 """Model card com integridade verificável.
 
 Substitui ``models/model_registry.json`` do legado, que declarava
-``accuracy: 0.92``, ``auc: 0.94`` e ``sha256_hash`` para arquivos que nunca
+``accuracy: 0.92``, ``auc: 0.94`` (fabricados) e ``sha256_hash`` para arquivos que nunca
 existiram — e cujo "sha256" continha as letras ``g``, ``h``, ``i``, portanto
 não era sequer hexadecimal (HONEST_STATUS.md).
 

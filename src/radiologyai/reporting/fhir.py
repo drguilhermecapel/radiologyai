@@ -2,8 +2,12 @@
 
 * ``status`` é SEMPRE ``preliminary`` — software de pesquisa não emite laudo final.
 * Achados vão como ``Observation`` contidas, também ``preliminary``, com o
-  código do manifesto, a decisão como *sugestão* (esquema 99MEDAI), o nível de
-  evidência e a revisão do médico.
+  código do manifesto, o nível de evidência e a revisão do médico. O valor
+  primário (``valueCodeableConcept``) é a decisão FINAL do médico (aceite ou
+  emenda); a sugestão do modelo vai num componente separado. Achado rejeitado
+  não tem valor (``dataAbsentReason``) e não conta na conclusão.
+* Escore abaixo do limiar é ``decision.below_threshold`` ("não exclui a
+  condição"), nunca ``negative``: o produto não exclui doença.
 * Paciente só pelo pseudônimo; nenhum nome, data de nascimento ou documento.
 """
 
@@ -12,7 +16,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
-from radiologyai.reporting.content import HEADER_PT
+from radiologyai.reporting.content import HEADER_PT, export_codes
 
 if TYPE_CHECKING:
     from radiologyai.reporting.content import ReportContent
@@ -68,7 +72,33 @@ def build_diagnostic_report(content: ReportContent, sign: SignOff, *, issued: st
                     "valueString": f.operating_point,
                 }
             )
-        notes = [{"text": f"Modelo {f.model_id} {f.model_version}. {f.decision_pt}."}]
+        model_code, final_code = export_codes(f)
+        components.append(
+            {
+                "code": {"coding": [_coding("99MEDAI", "model-suggestion", "Model suggestion")]},
+                "valueCodeableConcept": {
+                    "coding": [_coding("99MEDAI", *model_code)],
+                    "text": f"sugestão do modelo: {f.decision_pt}",
+                },
+            }
+        )
+        if f.level_at_analysis is not None:
+            components.append(
+                {
+                    "code": {
+                        "coding": [
+                            _coding("99MEDAI", "level-at-analysis", "Evidence level at analysis")
+                        ]
+                    },
+                    "valueString": f.level_at_analysis,
+                }
+            )
+        notes = [
+            {
+                "text": f"Modelo {f.model_id} {f.model_version}. Sugestão do modelo: "
+                f"{f.decision_pt}. Decisão do médico: {f.physician_decision_pt}."
+            }
+        ]
         if f.review is not None:
             notes.append(
                 {
@@ -81,39 +111,49 @@ def build_diagnostic_report(content: ReportContent, sign: SignOff, *, issued: st
                     )
                 }
             )
-        observations.append(
-            {
-                "resourceType": "Observation",
-                "id": f"finding-{f.idx}",
-                "status": "preliminary",
-                "code": {
-                    "coding": [_coding(f.code_scheme, f.code_value, f.code_meaning)],
-                    "text": f.condition_name,
-                },
-                "subject": {"reference": "#patient"},
-                "valueCodeableConcept": {
-                    "coding": [
-                        _coding("99MEDAI", f"decision.{f.decision}", f"suggestion: {f.decision}")
-                    ],
-                    "text": f.decision_pt,
-                },
-                "component": components,
-                "note": notes,
-                "method": {
-                    "text": "achado sugerido para confirmação médica (software de pesquisa)"
-                },
+        observation: dict[str, Any] = {
+            "resourceType": "Observation",
+            "id": f"finding-{f.idx}",
+            "status": "preliminary",
+            "code": {
+                "coding": [_coding(f.code_scheme, f.code_value, f.code_meaning)],
+                "text": f.condition_name,
+            },
+            "subject": {"reference": "#patient"},
+            "component": components,
+            "note": notes,
+            "method": {"text": "achado sugerido para confirmação médica (software de pesquisa)"},
+        }
+        if f.physician_decision == "rejected":
+            assert final_code is not None
+            observation["dataAbsentReason"] = {
+                "coding": [_coding("99MEDAI", *final_code)],
+                "text": f.physician_decision_pt,
             }
-        )
+        elif final_code is not None:
+            observation["valueCodeableConcept"] = {
+                "coding": [_coding("99MEDAI", *final_code)],
+                "text": f.physician_decision_pt,
+            }
+        else:
+            observation["valueCodeableConcept"] = {
+                "coding": [_coding("99MEDAI", *model_code)],
+                "text": f"sugestão do modelo (não revisada): {f.decision_pt}",
+            }
+        observations.append(observation)
     patient: dict[str, Any] = {"resourceType": "Patient", "id": "patient"}
     if content.patient_pseudo_id:
         patient["identifier"] = [
             {"system": "urn:radiologyai:pseudonym", "value": content.patient_pseudo_id}
         ]
-    conclusion = (
-        content.no_findings_statement
-        or f"{len(content.findings)} achado(s) sugerido(s) com nível de evidência A-C; "
-        "requerem confirmação médica."
+    rejected = sum(f.physician_decision == "rejected" for f in content.findings)
+    kept = len(content.findings) - rejected
+    conclusion = content.no_findings_statement or (
+        f"{kept} achado(s) sugerido(s) com nível de evidência A-C; requerem confirmação médica."
+        + (f" {rejected} sugestão(ões) rejeitada(s) pelo médico." if rejected else "")
     )
+    if content.runs_statement:
+        conclusion = f"{conclusion} {content.runs_statement}"
     resource: dict[str, Any] = {
         "resourceType": "DiagnosticReport",
         "id": sign.report_id,

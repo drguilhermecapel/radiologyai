@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent, ReactNode, WheelEvent } from "react";
 
 import { api, unwrap, type Schemas } from "../api/client";
-import { ErrorBox } from "../components/common";
+import { ErrorBox, Pill } from "../components/common";
 import { useI18n } from "../i18n/i18n";
 import type { MessageKey } from "../i18n/messages";
 import { rgbToRgba, type Frame } from "../lib/frames";
@@ -170,6 +170,19 @@ export function Viewer(props: ViewerProps): ReactNode {
     () => (result && imageIdx !== null ? result.explanations.filter((e) => e.image_idx === imageIdx) : []),
     [result, imageIdx],
   );
+  // Índice no resultado COMPLETO (a visão padrão omite as exploratórias) e se
+  // a segmentação é exploratória (só na visão de pesquisa, marcada).
+  const fullSegIndex = useCallback(
+    (i: number) => analysis?.segmentation_indices?.[i] ?? i,
+    [analysis],
+  );
+  const isResearchSeg = useCallback(
+    (i: number) =>
+      analysis !== null &&
+      analysis.research_view &&
+      (analysis.research_segmentation_indices ?? []).includes(fullSegIndex(i)),
+    [analysis, fullSegIndex],
+  );
   const segmentations = useMemo(
     () =>
       result && imageIdx !== null
@@ -212,7 +225,7 @@ export function Viewer(props: ViewerProps): ReactNode {
     const ids = [...visibleSegs];
     Promise.all(
       ids.map((i) =>
-        getSegmentationFrame(analysis.id, i, frameIndex, MAX_DIM).then(
+        getSegmentationFrame(analysis.id, fullSegIndex(i), frameIndex, MAX_DIM, isResearchSeg(i)).then(
           (f) => [i, f] as const,
           () => null,
         ),
@@ -226,7 +239,7 @@ export function Viewer(props: ViewerProps): ReactNode {
     return () => {
       alive = false;
     };
-  }, [analysis, visibleSegs, frameIndex]);
+  }, [analysis, visibleSegs, frameIndex, fullSegIndex, isResearchSeg]);
 
   // Imagem-base janelada (no tamanho do quadro).
   const base = useMemo(() => {
@@ -646,6 +659,9 @@ export function Viewer(props: ViewerProps): ReactNode {
                     data-testid={`toggle-seg-${i}`}
                   />
                   {s.name}
+                  {isResearchSeg(i) ? (
+                    <Pill tone="research">{t("findings.researchItem")}</Pill>
+                  ) : null}
                 </label>
                 {on ? (
                   <ul className="legend" aria-label={t("viewer.legend")}>

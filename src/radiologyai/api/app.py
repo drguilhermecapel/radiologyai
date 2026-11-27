@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import importlib.util
 import os
-import tempfile
 from collections.abc import AsyncIterator, Awaitable, Callable, MutableMapping
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -139,7 +138,7 @@ def _error_status() -> list[tuple[type[Exception], int]]:
         ModelUnavailableError,
         OutOfScopeError,
     )
-    from radiologyai.interop.dicomweb import DicomwebError
+    from radiologyai.interop.dicomweb import DicomwebError, ImportTooLargeError
     from radiologyai.interop.images import FrameRangeError
     from radiologyai.interop.ingest import (
         DeidentKeyMissingError,
@@ -171,6 +170,7 @@ def _error_status() -> list[tuple[type[Exception], int]]:
         (ResultIntegrityError, 500),
         (ReportStateError, 409),
         (ReportFormatError, 409),
+        (ImportTooLargeError, 413),
         (DicomwebError, 502),
         (ModelUnavailableError, 503),
         (BackendUnavailableError, 503),
@@ -182,15 +182,19 @@ def _error_status() -> list[tuple[type[Exception], int]]:
 def _resolve_audit_trail(
     audit_trail: AuditTrail | None,
     audit_log_path: str | Path | None,
-) -> AuditTrail:
-    """Trilha JSONL da rota legada ``/analyze`` (a plataforma audita no banco, encadeado)."""
+) -> AuditTrail | None:
+    """Cópia JSONL OPCIONAL da rota legada ``/analyze``.
+
+    A auditoria de registro é a cadeia do banco (``legacy.analyze``); esta
+    cópia só existe se um caminho for configurado — nunca num diretório
+    temporário que some no reinício.
+    """
     if audit_trail is not None:
         return audit_trail
     resolved_path = audit_log_path or os.environ.get("RADIOLOGYAI_AUDIT_LOG_PATH")
     if resolved_path:
         return AuditTrail(Path(resolved_path))
-    default_dir = Path(tempfile.mkdtemp(prefix="radiologyai_audit_"))
-    return AuditTrail(default_dir / "audit.jsonl")
+    return None
 
 
 def create_app(

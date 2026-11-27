@@ -58,13 +58,13 @@ Cada achado mostra:
 
 | Nível | O que significa | O que **não** significa |
 |---|---|---|
-| **A** | medimos este modelo, nesta condição, num conjunto externo rotulado que ele nunca viu, e ele passou nos critérios pré-registrados | não significa que funciona na sua população, no seu equipamento, nem que melhora o seu diagnóstico |
+| **A** | medimos este modelo, nesta condição, num conjunto externo rotulado que não foi usado no treino nem na escolha do modelo, com entrada que não vem do padrão de referência, e ele passou nos critérios pré-registrados | não significa que funciona na sua população, no seu equipamento, nem que melhora o seu diagnóstico |
 | **B** | um estudo revisado por pares ou uma diretriz sustenta esta saída; conferimos a citação na fonte | **não** reproduzimos o número; ele vale para a população do estudo |
-| **C** | medimos em dado separado por paciente do mesmo conjunto de treino, ou em conjunto externo com possível vazamento | evidência fraca; pode cair em dado externo |
-| **D** | exploratório: zero-shot ou sem validação para esta condição | **sem evidência**. Aparece só no **modo pesquisa** e nunca sozinho no laudo |
+| **C** | medimos e passou, mas em dado separado por paciente do mesmo conjunto de treino, em conjunto externo com sobreposição possível ou conhecida com o treino ou com a escolha do modelo, ou com entrada derivada do padrão de referência (ex.: caixa tirada da máscara de referência) | evidência fraca; pode cair em dado externo; leia as ressalvas da entrada |
+| **D** | exploratório: zero-shot, sem medição aprovada para esta condição, refutado, ou limitado (modelo não distribuído, termo de uso só de pesquisa) | **sem evidência**. Aparece só no **modo pesquisa** e nunca entra no laudo |
 
-Uma condição pode ser **refutada**: se nossa medição externa limpa reprovou, ela cai para D mesmo
-que exista artigo favorável.
+Uma condição pode ser **refutada**: se nossa medição externa sem sobreposição com o treino reprovou,
+ela cai para D mesmo que exista artigo favorável.
 
 ## 5. Decisão, abstenção e "não avaliável"
 

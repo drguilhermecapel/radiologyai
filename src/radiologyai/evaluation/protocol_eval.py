@@ -32,9 +32,9 @@ from radiologyai.errors import EvaluationError
 from radiologyai.evaluation.dataset import AGE_BANDS, UNKNOWN_BAND, age_band
 from radiologyai.evaluation.metrics import (
     ClusterBootstrap,
+    bootstrap_interval,
     bootstrap_method,
     cluster_bootstrap_samples,
-    percentile_ci,
     threshold_for_sensitivity,
     threshold_for_specificity,
     weighted_auroc,
@@ -72,6 +72,9 @@ class Estimate(_Frozen):
     value: float
     ci_low: float | None = None
     ci_high: float | None = None
+    # réplicas de bootstrap com estatística definida / total (None: sem bootstrap)
+    n_defined_replicates: int | None = None
+    n_replicates: int | None = None
 
 
 class Counts(_Frozen):
@@ -82,7 +85,7 @@ class Counts(_Frozen):
     n_pos: int
     n_neg: int
     n_pos_patients: int  # pacientes com ao menos uma imagem positiva
-    n_neg_patients: int  # pacientes com ao menos uma imagem negativa
+    n_neg_patients: int  # pacientes SEM nenhuma imagem positiva (disjunto dos positivos)
 
 
 class FixedPointResult(_Frozen):
@@ -202,13 +205,18 @@ def counts_for(patient_ids: Sequence[str], y_true: IntArray) -> Counts:
 
     y = np.asarray(y_true)
     pids = np.asarray([str(p) for p in patient_ids])
+    patients = set(pids.tolist())
+    positive = set(pids[y == 1].tolist())
+    # Paciente negativo = paciente sem nenhuma imagem positiva. Contar "ao menos uma
+    # imagem negativa" poria o paciente com imagens dos dois tipos nos DOIS lados do
+    # mínimo do protocolo (§2), que é por paciente e com estratos disjuntos.
     return Counts(
         n_images=int(y.size),
-        n_patients=len(set(pids.tolist())),
+        n_patients=len(patients),
         n_pos=int((y == 1).sum()),
         n_neg=int((y == 0).sum()),
-        n_pos_patients=len(set(pids[y == 1].tolist())),
-        n_neg_patients=len(set(pids[y == 0].tolist())),
+        n_pos_patients=len(positive),
+        n_neg_patients=len(patients - positive),
     )
 
 
@@ -217,8 +225,14 @@ def _estimate(point: float, samples: FloatArray, ci_level: float) -> Estimate:
 
     if not math.isfinite(point):
         raise EvaluationError("estimativa pontual indefinida")
-    lo, hi = percentile_ci(samples, ci_level)
-    return Estimate(value=float(point), ci_low=lo, ci_high=hi)
+    ci = bootstrap_interval(samples, ci_level)
+    return Estimate(
+        value=float(point),
+        ci_low=ci.low,
+        ci_high=ci.high,
+        n_defined_replicates=ci.n_defined,
+        n_replicates=ci.n_replicates,
+    )
 
 
 def _to_probability(scores: FloatArray, scale: ScoreScale) -> FloatArray:

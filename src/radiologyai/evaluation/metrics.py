@@ -475,21 +475,76 @@ class ClusterBootstrap:
                 yield np.repeat(base, row.astype(np.int64))
 
 
-def percentile_ci(samples: FloatArray, ci_level: float = 0.95) -> tuple[float, float]:
-    """IC percentílico; réplicas NaN (estatística indefinida) são descartadas.
+MIN_DEFINED_REPLICATE_FRACTION = 0.95
+"""Fração mínima de réplicas de bootstrap com estatística definida para reportar o IC.
+
+Réplica em que a estatística é indefinida (NaN: ex. ICC com variância zero) não
+entra no percentil; descartá-las em silêncio enviesa o IC para as réplicas
+"fáceis" enquanto o método continua declarando B réplicas. Por isso elas são
+**contadas** e reportadas, e abaixo desta fração o IC fica indefinido (``None``):
+um IC indefinido nunca aprova nada (o julgamento trata limite ausente como
+reprovação). É uma salvaguarda que só pode tornar o resultado mais conservador.
+"""
+
+
+class BootstrapInterval(NamedTuple):
+    """IC percentílico com a contagem de réplicas definidas."""
+
+    low: float | None  # None: réplicas definidas abaixo do mínimo
+    high: float | None
+    n_defined: int
+    n_replicates: int
+
+    @property
+    def n_undefined(self) -> int:
+        return self.n_replicates - self.n_defined
+
+
+def bootstrap_interval(
+    samples: FloatArray,
+    ci_level: float = 0.95,
+    *,
+    min_defined_fraction: float = MIN_DEFINED_REPLICATE_FRACTION,
+) -> BootstrapInterval:
+    """IC percentílico que conta as réplicas indefinidas (NaN/inf) em vez de escondê-las.
 
     Raises:
-        EvaluationError: nenhuma réplica definida.
+        EvaluationError: nenhuma réplica, ou nenhuma réplica definida.
     """
     import numpy as np
 
-    arr = np.asarray(samples, dtype=np.float64)
-    arr = arr[np.isfinite(arr)]
-    if arr.size == 0:
+    arr = np.asarray(samples, dtype=np.float64).ravel()
+    total = int(arr.size)
+    if total == 0:
+        raise EvaluationError("bootstrap sem réplicas")
+    defined = arr[np.isfinite(arr)]
+    if defined.size == 0:
         raise EvaluationError("nenhuma réplica de bootstrap produziu estatística definida")
+    if defined.size < min_defined_fraction * total:
+        return BootstrapInterval(None, None, int(defined.size), total)
     alpha = (1.0 - ci_level) / 2.0
-    lo, hi = np.percentile(arr, [100 * alpha, 100 * (1 - alpha)])
-    return float(lo), float(hi)
+    lo, hi = np.percentile(defined, [100 * alpha, 100 * (1 - alpha)])
+    return BootstrapInterval(float(lo), float(hi), int(defined.size), total)
+
+
+def percentile_ci(samples: FloatArray, ci_level: float = 0.95) -> tuple[float, float]:
+    """IC percentílico para quem não reporta contagem de réplicas.
+
+    Réplicas indefinidas são toleradas só até :data:`MIN_DEFINED_REPLICATE_FRACTION`;
+    abaixo disso é erro explícito, nunca um IC calculado sobre o subconjunto
+    "fácil". Quem precisa reportar a contagem usa :func:`bootstrap_interval`.
+
+    Raises:
+        EvaluationError: nenhuma réplica definida, ou réplicas definidas abaixo do
+            mínimo.
+    """
+    ci = bootstrap_interval(samples, ci_level)
+    if ci.low is None or ci.high is None:
+        raise EvaluationError(
+            f"só {ci.n_defined} de {ci.n_replicates} réplicas de bootstrap com estatística "
+            f"definida (< {MIN_DEFINED_REPLICATE_FRACTION:.0%}); IC não reportável"
+        )
+    return ci.low, ci.high
 
 
 def cluster_bootstrap_samples(

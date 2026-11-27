@@ -19,6 +19,12 @@ describe("mensagens", () => {
   it("format substitui e deixa visível o que falta", () => {
     expect(format("a {x} {y}", { x: 1 })).toBe("a 1 {y}");
   });
+  it("significado dos níveis nunca usa 'validado' (linguagem vedada, REQ-191)", () => {
+    for (const lv of ["a", "b", "c", "d"] as const) {
+      expect(pt[`level.${lv}.meaning`].toLowerCase()).not.toMatch(/validad|validaç/);
+      expect(en[`level.${lv}.meaning`].toLowerCase()).not.toMatch(/validat/);
+    }
+  });
   it("PT nunca chama escore de probabilidade", () => {
     expect(pt["findings.score"].toLowerCase()).not.toContain("probabilidade");
   });

@@ -2,7 +2,7 @@
 
 Nenhum número de desempenho aparece aqui: o manifesto não os carrega, e o
 nível vem do catálogo de evidência (calculado, nunca digitado). O ``/models``
-do v1 devolvia ``accuracy: 0.92`` de modelos que nunca existiram.
+do v1 devolvia ``accuracy: 0.92`` (número fabricado) de modelos que nunca existiram.
 """
 
 from __future__ import annotations

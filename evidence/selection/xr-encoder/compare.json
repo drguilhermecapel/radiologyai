@@ -1,0 +1,81 @@
+{
+ "tb": {
+  "xrv": {
+   "train_shenzhen_test_montgomery": {
+    "C": 0.01,
+    "train_oof_auroc": 0.9352,
+    "external_auroc": 0.4009,
+    "n_train": 662,
+    "n_test": 138,
+    "n_test_pos": 58
+   },
+   "train_montgomery_test_shenzhen": {
+    "C": 0.01,
+    "train_oof_auroc": 0.9272,
+    "external_auroc": 0.8281,
+    "n_train": 138,
+    "n_test": 662,
+    "n_test_pos": 336
+   }
+  },
+  "raddino": {
+   "train_shenzhen_test_montgomery": {
+    "C": 0.01,
+    "train_oof_auroc": 0.9801,
+    "external_auroc": 0.9675,
+    "n_train": 662,
+    "n_test": 138,
+    "n_test_pos": 58
+   },
+   "train_montgomery_test_shenzhen": {
+    "C": 10.0,
+    "train_oof_auroc": 0.9707,
+    "external_auroc": 0.9397,
+    "n_train": 138,
+    "n_test": 662,
+    "n_test_pos": 336
+   }
+  },
+  "biomedclip": {
+   "train_shenzhen_test_montgomery": {
+    "C": 0.01,
+    "train_oof_auroc": 0.9221,
+    "external_auroc": 0.9043,
+    "n_train": 662,
+    "n_test": 138,
+    "n_test_pos": 58
+   },
+   "train_montgomery_test_shenzhen": {
+    "C": 0.01,
+    "train_oof_auroc": 0.942,
+    "external_auroc": 0.7833,
+    "n_train": 138,
+    "n_test": 662,
+    "n_test_pos": 336
+   }
+  }
+ },
+ "fracture": {
+  "xrv": {
+   "train_fracatlas2k_test_grazpedwri_sample": {
+    "C": 0.01,
+    "train_oof_auroc": 0.7646,
+    "external_auroc": 0.5833,
+    "n_train": 2000,
+    "n_test": 1274,
+    "n_test_pos": 791
+   }
+  },
+  "raddino": {
+   "train_fracatlas2k_test_grazpedwri_sample": {
+    "C": 0.01,
+    "train_oof_auroc": 0.8587,
+    "external_auroc": 0.7044,
+    "n_train": 2000,
+    "n_test": 1274,
+    "n_test_pos": 791
+   }
+  },
+  "biomedclip": "embeddings ausentes"
+ }
+}

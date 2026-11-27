@@ -121,6 +121,8 @@ def render_pdf(content: ReportContent, sign: SignOff) -> bytes:
 
     if content.no_findings_statement:
         story.append(Paragraph(_esc(content.no_findings_statement), body))
+    if content.runs_statement:
+        story.append(Paragraph(f"<b>{_esc(content.runs_statement)}</b>", body))
     for level in ("A", "B", "C"):
         items = [f for f in content.findings if f.evidence_level == level]
         if not items:
@@ -134,13 +136,20 @@ def render_pdf(content: ReportContent, sign: SignOff) -> bytes:
                 f"{f.review.reviewed_at})"
             )
             lines = [
-                f"<b>{_esc(f.condition_name)}</b> — {_esc(f.decision_pt)}",
+                f"<b>{_esc(f.condition_name)}</b> — decisão do médico: "
+                f"{_esc(f.physician_decision_pt)}",
+                f"Sugestão do modelo: {_esc(f.decision_pt)}",
                 f"Modelo: {_esc(f.model_id)} {_esc(f.model_version)}; rótulo {_esc(f.label)}; "
                 f"código {_esc(f.code_scheme)}:{_esc(f.code_value)}",
                 f"Escore bruto ({_esc(f.score_kind)}): {_num(f.raw_score)}; reescala no ponto de "
                 f"operação: {_num(f.op_normalized)}; probabilidade calibrada: "
                 f"{_num(f.probability)}",
             ]
+            if f.level_at_analysis is not None:
+                lines.append(
+                    f"Nível na análise: {_esc(f.level_at_analysis)}; nível corrente "
+                    f"{_esc(f.evidence_level)} (vale o mais restritivo)"
+                )
             if f.category:
                 lines.append(f"Categoria: {_esc(f.category)}")
             if f.measurement:

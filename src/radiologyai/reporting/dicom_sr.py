@@ -6,7 +6,10 @@
   (os códigos dos achados já foram validados no manifesto por
   :func:`radiologyai.analysis.manifest.validate_code`; aqui são reconferidos).
 * Decisões são codificadas em ``99MEDAI`` como *sugestão* — nunca com os
-  códigos SNOMED "Present"/"Absent", que afirmariam a condição.
+  códigos SNOMED "Present"/"Absent", que afirmariam a condição. Escore abaixo
+  do limiar é ``decision.below_threshold`` (não exclui a condição). A decisão
+  FINAL do médico (aceite, emenda, rejeição) vai em avaliação própria.
+* Quando modelos roteados não concluíram, o SR diz isso em texto.
 * Os UIDs do SR/SEG derivam deterministicamente do id do laudo.
 * O SR só existe para estudo DICOM: as imagens de origem são a evidência.
 """
@@ -134,11 +137,14 @@ def build_sr(
     context = ObservationContext(observer_person_context=person, observer_device_context=device)
 
     groups = []
+    from radiologyai.reporting.content import export_codes
+
     for f in content.findings:
-        decision = private(f"decision.{f.decision}", f"suggestion: {f.decision}")
+        model_code, final_code = export_codes(f)
         evaluations = [
             QualitativeEvaluation(
-                name=private("suggested-status", "Suggested finding status"), value=decision
+                name=private("suggested-status", "Suggested finding status"),
+                value=private(*model_code),
             ),
             QualitativeEvaluation(
                 name=private("evidence-level", "Evidence level"),
@@ -152,6 +158,13 @@ def build_sr(
                     value=private(f"review.{f.review.action}", f"Physician {f.review.action}"),
                 )
             )
+        if final_code is not None:
+            evaluations.append(
+                QualitativeEvaluation(
+                    name=private("physician-decision", "Physician final decision"),
+                    value=private(*final_code),
+                )
+            )
         measurements = []
         if f.raw_score is not None:
             measurements.append(
@@ -161,7 +174,19 @@ def build_sr(
                     unit=codes.UCUM.NoUnits,
                 )
             )
-        texts = []
+        texts = [
+            TextEvaluation(
+                name=private("physician-decision-text", "Physician decision (text)"),
+                value=f.physician_decision_pt[:1024],
+            )
+        ]
+        if f.review is not None and f.review.amended_text:
+            texts.append(
+                TextEvaluation(
+                    name=private("amended-text", "Physician amended text"),
+                    value=f.review.amended_text[:1024],
+                )
+            )
         if f.operating_point:
             texts.append(
                 TextEvaluation(
@@ -195,7 +220,21 @@ def build_sr(
             value="pt-BR", scheme_designator="RFC5646", meaning="Portuguese (Brazil)"
         )
     )
-    if not groups:
+    if content.runs_statement:
+        groups.append(
+            MeasurementsAndQualitativeEvaluations(
+                tracking_identifier=TrackingIdentifier(
+                    uid=_uid(content.analysis_id, "runs"), identifier="modelos-nao-concluidos"
+                ),
+                text_evaluations=[
+                    TextEvaluation(
+                        name=private("analysis-status", "Analysis status"),
+                        value=content.runs_statement[:1024],
+                    )
+                ],
+            )
+        )
+    if not content.findings:
         # TID 1500 exige ao menos um grupo; sem achado A-C, o grupo só carrega a
         # declaração textual (nunca uma afirmação de normalidade).
         statement = content.no_findings_statement or "Nenhum achado A-C."

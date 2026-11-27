@@ -51,10 +51,37 @@ Visibility = Literal["main", "research"]
 class EvidenceLevel(StrEnum):
     """Nível de evidência de um trio (condição, modelo, rótulo). Sempre calculado."""
 
-    A = "A"  # validado externamente por medição nossa
-    B = "B"  # validação publicada revisada por pares e/ou limiar de diretriz
-    C = "C"  # validado internamente por medição nossa
-    D = "D"  # exploratório (zero-shot ou sem validação por condição)
+    A = "A"  # medição nossa em dado externo, sem vazamento, aprovada no protocolo
+    B = "B"  # desempenho publicado revisado por pares e/ou limiar de diretriz, conferido
+    C = "C"  # medição nossa aprovada em hold-out interno ou em dado externo com vazamento
+    D = "D"  # exploratório (zero-shot, sem medição aprovada, refutado ou limitado)
+
+
+# Significado de cada nível em linguagem do produto. Sem "validado"/"validação":
+# 01-intended-use.md §3.1 veda o termo na interface, e nenhum nível é validação
+# clínica. Fonte única para laudo, interface e API (que devem importá-la).
+LEVEL_MEANING_PT: dict[str, str] = {
+    "A": (
+        "Nível A — medido por este projeto em dado externo, sem sobreposição conhecida ou "
+        "plausível com o treino nem com a seleção do modelo, e aprovado no protocolo "
+        "pré-registrado."
+    ),
+    "B": (
+        "Nível B — desempenho publicado em estudo revisado por pares, ou limiar de "
+        "diretriz, com citação conferida na fonte."
+    ),
+    "C": (
+        "Nível C — medido por este projeto e aprovado no protocolo, mas em hold-out interno "
+        "(mesma origem do treino) ou em dado externo com sobreposição conhecida ou possível "
+        "com o treino ou com a seleção do modelo, ou com entrada derivada do padrão de "
+        "referência."
+    ),
+    "D": (
+        "Nível D — exploratório: sem medição aprovada, refutado por medição própria ou "
+        "limitado (modelo não distribuído, termo de uso só de pesquisa); só no modo "
+        "pesquisa."
+    ),
+}
 
 
 class ExamType(StrEnum):
@@ -116,6 +143,11 @@ class Protocol(_Strict):
     sens_spec_ci_low_min: float = 0.80
     # barra de concordância para medidas contínuas (ex.: fração de ejeção)
     icc_min: float = 0.75
+    # abstenção tolerada no desfecho de concordância (casos com referência e sem medida
+    # do modelo). O protocolo 2026-11-v1 não pré-registrou tolerância alguma; por isso
+    # o padrão é ZERO (interpretação conservadora, não limiar novo). Tolerar abstenção
+    # exige um novo protocol_id escrito antes da medição.
+    max_abstention_fraction: float = 0.0
     # estatística
     ci_level: float = 0.95
     bootstrap_iterations: int = 2000
@@ -224,6 +256,14 @@ class EvidenceRecord(_Strict):
     metrics: dict[str, Metric] = Field(default_factory=dict)  # auroc, auprc, dice ...
     leakage: Leakage = "none"
     leakage_note: str | None = None
+    # Vazamento só pela linhagem do treino; ``None`` = igual a ``leakage``. Difere de
+    # ``leakage`` quando o dataset de avaliação foi reutilizado na seleção do modelo.
+    training_leakage: Leakage | None = None
+    # Datasets (chaves de linhagem) de seleção do modelo que a avaliação reutiliza.
+    selection_overlap: tuple[str, ...] = ()
+    # Entrada do modelo derivada do padrão de referência (ex.: caixa = caixa da máscara
+    # de referência). ``None`` = entrada independente da referência.
+    reference_derived_input: str | None = None
     passes_protocol: bool | None = None  # decidido pelo avaliador, nunca à mão
     failure_reasons: tuple[str, ...] = ()
     source: EvidenceSource | None = None  # obrigatório para publicado / diretriz
@@ -243,7 +283,25 @@ class EvidenceRecord(_Strict):
             raise ValueError("evidência publicada / de diretriz exige fonte com citação conferida")
         if self.passes_protocol is False and not self.failure_reasons:
             raise ValueError("registro reprovado deve declarar failure_reasons")
+        if self.selection_overlap and self.leakage != "known":
+            raise ValueError(
+                "avaliação reutilizada na seleção do modelo exige leakage 'known'; "
+                f"recebido {self.leakage!r} com selection_overlap {self.selection_overlap}"
+            )
+        if (
+            self.training_leakage is not None
+            and _LEAK_ORDER[self.training_leakage] > _LEAK_ORDER[self.leakage]
+        ):
+            raise ValueError("leakage não pode ser menor que o vazamento só pelo treino")
         return self
+
+    @property
+    def base_leakage(self) -> Leakage:
+        """Vazamento pela linhagem do treino (sem a seleção do modelo)."""
+        return self.training_leakage if self.training_leakage is not None else self.leakage
+
+
+_LEAK_ORDER: dict[str, int] = {"none": 0, "possible": 1, "known": 2}
 
 
 class LevelEntry(_Strict):
@@ -257,9 +315,19 @@ class LevelEntry(_Strict):
     basis: tuple[str, ...]  # ids dos registros de evidência que justificam o nível
     refuted_by_measurement: bool = False
     headline: str | None = None  # resumo curto gerado a partir dos registros
+    # O modelo existe como artefato distribuído: manifesto do registro cujos pesos
+    # cobrem todo hash medido. Trio não distribuído fica fora de qualquer contagem.
+    distributed: bool = True
+    # Por que o nível foi limitado (ou registros descartados do cálculo); vazio = nada.
+    limited_by: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def _coherent(self) -> Self:
+        if not self.distributed and self.level is not EvidenceLevel.D:
+            raise ValueError(
+                "modelo não distribuído (sem manifesto que cubra os pesos medidos) só pode "
+                "ter nível D"
+            )
         expected = visibility_for(self.level)
         if self.visibility != expected:
             raise ValueError(
@@ -295,14 +363,17 @@ def compute_level(records: list[EvidenceRecord]) -> tuple[EvidenceLevel, list[st
     Regras (pré-registradas):
 
     * **A** - ao menos um registro ``measured_external`` com ``leakage == "none"``
-      passa no protocolo.
-    * **refutado** - existem medições externas limpas e *todas* reprovam: a
-      condição cai para **D** independentemente de evidência publicada. Nossa
-      medição reprovada prevalece sobre alegação de terceiros.
+      e entrada independente do padrão de referência passa no protocolo.
+    * **refutado** - existem medições externas sem vazamento pelo **treino** e
+      *todas* reprovam: a condição cai para **D** independentemente de evidência
+      publicada. Nossa medição reprovada prevalece sobre alegação de terceiros. O
+      reuso do dataset na seleção do modelo, ou a entrada derivada da referência,
+      só inflam a estimativa: impedem a promoção a A, mas não anulam uma reprovação.
     * **B** - senão, um registro ``published`` ou ``guideline_threshold``
       conferido na fonte e aprovado na barra de publicação.
     * **C** - senão, um ``measured_internal`` aprovado, ou medição externa
-      aprovada cujo vazamento é "possible"/"known".
+      aprovada cujo vazamento é "possible"/"known" (treino ou seleção) ou cuja
+      entrada foi derivada do padrão de referência.
     * **D** - todo o resto.
 
     Raises:
@@ -316,12 +387,18 @@ def compute_level(records: list[EvidenceRecord]) -> tuple[EvidenceLevel, list[st
             f"recebidos {len(triples)}: {sorted(triples)}"
         )
 
-    clean_external = [r for r in records if r.kind == "measured_external" and r.leakage == "none"]
-    passing_clean = [r for r in clean_external if r.passes_protocol is True]
+    external = [r for r in records if r.kind == "measured_external"]
+    passing_clean = [
+        r
+        for r in external
+        if r.leakage == "none" and r.reference_derived_input is None and r.passes_protocol is True
+    ]
     if passing_clean:
         return EvidenceLevel.A, [r.id for r in passing_clean], False
 
-    decided_clean = [r for r in clean_external if r.passes_protocol is not None]
+    decided_clean = [
+        r for r in external if r.base_leakage == "none" and r.passes_protocol is not None
+    ]
     if decided_clean and all(r.passes_protocol is False for r in decided_clean):
         return EvidenceLevel.D, [r.id for r in decided_clean], True
 
@@ -341,7 +418,11 @@ def compute_level(records: list[EvidenceRecord]) -> tuple[EvidenceLevel, list[st
         for r in records
         if r.passes_protocol is True
         and (
-            r.kind == "measured_internal" or (r.kind == "measured_external" and r.leakage != "none")
+            r.kind == "measured_internal"
+            or (
+                r.kind == "measured_external"
+                and (r.leakage != "none" or r.reference_derived_input is not None)
+            )
         )
     ]
     if internal:

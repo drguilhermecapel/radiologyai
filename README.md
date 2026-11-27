@@ -7,15 +7,16 @@ mostra a força da evidência que o sustenta.
 > ## ⚠️ Software de pesquisa — não é dispositivo médico
 >
 > **Nenhum modelo de ponta a ponta foi treinado por este projeto** (existem apenas sondas lineares
-> ajustadas sobre codificadores congelados de terceiros, ainda sem avaliação sob o protocolo).
-> **Não houve validação clínica.** Não é regularizado
-> na ANVISA, nem tem clearance FDA ou marcação CE. Não use para nenhuma decisão sobre um paciente
-> real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um diagnóstico.
+> ajustadas sobre codificadores congelados de terceiros). **Não houve validação clínica.** Não é
+> regularizado na ANVISA, nem tem clearance FDA ou marcação CE. **Não use para nenhuma decisão
+> sobre um paciente real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um
+> diagnóstico.
 >
-> Existem hoje **duas** medições de desempenho, ambas de um modelo de terceiros num dataset
-> público (abaixo). Versões anteriores deste README alegavam acurácia de 88–95% e "validação
-> clínica": **essas alegações eram fabricadas e estão retratadas** — ver
-> **[HONEST_STATUS.md](HONEST_STATUS.md)**.
+> **Nenhuma condição tem nível A ou B.** As medições existentes são retrospectivas, em dados
+> públicos, e estão listadas com o caminho de cada artefato em
+> **[HONEST_STATUS.md](HONEST_STATUS.md)**, inclusive as reprovações e o nível A retratado.
+> Versões anteriores deste README alegavam acurácia e "validação clínica" que eram **fabricadas
+> e estão retratadas** (ver HONEST_STATUS.md).
 >
 > O plano está em **[ROADMAP.md](ROADMAP.md)** (v2.0).
 
@@ -29,14 +30,37 @@ ecocardiografia, usando modelos abertos reais.
 
 | Nível | Significado | Onde aparece |
 |---|---|---|
-| **A** | validado externamente por medição nossa, sem vazamento, aprovado no protocolo | visão principal |
-| **B** | validação publicada revisada por pares ou limiar de diretriz, citação conferida na fonte | visão principal |
-| **C** | validado internamente por medição nossa | visão principal, com selo |
-| **D** | exploratório (zero-shot ou sem validação por condição) | **só no modo pesquisa** |
+| **A** | medido por este projeto em dado externo, sem sobreposição conhecida ou plausível com o treino nem com a seleção do modelo, e aprovado no protocolo | visão principal |
+| **B** | desempenho publicado em estudo revisado por pares, ou limiar de diretriz, com citação conferida na fonte | visão principal |
+| **C** | medido por este projeto e aprovado no protocolo, mas em hold-out interno, em dado externo com sobreposição conhecida ou possível com o treino ou a seleção, ou com entrada derivada do padrão de referência | visão principal, com selo e ressalvas |
+| **D** | exploratório: sem medição aprovada, refutado por medição própria, ou limitado (modelo não distribuído, termo de uso só de pesquisa) | **só no modo pesquisa**; nunca no laudo |
 
 O nível é **calculado** a partir de registros de evidência com proveniência (`compute_level` em
 `src/radiologyai/catalog/schema.py`), nunca digitado. Os critérios foram pré-registrados antes de
-qualquer medição: [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md).
+qualquer medição: [`docs/protocolo-evidencia.md`](docs/protocolo-evidencia.md). O texto oficial de
+cada nível é `LEVEL_MEANING_PT` em `src/radiologyai/catalog/schema.py`.
+
+### O KPI hoje
+
+Transcrito de `src/radiologyai/catalog/levels.json`, contando só modelos distribuídos (o CI falha
+se divergir):
+
+<!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
+| Modalidade (prefixo) | A | B | C | D | Refutadas |
+|---|---:|---:|---:|---:|---:|
+| `cxr` | 0 | 0 | 0 | 1 | 0 |
+| `echo` | 0 | 0 | 0 | 1 | 0 |
+| `mg` | 0 | 0 | 0 | 2 | 0 |
+| `mr` | 0 | 0 | 0 | 2 | 0 |
+| `msk_xr` | 0 | 0 | 0 | 4 | 0 |
+| `us` | 0 | 0 | 0 | 3 | 0 |
+| **Todas** | 0 | 0 | 0 | 13 | 0 |
+<!-- kpi-levels:fim -->
+
+Nesta árvore os registros medidos foram regenerados com código não commitado (`git_dirty`) e
+estão fora do cálculo até a re-medição a partir de um commit; pelas regras atuais o esperado é C
+só para tuberculose (hold-out interno) e fratura refutada. Detalhe em
+[HONEST_STATUS.md](HONEST_STATUS.md).
 
 ## O que existe hoje
 
@@ -56,19 +80,19 @@ O código legado (v1) foi removido da árvore e continua recuperável no histór
 | Grad-CAM **real** por hooks de gradiente | funcional, testada |
 | Trilha de auditoria encadeada por hash | funcional, testada |
 | API FastAPI — gate de escopo por HTTP, sem métrica fabricada | funcional, testada |
-| Catálogo de condições: esquema, regra de nível, protocolo pré-registrado | funcional, testado; **nenhuma condição catalogada ainda** |
+| Catálogo de condições: esquema, regra de nível, protocolo pré-registrado | funcional, testado; 63 condições em `conditions.yaml`, níveis em `levels.json` (KPI acima) |
 | Camada de análise multimodal (`src/radiologyai/analysis/`) — manifestos por modelo, adaptadores RX/TC/RM/MG/US/eco, biomarcadores de TC com pré-condições, sondas lineares | código presente, verificação em andamento; inventário de modelos em [`MODEL_LICENSES.md`](MODEL_LICENSES.md) |
-| Fábrica de evidência (`src/radiologyai/evidence/`) — predições → medição → registro com proveniência → `levels.json` | código presente; **nenhum registro medido commitado ainda** |
+| Fábrica de evidência (`src/radiologyai/evidence/`) — predições → medição → registro com proveniência → `levels.json` | 15 registros em `evidence/measured/` (aprovados, reprovados e não elegíveis; desfecho de cada item em `evidence/measured/ledger.yaml`); re-medição a partir de commit pendente |
 | Plataforma web (API, banco, fila, laudo preliminar PDF/DICOM SR/FHIR, assinatura vinculada ao hash, RBAC, DICOMweb, frontend) | código presente, verificação em andamento |
-| **Modelo próprio treinado** | **nenhum de ponta a ponta**; sondas lineares sobre RAD-DINO e BiomedCLIP congelados (TB, fratura, achados de punho, lesão mamária e hepática em US, esteatose), sem medição sob o protocolo |
+| **Modelo próprio treinado** | **nenhum de ponta a ponta**; sondas lineares sobre RAD-DINO e BiomedCLIP congelados (TB, fratura, achados de punho, lesão mamária e hepática em US, esteatose), medidas sob o protocolo — nenhuma em medição externa limpa aprovada; fratura reprovada no GRAZPEDWRI-DX (ver HONEST_STATUS.md) |
 | **Validação clínica** | **nenhuma** |
 
 Requisitos rastreados até risco e teste: [`docs/regulatory/13-traceability.md`](docs/regulatory/13-traceability.md)
 (gerada e verificada no CI).
 
-## As duas medições reais
+## Linha de base de terceiros (NIH ChestX-ray14)
 
-Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em PadChest
+Anterior à fábrica de evidência e fora do cálculo de nível. Modelo de terceiros `torchxrayvision densenet121-res224-pc`, treinado **só** em PadChest
 (Espanha), avaliado no **split oficial de teste do NIH ChestX-ray14** (25.596 imagens, 2.797
 pacientes, disjunto por paciente) — validação externa ao treino do modelo, em Google Colab (T4),
 em 2026-09-12.

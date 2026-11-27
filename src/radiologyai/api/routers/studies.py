@@ -275,15 +275,17 @@ def set_exam_type(
         study.exam_type_source = "human"
         study.exam_type_set_by = principal.user_id
         study.exam_type_set_at = utcnow()
-    append_event(
-        platform.db,
-        "study.exam_type_set",
-        actor_id=principal.user_id,
-        actor_username=principal.username,
-        subject_type="study",
-        subject_id=study_id,
-        payload={"from": previous, "to": body.exam_type.value},
-    )
+        session.flush()
+        append_event(
+            None,
+            "study.exam_type_set",
+            actor_id=principal.user_id,
+            actor_username=principal.username,
+            subject_type="study",
+            subject_id=study_id,
+            payload={"from": previous, "to": body.exam_type.value},
+            session=session,
+        )
     with platform.db.session() as session:
         return study_out(session, _get_study(session, study_id))
 

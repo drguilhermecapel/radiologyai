@@ -9,10 +9,20 @@ passaria como externo. Aqui o vazamento sai de uma tabela de linhagem com
 Regras (``docs/protocolo-evidencia.md`` §8):
 
 * ``known`` — a linhagem do dataset de avaliação (ele mesmo e tudo de que deriva)
-  intersecta a linhagem de algum dataset de treino do modelo;
-* ``possible`` — o modelo não declara dados de treino, ou o par está na tabela
-  :data:`POSSIBLE_OVERLAP` (sobreposição plausível, não demonstrada);
+  intersecta a linhagem de algum dataset de treino do modelo, **ou** de algum
+  dataset usado para SELECIONAR o modelo (codificador, hiperparâmetro,
+  pré-processamento escolhidos comparando desempenho nele);
+* ``possible`` — o modelo não declara dados de treino, ou o par (linhagem do
+  treino, linhagem da avaliação) está na tabela :data:`POSSIBLE_OVERLAP`
+  (sobreposição plausível, não demonstrada);
 * ``none`` — nenhum dos casos acima.
+
+Reuso na seleção é vazamento: escolher o codificador pela AUROC externa num
+conjunto e depois reportar a AUROC desse mesmo conjunto como validação externa
+torna a estimativa otimista (o conjunto deixou de ser independente da escolha).
+O vazamento só por seleção fica separado (:func:`selection_overlap`) porque ele
+só pode **inflar** a estimativa: impede a promoção a A, mas não livra o modelo de
+uma refutação (ver :func:`radiologyai.catalog.schema.compute_level`).
 """
 
 from __future__ import annotations
@@ -115,6 +125,14 @@ DATASETS: dict[str, DatasetInfo] = {
     )
 }
 
+# Datasets cujo termo de uso proíbe ou restringe uso comercial. Um modelo treinado
+# em algum deles declara ``license.commercial_use: 'no'`` no manifesto (REQ-188).
+NONCOMMERCIAL_TERMS: dict[str, str] = {
+    "chexpert": "Stanford Research Use Agreement (não comercial)",
+    "camus": "CC BY-NC-SA 4.0",
+    "mimic-cxr": "PhysioNet Credentialed Health Data License (uso sob o DUA)",
+}
+
 POSSIBLE_OVERLAP: frozenset[frozenset[str]] = frozenset(
     {
         # BUSI não tem id de paciente e tem duplicatas (Pawłowska 2023,
@@ -166,14 +184,17 @@ def lineage(key: str) -> frozenset[str]:
     return frozenset(seen)
 
 
-def assess_leakage(dataset_key: str, training_data: Iterable[str]) -> tuple[Leakage, str]:
-    """``(leakage, nota)`` para um dataset de avaliação e as chaves de treino do modelo.
+def selection_overlap(dataset_key: str, selection_data: Iterable[str]) -> tuple[str, ...]:
+    """Chaves de seleção cuja linhagem intersecta a do dataset de avaliação (ordenadas).
 
     Raises:
-        EvidenceError: alguma chave (avaliação ou treino) fora da tabela.
+        EvidenceError: alguma chave fora da tabela.
     """
     evaluated = lineage(dataset_key)
-    train = tuple(training_data)
+    return tuple(sorted({s for s in selection_data if evaluated & lineage(s)}))
+
+
+def _training_leakage(evaluated: frozenset[str], train: tuple[str, ...]) -> tuple[Leakage, str]:
     if not train:
         return "possible", "o modelo não declara dados de treino; vazamento não pode ser excluído"
     hits: list[str] = []
@@ -183,9 +204,54 @@ def assess_leakage(dataset_key: str, training_data: Iterable[str]) -> tuple[Leak
             hits.append(f"{t} (linhagem comum: {', '.join(common)})")
     if hits:
         return "known", "dataset de avaliação compartilha linhagem com o treino: " + "; ".join(hits)
-    possible = [t for t in train for e in evaluated if frozenset({t, e}) in POSSIBLE_OVERLAP]
+    # O par é procurado na linhagem dos DOIS lados: um treino derivado (ex.: uma cópia
+    # limpa de um dataset da tabela) herda a sobreposição plausível da sua origem.
+    possible = [
+        t
+        for t in train
+        for tl in lineage(t)
+        for e in evaluated
+        if frozenset({tl, e}) in POSSIBLE_OVERLAP
+    ]
     if possible:
         return "possible", "sobreposição plausível declarada na tabela: " + ", ".join(
             sorted(set(possible))
         )
     return "none", "nenhuma linhagem comum entre avaliação e treino (" + ", ".join(train) + ")"
+
+
+def assess_training_leakage(dataset_key: str, training_data: Iterable[str]) -> tuple[Leakage, str]:
+    """Vazamento só pela linhagem dos dados de TREINO (sem a seleção de modelo).
+
+    Raises:
+        EvidenceError: alguma chave (avaliação ou treino) fora da tabela.
+    """
+    return _training_leakage(lineage(dataset_key), tuple(training_data))
+
+
+def assess_leakage(
+    dataset_key: str,
+    training_data: Iterable[str],
+    selection_data: Iterable[str] = (),
+) -> tuple[Leakage, str]:
+    """``(leakage, nota)`` para um dataset de avaliação, o treino e a seleção do modelo.
+
+    ``selection_data`` são as chaves dos datasets em que o modelo (ou o seu
+    codificador, hiperparâmetros, pré-processamento) foi **escolhido** comparando
+    desempenho. Se a linhagem da avaliação as encontra, o vazamento é ``known``.
+
+    Raises:
+        EvidenceError: alguma chave (avaliação, treino ou seleção) fora da tabela.
+    """
+    evaluated = lineage(dataset_key)
+    leakage, note = _training_leakage(evaluated, tuple(training_data))
+    reused = selection_overlap(dataset_key, selection_data)
+    if not reused:
+        return leakage, note
+    selection_note = (
+        "dataset de avaliação reutilizado na seleção do modelo/codificador "
+        f"({', '.join(reused)}): a estimativa é otimista e não é validação externa"
+    )
+    if leakage == "known":
+        return "known", f"{note}; {selection_note}"
+    return "known", f"{selection_note}; treino: {note}"

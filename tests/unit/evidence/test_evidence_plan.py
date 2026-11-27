@@ -302,6 +302,7 @@ class TestExecuteJob:
         assert len(env["operating_points"]) == 2
 
     @pytest.mark.requirement("REQ-113")
+    @pytest.mark.requirement("REQ-182")
     def test_agreement_with_filter_counts_abstentions(self, tmp_path, protocol):
         w = tmp_path / "ck.pt"
         w.write_bytes(b"ck")
@@ -327,9 +328,14 @@ class TestExecuteJob:
         assert e_box.outcome == "aprovado"
         assert e_box.leakage == "possible"
         assert e_box.n_total == 60
-        assert e_free.n_total == 59
+        # A abstenção entra no denominador (REQ-182): 60 casos com referência, 1 sem medida.
+        assert e_free.n_total == 60
+        assert e_free.outcome == "reprovado"
+        assert any("abstenção em 1 de 60" in r for r in e_free.reasons)
         env = json.loads((root / e_free.record).read_text(encoding="utf-8"))
-        assert env["inputs"]["n_abstained_excluded"] == 1
+        assert env["inputs"]["n_abstained"] == 1
+        assert env["report"]["n_abstained"] == 1
+        assert env["report"]["n_cases"] == 59
         assert env["inputs"]["n_rows_outside_filter"] == 60
 
     @pytest.mark.requirement("REQ-115")

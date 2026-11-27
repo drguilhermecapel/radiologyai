@@ -24,16 +24,16 @@
 
 - **Ambiente / Modelo:** Tesla T4, `xrv-densenet121-pc`
 - **Amostragem:** 1.000 pacientes distintos (250 calibração / 750 teste, 0 sobreposição entre splits)
-- **Macro-AUROC:** 0,7089 (IC 95%: 0,6865–0,7302)
+- **Macro-AUROC:** 0,7089 (IC 95%: 0,6865–0,7302) — NÃO VERIFICÁVEL
 - **Critério pré-especificado (>= 0,70 no limite inferior do IC):** **NÃO atendido**
 
 ## 2. Estudo Pareado de Calibração (12 achados comuns)
 
 Análise pareada nos 12 achados comuns (excluindo **Edema**, que apresentou 0 positivos no conjunto de calibração):
 
-- **ECE médio:** 0,2540 (bruto) -> 0,2484 (Temperature, -2,19%) -> 0,0151 (Platt, -94,06%)
-- **Delta pareado de ECE (Platt vs. Temperature):** -0,2333 (IC 95%: -0,2408 a -0,2199)
-- **Brier score médio:** 0,1687 (bruto) -> 0,0697 (Platt)
+- **ECE médio:** 0,2540 (bruto) -> 0,2484 (Temperature, -2,19%) -> 0,0151 (Platt, -94,06%) — NÃO VERIFICÁVEL
+- **Delta pareado de ECE (Platt vs. Temperature):** -0,2333 (IC 95%: -0,2408 a -0,2199) — NÃO VERIFICÁVEL
+- **Brier score médio:** 0,1687 (bruto) -> 0,0697 (Platt) — NÃO VERIFICÁVEL
 
 ## 3. Ressalvas Explícitas e Próximos Passos
 

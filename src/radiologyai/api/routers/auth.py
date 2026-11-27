@@ -38,11 +38,18 @@ def user_out(user: object) -> UserOut:
     responses={401: {"model": ErrorOut}, 429: {"model": ErrorOut}},
     openapi_extra=perm(PUBLIC),
 )
-def login(body: LoginIn, platform: Annotated[Platform, Depends(get_platform)]) -> LoginOut:
-    """Troca usuário e senha por um token opaco de sessão (``Authorization: Bearer``)."""
+def login(
+    body: LoginIn, platform: Annotated[Platform, Depends(get_platform)], request: Request
+) -> LoginOut:
+    """Troca usuário e senha por um token opaco de sessão (``Authorization: Bearer``).
+
+    Falhas repetidas são limitadas por (usuário, cliente): quem erra de um IP
+    não tranca o usuário nos demais.
+    """
     from radiologyai.persistence.users import authenticate, issue_session
 
-    user = authenticate(platform.db, body.username, body.password)
+    client = request.client.host if request.client is not None else ""
+    user = authenticate(platform.db, body.username, body.password, client=client)
     token, expires = issue_session(platform.db, user, platform.settings.session_ttl_hours)
     return LoginOut(token=token, expires_at=expires, user=user_out(user))
 

@@ -40,7 +40,7 @@ from radiologyai.evidence.measure import (
     measure_binary,
     verdict,
 )
-from radiologyai.evidence.store import dump_json, load_records, write_measured
+from radiologyai.evidence.store import dump_json, load_evidence, load_records, write_measured
 
 REPO = Path(__file__).resolve().parents[3]
 HAS_PARQUET = all(importlib.util.find_spec(m) for m in ("pandas", "pyarrow"))
@@ -271,7 +271,9 @@ def published(rid="pub:1", label="Effusion"):
         model_id="xrv-densenet121-pc",
         label=label,
         kind="published",
-        metrics={"auroc": Metric(value=0.9)},
+        n_total=400,
+        n_positive=120,
+        metrics={"auroc": Metric(value=0.9, ci_low=0.86, ci_high=0.93)},
         passes_protocol=True,
         source=EvidenceSource(
             title="t",
@@ -281,6 +283,20 @@ def published(rid="pub:1", label="Effusion"):
             verified_at_source=True,
         ),
     )
+
+
+def manifests(tmp_path: Path, models: dict[str, dict[str, str]], **extra: str) -> Path:
+    """Diretório de manifestos mínimos: ``{modelo: {arquivo: sha256}}``."""
+    d = tmp_path / "manifests"
+    d.mkdir(exist_ok=True)
+    for model_id, weights in models.items():
+        lines = [f"id: {model_id}"]
+        lines += [f"{k}: {v}" for k, v in extra.items()]
+        lines.append("weights:" if weights else "weights: []")
+        for fname, sha in weights.items():
+            lines += [f"- key: {fname}", f"  filename: {fname}", f"  sha256: {sha}"]
+        (d / f"{model_id}.yaml").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return d
 
 
 class TestStoreAndLevels:
@@ -294,11 +310,14 @@ class TestStoreAndLevels:
         (tmp_path / "published" / "p.json").write_text(
             json.dumps([published().model_dump(mode="json")]), encoding="utf-8"
         )
-        records = load_records(tmp_path)
-        assert len(records) == 2
+        loaded = load_evidence(tmp_path)
+        assert len(loaded) == 2
+        assert len(load_records(tmp_path)) == 2
+        records = [item.envelope or item.record for item in loaded]
         conds = [condition(sources=[{"model_id": "other", "label": "E"}])]
-        a = build_levels(records, conds, protocol)
-        b = build_levels(list(reversed(records)), conds, protocol)
+        mdir = manifests(tmp_path, {"xrv-densenet121-pc": {"pc.pt": "a" * 64}, "other": {}})
+        a = build_levels(records, conds, protocol, manifests_dir=mdir)
+        b = build_levels(list(reversed(records)), conds, protocol, manifests_dir=mdir)
         assert render_levels(a) == render_levels(b)
         LevelsFile.model_validate_json(render_levels(a))
         levels = {(e.model_id, e.level.value) for e in a.entries}

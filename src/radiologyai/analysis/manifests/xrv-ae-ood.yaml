@@ -26,7 +26,7 @@ license:
   code: Apache-2.0
   weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
   training_data_terms: NIH, PadChest, RSNA, MIMIC-CXR e CheXpert (termos próprios; CheXpert não comercial)
-  commercial_use: unclear
+  commercial_use: 'no'
   evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0)
 applicability:
   exam_types:

@@ -103,7 +103,67 @@ class EvaluationConfig:
     min_support: int = MIN_SUPPORT
 
 
-def check_leakage(card: ModelCard, manifest: Manifest) -> str:
+DATASET_ALIASES: dict[str, str] = {
+    # Nome legível (como aparece em ``ModelCard.trained_on`` e ``Manifest.name``) ->
+    # chave da tabela de linhagem (``radiologyai.evidence.leakage.DATASETS``).
+    # Comparação EXATA (após casefold e espaços nas pontas): nunca substring.
+    "nih chestx-ray14": "nih-cxr14",
+    "padchest": "padchest",
+    "chexpert": "chexpert",
+    "mimic-cxr": "mimic-cxr",
+    "open-i": "openi",
+    "openi": "openi",
+    "google nih": "nih-cxr14-google",
+    "rsna pneumonia": "rsna-pneumonia",
+    "siim-acr pneumothorax": "siim-acr-pneumothorax",
+    "vindr-cxr": "vindr-cxr",
+}
+
+
+def dataset_key(name: str) -> str:
+    """Chave de linhagem para um nome de dataset: chave exata da tabela ou alias exato.
+
+    Raises:
+        EvaluationError: nome que não é chave nem alias declarado. Vazamento nunca é
+            presumido ausente para um dataset sem linhagem.
+    """
+    from radiologyai.evidence.leakage import DATASETS
+
+    raw = name.strip()
+    if raw in DATASETS:
+        return raw
+    key = DATASET_ALIASES.get(raw.casefold())
+    if key is None:
+        raise EvaluationError(
+            f"dataset {name!r} sem chave de linhagem: use uma chave de "
+            "radiologyai.evidence.leakage.DATASETS ou declare o alias exato em "
+            "radiologyai.evaluation.runner.DATASET_ALIASES"
+        )
+    return key
+
+
+def assess_card_leakage(card: ModelCard, evaluated_key: str) -> tuple[str, str, str]:
+    """``(status, leakage, nota)`` por chaves estruturadas, nunca por substring.
+
+    ``status`` é o rótulo do artefato (``"externo"`` só quando o vazamento é
+    ``"none"``); ``leakage`` é o valor da tabela de linhagem.
+
+    Raises:
+        EvaluationError: dataset de avaliação ou de treino sem chave de linhagem.
+    """
+    from radiologyai.errors import EvidenceError
+    from radiologyai.evidence.leakage import assess_leakage
+
+    train = tuple(dataset_key(t) for t in card.trained_on)
+    try:
+        leakage, note = assess_leakage(dataset_key(evaluated_key), train)
+    except EvidenceError as exc:
+        raise EvaluationError(str(exc)) from exc
+    status = {"none": "externo", "possible": "possivel", "known": "in-distribution"}[leakage]
+    return status, leakage, note
+
+
+def check_leakage(card: ModelCard, manifest: Manifest, *, evaluated_key: str | None = None) -> str:
     """Determina se o dataset de avaliação foi usado no treino do modelo.
 
     Esta é a checagem que separa validação externa de teatro. Avaliar
@@ -111,16 +171,19 @@ def check_leakage(card: ModelCard, manifest: Manifest) -> str:
     foram treinados em NIH entre outros — e produziria um número inflado que
     parece medição mas não é.
 
-    ``ModelCard.trained_on`` é obrigatório e não-vazio, então esta checagem
-    sempre tem base — não existe estado "indeterminado".
+    O vazamento vem da tabela de linhagem (:mod:`radiologyai.evidence.leakage`) por
+    **chaves**: ``evaluated_key`` (ou o nome do manifesto, resolvido por alias
+    exato) e cada item de ``card.trained_on``. A versão anterior comparava
+    substrings e deixava "siim-acr-pneumothorax" (imagens do NIH) passar como
+    externo para um modelo treinado no NIH.
 
     Returns:
-        ``"externo"`` ou ``"in-distribution"``.
+        ``"externo"`` (vazamento ``none``), ``"possivel"`` ou ``"in-distribution"``.
+
+    Raises:
+        EvaluationError: nome de dataset (avaliação ou treino) sem chave de linhagem.
     """
-    dataset = manifest.name.lower()
-    if any(dataset.startswith(t.lower()) or t.lower() in dataset for t in card.trained_on):
-        return "in-distribution"
-    return "externo"
+    return assess_card_leakage(card, evaluated_key or manifest.name)[0]
 
 
 def cluster_auroc_with_ci(
@@ -309,12 +372,18 @@ def run_evaluation(
     output_dir: str | Path,
     config: EvaluationConfig | None = None,
     dataset_limitations: tuple[str, ...] = (),
+    evaluated_key: str | None = None,
 ) -> Path:
     """Escreve ``artifacts/eval/<run_id>/metrics.json`` e devolve o diretório.
 
     Args:
         y_score: matriz ``n_imagens x n_rótulos_do_modelo`` já inferida.
         dataset_limitations: limitações declaradas do dataset, propagadas ao artefato.
+        evaluated_key: chave de linhagem do dataset avaliado (padrão: o nome do
+            manifesto, resolvido por alias exato).
+
+    Raises:
+        EvaluationError: dataset de avaliação ou de treino sem chave de linhagem.
     """
     import numpy as np
 
@@ -359,7 +428,7 @@ def run_evaluation(
         round(float(np.mean([e["auroc"] for e in evaluated.values()])), 4) if evaluated else None
     )
 
-    leakage = check_leakage(card, manifest)
+    leakage, leakage_value, leakage_note = assess_card_leakage(card, evaluated_key or manifest.name)
     run_id = f"{card.card_id}__{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
 
     payload: dict[str, Any] = {
@@ -388,8 +457,11 @@ def run_evaluation(
             "manifest_sha256_v2": manifest_sha256_v2(manifest),
             "n_images": len(manifest),
             "n_patients": len(manifest.patient_ids),
-            "external_to_training_data": leakage == "externo",
+            "lineage_key": dataset_key(evaluated_key or manifest.name),
+            "external_to_training_data": leakage_value == "none",
             "leakage_status": leakage,
+            "leakage": leakage_value,
+            "leakage_note": leakage_note,
         },
         "per_label": evaluated,
         "macro_auroc": macro,
@@ -409,6 +481,12 @@ def run_evaluation(
             0,
             "ATENÇÃO: o dataset de avaliação consta entre os dados de treino deste "
             "modelo. Este resultado é in-distribution e NÃO é validação externa.",
+        )
+    elif leakage == "possivel":
+        payload["limitations"].insert(
+            0,
+            "ATENÇÃO: sobreposição possível entre o dataset de avaliação e o treino "
+            f"({leakage_note}). Este resultado NÃO é validação externa.",
         )
 
     out = Path(output_dir) / run_id

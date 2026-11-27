@@ -1,11 +1,13 @@
 """CheXpert — conjunto de validação com rótulos adjudicados por radiologistas.
 
-Por que este dataset importa aqui: a primeira linha de base mediu AUROC 0,664
-no NIH ChestX-ray14, cujos rótulos são **minerados por NLP dos laudos**. Um
+Por que este dataset importa aqui: a primeira linha de base no NIH ChestX-ray14,
+cujos rótulos são **minerados por NLP dos laudos**, mediu AUROC macro
+0,6644 em ``artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json``. Um
 número baixo nessas condições é ambíguo — pode ser modelo fraco, pode ser
-rótulo ruidoso. Fibrose saiu em 0,448 com IC95 excluindo 0,5, o que sugere
-fortemente que o rótulo "Fibrosis" do NIH e o do PadChest não nomeiam o mesmo
-achado.
+rótulo ruidoso. Na segunda execução a fibrose saiu em AUROC
+0,448 em ``artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json``,
+com IC95 [0,4211, 0,4728]: o IC exclui 0,5, o que sugere que o rótulo
+"Fibrosis" do NIH e o do PadChest não nomeiam o mesmo achado.
 
 O conjunto de validação do CheXpert tem 234 imagens de 200 pacientes, rotuladas
 pelo **voto majoritário de 3 radiologistas certificados** olhando a imagem — não

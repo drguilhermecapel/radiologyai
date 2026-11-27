@@ -88,9 +88,11 @@ export interface paths {
          * Segmentation Frame
          * @description Quadro do mapa de rótulos na MESMA grade de ``/series/{id}/frames/{index}``.
          *
+         *     ``seg_index`` é o índice no resultado COMPLETO (``AnalysisOut.segmentation_indices``).
          *     Valores inteiros (``uint8``/``uint16``): 0 é fundo; o significado de cada
-         *     índice está em ``result.segmentations[seg_index].labels``. Segmentação de
-         *     achado de nível D só aparece com ``include_research`` na análise.
+         *     índice está em ``result.segmentations[seg_index].labels``. Segmentação sem
+         *     achado A-C ligado (exploratória) só é servida com ``include_research=true``
+         *     a papel com modo pesquisa; caso contrário, 403.
          */
         get: operations["segmentation_frame_api_v1_analyses__analysis_id__segmentations__seg_index__frames__index__get"];
         put?: never;
@@ -179,6 +181,9 @@ export interface paths {
         /**
          * Verify
          * @description Recalcula a cadeia inteira; aponta o primeiro evento adulterado ou elo quebrado.
+         *
+         *     Compara também com o último checkpoint externo (fora do banco):
+         *     eventos recentes apagados reprovam a verificação.
          */
         get: operations["verify_api_v1_audit_verify_get"];
         put?: never;
@@ -201,6 +206,9 @@ export interface paths {
         /**
          * Login
          * @description Troca usuário e senha por um token opaco de sessão (``Authorization: Bearer``).
+         *
+         *     Falhas repetidas são limitadas por (usuário, cliente): quem erra de um IP
+         *     não tranca o usuário nos demais.
          */
         post: operations["login_api_v1_auth_login_post"];
         delete?: never;
@@ -260,6 +268,9 @@ export interface paths {
          * Catalog
          * @description Condições do catálogo com o nível calculado de cada modelo que as cobre.
          *
+         *     Entrada cujo manifesto declara ``visibility_default: research`` aparece com
+         *     o nível medido, mas visibilidade ``research`` (``restricted_by_manifest``).
+         *
          *     Rótulos de manifesto cuja condição não está no catálogo aparecem em
          *     ``uncatalogued`` — sempre nível D (modo pesquisa).
          */
@@ -283,7 +294,12 @@ export interface paths {
         put?: never;
         /**
          * Import Study
-         * @description WADO-RS do estudo inteiro -> ingestão (des-identificação na entrada).
+         * @description WADO-RS do estudo -> ingestão (des-identificação na entrada).
+         *
+         *     Os mesmos limites do envio de arquivos valem aqui: no máximo
+         *     ``max_zip_members`` instâncias (conferido por QIDO antes de baixar) e
+         *     ``max_uncompressed_bytes`` no total; as instâncias são gravadas uma a uma
+         *     em disco, nunca o estudo inteiro na memória. Acima do limite: 413.
          */
         post: operations["import_study_api_v1_dicomweb_import_post"];
         delete?: never;
@@ -487,7 +503,13 @@ export interface paths {
         put?: never;
         /**
          * Export
-         * @description Envia o SR (e SEGs) ao PACS por STOW-RS. Só laudos ASSINADOS saem do sistema.
+         * @description Envia o SR (e os SEGs do laudo) ao PACS por STOW-RS. Só laudos ASSINADOS saem.
+         *
+         *     Só vão os SEGs listados em ``content.segmentations`` (ligados a achado A-C
+         *     não rejeitado). ``stored_sop_instance_uids`` lista apenas o que o servidor
+         *     CONFIRMOU; SEG que não pôde ser gerado aparece em ``skipped``. Se o servidor
+         *     recusar ou não confirmar algum objeto, a exportação é auditada como parcial
+         *     e a resposta é 502 — nunca um sucesso.
          */
         post: operations["export_api_v1_reports__report_id__export_post"];
         delete?: never;
@@ -568,6 +590,10 @@ export interface paths {
         /**
          * Sign
          * @description Assina: exige a senha do médico e os dois hashes que ele viu (laudo e resultado).
+         *
+         *     A senha errada é auditada (``auth.reauth_failed``) e limitada como o login:
+         *     na quinta falha em 15 minutos as sessões do usuário são revogadas e novas
+         *     tentativas recebem 429.
          */
         post: operations["sign_api_v1_reports__report_id__sign_post"];
         delete?: never;
@@ -721,7 +747,9 @@ export interface paths {
          * Create Analysis
          * @description Enfileira uma análise (202). Cada pedido cria uma análise nova; nada é sobrescrito.
          *
-         *     ``include_research`` exige papel com modo pesquisa. ``prompts`` alimentam
+         *     ``include_research`` exige papel com modo pesquisa; pedir explicitamente em
+         *     ``model_ids`` um modelo exploratório (ou que dependa de um) também exige, e
+         *     grava a análise como de modo pesquisa. ``prompts`` alimentam
          *     modelos interativos (ex.: caixa para MedSAM) e são do usuário, nunca inventados.
          */
         post: operations["create_analysis_api_v1_studies__study_id__analyses_post"];
@@ -850,6 +878,12 @@ export interface components {
             finding_indices: number[] | null;
             /** Finished At */
             finished_at: string | null;
+            /**
+             * Hidden Research Artifacts
+             * @description Segmentações e medidas exploratórias omitidas (sem achado A-C ligado).
+             * @default 0
+             */
+            hidden_research_artifacts: number;
             /** Hidden Research Findings */
             hidden_research_findings: number;
             /** Id */
@@ -868,6 +902,18 @@ export interface components {
             /** Requested By */
             requested_by: string;
             /**
+             * Research Measurement Names
+             * @description Nomes das medidas exploratórias exibidas na visão de pesquisa.
+             * @default []
+             */
+            research_measurement_names: string[];
+            /**
+             * Research Segmentation Indices
+             * @description Índices (no resultado completo) das segmentações exploratórias; só aparecem na visão de pesquisa e exigem marca d'água.
+             * @default []
+             */
+            research_segmentation_indices: number[];
+            /**
              * Research View
              * @description True quando achados de nível D estão incluídos.
              */
@@ -879,6 +925,11 @@ export interface components {
             result_status: string | null;
             /** Reviews */
             reviews: components["schemas"]["ReviewOut"][];
+            /**
+             * Segmentation Indices
+             * @description Para cada segmentação exibida em result.segmentations, o índice no resultado completo (use-o em /analyses/{id}/segmentations/{seg_index}/frames/{index}).
+             */
+            segmentation_indices?: number[] | null;
             /** Started At */
             started_at: string | null;
             /**
@@ -1044,6 +1095,11 @@ export interface components {
         };
         /** AuditVerifyOut */
         AuditVerifyOut: {
+            /**
+             * Anchored Seq
+             * @description Seq do último checkpoint externo conferido (fora do banco).
+             */
+            anchored_seq?: number | null;
             /** Broken At Seq */
             broken_at_seq: number | null;
             /** Detail */
@@ -1135,6 +1191,12 @@ export interface components {
             level: "A" | "B" | "C" | "D";
             /** Model Id */
             model_id: string;
+            /**
+             * Restricted By Manifest
+             * @description Nível medido A-C, mas o manifesto restringe o modelo ao modo pesquisa.
+             * @default false
+             */
+            restricted_by_manifest: boolean;
             /**
              * Visibility
              * @enum {string}
@@ -1232,8 +1294,24 @@ export interface components {
         ExportOut: {
             /** Destination */
             destination: string;
-            /** Stored Sop Instance Uids */
+            /**
+             * Skipped
+             * @description SEGs do laudo que não puderam ser gerados, com o motivo.
+             * @default []
+             */
+            skipped: components["schemas"]["ExportSkipOut"][];
+            /**
+             * Stored Sop Instance Uids
+             * @description Somente os objetos que o servidor CONFIRMOU (ReferencedSOPSequence).
+             */
             stored_sop_instance_uids: string[];
+        };
+        /** ExportSkipOut */
+        ExportSkipOut: {
+            /** Reason */
+            reason: string;
+            /** Seg Index */
+            seg_index: number;
         };
         /**
          * Finding
@@ -1367,10 +1445,20 @@ export interface components {
             code_version: string;
             /** Disclaimer */
             disclaimer: string;
+            /**
+             * Evidence Note
+             * @default rota legada sem catálogo de níveis: todo rótulo é exploratório (nível D) e só aparece no modo pesquisa
+             */
+            evidence_note: string;
             /** Findings */
             findings: {
                 [key: string]: unknown;
             }[];
+            /**
+             * Hidden Research Findings
+             * @default 0
+             */
+            hidden_research_findings: number;
             /** Input Sha256 */
             input_sha256: string;
             /** Metadata */
@@ -1383,6 +1471,11 @@ export interface components {
             normality_asserted: boolean;
             /** Requires Physician Review */
             requires_physician_review: boolean;
+            /**
+             * Research View
+             * @default false
+             */
+            research_view: boolean;
             /** Weights Sha256 */
             weights_sha256: string;
         };
@@ -1721,6 +1814,13 @@ export interface components {
             analysis_created_at: string;
             /** Analysis Id */
             analysis_id: string;
+            /** Completed Models */
+            completed_models?: number | null;
+            /**
+             * Demoted Findings
+             * @default 0
+             */
+            demoted_findings: number;
             /**
              * Disclaimer
              * @default Achado sugerido para confirmação médica. Software de pesquisa; não é diagnóstico.
@@ -1757,14 +1857,23 @@ export interface components {
             provenance: components["schemas"]["ReportProvenance"][];
             /** Result Sha256 */
             result_sha256: string;
+            /** Result Status */
+            result_status?: string | null;
             /** Runs */
             runs: components["schemas"]["ReportRun"][];
+            /** Runs Statement */
+            runs_statement?: string | null;
             /**
              * Schema Version
              * @default 1
              * @constant
              */
             schema_version: "1";
+            /**
+             * Segmentations
+             * @default []
+             */
+            segmentations: components["schemas"]["ReportSegmentation"][];
             /** Study Id */
             study_id: string;
             /** Study Uid */
@@ -1805,8 +1914,15 @@ export interface components {
             image_idx: number;
             /** Label */
             label: string;
+            /** Level At Analysis */
+            level_at_analysis?: ("A" | "B" | "C") | null;
             /** Measurement */
             measurement: string | null;
+            /**
+             * Measurement Only
+             * @default false
+             */
+            measurement_only: boolean;
             /** Model Id */
             model_id: string;
             /** Model Version */
@@ -1815,6 +1931,13 @@ export interface components {
             op_normalized: number | null;
             /** Operating Point */
             operating_point: string | null;
+            /** Physician Decision */
+            physician_decision?: string | null;
+            /**
+             * Physician Decision Pt
+             * @default não revisado
+             */
+            physician_decision_pt: string;
             /** Probability */
             probability: number | null;
             /** Raw Score */
@@ -1893,6 +2016,20 @@ export interface components {
             model_id: string;
             /** Status */
             status: string;
+        };
+        /**
+         * ReportSegmentation
+         * @description Segmentação que pode acompanhar o laudo (SEG, exportação).
+         */
+        ReportSegmentation: {
+            /** Finding Idx */
+            finding_idx: number[];
+            /** Idx */
+            idx: number;
+            /** Model Id */
+            model_id: string;
+            /** Name */
+            name: string;
         };
         /** ReviewIn */
         ReviewIn: {
@@ -2353,7 +2490,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2362,7 +2499,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2438,7 +2575,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2447,7 +2584,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2523,7 +2660,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2532,7 +2669,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2608,7 +2745,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2617,7 +2754,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2697,7 +2834,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2706,7 +2843,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2730,6 +2867,8 @@ export interface operations {
         parameters: {
             query?: {
                 max_dim?: number | null;
+                /** @description Exigido para segmentação exploratória (papel com modo pesquisa) */
+                include_research?: boolean;
             };
             header?: never;
             path: {
@@ -2786,7 +2925,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2795,7 +2934,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2837,7 +2976,7 @@ export interface operations {
                     "application/json": components["schemas"]["LegacyAnalyzeOut"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2906,7 +3045,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2915,7 +3054,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -2994,7 +3133,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3003,7 +3142,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3077,7 +3216,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3086,7 +3225,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3137,7 +3276,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3267,7 +3406,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3276,7 +3415,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3354,7 +3493,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3363,7 +3502,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3441,7 +3580,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3450,7 +3589,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3604,7 +3743,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3613,7 +3752,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3692,7 +3831,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3701,7 +3840,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3806,7 +3945,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3815,7 +3954,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3891,7 +4030,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3900,7 +4039,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -3976,7 +4115,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -3985,7 +4124,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4061,7 +4200,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4070,7 +4209,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4147,7 +4286,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4156,7 +4295,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4236,7 +4375,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4245,7 +4384,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4321,7 +4460,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4330,7 +4469,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4406,7 +4545,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4415,7 +4554,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4494,7 +4633,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4503,7 +4642,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4605,7 +4744,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4614,7 +4753,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4692,7 +4831,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4701,7 +4840,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4777,7 +4916,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4786,7 +4925,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4862,7 +5001,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4871,7 +5010,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4951,7 +5090,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -4960,7 +5099,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5040,7 +5179,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Request Entity Too Large */
+            /** @description Content Too Large */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -5049,7 +5188,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5120,7 +5259,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5164,7 +5303,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOut"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;

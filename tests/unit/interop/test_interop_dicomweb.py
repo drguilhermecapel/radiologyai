@@ -37,6 +37,7 @@ class FakePacs:
         self.studies = {str(study_datasets[0].StudyInstanceUID): study_datasets}
         self.stored: list[bytes] = []
         self.requests: list[str] = []
+        self.reject_uids: set[str] = set()  # STOW: recusados em FailedSOPSequence (202)
 
     def handler(self):
         pacs = self
@@ -75,6 +76,18 @@ class FakePacs:
                     self._send(200, json.dumps(items).encode(), "application/dicom+json")
                     return
                 parts = path.strip("/").split("/")
+                if (
+                    len(parts) == 3
+                    and parts[0] == "studies"
+                    and parts[2] == "instances"
+                    and parts[1] in pacs.studies
+                ):
+                    items = [
+                        {"00080018": {"vr": "UI", "Value": [str(ds.SOPInstanceUID)]}}
+                        for ds in pacs.studies[parts[1]]
+                    ]
+                    self._send(200, json.dumps(items).encode(), "application/dicom+json")
+                    return
                 if len(parts) == 2 and parts[0] == "studies" and parts[1] in pacs.studies:
                     body = b""
                     for ds in pacs.studies[parts[1]]:
@@ -107,12 +120,30 @@ class FakePacs:
                     raw = self.rfile.read(int(self.headers.get("Content-Length", 0)))
                 ctype = self.headers.get("Content-Type", "")
                 boundary = ctype.split("boundary=")[1].split(";")[0].strip('"')
+                import pydicom
+
+                referenced, failed = [], []
                 for chunk in raw.split(f"--{boundary}".encode()):
                     if b"\r\n\r\n" in chunk:
                         payload = chunk.split(b"\r\n\r\n", 1)[1].rstrip(b"\r\n")
                         if payload:
-                            pacs.stored.append(payload)
-                self._send(200, json.dumps({}).encode(), "application/dicom+json")
+                            ds = pydicom.dcmread(io.BytesIO(payload))
+                            item = {
+                                "00081150": {"vr": "UI", "Value": [str(ds.SOPClassUID)]},
+                                "00081155": {"vr": "UI", "Value": [str(ds.SOPInstanceUID)]},
+                            }
+                            if str(ds.SOPInstanceUID) in pacs.reject_uids:
+                                failed.append({**item, "00081197": {"vr": "US", "Value": [272]}})
+                            else:
+                                pacs.stored.append(payload)
+                                referenced.append(item)
+                body = {}
+                if referenced:
+                    body["00081199"] = {"vr": "SQ", "Value": referenced}
+                if failed:
+                    body["00081198"] = {"vr": "SQ", "Value": failed}
+                code = 202 if failed else 200
+                self._send(code, json.dumps(body).encode(), "application/dicom+json")
 
         return Handler
 
@@ -215,3 +246,75 @@ def test_import_over_api_deidentifies(pacs, cr_dataset, tmp_path):
         assert body["source"] == "dicomweb"
         assert body["study_uid"] != str(cr_dataset.StudyInstanceUID)
         assert body["patient_pseudo_id"].startswith("ANON-")
+
+
+@pytest.mark.requirement("REQ-178")
+def test_stow_outcome_reports_only_confirmed_and_flags_202_failures(pacs, cr_dataset):
+    import copy
+
+    from pydicom.uid import generate_uid
+
+    from radiologyai.interop.dicomweb import DicomwebGateway, store_outcome
+
+    other = copy.deepcopy(cr_dataset)
+    other.SOPInstanceUID = generate_uid()
+    pacs.reject_uids.add(str(other.SOPInstanceUID))
+    sent = [str(cr_dataset.SOPInstanceUID), str(other.SOPInstanceUID)]
+    outcome = store_outcome(DicomwebGateway(pacs.url).store([cr_dataset, other]), sent)
+    assert outcome.stored == (str(cr_dataset.SOPInstanceUID),)
+    assert [uid for uid, _ in outcome.failed] == [str(other.SOPInstanceUID)]
+    assert "272" in outcome.failed[0][1]
+
+
+@pytest.mark.requirement("REQ-178")
+def test_stow_without_confirmation_is_not_success():
+    from pydicom.dataset import Dataset
+
+    from radiologyai.interop.dicomweb import store_outcome
+
+    outcome = store_outcome(Dataset(), ["1.2.3"])
+    assert outcome.stored == ()
+    assert outcome.failed == (("1.2.3", "não confirmado pelo servidor"),)
+
+
+@pytest.mark.requirement("REQ-178")
+def test_import_over_limit_is_refused_before_download(pacs, cr_dataset, tmp_path):
+    import copy
+
+    from fastapi.testclient import TestClient
+    from pydicom.uid import generate_uid
+
+    from radiologyai.api import create_app
+    from radiologyai.persistence.config import PlatformSettings
+    from radiologyai.persistence.users import create_user, issue_session
+    from radiologyai.worker.runtime import Platform
+
+    second = copy.deepcopy(cr_dataset)
+    second.SOPInstanceUID = generate_uid()
+    pacs.studies[str(cr_dataset.StudyInstanceUID)].append(second)
+    settings = PlatformSettings(
+        database_url=f"sqlite:///{tmp_path / 'p.db'}",
+        store_dir=tmp_path / "store",
+        deident_key="chave",
+        worker_enabled=False,
+        dicomweb_url=pacs.url,
+        max_zip_members=1,
+    )
+    platform = Platform.create(settings)
+    with TestClient(create_app(platform=platform)) as client:
+        user = create_user(
+            platform.db,
+            username="tec",
+            full_name="T",
+            role="technician",
+            password="senha-de-teste-1",
+        )
+        token, _ = issue_session(platform.db, user, 1.0)
+        response = client.post(
+            "/api/v1/dicomweb/import",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"study_instance_uid": str(cr_dataset.StudyInstanceUID)},
+        )
+    assert response.status_code == 413, response.text
+    assert "mais de 1 instâncias" in response.json()["detail"]
+    assert not any(r.startswith("GET /studies/") and r.count("/") == 2 for r in pacs.requests)

@@ -66,7 +66,13 @@ class PlanJob(_Frozen):
     where: dict[str, str] = {}
     training_data: tuple[str, ...] = ()
     no_training_data_declared: bool = False
+    # Datasets em que o modelo, o codificador, hiperparâmetros ou o pré-processamento
+    # foram ESCOLHIDOS comparando desempenho. Avaliar num deles é vazamento ("known").
+    selection_data: tuple[str, ...] = ()
     internal_holdout: bool = False
+    # Entrada do modelo derivada do padrão de referência (ex.: caixa = caixa da máscara
+    # de referência + margem); descreve como. O registro não sustenta nível A.
+    reference_derived_input: str | None = None
     reference_standard: ReferenceStandard | None = None
     population: str | None = None
     weights: dict[str, str] = {}  # nome -> caminho do arquivo (hash lido)
@@ -170,7 +176,7 @@ def load_plan(path: Path = PLAN_PATH) -> Plan:
         if job.status == "measure":
             assert job.dataset_id is not None  # garantido pelo validador
             lineage(job.dataset_id)
-            for key in job.training_data:
+            for key in (*job.training_data, *job.selection_data):
                 lineage(key)
     return plan
 
@@ -300,7 +306,9 @@ def execute_job(
                 condition_id=condition_id,
                 dataset_id=dataset_id,
                 training_data=tuple(job.training_data),
+                selection_data=tuple(job.selection_data),
                 internal_holdout=job.internal_holdout,
+                reference_derived_input=job.reference_derived_input,
                 reference_standard=job.reference_standard,
                 population=job.population,
                 weights_sha256=weights,
@@ -353,13 +361,14 @@ def execute_job(
                 patient_ids=cont.patient_ids,
                 measured=cont.measured,
                 reference=cont.reference,
+                abstained_patient_ids=cont.abstained_patient_ids,
                 inputs={
                     **common_inputs,
                     "predictions_sha256": cont.predictions_sha256,
                     "reference_column": job.reference_column,
                     "measured_column": job.measured_column,
                     "where": dict(job.where),
-                    "n_abstained_excluded": cont.n_abstained,
+                    "n_abstained": cont.n_abstained,
                     "n_rows_outside_filter": cont.n_filtered_out,
                 },
             )

@@ -31,24 +31,24 @@
 
 Dos 14 achados comuns avaliados no conjunto de teste (750 pacientes), **6 achados** atenderam ao critério de elegibilidade (`>= 10` positivos e `>= 10` negativos no teste):
 
-| Modelo | Macro-AUROC (6 achados) | IC 95% (Bootstrap Pareado) |
+| Modelo | Macro-AUROC (6 achados) — NÃO VERIFICÁVEL | IC 95% (Bootstrap Pareado) |
 | --- | --- | --- |
-| `xrv-densenet121-pc` | 0,7938 | 0,7508 – 0,8331 |
-| `densenet121-res224-all` | 0,8306 | 0,7970 – 0,8615 |
+| `xrv-densenet121-pc` | 0,7938 (NÃO VERIFICÁVEL) | 0,7508 – 0,8331 |
+| `densenet121-res224-all` | 0,8306 (NÃO VERIFICÁVEL) | 0,7970 – 0,8615 |
 
-- **Diferença pareada (`All - PC`):** `+0,0368` (IC 95%: `+0,0041` a `+0,0713`).
+- **Diferença pareada (`All - PC`):** `+0,0368` (IC 95%: `+0,0041` a `+0,0713`) — NÃO VERIFICÁVEL.
 
 ## 3. Transferibilidade e Calibração (Platt Scaling)
 
 Avaliação do *Expected Calibration Error* (ECE) no conjunto de teste (`n = 750` pacientes):
 
 - **Transferibilidade sem reajuste (`xrv-densenet121-pc` com Platt anterior congelado):**
-  - ECE sem calibração: `0,22526`
-  - ECE com Platt congelado: `0,06013` (redução de ~73%; IC 95% de delta: `-0,17270` a `-0,15549`)
-  - Observação: o valor residual (`0,06013`) permaneceu acima do alvo de `0,05`.
+  - ECE sem calibração: `0,22526` — NÃO VERIFICÁVEL
+  - ECE com Platt congelado: `0,06013` (redução de ~73%; IC 95% de delta: `-0,17270` a `-0,15549`) — NÃO VERIFICÁVEL
+  - Observação: o valor residual (`0,06013`) permaneceu acima do alvo de `0,05` — NÃO VERIFICÁVEL.
 - **Recalibração na coorte inédita (calibradores ajustados nos 250 pacientes de calibração e avaliados nos 750 de teste):**
-  - `xrv-densenet121-pc`: ECE reduzido para `0,00797`
-  - `densenet121-res224-all`: ECE reduzido para `0,00755`
+  - `xrv-densenet121-pc`: ECE reduzido para `0,00797` — NÃO VERIFICÁVEL
+  - `densenet121-res224-all`: ECE reduzido para `0,00755` — NÃO VERIFICÁVEL
 
 ## 4. Portão de Regressão (*Fail-Closed*)
 

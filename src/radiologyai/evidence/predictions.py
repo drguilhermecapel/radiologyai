@@ -164,6 +164,7 @@ class ContinuousPredictions:
     reference: npt.NDArray[np.float64]
     measured: npt.NDArray[np.float64]
     n_abstained: int  # casos sem medida do modelo (abstenção declarada ou nula)
+    abstained_patient_ids: list[str]  # um por caso em abstenção (contados, nunca imputados)
     n_filtered_out: int  # linhas fora do filtro ``where``
     dataset_sha256: str  # manifesto: ids + referência (+ colunas do filtro)
     predictions_sha256: str  # manifesto + medida do modelo
@@ -180,8 +181,8 @@ def read_continuous(
 
     ``where`` seleciona linhas por igualdade textual de colunas (ex.: ``{"mode":
     "prompt_free"}``), para arquivos que guardam várias variantes do mesmo caso.
-    Linhas sem medida do modelo são **contadas** como abstenção e excluídas da
-    concordância — nunca imputadas.
+    Linhas sem medida do modelo são **contadas** como abstenção (com o paciente) e
+    ficam fora do ICC — nunca imputadas; o julgamento as conta no denominador.
 
     Raises:
         EvidenceError: colunas ausentes, ``image_id`` duplicado após o filtro,
@@ -245,6 +246,7 @@ def read_continuous(
         reference=np.array([r["reference"] for r in kept], dtype=np.float64),
         measured=np.array([r["measured"] for r in kept], dtype=np.float64),
         n_abstained=len(rows) - len(kept),
+        abstained_patient_ids=[r["patient_id"] for r in rows if r["measured"] is None],
         n_filtered_out=n_all - len(rows),
         dataset_sha256=dataset_sha,
         predictions_sha256=predictions_sha,

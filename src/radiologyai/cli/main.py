@@ -326,15 +326,17 @@ def users_set_password(
         user.password_hash = hash_password(password)
         user.updated_at = utcnow()
         user_id = user.id
-    revoked = revoke_user_sessions(db, user_id)
-    append_event(
-        db,
-        "user.password_reset",
-        actor_username="cli",
-        subject_type="user",
-        subject_id=user_id,
-        payload={"revoked_sessions": revoked},
-    )
+        session.flush()
+        revoked = revoke_user_sessions(None, user_id, session=session)
+        append_event(
+            None,
+            "user.password_reset",
+            actor_username="cli",
+            subject_type="user",
+            subject_id=user_id,
+            payload={"revoked_sessions": revoked},
+            session=session,
+        )
     typer.echo(f"senha alterada; {revoked} sessão(ões) revogada(s)")
 
 

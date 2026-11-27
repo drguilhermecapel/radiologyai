@@ -34,14 +34,23 @@ def create_analysis(
 ) -> AnalysisOut:
     """Enfileira uma análise (202). Cada pedido cria uma análise nova; nada é sobrescrito.
 
-    ``include_research`` exige papel com modo pesquisa. ``prompts`` alimentam
+    ``include_research`` exige papel com modo pesquisa; pedir explicitamente em
+    ``model_ids`` um modelo exploratório (ou que dependa de um) também exige, e
+    grava a análise como de modo pesquisa. ``prompts`` alimentam
     modelos interativos (ex.: caixa para MedSAM) e são do usuário, nunca inventados.
     """
-    from radiologyai.worker.jobs import enqueue_analysis
+    from radiologyai.worker.jobs import enqueue_analysis, research_models
 
     body = body or AnalysisCreateIn()
     if body.include_research and not principal.can(Permission.RESEARCH_MODE):
         raise HTTPException(status_code=403, detail="modo pesquisa não permitido para o seu papel")
+    if body.model_ids and not principal.can(Permission.RESEARCH_MODE):
+        exploratory = research_models(platform, body.model_ids)
+        if exploratory:
+            raise HTTPException(
+                status_code=403,
+                detail="modelo(s) exploratório(s) exigem modo pesquisa: " + ", ".join(exploratory),
+            )
     row = enqueue_analysis(
         platform,
         study_id,
@@ -170,21 +179,22 @@ def create_review(
         session.add(review)
         session.flush()
         out = review_out(review, principal.username)
-    append_event(
-        platform.db,
-        "review.created",
-        actor_id=principal.user_id,
-        actor_username=principal.username,
-        subject_type="analysis",
-        subject_id=analysis_id,
-        payload={
-            "finding_idx": body.finding_idx,
-            "condition_id": finding.condition_id,
-            "action": body.action,
-            "amended_decision": body.amended_decision,
-            "result_sha256": body.result_sha256,
-        },
-    )
+        append_event(
+            None,
+            "review.created",
+            actor_id=principal.user_id,
+            actor_username=principal.username,
+            subject_type="analysis",
+            subject_id=analysis_id,
+            payload={
+                "finding_idx": body.finding_idx,
+                "condition_id": finding.condition_id,
+                "action": body.action,
+                "amended_decision": body.amended_decision,
+                "result_sha256": body.result_sha256,
+            },
+            session=session,
+        )
     return out
 
 
@@ -228,17 +238,23 @@ def segmentation_frame(
     seg_index: int,
     index: int,
     max_dim: Annotated[int | None, Query(ge=16)] = None,
+    include_research: Annotated[
+        bool,
+        Query(description="Exigido para segmentação exploratória (papel com modo pesquisa)"),
+    ] = False,
 ) -> Response:
     """Quadro do mapa de rótulos na MESMA grade de ``/series/{id}/frames/{index}``.
 
+    ``seg_index`` é o índice no resultado COMPLETO (``AnalysisOut.segmentation_indices``).
     Valores inteiros (``uint8``/``uint16``): 0 é fundo; o significado de cada
-    índice está em ``result.segmentations[seg_index].labels``. Segmentação de
-    achado de nível D só aparece com ``include_research`` na análise.
+    índice está em ``result.segmentations[seg_index].labels``. Segmentação sem
+    achado A-C ligado (exploratória) só é servida com ``include_research=true``
+    a papel com modo pesquisa; caso contrário, 403.
     """
     from radiologyai.interop.images import encode_label_frame
+    from radiologyai.reporting.exposure import main_exposure
     from radiologyai.reporting.service import load_result
 
-    del principal
     with platform.db.session() as session:
         row = session.get(Analysis, analysis_id)
         if row is None or row.result_json is None:
@@ -246,6 +262,13 @@ def segmentation_frame(
         result = load_result(row)
     if not 0 <= seg_index < len(result.segmentations):
         raise HTTPException(status_code=404, detail="segmentação inexistente")
+    if seg_index not in main_exposure(result).segmentations and not (
+        include_research and principal.can(Permission.RESEARCH_MODE)
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="segmentação exploratória (sem achado A-C ligado) só no modo pesquisa",
+        )
     seg = result.segmentations[seg_index]
     labelmap = platform.blobs.store.read_labelmap(seg.mask)
     limit = min(max_dim or platform.settings.frames_max_dim, platform.settings.frames_hard_cap)

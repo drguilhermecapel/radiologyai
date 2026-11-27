@@ -39,6 +39,9 @@ def catalog(
 ) -> CatalogOut:
     """Condições do catálogo com o nível calculado de cada modelo que as cobre.
 
+    Entrada cujo manifesto declara ``visibility_default: research`` aparece com
+    o nível medido, mas visibilidade ``research`` (``restricted_by_manifest``).
+
     Rótulos de manifesto cuja condição não está no catálogo aparecem em
     ``uncatalogued`` — sempre nível D (modo pesquisa).
     """
@@ -58,12 +61,16 @@ def catalog(
                 continue
             entry = cat.entry(spec.condition_id, m.id, spec.key)
             level = cat.level(spec.condition_id, m.id, spec.key)
+            # O manifesto pode restringir o modelo ao modo pesquisa (licença, termo
+            # de uso): vence o mais restritivo, como no pipeline e no laudo.
+            restricted = level is not EvidenceLevel.D and m.visibility_default == "research"
             by_condition.setdefault(spec.condition_id, []).append(
                 CatalogEntryOut(
                     model_id=m.id,
                     label=spec.key,
                     level=level.value,
-                    visibility="research" if level is EvidenceLevel.D else "main",
+                    visibility="research" if level is EvidenceLevel.D or restricted else "main",
+                    restricted_by_manifest=restricted,
                     headline=entry.headline if entry else None,
                     basis=entry.basis if entry else (),
                 )
@@ -84,7 +91,7 @@ def catalog(
                 code=c.code,
                 entries=entries,
                 best_level=best,  # type: ignore[arg-type]
-                research_only=best == "D",
+                research_only=all(e.visibility == "research" for e in entries),
             )
         )
     levels_file = cat.levels_file

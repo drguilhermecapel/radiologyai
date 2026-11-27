@@ -56,7 +56,9 @@ class Platform:
         cls, settings: PlatformSettings, *, engine: AnalysisEngine | None = None
     ) -> Platform:
         from radiologyai.interop.images import ImageCache
+        from radiologyai.persistence.audit import configure_anchor
         from radiologyai.persistence.blobs import BlobStore
+        from radiologyai.persistence.config import server_key
         from radiologyai.persistence.db import Database
 
         platform = cls(
@@ -66,6 +68,13 @@ class Platform:
             cache=ImageCache(settings.decoded_cache_series),
         )
         platform._engine = engine
+        key = server_key(settings)
+        if key is not None:
+            configure_anchor(
+                platform.db,
+                settings.audit_anchor_path or settings.store_dir / "audit-anchor.jsonl",
+                key,
+            )
         return platform
 
     @property

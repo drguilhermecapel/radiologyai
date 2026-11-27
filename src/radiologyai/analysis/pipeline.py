@@ -116,18 +116,78 @@ class _Collector:
         self.measurements: list[Measurement] = []
         self.explanations: list[Explanation] = []
         self.warnings: list[str] = []
+        self._warned: set[str] = set()
+
+    def _warn_once(self, message: str) -> None:
+        if message not in self._warned:
+            self._warned.add(message)
+            self.warnings.append(message)
+
+    def checkpoint(self) -> tuple[int, ...]:
+        """Tamanhos atuais das listas; ``rollback`` volta a eles se o modelo falhar depois."""
+        return (
+            len(self.provenance),
+            len(self.findings),
+            len(self.segmentations),
+            len(self.measurements),
+            len(self.explanations),
+        )
+
+    def rollback(self, mark: tuple[int, ...]) -> None:
+        """Remove tudo o que um modelo publicou depois de ``mark`` (o modelo falhou).
+
+        Achado de modelo cuja execução terminou em ``failed`` nunca fica no resultado.
+        """
+        n_prov, n_find, n_seg, n_meas, n_exp = mark
+        del self.provenance[n_prov:]
+        del self.findings[n_find:]
+        del self.segmentations[n_seg:]
+        del self.measurements[n_meas:]
+        del self.explanations[n_exp:]
 
     def _level(self, manifest: ModelManifest, spec: LabelSpec) -> EvidenceLevel:
         if not self.catalog.has(spec.condition_id):
-            self.warnings.append(
+            self._warn_once(
                 f"{manifest.id}:{spec.key} aponta para condição fora do catálogo "
                 f"{spec.condition_id!r}; tratada como exploratória (nível D)"
             )
             return EvidenceLevel.D
-        return self.catalog.level(spec.condition_id, manifest.id, spec.key)
+        level = self.catalog.level(spec.condition_id, manifest.id, spec.key)
+        if level is not EvidenceLevel.D and manifest.visibility_default == "research":
+            # O manifesto restringe o modelo ao modo pesquisa (licença, termo de uso,
+            # zero-shot): a saída é exploratória neste produto, qualquer que seja a
+            # medição. Vence o mais restritivo; o rebaixamento fica registrado.
+            self._warn_once(
+                f"{manifest.id}:{spec.key}: catálogo dá nível {level.value}, mas o manifesto "
+                "declara visibility_default 'research'; tratado como exploratório (nível D)"
+            )
+            return EvidenceLevel.D
+        return level
 
-    def _points(self, manifest: ModelManifest, label: str) -> list[OperatingPoint]:
-        return self.policy.operating_points(manifest.id, label) or manifest.points_for(label)
+    def _points(
+        self, manifest: ModelManifest, label: str, level: EvidenceLevel
+    ) -> list[OperatingPoint]:
+        """Pontos da política; os do manifesto só quando o nível não depende de outros pontos.
+
+        Níveis A e C são medições DESTE projeto sob o protocolo, em pontos de
+        operação ajustados na metade de calibração e guardados no registro de
+        evidência — não nos pontos do manifesto. Decidir com os pontos do
+        manifesto e exibir o nível medido em outros pontos atribuiria à decisão
+        uma sensibilidade que nunca foi medida nela. Sem pontos da política, o
+        achado A/C fica ``score_only``.
+        """
+        fitted = self.policy.operating_points(manifest.id, label)
+        if fitted:
+            return fitted
+        if level in (EvidenceLevel.A, EvidenceLevel.C):
+            if manifest.points_for(label):
+                self._warn_once(
+                    f"{manifest.id}:{label}: nível {level.value} foi medido em pontos de operação "
+                    "do protocolo que a política não fornece; os pontos do manifesto não foram "
+                    "avaliados — somente escore, sem decisão"
+                )
+            return []
+        return manifest.points_for(label)
 
     def add(
         self,
@@ -296,8 +356,8 @@ class _Collector:
             if calibrated is not None:
                 probability, calibration_id = calibrated
                 scores["calibrated"] = probability
-        decision, used = decide(scores, self._points(manifest, spec.key))
         level = self._level(manifest, spec)
+        decision, used = decide(scores, self._points(manifest, spec.key, level))
         return Finding(
             condition_id=spec.condition_id,
             label=spec.key,
@@ -349,25 +409,42 @@ class _Collector:
             if finding is None:
                 self.warnings.append(f"{manifest.id}: explicação para rótulo não pedido descartada")
                 continue
-            if item.heatmap.ndim != 2 or not np.isfinite(item.heatmap).all():
+            # Validação e gravação de cada mapa ficam isoladas: um mapa inválido
+            # (ex.: placement que não é bbox) ou erro de disco vira aviso e o
+            # achado segue sem mapa — nunca derruba o modelo depois de publicado.
+            try:
+                if item.heatmap.ndim != 2 or not np.isfinite(item.heatmap).all():
+                    self.warnings.append(
+                        f"{manifest.id}: explicação de {item.label!r} inválida "
+                        "(não 2D ou não finita)"
+                    )
+                    continue
+                if not 0 <= item.image_idx < len(index_map):
+                    self.warnings.append(f"{manifest.id}: explicação com image_idx inválido")
+                    continue
+                if item.placement.type != "bbox":
+                    self.warnings.append(
+                        f"{manifest.id}: explicação de {item.label!r} com placement "
+                        f"{item.placement.type!r} (exige bbox) descartada"
+                    )
+                    continue
+                heat = np.clip(item.heatmap.astype(np.float32), 0.0, 1.0)
+                ref = self.store.put_png_gray((heat * 255.0).round().astype(np.uint8))
+                explanation = Explanation(
+                    id=f"{manifest.id}:{item.label}:{item.method}:{index_map[item.image_idx]}",
+                    method=item.method,
+                    target_label=item.label,
+                    map=ref,
+                    placement=item.placement,
+                    image_idx=index_map[item.image_idx],
+                    provenance_idx=finding.provenance_idx,
+                )
+            except Exception as exc:  # noqa: BLE001 - registrado; achado segue sem mapa
                 self.warnings.append(
-                    f"{manifest.id}: explicação de {item.label!r} inválida (não 2D ou não finita)"
+                    f"{manifest.id}: explicação de {item.label!r} descartada "
+                    f"({type(exc).__name__}: {exc})"
                 )
                 continue
-            if not 0 <= item.image_idx < len(index_map):
-                self.warnings.append(f"{manifest.id}: explicação com image_idx inválido")
-                continue
-            heat = np.clip(item.heatmap.astype(np.float32), 0.0, 1.0)
-            ref = self.store.put_png_gray((heat * 255.0).round().astype(np.uint8))
-            explanation = Explanation(
-                id=f"{manifest.id}:{item.label}:{item.method}:{index_map[item.image_idx]}",
-                method=item.method,
-                target_label=item.label,
-                map=ref,
-                placement=item.placement,
-                image_idx=index_map[item.image_idx],
-                provenance_idx=finding.provenance_idx,
-            )
             self.explanations.append(explanation)
             new_ids.setdefault(item.label, []).append(explanation.id)
         if not new_ids:
@@ -458,6 +535,7 @@ def analyze(
         started = time.monotonic()
         chosen: tuple[ModelInputs, list[int]] | None = None
         last_qa: QAReport | None = None
+        mark = collector.checkpoint()
         try:
             for inputs, index_map in candidate_inputs(manifest, exam, outputs):
                 last_qa = adapter.applicability(inputs)
@@ -482,6 +560,7 @@ def analyze(
             )
         except Exception as exc:  # noqa: BLE001 - falha registrada, nunca substituída
             log.exception("modelo %s falhou", model_id)
+            collector.rollback(mark)
             runs.append(
                 ModelRun(
                     model_id=model_id,

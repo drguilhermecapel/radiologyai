@@ -86,17 +86,63 @@ def execute(platform: Platform, analysis_id: str) -> AnalysisResult:
     )
 
 
-def persist_result(platform: Platform, analysis_id: str, result: AnalysisResult) -> str:
-    """Grava resultado, achados desnormalizados e índice de artefatos; audita. Devolve o sha."""
+def persist_result(
+    platform: Platform,
+    analysis_id: str,
+    result: AnalysisResult,
+    *,
+    worker_id: str | None = None,
+) -> str:
+    """Grava resultado, achados desnormalizados e índice de artefatos; audita. Devolve o sha.
+
+    A transição para ``completed`` é um ``UPDATE`` condicional: só vale se a
+    análise AINDA está ``running``, sem resultado e (com ``worker_id``) com este
+    worker. Análise já marcada ``failed`` (ex.: recuperada como interrompida)
+    nunca volta a ``completed``: o resultado é descartado e registrado em log.
+    Resultado, achados e o evento ``analysis.completed`` gravam na mesma transação.
+
+    Raises:
+        AnalysisJobError: análise inexistente, já com resultado, fora de
+            ``running`` ou reivindicada por outro worker.
+    """
+    from sqlalchemy import update
+
     from radiologyai.persistence.audit import append_event
     from radiologyai.persistence.models import Analysis, FindingRow, utcnow
 
     payload = result.model_dump_json()
     digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
     with platform.db.session() as session:
+        conditions = [
+            Analysis.id == analysis_id,
+            Analysis.state == "running",
+            Analysis.result_json.is_(None),
+        ]
+        if worker_id is not None:
+            conditions.append(Analysis.worker_id == worker_id)
+        won = session.execute(
+            update(Analysis)
+            .where(*conditions)
+            .values(
+                result_json=payload,
+                result_sha256=digest,
+                result_status=result.status,
+                state="completed",
+                finished_at=utcnow(),
+            )
+            .execution_options(synchronize_session=False)
+        )
+        if won.rowcount != 1:  # type: ignore[attr-defined]
+            log.error(
+                "resultado da análise %s descartado: não está mais 'running' deste worker",
+                analysis_id,
+            )
+            raise AnalysisJobError(
+                f"análise {analysis_id} inexistente, já com resultado, fora de 'running' ou "
+                "reivindicada por outro worker; resultado descartado"
+            )
         row = session.get(Analysis, analysis_id)
-        if row is None or row.result_json is not None:
-            raise AnalysisJobError(f"análise {analysis_id} inexistente ou já com resultado")
+        assert row is not None
         for idx, f in enumerate(result.findings):
             prov = result.provenance[f.provenance_idx]
             session.add(
@@ -122,35 +168,31 @@ def persist_result(platform: Platform, analysis_id: str, result: AnalysisResult)
             platform.blobs.register(session, seg.mask, kind="labelmap")
         for exp in result.explanations:
             platform.blobs.register(session, exp.map, kind="explanation")
-        row.result_json = payload
-        row.result_sha256 = digest
-        row.result_status = result.status
-        row.state = "completed"
-        row.finished_at = utcnow()
         requested_by = row.requested_by
-    append_event(
-        platform.db,
-        "analysis.completed",
-        actor_username="worker",
-        subject_type="analysis",
-        subject_id=analysis_id,
-        payload={
-            "requested_by": requested_by,
-            "result_sha256": digest,
-            "status": result.status,
-            "input_sha256": list(result.input_sha256),
-            "models": [
-                {
-                    "model_id": p.model_id,
-                    "model_version": p.model_version,
-                    "weights_sha256": p.weights_sha256,
-                    "manifest_sha256": p.manifest_sha256,
-                    "code_version": p.code_version,
-                }
-                for p in result.provenance
-            ],
-            "runs": {r.model_id: r.status for r in result.runs},
-            "n_findings": len(result.findings),
-        },
-    )
+        append_event(
+            None,
+            "analysis.completed",
+            session=session,
+            actor_username="worker",
+            subject_type="analysis",
+            subject_id=analysis_id,
+            payload={
+                "requested_by": requested_by,
+                "result_sha256": digest,
+                "status": result.status,
+                "input_sha256": list(result.input_sha256),
+                "models": [
+                    {
+                        "model_id": p.model_id,
+                        "model_version": p.model_version,
+                        "weights_sha256": p.weights_sha256,
+                        "manifest_sha256": p.manifest_sha256,
+                        "code_version": p.code_version,
+                    }
+                    for p in result.provenance
+                ],
+                "runs": {r.model_id: r.status for r in result.runs},
+                "n_findings": len(result.findings),
+            },
+        )
     return digest

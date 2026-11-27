@@ -114,7 +114,7 @@ function ProvenanceBlock({ p }: { p: Provenance | undefined }): ReactNode {
     <details className="provenance">
       <summary>
         {t("findings.provenance")}: {t("findings.model", { id: p.model_id, version: p.model_version })}
-        {p.commercial_use === "no" ? (
+        {p.commercial_use !== "yes" ? (
           <>
             {" "}
             <Pill tone="warn">{t("findings.noncommercial")}</Pill>

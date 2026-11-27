@@ -57,11 +57,11 @@ está no histórico git deste arquivo.
 | Entregas da Fase 1–2 da v1.0 (marcadas como concluídas em `main`, conferidas na árvore) | `calibration/temperature.py`, `calibration/platt.py` e `calibration/reliability.py` (ECE e diagrama de confiabilidade) — calibração sobre dado real ainda não commitada como artefato; `calibration/abstention.py` (três bandas); `explain/gradcam.py` com teste de gradiente nulo; `api/` FastAPI; `persistence/audit.py`; SRS, `scripts/trace.py` e portão no CI; backend ONNX (`models/backends/onnx.py`, sha256 verificado, em `build_backend`) e trava de regressão (`evaluation/regression.py`, `tests/evaluation/test_baseline_regression.py`, CLI `radiologyai check-regression`) — **ambos sem execução sobre dado real do CheXpert/NIH**; `Dockerfile` (`python:3.11-slim`, `--workers 1`, não-root, *healthcheck*) e `.dockerignore`; workflow manual de avaliação reprodutível `.github/workflows/eval.yml` |
 | Lateralidade | REQ-043 (RISK-006): `Laterality`/`ImageLaterality` propagadas em `StudyMetadata`, conflito ou código inválido rejeitado no RX, pré-processamento sem inversão esquerda-direita |
 | Requisitos rastreados | `REQ-NNN.md` em [`docs/regulatory/06-requirements/`](docs/regulatory/06-requirements/), cada um com teste verificador; contagem na [matriz gerada](docs/regulatory/13-traceability.md); portão `scripts/trace.py --check` no CI |
-| Medições de desempenho | **duas** execuções do mesmo modelo de terceiros no NIH ChestX-ray14; AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`. Os relatos de Colab de 2026-11-25 em [`docs/evaluation/`](docs/evaluation/phase1-nih1000-baseline.md) **não têm artefato commitado** e não contam como medição (ver [`HONEST_STATUS.md`](HONEST_STATUS.md)) |
+| Medições de desempenho | linha de base de terceiros no NIH ChestX-ray14, AUROC macro 0,664 — `artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json` (fora do cálculo de nível); 15 registros sob o protocolo em `evidence/measured/` (ledger em `evidence/measured/ledger.yaml`): nenhum externo limpo aprovado, fratura reprovada no GRAZPEDWRI-DX, lista completa em [`HONEST_STATUS.md`](HONEST_STATUS.md). Os relatos de Colab de 2026-11-25 em [`docs/evaluation/`](docs/evaluation/phase1-nih1000-baseline.md) **não têm artefato commitado** e não contam como medição (ver [`HONEST_STATUS.md`](HONEST_STATUS.md)) |
 | Camada de análise `src/radiologyai/analysis/` | manifestos por modelo (`available` com pesos sha256, ou `planned` com motivo), adaptadores para RX, TC, RM, mamografia, US e eco, biomarcadores de TC com pré-condições, sondas lineares; verificação em andamento |
-| Fábrica de evidência `src/radiologyai/evidence/` | predições → medição sob o protocolo → registro com proveniência → `levels.json`; nenhum registro medido commitado ainda |
+| Fábrica de evidência `src/radiologyai/evidence/` | predições → medição sob o protocolo → registro com proveniência → `levels.json`; níveis re-julgados no build contra `protocol.yaml` e o plano; registros desta árvore com `git_dirty`, re-medição a partir de commit pendente |
 | Plataforma | API, persistência, fila, laudo preliminar (PDF, DICOM SR, FHIR), DICOMweb e frontend no código; verificação em andamento |
-| Catálogo de condições | esquema, regra de nível e protocolo pré-registrado commitados (`src/radiologyai/catalog/`); `conditions.yaml` ainda **vazio**; propostas e evidência publicada conferida em `evidence/published/` |
+| Catálogo de condições | esquema, regra de nível e protocolo pré-registrado commitados (`src/radiologyai/catalog/`); 63 condições em `conditions.yaml`; nenhuma em A ou B (KPI em §2.3); evidência publicada em `evidence/published/` |
 | Validação clínica | **nenhuma** |
 | Governança do repositório | `main` é o ramo padrão e está protegida; restam 6 ramos remotos (conferido pela API do GitHub em 2026-11-27); PRs obsoletos fechados e ramos mortos podados conforme registrado em `main` |
 | Pendência de governança | `medai_security.db` continua no **histórico** git (presente em `3f5ae26`, `c80c22e`, `0b89c95`); expurgo com `git filter-repo` pendente |
@@ -79,10 +79,10 @@ um arquivo gerado (REQ-090).
 
 | Nível | Significado | Onde aparece |
 |---|---|---|
-| **A** | Validado externamente **por medição nossa**: dataset rotulado no qual o modelo não foi treinado, sem vazamento, aprovado no protocolo | visão principal e laudo |
-| **B** | Validação publicada revisada por pares, ou limiar de diretriz aplicado a medida validada; citação **conferida na fonte** e aprovada na barra de publicação | visão principal e laudo, com a citação |
-| **C** | Validado internamente por medição nossa (hold-out por paciente), ou medição externa com vazamento possível/conhecido | visão principal, com selo |
-| **D** | Exploratório: zero-shot, ou sem validação por condição | **somente no modo pesquisa**, nunca sozinho no laudo (REQ-091) |
+| **A** | Medido **por este projeto** em dado externo, sem sobreposição conhecida ou plausível com o treino nem com a seleção do modelo, com entrada independente do padrão de referência, aprovado no protocolo | visão principal e laudo |
+| **B** | Desempenho publicado em estudo revisado por pares, ou limiar de diretriz aplicado a medida com desempenho publicado; citação **conferida na fonte** e aprovada na barra de publicação | visão principal e laudo, com a citação |
+| **C** | Medido por este projeto e aprovado no protocolo, mas em hold-out interno por paciente, em dado externo com sobreposição possível/conhecida com o treino ou a seleção, ou com entrada derivada do padrão de referência | visão principal, com selo e ressalvas |
+| **D** | Exploratório: zero-shot, sem medição aprovada, refutado por medição própria, ou limitado (modelo não distribuído, manifesto só de pesquisa) | **somente no modo pesquisa**; nunca no laudo (REQ-091) |
 
 Regras estruturais (pré-registradas em `compute_level`):
 
@@ -112,13 +112,27 @@ reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.
 > Secundários: condições em C; condições em D (amplitude exploratória); condições **refutadas**
 > por medição própria (um número que deve ser publicado, não escondido).
 
-| Modalidade | A | B | C | D | Refutadas |
+<!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
+| Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| Todas | 0 | 0 | 0 | 0 | 0 |
+| `cxr` | 0 | 0 | 0 | 1 | 0 |
+| `echo` | 0 | 0 | 0 | 1 | 0 |
+| `mg` | 0 | 0 | 0 | 2 | 0 |
+| `mr` | 0 | 0 | 0 | 2 | 0 |
+| `msk_xr` | 0 | 0 | 0 | 4 | 0 |
+| `us` | 0 | 0 | 0 | 3 | 0 |
+| **Todas** | 0 | 0 | 0 | 13 | 0 |
+<!-- kpi-levels:fim -->
 
-A tabela acima reflete o `conditions.yaml` vazio desta data. A partir do G1 ela deixa de ser
-escrita à mão: um script lê `levels.json` e a regenera, e o CI falha se o README ou este
-roadmap divergirem dela.
+A tabela é transcrita de `src/radiologyai/catalog/levels.json` contando **só entradas
+`distributed: true`** (modelo com manifesto que cobre os pesos medidos); o CI
+(`tests/unit/test_status_docs_levels.py`) falha se este roadmap, o README ou o HONEST_STATUS
+divergirem dela. Nesta árvore os registros medidos carregam `git_dirty` e estão fora do cálculo,
+por isso tudo está em D; com a re-medição a partir de um commit, as regras atuais dão C só para
+tuberculose (`xr-probe-tb`, hold-out interno) e fratura refutada (AUROC 0,690 no GRAZPEDWRI-DX —
+`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`). O nível A que o commit
+`23af5ca` atribuiu à TB foi **retratado** (Shenzhen reutilizado na seleção do codificador; sonda
+não distribuída) — ver [`HONEST_STATUS.md`](HONEST_STATUS.md).
 
 ---
 
@@ -144,7 +158,7 @@ Engenharia acontece em paralelo, em todos eles.
 | Portão | Pergunta que responde | Critério de saída (verificável) | Estado |
 |---|---|---|---|
 | **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; `main` protegida; expurgo de `medai_security.db` do histórico pendente |
-| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — esquema e protocolo prontos; medições sendo produzidas |
+| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — 15 registros medidos, nenhum externo limpo aprovado; A retratado; re-medição de checkout limpo pendente; NIH, CMMD e CQ500 com inferência incompleta |
 | **G2 — Modelo próprio + validação externa retrospectiva brasileira** | Funciona em dado brasileiro de vários centros, que nunca vimos? | Protocolo por condição aprovado em CEP (Lei 14.874/2024; dispensa de TCLE pela Res. CNS 466/2012 item IV.8 quando justificável); dados de ≥ 2 centros brasileiros des-identificados pelo controlador; relatório STARD-AI/CLAIM; conjunto de teste sequestrado | não iniciado — depende de parceria institucional |
 | **G3 — Estudo de leitores MRMC** | O médico assistido erra menos? | Estudo multi-leitor multi-caso com padrão de referência e desenho pré-especificado (Obuchowski & Bullen 2022, DOI 10.1148/radiol.211593) | não iniciado |
 | **G4 — Piloto prospectivo silencioso** | Funciona no fluxo real, sem influenciar o cuidado? | Execução em paralelo ao fluxo, saídas **ocultas** do médico assistente, comparação posterior; relato DECIDE-AI (DOI 10.1038/s41591-022-01772-9); protocolo CEP | não iniciado |
@@ -178,11 +192,11 @@ sem protocolo).
 
 | Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
 |---|---|---|---|---|
-| Classificador multirrótulo | TorchXRayVision DenseNet121 (código Apache-2.0), conjuntos de pesos `pc`, `chex`, `mimic_nb`, `mimic_ch`, `nih`, `rsna`, `all`, e ResNet50 `res512-all` | até 18 saídas por conjunto; cabeças não treinadas nunca reportadas (REQ-021) | **A** por avaliação externa com pares sem vazamento (§9.4); B só com validação revisada por pares do mesmo conjunto de pesos (a tabela `BENCHMARKS.md` do repositório não é revisada por pares e não conta) | pesos `pc` medidos no NIH (`artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`); demais com adaptador disponível, sem medição sob o protocolo |
+| Classificador multirrótulo | TorchXRayVision DenseNet121 (código Apache-2.0), conjuntos de pesos `pc`, `chex`, `mimic_nb`, `mimic_ch`, `nih`, `rsna`, `all`, e ResNet50 `res512-all` | até 18 saídas por conjunto; cabeças não treinadas nunca reportadas (REQ-021) | **A** por avaliação externa com pares sem vazamento (§9.4); B só com validação revisada por pares do mesmo conjunto de pesos (a tabela `BENCHMARKS.md` do repositório não é revisada por pares e não conta) | pesos `pc` medidos no NIH (`artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`); `pc`, `chex`, `mimic_nb`, `mimic_ch`, `all` e `nih` com medição pendente no teste oficial do NIH (7 de 10 fragmentos; `evidence/measured/ledger.yaml`) |
 | Gate de distribuição (OOD) | autoencoder ResNetAE do TorchXRayVision + classificador de incidência xinario | rejeita entrada que não é RX de tórax frontal antes do modelo (H-03; REQ-122) | requisito de segurança, verificado por teste — não é condição do catálogo | adaptador disponível |
 | Índice cardiotorácico | segmentador PSPNet ChestX-Det (via TorchXRayVision) | razão coração/tórax a partir de máscaras | **D** até medirmos Dice e erro do ICT contra máscaras manuais; limiar 0,5 só em PA ortostático por metadado DICOM, senão "não interpretável contra 0,5" (REQ-124) | adaptador disponível |
-| Tuberculose | sonda linear sobre *embeddings* do RAD-DINO congelado (cartão: só pesquisa ⇒ `commercial_use: no`); treino em Shenzhen, teste em Montgomery (NLM, termos próprios) | escore de TB | validação cruzada dentro do mesmo conjunto é **C**, nunca externa; treino num conjunto e teste no outro pode chegar a A se passar no protocolo | sonda ajustada (manifesto `xr-probe-tb`); avaliação sob o protocolo pendente |
-| Fratura e achados de punho pediátrico (RX musculoesquelético) | sondas lineares sobre RAD-DINO; FracAtlas e GRAZPEDWRI-DX (CC BY 4.0) | escores de fratura, gesso, metal, osteopenia | mesmo raciocínio: externo só entre conjuntos | sondas ajustadas (`xr-probe-fracture`, `xr-probe-grazpedwri-*`); avaliação sob o protocolo pendente |
+| Tuberculose | sonda linear sobre *embeddings* do RAD-DINO congelado (cartão: só pesquisa ⇒ `commercial_use: no`); treino em Shenzhen, teste em Montgomery (NLM, termos próprios) | escore de TB | validação cruzada dentro do mesmo conjunto é **C**, nunca externa; treino num conjunto e teste no outro pode chegar a A se passar no protocolo | sonda ajustada (manifesto `xr-probe-tb`); hold-out interno Shenzhen aprovado (máximo C: Shenzhen também escolheu o codificador) — `evidence/measured/tb-shenzhen/xr-probe-tb/tuberculosis.json`; Montgomery não elegível (29 positivos) — `evidence/measured/tb-montgomery/xr-probe-tb/tuberculosis.json` |
+| Fratura e achados de punho pediátrico (RX musculoesquelético) | sondas lineares sobre RAD-DINO; FracAtlas e GRAZPEDWRI-DX (CC BY 4.0) | escores de fratura, gesso, metal, osteopenia | mesmo raciocínio: externo só entre conjuntos | fratura **refutada**: reprovada no GRAZPEDWRI-DX — `evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`; gesso, metal e osteopenia não elegíveis no hold-out (poucos positivos) — `evidence/measured/grazpedwri-dx-sample-test30/` |
 
 ### 5.2 Tomografia computadorizada (TC)
 
@@ -190,7 +204,7 @@ sem protocolo).
 |---|---|---|---|---|
 | Anatomia | TotalSegmentator `total` (Apache-2.0); "not a medical device" na própria documentação | 117 classes anatômicas | base para biomarcadores | viabilidade demonstrada em CPU |
 | Derrame pleural/pericárdico | TotalSegmentator `pleural_pericard_effusion` (Apache-2.0) | volume segmentado (REQ-131, REQ-132) | **B** possível: Sexauer et al. 2022 (DOI 10.1097/RLI.0000000000000869), validação externa no NLST; pericárdio: Wilder-Smith et al. 2022 (DOI 10.3390/diagnostics12051045), interna; classificador simples-vs-complexo **não** exposto | adaptador disponível |
-| Hemorragia intracerebral | TotalSegmentator `cerebral_bleed` (Apache-2.0) | volume segmentado | **D** — nenhuma acurácia de segmentação publicada para este modelo; caminho para A: medição externa no CQ500 (CC BY-NC-SA 4.0) | adaptador disponível; executado em casos do CQ500 |
+| Hemorragia intracerebral | TotalSegmentator `cerebral_bleed` (Apache-2.0) | volume segmentado | **D** — nenhuma acurácia de segmentação publicada para este modelo; caminho para A: medição externa no CQ500 (CC BY-NC-SA 4.0) | adaptador disponível; medição no CQ500 pendente (5 de 80 exames; `evidence/measured/ledger.yaml`) |
 | Lesões hepáticas | TotalSegmentator `liver_lesions` (Apache-2.0) | lesões segmentadas | publicado com teste interno e externo (Nicoli et al., DOI 10.1007/s10278-025-01716-y), mas **não** é ferramenta de exclusão; nível a decidir pelo protocolo | adaptador disponível |
 | Nódulo pulmonar | TotalSegmentator `lung_nodules` | nódulos segmentados | **D** — sem artigo; treinado em parte no LIDC-IDRI, logo **não há conjunto de teste limpo** disponível | adaptador disponível; sem caminho de nível no momento |
 | Cistos renais | TotalSegmentator `kidney_cysts` | cistos segmentados | **D** — sem artigo | adaptador disponível |
@@ -212,7 +226,7 @@ sem protocolo).
 
 | Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
 |---|---|---|---|---|
-| Escore de câncer | `ianpan/mammoscreen` + recorte `ianpan/mammo-crop` (código e pesos Apache-2.0; `commercial_use: unclear` porque os termos dos dados de treino não foram lidos); código vendorizado sem execução remota (REQ-142); exige VOI LUT completa (REQ-140) | escore por mama (CC + MLO) | **D**: o cartão do modelo relata só hold-out interno, sem IC; CBIS-DDSM foi usado no pré-treino e **não** é externo; CMMD (CC BY 4.0) é externo, mas só tem doença biopsiada (benigno vs maligno), não rastreamento | adaptador disponível; executado em amostra do CMMD |
+| Escore de câncer | `ianpan/mammoscreen` + recorte `ianpan/mammo-crop` (código e pesos Apache-2.0; `commercial_use: unclear` porque os termos dos dados de treino não foram lidos); código vendorizado sem execução remota (REQ-142); exige VOI LUT completa (REQ-140) | escore por mama (CC + MLO) | **D**: o cartão do modelo relata só hold-out interno, sem IC; CBIS-DDSM foi usado no pré-treino e **não** é externo; CMMD (CC BY 4.0) é externo, mas só tem doença biopsiada (benigno vs maligno), não rastreamento | adaptador disponível; medição no CMMD pendente (80 de 300 mamas; `evidence/measured/ledger.yaml`) |
 | Densidade mamária | cabeça de densidade do mammoscreen; bundle MONAI `breast_density_classification` (Apache-2.0, "not to be used for diagnostic purposes") | categoria A–D | **D** — nenhuma métrica publicada com proveniência | adaptadores disponíveis |
 | Risco em 5 anos | Mirai (MIT; "not intended ... for any other clinical use") | risco futuro, **não** detecção | nenhum dado disponível tem seguimento para medir | **planejado**: *snapshots* em pickle legado do pacote `onconet`, sem dado para verificar |
 
@@ -220,15 +234,15 @@ sem protocolo).
 
 | Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
 |---|---|---|---|---|
-| Lesão mamária benigno/maligno | sonda linear sobre BiomedCLIP congelado (herda a restrição "só pesquisa" do cartão ⇒ `commercial_use: no`) | escore de malignidade | BUS-BRA (INCA, Rio de Janeiro; biópsia; CC BY 4.0) e BrEaST (CC BY 4.0) permitem treino num e teste noutro; BUSI tem imagens duplicadas (carta de Pawłowska et al. 2023, DOI 10.1016/j.dib.2023.109247) e **nunca** é conjunto externo | sonda ajustada (`us-probe-breast-malignancy`) no espelho de BUSI — licença do espelho não conferida na fonte original (pendência em [`MODEL_LICENSES.md`](MODEL_LICENSES.md)); reajuste em BUS-BRA/BrEaST recomendado |
+| Lesão mamária benigno/maligno | sonda linear sobre BiomedCLIP congelado (herda a restrição "só pesquisa" do cartão ⇒ `commercial_use: no`) | escore de malignidade | BUS-BRA (INCA, Rio de Janeiro; biópsia; CC BY 4.0) e BrEaST (CC BY 4.0) permitem treino num e teste noutro; BUSI tem imagens duplicadas (carta de Pawłowska et al. 2023, DOI 10.1016/j.dib.2023.109247) e **nunca** é conjunto externo | sonda ajustada (`us-probe-breast-malignancy`) no espelho de BUSI — licença do espelho não conferida na fonte original (pendência em [`MODEL_LICENSES.md`](MODEL_LICENSES.md)); reajuste em BUS-BRA/BrEaST recomendado; aprovada em BUSI (interno) e BUS-BRA (externo, sobreposição possível, caixa derivada da máscara de referência), reprovada no BrEaST — registros em `evidence/measured/bus-bra/`, `evidence/measured/busi/`, `evidence/measured/breast-lesions-usg/`; mantida em D (manifesto só de pesquisa) |
 | Segmentação interativa | MedSAM ViT-B (Apache-2.0) | máscara a partir de caixa **desenhada pelo usuário** | ferramenta de medição assistida; nível só para medidas derivadas, com Dice contra máscara de especialista; mm só com espaçamento físico (REQ-147) | adaptador disponível |
-| Esteatose hepática; lesão hepática benigno/maligno | sondas sobre BiomedCLIP; conjunto Byra (55 pacientes, biópsia; CC BY 4.0) e Zenodo 7272660 (CC BY 4.0) | escores | C/D: um centro cada; Byra é coorte bariátrica com n efetivo 55 | sondas ajustadas (`us-probe-liver-steatosis`, `us-probe-liver-lesion-malignancy`); avaliação sob o protocolo pendente |
+| Esteatose hepática; lesão hepática benigno/maligno | sondas sobre BiomedCLIP; conjunto Byra (55 pacientes, biópsia; CC BY 4.0) e Zenodo 7272660 (CC BY 4.0) | escores | C/D: um centro cada; Byra é coorte bariátrica com n efetivo 55 | esteatose não elegível (Byra: 19 positivos e 9 negativos no teste) — `evidence/measured/byra-fatty-liver/us-probe-liver-steatosis/liver_steatosis.json`; lesão hepática reprovada (limite inferior do IC) — `evidence/measured/liver-lesion-us-7272660/us-probe-liver-lesion-malignancy/liver_lesion_malignant.json`; manifestos só de pesquisa |
 
 ### 5.6 Ecocardiografia
 
 | Componente | Modelo / licença | O que calcula | Caminho de nível | Estado |
 |---|---|---|---|---|
-| Traçado assistido do VE + FE por Simpson biplanar | MedSAM2 `MedSAM2_US_Heart.pt` (código Apache-2.0; pesos com licença contraditória — metadado `cc-by-sa-4.0`, texto "research and education purposes" ⇒ tratado como **não comercial**) | contorno do VE em A2C/A4C, volumes e FE | **modo pesquisa**; o médico confirma ou corrige cada contorno; concordância com FE de referência julgada pela barra de ICC do protocolo; CAMUS (CC BY-NC-SA 4.0) como referência; caixas do usuário em ED e ES, sem propagação silenciosa (REQ-145, REQ-146) | adaptador disponível; executado em amostra CAMUS |
+| Traçado assistido do VE + FE por Simpson biplanar | MedSAM2 `MedSAM2_US_Heart.pt` (código Apache-2.0; pesos com licença contraditória — metadado `cc-by-sa-4.0`, texto "research and education purposes" ⇒ tratado como **não comercial**) | contorno do VE em A2C/A4C, volumes e FE | **modo pesquisa**; o médico confirma ou corrige cada contorno; concordância com FE de referência julgada pela barra de ICC do protocolo; CAMUS (CC BY-NC-SA 4.0) como referência; caixas do usuário em ED e ES, sem propagação silenciosa (REQ-145, REQ-146) | adaptador disponível; com a caixa derivada da máscara de referência aprova a barra de ICC no CAMUS (`evidence/measured/camus/medsam2-echo-lv/lv_ef.json`), sem caixa reprova (`evidence/measured/camus/medsam2-echo-lv/lv_ef.prompt_free.json`); mantido em D (manifesto só de pesquisa; a caixa do teste não é a do usuário) |
 | EchoPrime | licença acadêmica Cedars-Sinai: só pesquisador acadêmico, **proibida** transferência, uso comercial exige licença | — | é recuperação (kNN sobre 1,23 milhão de laudos de pacientes), não regressão; rodá-lo exige redistribuir esse corpus; FE ruim na amostra CAMUS do *spike* | **excluído** |
 | PanEcho | nenhuma licença publicada nos caminhos verificados | — | sem licença vale o direito autoral padrão | **excluído** até publicarem licença |
 
