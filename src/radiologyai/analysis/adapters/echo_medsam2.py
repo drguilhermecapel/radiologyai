@@ -177,6 +177,26 @@ def _geometry_primitives(geom: DiscGeometry, frame: int, tag: str) -> list[Primi
     return prims
 
 
+# Trava de plausibilidade (não é limiar diagnóstico): volumes de VE adulto fora desta
+# faixa indicam contorno errado ou espaçamento físico errado, nunca um achado. Os limites
+# são deliberadamente largos (bem além dos extremos fisiológicos relatados), para só
+# barrar o que é fisicamente impossível; abaixo deles o adaptador se abstém.
+EDV_PLAUSIBLE_ML = (20.0, 600.0)
+
+
+def _implausible_volumes(edv_ml: float, esv_ml: float) -> str | None:
+    """Motivo legível se VDF/VSF são fisicamente implausíveis; ``None`` se plausíveis."""
+    lo, hi = EDV_PLAUSIBLE_ML
+    if not (lo <= edv_ml <= hi):
+        return (
+            f"VDF {edv_ml:.1f} mL fora da faixa de plausibilidade [{lo:.0f}, {hi:.0f}] mL: "
+            "contorno ou espaçamento inconsistente; revise as caixas/contornos"
+        )
+    if esv_ml > hi:
+        return f"VSF {esv_ml:.1f} mL acima de {hi:.0f} mL: contorno inconsistente"
+    return None
+
+
 def lv_measurements(
     traced: dict[tuple[str, str], tuple[npt.NDArray[np.bool_], tuple[float, float] | None, int]],
     *,
@@ -300,7 +320,11 @@ def lv_measurements(
     ef: float | None = None
     ef_note = note
     if "ed" in volumes and "es" in volumes:
-        if volumes["es"] >= volumes["ed"]:
+        implausible = _implausible_volumes(volumes["ed"], volumes["es"])
+        if implausible is not None:
+            reason = AbstentionReason.QUALITY
+            ef_note = implausible
+        elif volumes["es"] >= volumes["ed"]:
             # Fisicamente incoerente (FE <= 0): contorno errado em algum quadro.
             reason = AbstentionReason.QUALITY
             ef_note = (

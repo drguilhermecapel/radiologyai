@@ -38,6 +38,17 @@ license:
   commercial_use: 'no'
   evidence: cartão de wanglab/MedSAM2 no Hugging Face (revisão e4a6f35edd7e091619cbc0750f462f1574e23955)
     e LICENSE de bowang-lab/MedSAM2 (Apache License Version 2.0)
+labels:
+- key: lv_ef
+  source_label: lv_ef
+  condition_id: echo.reduced_lvef
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: echo.reduced_lvef
+    meaning: left ventricular ejection fraction (Simpson, assisted tracing)
+  measurement: lv_ef
 applicability:
   exam_types:
   - echo
@@ -65,7 +76,8 @@ limitations:
 - Segmentação quadro a quadro no modo imagem; a propagação temporal do SAM 2 não é usada (subestimou a
   FE na avaliação preliminar por superestimar a cavidade em ES).
 - Sem espaçamento físico (DICOM SequenceOfUltrasoundRegions ou NIfTI) volumes e FE se abstêm.
-- Nenhum limiar de FE com origem verificada foi registrado; a FE não vira achado de disfunção.
+- "Nenhum limiar de FE com origem verificada foi registrado. A FE é ligada a echo.reduced_lvef só como
+  medida (sem ponto de operação) e por isso nunca vira achado positivo ou negativo de disfunção."
 - CAMUS pode ter sido usado no treino do MedSAM2 (não declarado); a medição no CAMUS pode ser otimista.
 - Pesos com licença contraditória; só pesquisa e ensino.
 references:

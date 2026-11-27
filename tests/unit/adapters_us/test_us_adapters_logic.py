@@ -170,7 +170,12 @@ def test_us_echo_manifests_load_and_declare_licences() -> None:
     assert m.inputs.prompts == "required"
     assert m.effective_route == "interactive"
     assert m.visibility_default == "research"
-    assert not m.labels  # nenhuma FE vira achado sem limiar com origem verificada
+    # A FE liga-se a echo.reduced_lvef só como medida: sem limiar com origem verificada,
+    # nenhum ponto de operação, logo nunca vira achado positivo ou negativo.
+    assert [(lab.key, lab.condition_id, lab.score_kind) for lab in m.labels] == [
+        ("lv_ef", "echo.reduced_lvef", "measurement")
+    ]
+    assert not m.operating_points
     s, _ = load_manifest(MANIFESTS / "medsam-vit-base.yaml")
     assert s.inputs.prompts == "required"
     for planned in ("panecho", "echoprime"):

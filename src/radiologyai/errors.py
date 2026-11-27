@@ -146,3 +146,10 @@ class EvidenceError(RadiologyAIError):
     O nível de evidência é calculado, nunca digitado. Quando os registros não
     permitem um cálculo bem definido, o sistema para em vez de escolher um nível.
     """
+
+
+class RegressionGateError(RadiologyAIError, ValueError):
+    """Entrada inválida para o portão de regressão de métricas (arquivo ou parâmetro).
+
+    Herda de ``ValueError`` para manter compatíveis os chamadores que já a capturam.
+    """

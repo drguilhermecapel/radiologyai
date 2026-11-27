@@ -179,3 +179,19 @@ def test_ef_abstains_when_esv_not_smaller_than_edv() -> None:
     assert meas["lv_ef"].value is None
     assert meas["lv_ef"].abstention is AbstentionReason.QUALITY
     assert "inconsistentes" in (meas["lv_ef"].note or "")
+
+
+def test_lv_measurements_abstain_on_implausible_volume() -> None:
+    """VDF de ~1,5 mL (fisicamente impossível num VE adulto) => abstenção, nunca FE."""
+    sp, spacing = (0.3, 0.3), (0.3, 0.3)
+    traced = {
+        (view, inst): (half_ellipse(20, 6 * f, sp), spacing, frame)
+        for view in ("a4c", "a2c")
+        for inst, f, frame in (("ed", 1.0, 0), ("es", 0.7, 5))
+    }
+    meas = {m.key: m for m in lv_measurements(traced)}
+    assert meas["lv_edv"].value is not None
+    assert meas["lv_edv"].value < 20.0
+    assert meas["lv_ef"].value is None
+    assert meas["lv_ef"].abstention is AbstentionReason.QUALITY
+    assert "plausibilidade" in (meas["lv_ef"].note or "")

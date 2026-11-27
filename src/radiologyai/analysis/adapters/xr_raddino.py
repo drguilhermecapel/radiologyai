@@ -120,6 +120,7 @@ def build_raddino(config_bytes: bytes, weights_bytes: bytes) -> torch.nn.Module:
     import tempfile
     from pathlib import Path
 
+    import safetensors
     from transformers import Dinov2Model
 
     with tempfile.TemporaryDirectory(prefix="raddino-") as tmp:
@@ -129,7 +130,7 @@ def build_raddino(config_bytes: bytes, weights_bytes: bytes) -> torch.nn.Module:
             loaded: Any = Dinov2Model.from_pretrained(  # nosec B615 - arquivos locais verificados
                 tmp, local_files_only=True, output_loading_info=True
             )
-        except (OSError, ValueError, RuntimeError) as exc:
+        except (OSError, ValueError, RuntimeError, safetensors.SafetensorError) as exc:
             raise ManifestError(f"pesos RAD-DINO ilegíveis: {exc}") from exc
     model, info = loaded[0], loaded[1]
     if info.get("missing_keys") or info.get("unexpected_keys") or info.get("mismatched_keys"):
