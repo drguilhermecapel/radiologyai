@@ -65,6 +65,27 @@ NIH_TEST_MAP = {
         "hernia",
     )
 }
+OPENI_MAP = {
+    k: k
+    for k in (
+        "atelectasis",
+        "cardiomegaly",
+        "pulmonary_edema",
+        "pleural_effusion",
+        "emphysema",
+        "fibrosis",
+        "fracture",
+        "hernia",
+        "infiltration",
+        "lung_lesion",
+        "mass",
+        "nodule",
+        "lung_opacity",
+        "pleural_thickening",
+        "pneumonia",
+        "pneumothorax",
+    )
+}
 GOOGLE_MAP = {
     "pneumothorax": "pneumothorax",
     "fracture": "fracture",
@@ -85,6 +106,10 @@ DATASETS: dict[str, dict[str, Any]] = {
             "Rótulos do NIH minerados de laudos por NLP; erro de rótulo documentado na literatura.",
             "O split oficial de teste é enriquecido em pacientes com seguimento (várias imagens "
             "por paciente); IC por bootstrap agrupado por paciente.",
+            "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), "
+            "antes de qualquer medição; o mesmo teste oficial do NIH foi medido com pc em "
+            "2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z, cardiomegalia "
+            "0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.",
         ],
     },
     "nih-google-adjudicated": {
@@ -100,6 +125,27 @@ DATASETS: dict[str, dict[str, Any]] = {
             "'Airspace opacity' a lung_opacity (definições próximas, não idênticas).",
             "Subconjunto enriquecido (Majkowska 2020): prevalência de opacidade ~58%; limiares, "
             "VPP e VPN ajustados nesta prevalência não se transferem à prática clínica.",
+            "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), "
+            "antes de qualquer medição; o mesmo teste oficial do NIH foi medido com pc em "
+            "2026-09-12 (artifacts/eval/xrv-densenet121-pc__20260912T215742Z, cardiomegalia "
+            "0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.",
+        ],
+    },
+    "openi-frontal": {
+        "dataset_id": "openi",
+        "map": OPENI_MAP,
+        "reference_standard": "other",
+        "population": (
+            "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) "
+            "com PNG do índice local: 4014 imagens de 2561 pacientes"
+        ),
+        "caveats": [
+            "Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via "
+            "torchxrayvision); não é leitura adjudicada da imagem.",
+            "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes "
+            "de qualquer medição no Open-i; não houve comparação entre modelos no Open-i.",
+            "138 frontais do Open-i entraram na calibração do limiar do portão OOD "
+            "(eval-preds/_gates/summary.json); o portão não é aplicado nesta medição.",
         ],
     },
 }
@@ -129,11 +175,11 @@ def _pairs(mid: str, ds: str) -> list[tuple[str, str, str]]:
     return [(k, m[k], c) for k, c in sorted(labels.items()) if k in m]
 
 
-def convert() -> int:
+def convert(datasets: list[str]) -> int:
     import pandas as pd
 
     for mid in MODELS:
-        for ds in DATASETS:
+        for ds in datasets:
             src = PREDS_ROOT / mid / ds / "predictions.parquet"
             if not src.is_file():
                 print(f"AUSENTE: {src}", file=sys.stderr)
@@ -150,17 +196,20 @@ def convert() -> int:
     return 0
 
 
-def plan() -> int:
+def plan(datasets: list[str], status: str, reason: str | None) -> int:
     jobs = []
     for mid in MODELS:
         man = _manifest(mid)
         fname = man["weights"][0]["filename"]
-        for ds, info in DATASETS.items():
+        for ds in datasets:
+            info = DATASETS[ds]
             for key, _ycol, cond in _pairs(mid, ds):
+                head: dict[str, Any] = {"id": f"{mid}@{ds}#{key}", "status": status}
+                if reason:
+                    head["reason"] = reason
                 jobs.append(
                     {
-                        "id": f"{mid}@{ds}#{key}",
-                        "status": "measure",
+                        **head,
                         "model_id": mid,
                         "dataset_id": info["dataset_id"],
                         "label": key,
@@ -175,12 +224,6 @@ def plan() -> int:
                         "manifest": mid,
                         "caveats": [
                             *info["caveats"],
-                            "Pesos pc escolhidos como modelo de validação externa em c80c22e "
-                            "(2026-09-09), antes de qualquer medição; o mesmo teste oficial do "
-                            "NIH foi medido com pc em 2026-09-12 (artifacts/eval/"
-                            "xrv-densenet121-pc__20260912T215742Z, cardiomegalia 0,796), antes "
-                            "de o protocolo ser escrito; não houve comparação entre modelos "
-                            "no NIH.",
                             "Inferência feita em fragmentos ao longo de vários commits (código de "
                             "inferência e adaptador sem mudança funcional entre eles); o checkout "
                             "limpo vale para o cálculo das métricas.",
@@ -194,8 +237,19 @@ def plan() -> int:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("command", choices=("convert", "plan"))
+    ap.add_argument("--datasets", default=",".join(DATASETS), help="separados por vírgula")
+    ap.add_argument("--status", choices=("measure", "pending"), default="measure")
+    ap.add_argument("--reason", help="obrigatório com --status pending")
     args = ap.parse_args(argv)
-    return convert() if args.command == "convert" else plan()
+    datasets = [d for d in args.datasets.split(",") if d]
+    unknown = sorted(set(datasets) - set(DATASETS))
+    if unknown:
+        ap.error(f"conjuntos desconhecidos: {unknown}")
+    if args.status == "pending" and not args.reason:
+        ap.error("--status pending exige --reason")
+    if args.command == "convert":
+        return convert(datasets)
+    return plan(datasets, args.status, args.reason)
 
 
 if __name__ == "__main__":

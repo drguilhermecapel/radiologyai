@@ -2607,6 +2607,1994 @@ jobs:
       cardiomegalia 0,796), antes de o protocolo ser escrito; não houve comparação entre modelos no NIH.
     - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
       funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  # ------------------------------------------------------------------ RX de tórax: Open-i
+  # Gerados por scripts/xrv_nih_evidence.py plan --datasets openi-frontal (antes do resultado).
+  - id: xrv-densenet121-res224-pc@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#emphysema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#fibrosis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#fracture
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#hernia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#infiltration
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#mass
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#nodule
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#pleural_thickening
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-pc@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-pc
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-pc/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - padchest
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-pc
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#fracture
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#lung_lesion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#lung_opacity
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-chex@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-chex
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-chex/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - chexpert
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-chex
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#fracture
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#lung_lesion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#lung_opacity
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_nb@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_nb
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-mimic_nb/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_nb
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#fracture
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#lung_lesion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#lung_opacity
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-mimic_ch@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-mimic_ch
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - mimic-cxr
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-mimic_ch
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#emphysema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#fibrosis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#fracture
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: fracture
+    condition_id: cxr.fracture
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: fracture
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#hernia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#infiltration
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#lung_lesion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: lung_lesion
+    condition_id: cxr.lung_lesion
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: lung_lesion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#lung_opacity
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: lung_opacity
+    condition_id: cxr.lung_opacity
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: lung_opacity
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#mass
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#nodule
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#pleural_thickening
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-all@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-all
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-all/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    - padchest
+    - chexpert
+    - mimic-cxr
+    - nih-cxr14-google
+    - openi
+    - rsna-pneumonia
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-all
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#atelectasis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: atelectasis
+    condition_id: cxr.atelectasis
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: atelectasis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#cardiomegaly
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: cardiomegaly
+    condition_id: cxr.cardiomegaly
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: cardiomegaly
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#emphysema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: emphysema
+    condition_id: cxr.emphysema
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: emphysema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#fibrosis
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: fibrosis
+    condition_id: cxr.pulmonary_fibrosis
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: fibrosis
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#hernia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: hernia
+    condition_id: cxr.hernia
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: hernia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#infiltration
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: infiltration
+    condition_id: cxr.infiltration
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: infiltration
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#mass
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: mass
+    condition_id: cxr.lung_mass
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: mass
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#nodule
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: nodule
+    condition_id: cxr.lung_nodule
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: nodule
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#pleural_effusion
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: pleural_effusion
+    condition_id: cxr.pleural_effusion
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: pleural_effusion
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#pleural_thickening
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: pleural_thickening
+    condition_id: cxr.pleural_thickening
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: pleural_thickening
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#pneumonia
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: pneumonia
+    condition_id: cxr.pneumonia
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: pneumonia
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#pneumothorax
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: pneumothorax
+    condition_id: cxr.pneumothorax
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: pneumothorax
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
+  - id: xrv-densenet121-res224-nih@openi-frontal#pulmonary_edema
+    status: pending
+    reason: 'medição pendente: inferência do Open-i em andamento; itens fixados antes do resultado'
+    model_id: xrv-densenet121-res224-nih
+    dataset_id: openi
+    label: pulmonary_edema
+    condition_id: cxr.pulmonary_edema
+    predictions: xrv-densenet121-res224-nih/openi-frontal/evidence.parquet
+    label_column: pulmonary_edema
+    score_scale: logit
+    training_data:
+    - nih-cxr14
+    reference_standard: other
+    population: 'Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG
+      do índice local: 4014 imagens de 2561 pacientes'
+    weights:
+      model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+    manifest: xrv-densenet121-res224-nih
+    caveats:
+    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
+      adjudicada da imagem.'
+    - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
+      no Open-i; não houve comparação entre modelos no Open-i.
+    - 138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json);
+      o portão não é aplicado nesta medição.
+    - Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança
+      funcional entre eles); o checkout limpo vale para o cálculo das métricas.
   # ------------------------------------------------------------------ Mamografia
   - id: mammoscreen@cmmd
     status: measure
