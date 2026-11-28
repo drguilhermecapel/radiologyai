@@ -686,7 +686,10 @@ MODEL_RULES: tuple[ModelRule, ...] = (
         "pesos_diferentes",
     ),
     ModelRule(r"task liver_lesions_mr", None, "pesos_nao_disponiveis"),
-    ModelRule(r"task liver_lesions\)$", "totalseg-liver-lesions", caveat=_TS_TASK_CAVEAT),
+    # Nicoli et al. 2025 (DOI 10.1007/s10278-025-01716-y) relata o modelo conjunto MR+CT
+    # (750 estudos); os pesos distribuídos são o Dataset591_ct_liver_lesions_842subj (só CT,
+    # numTraining 842; dataset.json conferido). Modelos diferentes (revisão de 2026-11-28).
+    ModelRule(r"task liver_lesions\)$", None, "pesos_diferentes"),
     ModelRule(r"totalseg_get_phase", None, "modelo_nao_executado"),
     ModelRule(
         r"^MONAI brats_mri_segmentation bundle",

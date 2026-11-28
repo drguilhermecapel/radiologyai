@@ -104,7 +104,8 @@ def parse_laterality(
 
     REQ-194/REQ-141: ``ImageLaterality`` e ``Laterality`` que se contradizem (ex.: ``L`` e
     ``R``) não decidem o lado — devolve ``(None, "conflito")``, nunca uma tag escolhida em
-    silêncio. ``PatientOrientation`` só é usada quando nenhuma das duas tags existe.
+    silêncio. ``PatientOrientation`` só define o lado quando nenhuma das duas tags existe; se
+    existe tag e a orientação indica o lado oposto, também é conflito.
     """
     found: list[tuple[str, str]] = []
     for value, source in ((image_laterality, "ImageLaterality"), (laterality, "Laterality")):
@@ -117,6 +118,9 @@ def parse_laterality(
             return None, "conflito"
         text, source = found[0]
         if text in ("L", "R"):
+            oriented = laterality_from_orientation(patient_orientation)
+            if oriented is not None and oriented != text:
+                return None, "conflito"  # tag e PatientOrientation se contradizem
             return ("L" if text == "L" else "R"), source
         return None, source  # B (ambas as mamas) ou código desconhecido: não é por mama
     lat = laterality_from_orientation(patient_orientation)

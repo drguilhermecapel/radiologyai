@@ -2,18 +2,6 @@
   "entries": [
     {
       "basis": [],
-      "condition_id": "ct.focal_liver_lesion",
-      "distributed": true,
-      "headline": null,
-      "label": "liver_lesion",
-      "level": "D",
-      "limited_by": [],
-      "model_id": "totalseg-liver-lesions",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
-      "basis": [],
       "condition_id": "cxr.atelectasis",
       "distributed": true,
       "headline": null,
@@ -1498,6 +1486,6 @@
       "visibility": "research"
     }
   ],
-  "evidence_digest": "1ec35d3f5160f63dfae2eec3578ebb1b8980d00c6f65b4ccfe0c8d272aa0ffce",
+  "evidence_digest": "90c37b4d4c8faaf3e9907f75d7521026e748de477891d1d9c58a7169b45c7ff1",
   "protocol_id": "2026-11-v1"
 }

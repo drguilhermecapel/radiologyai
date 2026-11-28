@@ -8026,6 +8026,97 @@ context:
   source_file: evidence-ct-mr.verified.md
   validation_type: internal
   value: '0.966'
+- ci95: 0.568-0.761
+  condition_id: ct.focal_liver_lesion
+  condition_text: Focal liver lesion segmentation
+  metric: dice
+  model_or_method: nnU-Net (TotalSegmentator task liver_lesions)
+  n: 46
+  note: null
+  population_or_dataset: 'Univ. Hospital Basel, held-out test set: 46 CTs containing 153 lesions (of 80
+    test studies: 46 CTs and 34 MRIs)'
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation
+  source:
+    identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
+    peer_reviewed: true
+    quote: 'The LM achieved a sensitivity of 75.8 (95% CI: 66.7-83.7), a FP/c of 0.522 (95% CI: 0.196-1.043),
+      and a Dice similarity coefficient of 0.658 (95% CI: 0.568-0.761) on CT.'
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
+    verified_at_source: true
+  source_entry: ts_liver_lesion_ct_dice
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.658'
+- ci95: 0.54-0.65
+  condition_id: ct.focal_liver_lesion
+  condition_text: Focal liver lesion segmentation
+  metric: dice
+  model_or_method: nnU-Net (TotalSegmentator task liver_lesions)
+  n: 131
+  note: null
+  population_or_dataset: LiTS public contrast-enhanced abdominal CT test data, 131 lesions (n counts lesions),
+    applied without fine-tuning
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: LiTS expert lesion annotations
+  source:
+    identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
+    peer_reviewed: true
+    quote: 'For segmentation quality, the model achieved a Dice score of 0.59 (95% CI: 0.54-0.65).'
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
+    verified_at_source: true
+  source_entry: ts_liver_lesion_ct_dice_lits_external
+  source_file: evidence-ct-mr.verified.md
+  validation_type: external
+  value: '0.59'
+- ci95: 66.7-83.7
+  condition_id: ct.focal_liver_lesion
+  condition_text: Focal liver lesion detection (lesion-wise)
+  metric: sensitivity
+  model_or_method: nnU-Net (TotalSegmentator task liver_lesions)
+  n: 46
+  note: null
+  population_or_dataset: 'Univ. Hospital Basel, held-out test set: 46 CTs containing 153 lesions (of 80
+    test studies: 46 CTs and 34 MRIs)'
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation
+  source:
+    identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
+    peer_reviewed: true
+    quote: 'The LM achieved a sensitivity of 75.8 (95% CI: 66.7-83.7), a FP/c of 0.522 (95% CI: 0.196-1.043),
+      and a Dice similarity coefficient of 0.658 (95% CI: 0.568-0.761) on CT.'
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
+    verified_at_source: true
+  source_entry: ts_liver_lesion_ct_sens
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '75.8'
+- ci95: 55.5-74.1
+  condition_id: ct.focal_liver_lesion
+  condition_text: Focal liver lesion detection (lesion-wise)
+  metric: sensitivity
+  model_or_method: nnU-Net (TotalSegmentator task liver_lesions)
+  n: 131
+  note: null
+  population_or_dataset: LiTS public contrast-enhanced abdominal CT test data, 131 lesions (n counts lesions),
+    applied without fine-tuning
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: LiTS expert lesion annotations
+  source:
+    identifier: DOI 10.1007/s10278-025-01716-y (PMID 41136714; PMC13481620)
+    peer_reviewed: true
+    quote: 'On the LiTS test set (131 lesions), our model achieved a sensitivity of 65.7% (95% CI: 55.5%-74.1%),
+      a FP/c of 0.73 (95% CI: 0.50-0.95).'
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC13481620/
+    verified_at_source: true
+  source_entry: ts_liver_lesion_ct_sens_lits_external
+  source_file: evidence-ct-mr.verified.md
+  validation_type: external
+  value: 65.7%
 - ci95: 47.2-73.4
   condition_id: mr.focal_liver_lesion
   condition_text: Focal liver lesion detection (lesion-wise)

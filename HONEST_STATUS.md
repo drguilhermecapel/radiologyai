@@ -400,14 +400,13 @@ manifesto que cobre os pesos medidos):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `ct` | 0 | 0 | 0 | 1 | 0 |
 | `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 2 | 28 | 17 |
+| **Todas** | 2 | 0 | 2 | 27 | 17 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada de modelo distribuído em `levels.json`. Os ids de

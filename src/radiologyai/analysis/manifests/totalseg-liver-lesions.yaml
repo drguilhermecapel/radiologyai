@@ -132,7 +132,9 @@ references:
 - title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
   identifier: doi:10.1148/ryai.230024
   url: https://doi.org/10.1148/ryai.230024
-- title: Nicoli et al., liver lesions, J Imaging Inform Med 2025
+- title: 'Nicoli et al., liver lesions, J Imaging Inform Med 2025 — avalia OUTRO modelo (MR+CT, 750
+    estudos); os pesos distribuídos são o Dataset591 (só TC, 842 casos): números do artigo não se
+    transferem' 
   identifier: doi:10.1007/s10278-025-01716-y
   url: https://doi.org/10.1007/s10278-025-01716-y
 config:

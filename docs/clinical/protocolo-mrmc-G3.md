@@ -229,7 +229,7 @@ verificador antes do piloto MRMC.
 | Bloqueio | resposta gravada não pode ser editada após avançar; nenhum acesso ao padrão de referência nem a laudo | — |
 | Cronometragem | tempo por caso, do carregamento à submissão | — |
 | Registro auditável | cada exibição e cada resposta na trilha encadeada por hash (REQ-070, REQ-155), com leitor, caso, condição, sequência, modelo, sha256 dos pesos e git sha | trilha existente |
-| Exportação | arquivo sem PHI no formato de entrada do software de análise (leitor × caso × condição × escore), com sha256 registrado | o CSV do modo silencioso (REQ-195) é precedente |
+| Exportação | arquivo pseudonimizado (dado pessoal pela LGPD; sem identificador direto) no formato de entrada do software de análise (leitor × caso × condição × escore), com sha256 registrado | o CSV do modo silencioso (REQ-195) é precedente |
 | Congelamento | modelo, pesos, pontos de operação e versão do software fixos durante todo o estudo; mudança = desvio registrado | sha256 de pesos (REQ-020, REQ-030) |
 
 ## 13. Referências e estado de conferência

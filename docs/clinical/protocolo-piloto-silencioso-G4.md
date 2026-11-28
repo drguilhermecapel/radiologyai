@@ -71,7 +71,7 @@ final.
    servida a quem tem a permissão `shadow:view` (papel `researcher`, equipe do piloto) e nada é
    enviado ao PACS (REQ-195, implementado no software — §5).
 4. Depois de `⟨intervalo mínimo após a assinatura do laudo, ex.: N dias⟩`, a equipe do piloto
-   exporta o CSV sem dado pessoal e o controlador liga cada linha ao laudo pelo pseudônimo
+   exporta o CSV pseudonimizado (dado pessoal pela LGPD, art. 13 §4; sem identificador direto, texto livre ou pixel) e o controlador liga cada linha ao laudo pelo pseudônimo
    (§8).
 5. O laudo é convertido em rótulo por condição por `⟨dois anotadores independentes, cegos à
    saída da IA, com adjudicação⟩`. Extração por NLP só como análise secundária e declarada,
@@ -93,7 +93,7 @@ verificado**. O protocolo final deve citar a versão (git sha) verificada.
 
 Verificações exigidas **antes** do primeiro exame real (cada uma com evidência de teste):
 o médico com papel `physician` não vê nenhuma saída de IA em nenhuma rota nem no PACS; nenhuma
-exportação DICOM/FHIR/SR sai com o modo ligado; o CSV não contém PHI (inspeção por amostragem e
+exportação DICOM/FHIR/SR sai com o modo ligado; o CSV não contém identificador direto, texto livre nem pixel (continua dado pessoal pseudonimizado; inspeção por amostragem e
 teste automatizado); a cadeia de auditoria verifica de ponta a ponta.
 
 ## 6. Desfechos e análise

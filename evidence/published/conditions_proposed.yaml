@@ -249,19 +249,6 @@ conditions:
   name_pt: Lesão pulmonar
   system: pulmão
 - code:
-    meaning: Focal liver lesion (CT)
-    scheme: 99MEDAI
-    value: ct.focal_liver_lesion
-  description_pt: Lesão focal hepática segmentada na TC. Achado sugerido para confirmação médica, nunca
-    diagnóstico.
-  exam_types:
-  - ct_abdomen
-  group: ct
-  id: ct.focal_liver_lesion
-  name_en: Focal liver lesion (CT)
-  name_pt: Lesão hepática focal (TC)
-  system: fígado
-- code:
     meaning: Glioma sub-region segmentation (MR)
     scheme: 99MEDAI
     value: mr.glioma_segmentation
@@ -356,6 +343,19 @@ conditions_context_only:
   name_en: Pericardial effusion (CT)
   name_pt: Derrame pericárdico (TC)
   system: coração
+- code:
+    meaning: Focal liver lesion (CT)
+    scheme: 99MEDAI
+    value: ct.focal_liver_lesion
+  description_pt: Lesão focal hepática segmentada na TC. Achado sugerido para confirmação médica, nunca
+    diagnóstico.
+  exam_types:
+  - ct_abdomen
+  group: ct
+  id: ct.focal_liver_lesion
+  name_en: Focal liver lesion (CT)
+  name_pt: Lesão hepática focal (TC)
+  system: fígado
 - code:
     meaning: Low L1 trabecular attenuation (probable osteoporosis)
     scheme: 99MEDAI

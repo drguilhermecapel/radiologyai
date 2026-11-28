@@ -276,7 +276,9 @@ class TestMGLaterality:
         assert parse_laterality(None, "R") == ("R", "Laterality")
         # PatientOrientation só sem nenhuma tag de lado
         assert parse_laterality(None, None, ["A", "R"]) == ("L", "PatientOrientation")
-        assert parse_laterality("R", None, ["A", "R"]) == ("R", "ImageLaterality")
+        # orientação que contradiz a tag também é conflito (["A", "R"] indica mama esquerda)
+        assert parse_laterality("R", None, ["A", "R"]) == (None, "conflito")
+        assert parse_laterality("L", None, ["A", "R"]) == ("L", "ImageLaterality")
 
     def test_mg_gate_rejects_conflicting_tags(self) -> None:
         from radiologyai.io.metadata import extract_metadata
