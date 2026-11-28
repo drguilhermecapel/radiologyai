@@ -298,7 +298,9 @@ Como ler:
   pré-registrada basta uma aprovação externa limpa, então o nível não muda, mas o sinal é
   **contraditório**: o rótulo do Open-i ("opacity" por substring no MeSH automático) é mais
   ruidoso e de outra definição que "Airspace opacity" adjudicado, e a diferença também pode ser
-  de população. Não leia este A como robusto.
+  de população. Não leia este A como robusto. Por decisão do responsável (2026-11-28), a decisão
+  positiva/negativa da opacidade pulmonar está **suspensa** em `chex`, `mimic_ch`, `mimic_nb` e
+  `all` (`evidence/decision_holds.yaml`, REQ-193): o produto mostra só o escore, com o motivo.
 - **`all` treinou no Open-i** (vazamento `known`): as aprovações de cardiomegalia (0,867) e de
   derrame pleural (0,829) põem esses trios em **C** pela regra pré-registrada, mas esse C **não**
   é hold-out limpo — parte destas imagens esteve no treino.
