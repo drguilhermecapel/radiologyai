@@ -83,10 +83,10 @@
     "population": "CAMUS (Lyon), partições oficiais testing + validation, 100 pacientes, A4C + A2C",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job medsam2-echo-lv@camus:prompt-free",
-      "created_at": "2026-11-27T22:40:00.949081Z",
+      "created_at": "2026-11-28T00:23:14.159395Z",
       "dataset_id": "camus",
       "dataset_sha256": "cee3877be374ce3e0a0724a7d95d5d229ed3e378f981986b9ea4518b879e7a06",
-      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

@@ -108,10 +108,10 @@
     "population": "Subconjunto do teste oficial do NIH ChestX-ray14 com rótulos adjudicados por radiologistas (Majkowska et al., Radiology 2020; google_labels_joined.csv)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_ch@nih-google-adjudicated#pneumothorax",
-      "created_at": "2026-11-27T22:45:09.075879Z",
+      "created_at": "2026-11-28T00:28:08.303469Z",
       "dataset_id": "nih-cxr14-google",
       "dataset_sha256": "18971e0105bfe1e3c707710d36bf9a6305805140a4d8812d9a77bca6f9ff623b",
-      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

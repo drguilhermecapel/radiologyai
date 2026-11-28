@@ -115,10 +115,10 @@
     "population": "NLM Shenzhen No.3 People's Hospital (China); conjunto inteiro (662 casos)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-tb.trained-montgomery@tb-shenzhen",
-      "created_at": "2026-11-27T22:39:52.772375Z",
+      "created_at": "2026-11-28T00:22:42.757337Z",
       "dataset_id": "tb-shenzhen",
       "dataset_sha256": "8aceaefc5865dd13e30ad59e4258ee48acf8c6ff1c31caf0a91b08d36615ff2f",
-      "git_sha": "cd41fc24bb74a4adc65231565728f44c78164b97",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {
