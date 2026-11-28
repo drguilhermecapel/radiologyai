@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from radiologyai.errors import RegressionGateError
+
 _DISALLOWED_LEAKAGE_STATUSES = frozenset({"leakage", "overlap", "failed"})
 
 
@@ -22,7 +24,7 @@ def load_metrics(path: str | Path) -> dict[str, Any]:
     raw_text = Path(path).read_text(encoding="utf-8")
     data = json.loads(raw_text)
     if not isinstance(data, dict):
-        raise ValueError(f"Expected JSON object in {path}, got {type(data).__name__}")
+        raise RegressionGateError(f"Expected JSON object in {path}, got {type(data).__name__}")
     return data
 
 
@@ -70,7 +72,7 @@ def check_baseline_regression(
         or not math.isfinite(float(max_auroc_drop))
         or max_auroc_drop < 0.0
     ):
-        raise ValueError("max_auroc_drop must be a finite number >= 0.0")
+        raise RegressionGateError("max_auroc_drop must be a finite number >= 0.0")
 
     reasons: list[str] = []
 

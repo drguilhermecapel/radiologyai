@@ -1,0 +1,41 @@
+id: panecho
+version: panecho-main-unlicensed
+name: PanEcho (interpretação multitarefa de ecocardiograma)
+status: planned
+task: classification
+capabilities:
+- classify
+- measure
+summary: 'Modelo multitarefa de ecocardiograma transtorácico (diagnósticos e parâmetros a partir de vários
+  cortes). Planejado: não roda neste ambiente por ausência de licença.'
+route: none
+source:
+  repository: https://github.com/CarDS-Yale/PanEcho
+  distribution: torch.hub.load('CarDS-Yale/PanEcho', 'PanEcho') segundo o README
+license:
+  code: nenhuma licença publicada
+  weights: nenhuma licença publicada
+  commercial_use: unclear
+  evidence: 'raw.githubusercontent.com/CarDS-Yale/PanEcho/main/{LICENSE,LICENSE.md,LICENSE.txt,COPYING} e
+    master/LICENSE devolvem HTTP 404; main/README.md não contém licen/permission/copyright/commercial/terms
+    (spike de eco, 2026-11-24)'
+applicability:
+  exam_types:
+  - echo
+  modalities:
+  - US
+  image_kinds:
+  - cine
+  adult_only: true
+inputs:
+  mode: single
+training_data:
+- ynhhs-echo-panecho
+limitations:
+- Sem licença, o código e os pesos não podem ser redistribuídos nem usados por este projeto.
+references:
+- title: Complete AI-Enabled Echocardiography Interpretation With Multitask Deep Learning (Holste et al., JAMA 2025)
+  identifier: doi:10.1001/jama.2025.8731
+  url: https://pubmed.ncbi.nlm.nih.gov/40549400/
+planned_reason: 'Sem licença publicada para código nem pesos (repositório sem arquivo LICENSE; README sem
+  termos de uso). Não foi baixado nem executado. Reavaliar quando os autores publicarem uma licença.'

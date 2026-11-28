@@ -166,7 +166,7 @@ def run_baseline(
     resolver(manifest.rows[0].image_id)
 
     card = get_card(card_id)
-    leakage = check_leakage(card, manifest)
+    leakage = check_leakage(card, manifest, evaluated_key=dataset)
     if leakage == "in-distribution":
         log(
             "AVISO: este dataset consta entre os dados de treino do modelo. "
@@ -206,6 +206,7 @@ def run_baseline(
         output_dir=artifacts_dir,
         config=EvaluationConfig(seed=seed, n_bootstrap=n_bootstrap),
         dataset_limitations=limitacoes,
+        evaluated_key=dataset,
     )
     metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
     log(f"artefato: {run_dir}")

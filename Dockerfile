@@ -1,6 +1,6 @@
 # RadiologyAI — imagem de inferência em CPU.
 #
-# Diferenças em relação ao Dockerfile do v1 (agora em legacy/):
+# Diferenças em relação ao Dockerfile do v1 (removido da árvore; ver histórico git, 16fdd47):
 #   - python:3.11-slim, não 3.9. O pacote exige >=3.11,<3.12; a imagem do v1
 #     não conseguiria sequer instalá-lo.
 #   - --workers 1, não 4. Cada worker uvicorn carrega sua própria cópia do

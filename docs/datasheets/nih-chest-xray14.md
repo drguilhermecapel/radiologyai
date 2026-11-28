@@ -48,7 +48,8 @@ largo, e isso é declarado no artefato em vez de ser escondido atrás de uma mé
 ## Proveniência do rótulo — a limitação central
 
 Os rótulos foram **minerados por NLP dos laudos radiológicos**, não adjudicados
-por radiologista. O próprio NIH estima acurácia de rotulagem em torno de 90%.
+por radiologista. O artigo do NIH (Wang et al., CVPR 2017) relata acurácia da rotulagem por NLP
+acima de 90% — número da fonte, NÃO VERIFICÁVEL a partir deste repositório.
 
 Consequência prática: o teto de desempenho mensurável neste dataset é limitado
 pelo ruído do rótulo, e um modelo pode ser penalizado por acertar o que o rótulo

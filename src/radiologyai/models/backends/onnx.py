@@ -5,12 +5,13 @@ from __future__ import annotations
 import importlib
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any, Protocol
-
-import numpy as np
-import numpy.typing as npt
+from typing import TYPE_CHECKING, Any, Protocol
 
 from radiologyai.models.backends.base import InferenceBackend
+
+if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
 from radiologyai.models.card import ModelCard
 
 
@@ -71,6 +72,8 @@ class OnnxBackend(InferenceBackend):
         return self._card.labels
 
     def predict(self, image: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
+        import numpy as np
+
         arr = np.asarray(image, dtype=np.float32)
         if not np.isfinite(arr).all():
             raise ValueError("Input image contains NaN or Inf values.")

@@ -1,0 +1,69 @@
+id: medsam-vit-base
+version: hf-de8488b
+name: MedSAM ViT-B — segmentação interativa por caixa em ultrassom
+status: available
+adapter: radiologyai.analysis.adapters.us_medsam:MedSAMUSAdapter
+task: segmentation
+capabilities:
+- segment
+- measure
+- prompt
+summary: Segmentação de lesão/estrutura dentro de uma caixa desenhada pelo usuário em imagem ou clipe
+  de ultrassom; área e diâmetros em mm só com espaçamento físico. Ferramenta interativa, sem classificação.
+visibility_default: research
+route: interactive
+source:
+  repository: https://huggingface.co/wanglab/medsam-vit-base
+  revision: de8488bca37bb1d4fb190f612c516126d739ce3b
+  runtime: transformers SamModel (sem trust_remote_code); pré-processamento do MedSAM_Inference.py original
+weights:
+- key: config
+  url: https://huggingface.co/wanglab/medsam-vit-base/resolve/de8488bca37bb1d4fb190f612c516126d739ce3b/config.json
+  filename: config.json
+  sha256: 930245d4ff7203cc9c10a69dba5a87c251a0be79a8b1448eea7412d4a0ef1432
+  bytes: 6517
+- key: model
+  url: https://huggingface.co/wanglab/medsam-vit-base/resolve/de8488bca37bb1d4fb190f612c516126d739ce3b/pytorch_model.bin
+  filename: pytorch_model.bin
+  note: state_dict em pickle; transformers 5 carrega com torch.load(weights_only=True)
+  sha256: 0ef67838fba16f16c0e308eaf7a3ae6fbf4fe8e13d7a120ca932671ed9c47db0
+  bytes: 375045749
+license:
+  code: Apache-2.0 (bowang-lab/MedSAM; transformers)
+  weights: Apache-2.0 (front-matter do cartão wanglab/medsam-vit-base)
+  training_data_terms: MedSAM foi treinado em 1,57 milhão de pares imagem-máscara de bases públicas, várias
+    com termos não comerciais; BUSI e CAMUS estão entre os dados de treino/validação interna do artigo
+  commercial_use: 'no'
+  evidence: cartão de wanglab/medsam-vit-base no Hugging Face (revisão de8488bca37bb1d4fb190f612c516126d739ce3b,
+    "license apache-2.0"); LICENSE de bowang-lab/MedSAM (Apache-2.0)
+applicability:
+  exam_types:
+  - us_breast
+  - us_abdomen
+  - us_other
+  - echo
+  modalities:
+  - US
+  image_kinds:
+  - projection
+  - cine
+  min_pixels: 64
+inputs:
+  mode: single
+  prompts: required
+training_data:
+- medsam-training-corpus
+- busi
+- camus
+limitations:
+- Interativo — a qualidade depende da caixa; não detecta lesões sozinho.
+- Sem espaçamento físico, área e diâmetros se abstêm (só a máscara é devolvida).
+- Marcas de medida gravadas na imagem podem alterar o contorno.
+- BUSI e CAMUS fizeram parte do desenvolvimento do MedSAM; medição neles não é externa.
+references:
+- title: Segment anything in medical images (MedSAM)
+  identifier: doi:10.1038/s41467-024-44824-z
+  url: https://doi.org/10.1038/s41467-024-44824-z
+config:
+  input_size: 1024
+  normalization: min-max [0, 1], sem média/desvio do ImageNet (MedSAM_Inference.py)

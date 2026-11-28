@@ -1,463 +1,5589 @@
-openapi: 3.0.3
+components:
+  schemas:
+    AbstentionReason:
+      description: Por que o sistema recusou produzir um número. Sempre explícito.
+      enum:
+      - not_applicable_modality
+      - not_applicable_exam_type
+      - not_applicable_view
+      - not_applicable_body_part
+      - low_image_quality
+      - out_of_distribution
+      - low_confidence_band
+      - missing_geometry
+      - acquisition_precondition_not_met
+      - unsupported_input
+      - required_input_missing
+      - unvalidated_population
+      - upstream_model_unavailable
+      title: AbstentionReason
+      type: string
+    AnalysisCreateIn:
+      additionalProperties: false
+      properties:
+        include_research:
+          default: false
+          description: Roda também modelos exploratórios (exige papel com modo pesquisa).
+          title: Include Research
+          type: boolean
+        model_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Modelos explícitos (ignora o roteamento); dependências entram.
+          title: Model Ids
+        prompts:
+          default: []
+          description: Prompts do usuário para modelos interativos (caixa/ponto).
+          items:
+            $ref: '#/components/schemas/Primitive'
+          title: Prompts
+          type: array
+      title: AnalysisCreateIn
+      type: object
+    AnalysisInput:
+      additionalProperties: false
+      properties:
+        content_sha256:
+          title: Content Sha256
+          type: string
+        image_idx:
+          title: Image Idx
+          type: integer
+        series_id:
+          title: Series Id
+          type: string
+      required:
+      - image_idx
+      - series_id
+      - content_sha256
+      title: AnalysisInput
+      type: object
+    AnalysisOut:
+      additionalProperties: false
+      properties:
+        code_version:
+          title: Code Version
+          type: string
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        exam_type:
+          $ref: '#/components/schemas/ExamType'
+        finding_indices:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Para cada achado exibido em result.findings, o índice no resultado completo (use-o
+            em ReviewIn.finding_idx).
+          title: Finding Indices
+        finished_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Finished At
+        hidden_research_artifacts:
+          default: 0
+          description: Segmentações e medidas exploratórias omitidas (sem achado A-C ligado).
+          title: Hidden Research Artifacts
+          type: integer
+        hidden_research_findings:
+          title: Hidden Research Findings
+          type: integer
+        id:
+          title: Id
+          type: string
+        include_research:
+          title: Include Research
+          type: boolean
+        inputs:
+          items:
+            $ref: '#/components/schemas/AnalysisInput'
+          title: Inputs
+          type: array
+        model_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Model Ids
+        requested_at:
+          format: date-time
+          title: Requested At
+          type: string
+        requested_by:
+          title: Requested By
+          type: string
+        research_measurement_names:
+          default: []
+          description: Nomes das medidas exploratórias exibidas na visão de pesquisa.
+          items:
+            type: string
+          title: Research Measurement Names
+          type: array
+        research_segmentation_indices:
+          default: []
+          description: Índices (no resultado completo) das segmentações exploratórias; só aparecem na
+            visão de pesquisa e exigem marca d'água.
+          items:
+            type: integer
+          title: Research Segmentation Indices
+          type: array
+        research_view:
+          description: True quando achados de nível D estão incluídos.
+          title: Research View
+          type: boolean
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/AnalysisResult'
+          - type: 'null'
+        result_sha256:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result Sha256
+        result_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result Status
+        reviews:
+          items:
+            $ref: '#/components/schemas/ReviewOut'
+          title: Reviews
+          type: array
+        segmentation_indices:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Para cada segmentação exibida em result.segmentations, o índice no resultado completo
+            (use-o em /analyses/{id}/segmentations/{seg_index}/frames/{index}).
+          title: Segmentation Indices
+        shadow:
+          default: false
+          description: 'True quando o modo silencioso omitiu a saída de IA (REQ-195): result, result_sha256,
+            result_status, índices e revisões vêm vazios; NÃO significa exame normal.'
+          title: Shadow
+          type: boolean
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        state:
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          title: State
+          type: string
+        study_id:
+          title: Study Id
+          type: string
+      required:
+      - id
+      - study_id
+      - state
+      - exam_type
+      - include_research
+      - model_ids
+      - requested_by
+      - requested_at
+      - started_at
+      - finished_at
+      - error
+      - code_version
+      - inputs
+      - result_sha256
+      - result_status
+      - research_view
+      - hidden_research_findings
+      - finding_indices
+      - result
+      - reviews
+      title: AnalysisOut
+      type: object
+    AnalysisResult:
+      additionalProperties: false
+      description: Resultado imutável de uma análise. Persistido em JSON; hasheado na assinatura.
+      properties:
+        analysis_id:
+          format: uuid
+          title: Analysis Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        disclaimer:
+          const: Achado sugerido para confirmação médica. Software de pesquisa; não é diagnóstico.
+          default: Achado sugerido para confirmação médica. Software de pesquisa; não é diagnóstico.
+          title: Disclaimer
+          type: string
+        exam_type:
+          $ref: '#/components/schemas/ExamType'
+        explanations:
+          default: []
+          items:
+            $ref: '#/components/schemas/Explanation'
+          title: Explanations
+          type: array
+        findings:
+          default: []
+          items:
+            $ref: '#/components/schemas/Finding'
+          title: Findings
+          type: array
+        input_sha256:
+          items:
+            type: string
+          title: Input Sha256
+          type: array
+        intended_use:
+          const: research_use_only
+          default: research_use_only
+          title: Intended Use
+          type: string
+        measurements:
+          default: []
+          items:
+            $ref: '#/components/schemas/Measurement'
+          title: Measurements
+          type: array
+        provenance:
+          default: []
+          items:
+            $ref: '#/components/schemas/ModelProvenance'
+          title: Provenance
+          type: array
+        research_mode:
+          default: false
+          title: Research Mode
+          type: boolean
+        runs:
+          default: []
+          items:
+            $ref: '#/components/schemas/ModelRun'
+          title: Runs
+          type: array
+        schema_version:
+          const: '1'
+          default: '1'
+          title: Schema Version
+          type: string
+        segmentations:
+          default: []
+          items:
+            $ref: '#/components/schemas/Segmentation'
+          title: Segmentations
+          type: array
+        status:
+          enum:
+          - completed
+          - partial
+          - abstained
+          - failed
+          title: Status
+          type: string
+        warnings:
+          default: []
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - analysis_id
+      - created_at
+      - exam_type
+      - input_sha256
+      - status
+      title: AnalysisResult
+      type: object
+    AnalysisSummary:
+      additionalProperties: false
+      properties:
+        finished_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Finished At
+        id:
+          title: Id
+          type: string
+        include_research:
+          title: Include Research
+          type: boolean
+        n_main_findings:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: None no modo silencioso para quem não vê a saída de IA (REQ-195).
+          title: N Main Findings
+        n_research_findings:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: N Research Findings
+        requested_at:
+          format: date-time
+          title: Requested At
+          type: string
+        result_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result Status
+        shadow:
+          default: false
+          description: True quando a saída de IA foi omitida pelo modo silencioso (REQ-195).
+          title: Shadow
+          type: boolean
+        state:
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          title: State
+          type: string
+      required:
+      - id
+      - state
+      - result_status
+      - requested_at
+      - finished_at
+      - include_research
+      - n_main_findings
+      - n_research_findings
+      title: AnalysisSummary
+      type: object
+    ArtifactRef:
+      additionalProperties: false
+      description: Ponteiro para um arquivo do repositório endereçado por conteúdo.
+      properties:
+        media_type:
+          title: Media Type
+          type: string
+        relpath:
+          title: Relpath
+          type: string
+        sha256:
+          title: Sha256
+          type: string
+        shape:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Shape
+      required:
+      - sha256
+      - media_type
+      - relpath
+      title: ArtifactRef
+      type: object
+    AuditEventOut:
+      additionalProperties: false
+      properties:
+        actor_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Id
+        actor_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Username
+        event:
+          title: Event
+          type: string
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+        prev_hash:
+          title: Prev Hash
+          type: string
+        record_hash:
+          title: Record Hash
+          type: string
+        seq:
+          title: Seq
+          type: integer
+        subject_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subject Id
+        subject_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subject Type
+        timestamp_utc:
+          title: Timestamp Utc
+          type: string
+      required:
+      - seq
+      - timestamp_utc
+      - event
+      - actor_id
+      - actor_username
+      - subject_type
+      - subject_id
+      - payload
+      - prev_hash
+      - record_hash
+      title: AuditEventOut
+      type: object
+    AuditListOut:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AuditEventOut'
+          title: Items
+          type: array
+        next_after_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next After Seq
+      required:
+      - items
+      - next_after_seq
+      title: AuditListOut
+      type: object
+    AuditVerifyOut:
+      additionalProperties: false
+      properties:
+        anchored_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Seq do último checkpoint externo conferido (fora do banco).
+          title: Anchored Seq
+        broken_at_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Broken At Seq
+        detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detail
+        events:
+          title: Events
+          type: integer
+        last_hash:
+          title: Last Hash
+          type: string
+        ok:
+          title: Ok
+          type: boolean
+      required:
+      - ok
+      - events
+      - last_hash
+      - broken_at_seq
+      - detail
+      title: AuditVerifyOut
+      type: object
+    Body_analyze_api_v1_analyze_post:
+      properties:
+        card_id:
+          default: xrv-densenet121-pc
+          title: Card Id
+          type: string
+        file:
+          contentMediaType: application/octet-stream
+          description: Arquivo DICOM
+          title: File
+          type: string
+      required:
+      - file
+      title: Body_analyze_api_v1_analyze_post
+      type: object
+    Body_upload_study_api_v1_studies_post:
+      properties:
+        body_part:
+          anyOf:
+          - maxLength: 64
+            type: string
+          - type: 'null'
+          title: Body Part
+        exam_type:
+          anyOf:
+          - $ref: '#/components/schemas/ExamType'
+          - type: 'null'
+          description: Tipo de exame declarado
+        files:
+          description: DICOM (ou zip de DICOM), NIfTI, PNG ou JPEG
+          items:
+            contentMediaType: application/octet-stream
+            type: string
+          title: Files
+          type: array
+        laterality:
+          anyOf:
+          - enum:
+            - L
+            - R
+            - B
+            type: string
+          - type: 'null'
+          title: Laterality
+        modality:
+          anyOf:
+          - enum:
+            - CR
+            - DX
+            - CT
+            - MR
+            - MG
+            - US
+            - OT
+            type: string
+          - type: 'null'
+          description: Obrigatória para NIfTI; PNG/JPEG usam OT se ausente
+          title: Modality
+        patient_age_years:
+          anyOf:
+          - maximum: 130.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          title: Patient Age Years
+        patient_sex:
+          anyOf:
+          - enum:
+            - F
+            - M
+            - O
+            type: string
+          - type: 'null'
+          title: Patient Sex
+        sequence_role:
+          anyOf:
+          - maxLength: 32
+            type: string
+          - type: 'null'
+          title: Sequence Role
+        view_position:
+          anyOf:
+          - maxLength: 32
+            type: string
+          - type: 'null'
+          title: View Position
+      required:
+      - files
+      title: Body_upload_study_api_v1_studies_post
+      type: object
+    CatalogConditionOut:
+      additionalProperties: false
+      properties:
+        best_level:
+          enum:
+          - A
+          - B
+          - C
+          - D
+          title: Best Level
+          type: string
+        code:
+          $ref: '#/components/schemas/CodedConcept'
+        entries:
+          items:
+            $ref: '#/components/schemas/CatalogEntryOut'
+          title: Entries
+          type: array
+        exam_types:
+          items:
+            $ref: '#/components/schemas/ExamType'
+          title: Exam Types
+          type: array
+        group:
+          title: Group
+          type: string
+        id:
+          title: Id
+          type: string
+        name_en:
+          title: Name En
+          type: string
+        name_pt:
+          title: Name Pt
+          type: string
+        research_only:
+          title: Research Only
+          type: boolean
+        system:
+          title: System
+          type: string
+      required:
+      - id
+      - name_pt
+      - name_en
+      - group
+      - exam_types
+      - system
+      - code
+      - entries
+      - best_level
+      - research_only
+      title: CatalogConditionOut
+      type: object
+    CatalogEntryOut:
+      additionalProperties: false
+      properties:
+        basis:
+          items:
+            type: string
+          title: Basis
+          type: array
+        headline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Headline
+        label:
+          title: Label
+          type: string
+        level:
+          enum:
+          - A
+          - B
+          - C
+          - D
+          title: Level
+          type: string
+        model_id:
+          title: Model Id
+          type: string
+        restricted_by_manifest:
+          default: false
+          description: Nível medido A-C, mas o manifesto restringe o modelo ao modo pesquisa.
+          title: Restricted By Manifest
+          type: boolean
+        visibility:
+          enum:
+          - main
+          - research
+          title: Visibility
+          type: string
+      required:
+      - model_id
+      - label
+      - level
+      - visibility
+      - headline
+      - basis
+      title: CatalogEntryOut
+      type: object
+    CatalogOut:
+      additionalProperties: false
+      properties:
+        conditions:
+          items:
+            $ref: '#/components/schemas/CatalogConditionOut'
+          title: Conditions
+          type: array
+        level_meanings:
+          additionalProperties:
+            type: string
+          title: Level Meanings
+          type: object
+        protocol_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol Id
+        uncatalogued:
+          items:
+            $ref: '#/components/schemas/UncataloguedLabelOut'
+          title: Uncatalogued
+          type: array
+      required:
+      - protocol_id
+      - level_meanings
+      - conditions
+      - uncatalogued
+      title: CatalogOut
+      type: object
+    CodedConcept:
+      additionalProperties: false
+      description: 'Termo codificado: esquema de codificação, valor e significado.'
+      properties:
+        meaning:
+          title: Meaning
+          type: string
+        scheme:
+          title: Scheme
+          type: string
+        value:
+          title: Value
+          type: string
+      required:
+      - scheme
+      - value
+      - meaning
+      title: CodedConcept
+      type: object
+    DicomwebImportIn:
+      additionalProperties: false
+      properties:
+        exam_type:
+          anyOf:
+          - $ref: '#/components/schemas/ExamType'
+          - type: 'null'
+        study_instance_uid:
+          pattern: ^[0-9.]{1,64}$
+          title: Study Instance Uid
+          type: string
+      required:
+      - study_instance_uid
+      title: DicomwebImportIn
+      type: object
+    DicomwebSearchOut:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: true
+            type: object
+          title: Items
+          type: array
+      required:
+      - items
+      title: DicomwebSearchOut
+      type: object
+    ErrorOut:
+      additionalProperties: false
+      properties:
+        detail:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          title: Detail
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - detail
+      title: ErrorOut
+      type: object
+    EvidenceLevel:
+      description: Nível de evidência de um trio (condição, modelo, rótulo). Sempre calculado.
+      enum:
+      - A
+      - B
+      - C
+      - D
+      title: EvidenceLevel
+      type: string
+    ExamType:
+      description: Tipo de exame ao qual uma condição se aplica (chave de roteamento).
+      enum:
+      - cxr
+      - msk_xr
+      - ct_head
+      - ct_chest
+      - ct_abdomen
+      - ct_other
+      - mr_brain
+      - mr_body
+      - mg
+      - us_breast
+      - us_abdomen
+      - us_other
+      - echo
+      - unknown
+      title: ExamType
+      type: string
+    ExamTypeIn:
+      additionalProperties: false
+      properties:
+        exam_type:
+          $ref: '#/components/schemas/ExamType'
+      required:
+      - exam_type
+      title: ExamTypeIn
+      type: object
+    Explanation:
+      additionalProperties: false
+      description: Mapa de explicação calculado pelo modelo real sobre a entrada real.
+      properties:
+        id:
+          title: Id
+          type: string
+        image_idx:
+          default: 0
+          title: Image Idx
+          type: integer
+        map:
+          $ref: '#/components/schemas/ArtifactRef'
+        method:
+          enum:
+          - cam
+          - gradcam
+          - attention
+          - occlusion
+          title: Method
+          type: string
+        placement:
+          $ref: '#/components/schemas/Primitive'
+        provenance_idx:
+          title: Provenance Idx
+          type: integer
+        target_label:
+          title: Target Label
+          type: string
+      required:
+      - id
+      - method
+      - target_label
+      - map
+      - placement
+      - provenance_idx
+      title: Explanation
+      type: object
+    ExportOut:
+      additionalProperties: false
+      properties:
+        destination:
+          title: Destination
+          type: string
+        skipped:
+          default: []
+          description: SEGs do laudo que não puderam ser gerados, com o motivo.
+          items:
+            $ref: '#/components/schemas/ExportSkipOut'
+          title: Skipped
+          type: array
+        stored_sop_instance_uids:
+          description: Somente os objetos que o servidor CONFIRMOU (ReferencedSOPSequence).
+          items:
+            type: string
+          title: Stored Sop Instance Uids
+          type: array
+      required:
+      - stored_sop_instance_uids
+      - destination
+      title: ExportOut
+      type: object
+    ExportSkipOut:
+      additionalProperties: false
+      properties:
+        reason:
+          title: Reason
+          type: string
+        seg_index:
+          title: Seg Index
+          type: integer
+      required:
+      - seg_index
+      - reason
+      title: ExportSkipOut
+      type: object
+    Finding:
+      additionalProperties: false
+      description: Um achado sugerido para confirmação médica — nunca um diagnóstico.
+      properties:
+        abstention_reason:
+          anyOf:
+          - $ref: '#/components/schemas/AbstentionReason'
+          - type: 'null'
+        calibration_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Calibration Id
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        class_scores:
+          anyOf:
+          - additionalProperties:
+              type: number
+            type: object
+          - type: 'null'
+          title: Class Scores
+        code:
+          $ref: '#/components/schemas/CodedConcept'
+        condition_id:
+          title: Condition Id
+          type: string
+        decision:
+          enum:
+          - positive
+          - negative
+          - indeterminate
+          - category
+          - score_only
+          - abstained
+          title: Decision
+          type: string
+        decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision Note
+        evidence_level:
+          $ref: '#/components/schemas/EvidenceLevel'
+        explanation_ids:
+          default: []
+          items:
+            type: string
+          title: Explanation Ids
+          type: array
+        image_idx:
+          default: 0
+          title: Image Idx
+          type: integer
+        kind:
+          enum:
+          - binary
+          - categorical
+          - derived
+          title: Kind
+          type: string
+        label:
+          title: Label
+          type: string
+        measurement_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Measurement Ref
+        op_normalized:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Op Normalized
+        operating_points:
+          default: []
+          items:
+            $ref: '#/components/schemas/OperatingPoint'
+          title: Operating Points
+          type: array
+        probability:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Probability
+        provenance_idx:
+          title: Provenance Idx
+          type: integer
+        raw_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Raw Score
+        score_kind:
+          enum:
+          - logit
+          - sigmoid
+          - softmax
+          - measurement
+          - similarity
+          title: Score Kind
+          type: string
+        visibility:
+          enum:
+          - main
+          - research
+          title: Visibility
+          type: string
+      required:
+      - condition_id
+      - label
+      - code
+      - kind
+      - raw_score
+      - score_kind
+      - decision
+      - evidence_level
+      - visibility
+      - provenance_idx
+      title: Finding
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HealthOut:
+      additionalProperties: false
+      properties:
+        disclaimer:
+          title: Disclaimer
+          type: string
+        status:
+          const: ok
+          title: Status
+          type: string
+        subsystems:
+          additionalProperties:
+            type: boolean
+          title: Subsystems
+          type: object
+        version:
+          title: Version
+          type: string
+      required:
+      - status
+      - version
+      - disclaimer
+      - subsystems
+      title: HealthOut
+      type: object
+    HealthzOut:
+      additionalProperties: false
+      properties:
+        status:
+          const: ok
+          title: Status
+          type: string
+      required:
+      - status
+      title: HealthzOut
+      type: object
+    LabelOut:
+      additionalProperties: false
+      properties:
+        code:
+          $ref: '#/components/schemas/CodedConcept'
+        condition_id:
+          title: Condition Id
+          type: string
+        evidence_level:
+          enum:
+          - A
+          - B
+          - C
+          - D
+          title: Evidence Level
+          type: string
+        in_catalog:
+          title: In Catalog
+          type: boolean
+        key:
+          title: Key
+          type: string
+        kind:
+          title: Kind
+          type: string
+        score_kind:
+          title: Score Kind
+          type: string
+        source_label:
+          title: Source Label
+          type: string
+        visibility:
+          enum:
+          - main
+          - research
+          title: Visibility
+          type: string
+      required:
+      - key
+      - source_label
+      - condition_id
+      - kind
+      - score_kind
+      - code
+      - evidence_level
+      - visibility
+      - in_catalog
+      title: LabelOut
+      type: object
+    LegacyAnalyzeOut:
+      additionalProperties: false
+      description: Resposta do endpoint legado. Sem ``clinical_metrics`` — o v1 as fabricava.
+      properties:
+        card_id:
+          title: Card Id
+          type: string
+        code_version:
+          title: Code Version
+          type: string
+        disclaimer:
+          title: Disclaimer
+          type: string
+        evidence_note:
+          default: 'rota legada sem catálogo de níveis: todo rótulo é exploratório (nível D) e só aparece
+            no modo pesquisa'
+          title: Evidence Note
+          type: string
+        findings:
+          items:
+            additionalProperties: true
+            type: object
+          title: Findings
+          type: array
+        hidden_research_findings:
+          default: 0
+          title: Hidden Research Findings
+          type: integer
+        input_sha256:
+          title: Input Sha256
+          type: string
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        modality:
+          title: Modality
+          type: string
+        normality_asserted:
+          title: Normality Asserted
+          type: boolean
+        requires_physician_review:
+          title: Requires Physician Review
+          type: boolean
+        research_view:
+          default: false
+          title: Research View
+          type: boolean
+        weights_sha256:
+          title: Weights Sha256
+          type: string
+      required:
+      - input_sha256
+      - code_version
+      - card_id
+      - weights_sha256
+      - modality
+      - metadata
+      - findings
+      - normality_asserted
+      - requires_physician_review
+      - disclaimer
+      title: LegacyAnalyzeOut
+      type: object
+    LoginIn:
+      additionalProperties: false
+      properties:
+        password:
+          maxLength: 1024
+          minLength: 1
+          title: Password
+          type: string
+        username:
+          maxLength: 64
+          minLength: 1
+          title: Username
+          type: string
+      required:
+      - username
+      - password
+      title: LoginIn
+      type: object
+    LoginOut:
+      additionalProperties: false
+      properties:
+        expires_at:
+          format: date-time
+          title: Expires At
+          type: string
+        token:
+          title: Token
+          type: string
+        token_type:
+          const: bearer
+          default: bearer
+          title: Token Type
+          type: string
+        user:
+          $ref: '#/components/schemas/UserOut'
+      required:
+      - token
+      - expires_at
+      - user
+      title: LoginOut
+      type: object
+    Measurement:
+      additionalProperties: false
+      description: 'Medida quantitativa: valor OU motivo de abstenção, nunca um valor inventado.'
+      properties:
+        abstention_reason:
+          anyOf:
+          - $ref: '#/components/schemas/AbstentionReason'
+          - type: 'null'
+        code:
+          $ref: '#/components/schemas/CodedConcept'
+        derived_from:
+          default: []
+          items:
+            type: string
+          title: Derived From
+          type: array
+        geometry:
+          default: []
+          items:
+            $ref: '#/components/schemas/Primitive'
+          title: Geometry
+          type: array
+        image_idx:
+          default: 0
+          title: Image Idx
+          type: integer
+        method:
+          title: Method
+          type: string
+        name:
+          title: Name
+          type: string
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+        preconditions:
+          additionalProperties:
+            type: string
+          title: Preconditions
+          type: object
+        provenance_idx:
+          title: Provenance Idx
+          type: integer
+        unit:
+          title: Unit
+          type: string
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+      required:
+      - name
+      - code
+      - value
+      - unit
+      - method
+      - provenance_idx
+      title: Measurement
+      type: object
+    MetricsOut:
+      additionalProperties: false
+      description: Métricas MEDIDAS lidas de ``artifacts/eval``; ``measured=false`` quando não há.
+      properties:
+        dataset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dataset
+        external_to_training_data:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: External To Training Data
+        how_to_produce:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: How To Produce
+        limitations:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Limitations
+        macro_auroc:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Macro Auroc
+        measured:
+          title: Measured
+          type: boolean
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        not_evaluated:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Not Evaluated
+        per_label:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Per Label
+        provenance:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Provenance
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        subgroups:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Subgroups
+      required:
+      - measured
+      title: MetricsOut
+      type: object
+    ModelCardOut:
+      additionalProperties: false
+      properties:
+        capabilities:
+          items:
+            type: string
+          title: Capabilities
+          type: array
+        commercial_use:
+          enum:
+          - 'yes'
+          - 'no'
+          - unclear
+          title: Commercial Use
+          type: string
+        depends_on:
+          items:
+            type: string
+          title: Depends On
+          type: array
+        exam_types:
+          items:
+            $ref: '#/components/schemas/ExamType'
+          title: Exam Types
+          type: array
+        id:
+          title: Id
+          type: string
+        intended_use:
+          const: research_use_only
+          title: Intended Use
+          type: string
+        labels:
+          items:
+            $ref: '#/components/schemas/LabelOut'
+          title: Labels
+          type: array
+        license_code:
+          title: License Code
+          type: string
+        license_weights:
+          title: License Weights
+          type: string
+        limitations:
+          items:
+            type: string
+          title: Limitations
+          type: array
+        manifest_sha256:
+          title: Manifest Sha256
+          type: string
+        modalities:
+          items:
+            type: string
+          title: Modalities
+          type: array
+        name:
+          title: Name
+          type: string
+        planned_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planned Reason
+        references:
+          items:
+            additionalProperties:
+              anyOf:
+              - type: string
+              - type: 'null'
+            type: object
+          title: References
+          type: array
+        route:
+          title: Route
+          type: string
+        status:
+          enum:
+          - available
+          - planned
+          - retired
+          title: Status
+          type: string
+        summary:
+          title: Summary
+          type: string
+        task:
+          title: Task
+          type: string
+        training_data:
+          items:
+            type: string
+          title: Training Data
+          type: array
+        training_data_terms:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Training Data Terms
+        version:
+          title: Version
+          type: string
+        weights:
+          items:
+            $ref: '#/components/schemas/WeightOut'
+          title: Weights
+          type: array
+      required:
+      - id
+      - name
+      - version
+      - status
+      - planned_reason
+      - task
+      - route
+      - summary
+      - intended_use
+      - capabilities
+      - exam_types
+      - modalities
+      - license_code
+      - license_weights
+      - commercial_use
+      - training_data_terms
+      - training_data
+      - depends_on
+      - weights
+      - labels
+      - limitations
+      - references
+      - manifest_sha256
+      title: ModelCardOut
+      type: object
+    ModelProvenance:
+      additionalProperties: false
+      description: O que é preciso para saber exatamente qual modelo produziu um item.
+      properties:
+        code_version:
+          title: Code Version
+          type: string
+        commercial_use:
+          enum:
+          - 'yes'
+          - 'no'
+          - unclear
+          title: Commercial Use
+          type: string
+        license_code:
+          title: License Code
+          type: string
+        license_weights:
+          title: License Weights
+          type: string
+        manifest_sha256:
+          title: Manifest Sha256
+          type: string
+        model_id:
+          title: Model Id
+          type: string
+        model_version:
+          title: Model Version
+          type: string
+        runtime:
+          additionalProperties:
+            type: string
+          title: Runtime
+          type: object
+        weights_sha256:
+          additionalProperties:
+            type: string
+          title: Weights Sha256
+          type: object
+      required:
+      - model_id
+      - model_version
+      - weights_sha256
+      - manifest_sha256
+      - code_version
+      - license_code
+      - license_weights
+      - commercial_use
+      title: ModelProvenance
+      type: object
+    ModelRun:
+      additionalProperties: false
+      description: O que aconteceu com um modelo numa análise (rodou, absteve-se, falhou...).
+      properties:
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        model_id:
+          title: Model Id
+          type: string
+        provenance_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Provenance Idx
+        qa:
+          anyOf:
+          - $ref: '#/components/schemas/QAReport'
+          - type: 'null'
+        seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Seconds
+        status:
+          enum:
+          - completed
+          - abstained
+          - unavailable
+          - planned
+          - failed
+          title: Status
+          type: string
+      required:
+      - model_id
+      - status
+      title: ModelRun
+      type: object
+    OperatingPoint:
+      additionalProperties: false
+      description: Limiar de decisão com a sua origem. ``role`` dá o significado clínico.
+      properties:
+        direction:
+          default: ge
+          description: Positivo quando escore >= limiar ('ge') ou <= ('le')
+          enum:
+          - ge
+          - le
+          title: Direction
+          type: string
+        evidence_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Caminho#chave do artefato de avaliação, quando medido por nós
+          title: Evidence Ref
+        name:
+          title: Name
+          type: string
+        'on':
+          enum:
+          - logit
+          - sigmoid
+          - softmax
+          - calibrated
+          - measurement
+          - similarity
+          title: 'On'
+          type: string
+        role:
+          enum:
+          - rule_out
+          - rule_in
+          - balanced
+          - guideline
+          title: Role
+          type: string
+        source:
+          description: 'Origem legível do limiar: ajuste do protocolo, DOI de diretriz, padrão de biblioteca'
+          title: Source
+          type: string
+        threshold:
+          title: Threshold
+          type: number
+      required:
+      - name
+      - role
+      - threshold
+      - 'on'
+      - source
+      title: OperatingPoint
+      type: object
+    Primitive:
+      additionalProperties: false
+      description: Geometria em coordenadas de pixel de uma imagem (x = coluna, y = linha).
+      properties:
+        frame:
+          default: 0
+          title: Frame
+          type: integer
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        type:
+          enum:
+          - point
+          - line
+          - bbox
+          - polygon
+          title: Type
+          type: string
+        xy:
+          items:
+            maxItems: 2
+            minItems: 2
+            prefixItems:
+            - type: number
+            - type: number
+            type: array
+          title: Xy
+          type: array
+      required:
+      - type
+      - xy
+      title: Primitive
+      type: object
+    QACheck:
+      additionalProperties: false
+      description: Uma verificação de aplicabilidade/qualidade com o valor observado.
+      properties:
+        detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detail
+        name:
+          title: Name
+          type: string
+        passed:
+          title: Passed
+          type: boolean
+        threshold:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Threshold
+        value:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Value
+      required:
+      - name
+      - passed
+      title: QACheck
+      type: object
+    QAReport:
+      additionalProperties: false
+      description: Resultado do portão de aplicabilidade de um modelo para uma entrada.
+      properties:
+        applicable:
+          title: Applicable
+          type: boolean
+        checks:
+          default: []
+          items:
+            $ref: '#/components/schemas/QACheck'
+          title: Checks
+          type: array
+        reasons:
+          default: []
+          items:
+            $ref: '#/components/schemas/AbstentionReason'
+          title: Reasons
+          type: array
+      required:
+      - applicable
+      title: QAReport
+      type: object
+    ReadyzOut:
+      additionalProperties: false
+      properties:
+        database_revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Database Revision
+        deident_key_configured:
+          title: Deident Key Configured
+          type: boolean
+        detail:
+          default: []
+          items:
+            type: string
+          title: Detail
+          type: array
+        expected_revision:
+          title: Expected Revision
+          type: string
+        ready:
+          title: Ready
+          type: boolean
+        store_writable:
+          title: Store Writable
+          type: boolean
+        worker:
+          enum:
+          - running
+          - stopped
+          - disabled
+          title: Worker
+          type: string
+      required:
+      - ready
+      - database_revision
+      - expected_revision
+      - worker
+      - store_writable
+      - deident_key_configured
+      title: ReadyzOut
+      type: object
+    ReportContent:
+      additionalProperties: false
+      properties:
+        analysis_created_at:
+          title: Analysis Created At
+          type: string
+        analysis_id:
+          title: Analysis Id
+          type: string
+        completed_models:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Completed Models
+        demoted_findings:
+          default: 0
+          title: Demoted Findings
+          type: integer
+        disclaimer:
+          default: Achado sugerido para confirmação médica. Software de pesquisa; não é diagnóstico.
+          title: Disclaimer
+          type: string
+        exam_type:
+          title: Exam Type
+          type: string
+        excluded_research_findings:
+          title: Excluded Research Findings
+          type: integer
+        findings:
+          items:
+            $ref: '#/components/schemas/ReportFinding'
+          title: Findings
+          type: array
+        header:
+          default: Uso exclusivo em pesquisa — não é laudo diagnóstico
+          title: Header
+          type: string
+        held_findings:
+          default: 0
+          title: Held Findings
+          type: integer
+        input_sha256:
+          items:
+            type: string
+          title: Input Sha256
+          type: array
+        kind:
+          const: preliminary_research_report
+          default: preliminary_research_report
+          title: Kind
+          type: string
+        level_meanings:
+          additionalProperties:
+            type: string
+          title: Level Meanings
+          type: object
+        no_findings_statement:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: No Findings Statement
+        patient_pseudo_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Pseudo Id
+        provenance:
+          items:
+            $ref: '#/components/schemas/ReportProvenance'
+          title: Provenance
+          type: array
+        result_sha256:
+          title: Result Sha256
+          type: string
+        result_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result Status
+        runs:
+          items:
+            $ref: '#/components/schemas/ReportRun'
+          title: Runs
+          type: array
+        runs_statement:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Runs Statement
+        schema_version:
+          const: '1'
+          default: '1'
+          title: Schema Version
+          type: string
+        segmentations:
+          default: []
+          items:
+            $ref: '#/components/schemas/ReportSegmentation'
+          title: Segmentations
+          type: array
+        study_id:
+          title: Study Id
+          type: string
+        study_uid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Study Uid
+        unreviewed_findings:
+          title: Unreviewed Findings
+          type: integer
+        warnings:
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - analysis_id
+      - study_id
+      - study_uid
+      - patient_pseudo_id
+      - exam_type
+      - analysis_created_at
+      - result_sha256
+      - input_sha256
+      - findings
+      - level_meanings
+      - excluded_research_findings
+      - unreviewed_findings
+      - runs
+      - provenance
+      - warnings
+      - no_findings_statement
+      title: ReportContent
+      type: object
+    ReportFinding:
+      additionalProperties: false
+      properties:
+        abstention_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Abstention Reason
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        code_meaning:
+          title: Code Meaning
+          type: string
+        code_scheme:
+          title: Code Scheme
+          type: string
+        code_value:
+          title: Code Value
+          type: string
+        condition_id:
+          title: Condition Id
+          type: string
+        condition_name:
+          title: Condition Name
+          type: string
+        decision:
+          title: Decision
+          type: string
+        decision_pt:
+          title: Decision Pt
+          type: string
+        evidence_level:
+          enum:
+          - A
+          - B
+          - C
+          title: Evidence Level
+          type: string
+        idx:
+          title: Idx
+          type: integer
+        image_idx:
+          title: Image Idx
+          type: integer
+        label:
+          title: Label
+          type: string
+        level_at_analysis:
+          anyOf:
+          - enum:
+            - A
+            - B
+            - C
+            type: string
+          - type: 'null'
+          title: Level At Analysis
+        measurement:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Measurement
+        measurement_only:
+          default: false
+          title: Measurement Only
+          type: boolean
+        model_id:
+          title: Model Id
+          type: string
+        model_version:
+          title: Model Version
+          type: string
+        op_normalized:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Op Normalized
+        operating_point:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operating Point
+        physician_decision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Physician Decision
+        physician_decision_pt:
+          default: não revisado
+          title: Physician Decision Pt
+          type: string
+        probability:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Probability
+        raw_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Raw Score
+        review:
+          anyOf:
+          - $ref: '#/components/schemas/ReviewInfo'
+          - type: 'null'
+        score_kind:
+          title: Score Kind
+          type: string
+      required:
+      - idx
+      - condition_id
+      - condition_name
+      - code_scheme
+      - code_value
+      - code_meaning
+      - label
+      - model_id
+      - model_version
+      - evidence_level
+      - decision
+      - decision_pt
+      - raw_score
+      - score_kind
+      - op_normalized
+      - probability
+      - category
+      - operating_point
+      - abstention_reason
+      - measurement
+      - image_idx
+      - review
+      title: ReportFinding
+      type: object
+    ReportIntegrity:
+      additionalProperties: false
+      properties:
+        content_matches_hash:
+          title: Content Matches Hash
+          type: boolean
+        result_matches_hash:
+          title: Result Matches Hash
+          type: boolean
+        signature_valid:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Signature Valid
+      required:
+      - content_matches_hash
+      - result_matches_hash
+      - signature_valid
+      title: ReportIntegrity
+      type: object
+    ReportOut:
+      additionalProperties: false
+      properties:
+        analysis_id:
+          title: Analysis Id
+          type: string
+        content:
+          $ref: '#/components/schemas/ReportContent'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          title: Created By
+          type: string
+        downloads:
+          additionalProperties:
+            type: string
+          title: Downloads
+          type: object
+        id:
+          title: Id
+          type: string
+        integrity:
+          $ref: '#/components/schemas/ReportIntegrity'
+        report_sha256:
+          title: Report Sha256
+          type: string
+        result_sha256:
+          title: Result Sha256
+          type: string
+        signature_sha256:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signature Sha256
+        signed:
+          title: Signed
+          type: boolean
+        signed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Signed At
+        signed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signed By
+        signed_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signed By Name
+      required:
+      - id
+      - analysis_id
+      - created_by
+      - created_at
+      - report_sha256
+      - result_sha256
+      - signed
+      - signed_by
+      - signed_by_name
+      - signed_at
+      - signature_sha256
+      - integrity
+      - content
+      - downloads
+      title: ReportOut
+      type: object
+    ReportProvenance:
+      additionalProperties: false
+      properties:
+        code_version:
+          title: Code Version
+          type: string
+        commercial_use:
+          title: Commercial Use
+          type: string
+        license_weights:
+          title: License Weights
+          type: string
+        manifest_sha256:
+          title: Manifest Sha256
+          type: string
+        model_id:
+          title: Model Id
+          type: string
+        model_version:
+          title: Model Version
+          type: string
+        weights_sha256:
+          additionalProperties:
+            type: string
+          title: Weights Sha256
+          type: object
+      required:
+      - model_id
+      - model_version
+      - weights_sha256
+      - manifest_sha256
+      - code_version
+      - license_weights
+      - commercial_use
+      title: ReportProvenance
+      type: object
+    ReportRun:
+      additionalProperties: false
+      properties:
+        detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detail
+        model_id:
+          title: Model Id
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - model_id
+      - status
+      - detail
+      title: ReportRun
+      type: object
+    ReportSegmentation:
+      additionalProperties: false
+      description: Segmentação que pode acompanhar o laudo (SEG, exportação).
+      properties:
+        finding_idx:
+          items:
+            type: integer
+          title: Finding Idx
+          type: array
+        idx:
+          title: Idx
+          type: integer
+        model_id:
+          title: Model Id
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - idx
+      - name
+      - model_id
+      - finding_idx
+      title: ReportSegmentation
+      type: object
+    ReviewIn:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+          - accept
+          - reject
+          - amend
+          title: Action
+          type: string
+        amended_decision:
+          anyOf:
+          - enum:
+            - positive
+            - negative
+            - indeterminate
+            type: string
+          - type: 'null'
+          title: Amended Decision
+        amended_text:
+          anyOf:
+          - maxLength: 4000
+            type: string
+          - type: 'null'
+          title: Amended Text
+        comment:
+          anyOf:
+          - maxLength: 4000
+            type: string
+          - type: 'null'
+          title: Comment
+        finding_idx:
+          minimum: 0.0
+          title: Finding Idx
+          type: integer
+        result_sha256:
+          description: Hash do resultado que o revisor viu.
+          pattern: ^[0-9a-f]{64}$
+          title: Result Sha256
+          type: string
+      required:
+      - finding_idx
+      - action
+      - result_sha256
+      title: ReviewIn
+      type: object
+    ReviewInfo:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+          - accept
+          - reject
+          - amend
+          title: Action
+          type: string
+        amended_decision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Amended Decision
+        amended_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Amended Text
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        reviewed_at:
+          title: Reviewed At
+          type: string
+        reviewer_name:
+          title: Reviewer Name
+          type: string
+        reviewer_username:
+          title: Reviewer Username
+          type: string
+      required:
+      - action
+      - reviewer_username
+      - reviewer_name
+      - reviewed_at
+      title: ReviewInfo
+      type: object
+    ReviewOut:
+      additionalProperties: false
+      properties:
+        action:
+          enum:
+          - accept
+          - reject
+          - amend
+          title: Action
+          type: string
+        amended_decision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Amended Decision
+        amended_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Amended Text
+        analysis_id:
+          title: Analysis Id
+          type: string
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        finding_idx:
+          title: Finding Idx
+          type: integer
+        id:
+          title: Id
+          type: string
+        result_sha256:
+          title: Result Sha256
+          type: string
+        reviewer_id:
+          title: Reviewer Id
+          type: string
+        reviewer_username:
+          title: Reviewer Username
+          type: string
+      required:
+      - id
+      - analysis_id
+      - finding_idx
+      - action
+      - amended_decision
+      - amended_text
+      - comment
+      - reviewer_id
+      - reviewer_username
+      - result_sha256
+      - created_at
+      title: ReviewOut
+      type: object
+    Segmentation:
+      additionalProperties: false
+      description: Mapa de rótulos inteiro na geometria da imagem de origem.
+      properties:
+        id:
+          title: Id
+          type: string
+        image_idx:
+          default: 0
+          title: Image Idx
+          type: integer
+        label_keys:
+          additionalProperties:
+            type: string
+          title: Label Keys
+          type: object
+        labels:
+          additionalProperties:
+            $ref: '#/components/schemas/CodedConcept'
+          title: Labels
+          type: object
+        mask:
+          $ref: '#/components/schemas/ArtifactRef'
+        name:
+          title: Name
+          type: string
+        provenance_idx:
+          title: Provenance Idx
+          type: integer
+      required:
+      - id
+      - name
+      - labels
+      - label_keys
+      - mask
+      - provenance_idx
+      title: Segmentation
+      type: object
+    SeriesMetaOut:
+      additionalProperties: false
+      description: Metadados para o visualizador; ver ``GET /series/{id}/frames/{i}`` para os pixels.
+      properties:
+        affine_lps:
+          anyOf:
+          - items:
+              items:
+                type: number
+              type: array
+            type: array
+          - type: 'null'
+          title: Affine Lps
+        color:
+          title: Color
+          type: boolean
+        default_max_dim:
+          title: Default Max Dim
+          type: integer
+        frame_dtype:
+          enum:
+          - uint16
+          - int16
+          - uint8
+          title: Frame Dtype
+          type: string
+        image_meta:
+          additionalProperties: true
+          title: Image Meta
+          type: object
+        max_dim_cap:
+          title: Max Dim Cap
+          type: integer
+        rescale_intercept:
+          title: Rescale Intercept
+          type: number
+        rescale_slope:
+          title: Rescale Slope
+          type: number
+        series:
+          $ref: '#/components/schemas/SeriesOut'
+        spacing_mm:
+          anyOf:
+          - items:
+              type: number
+            type: array
+          - type: 'null'
+          title: Spacing Mm
+        value_range:
+          maxItems: 2
+          minItems: 2
+          prefixItems:
+          - type: number
+          - type: number
+          title: Value Range
+          type: array
+        window:
+          anyOf:
+          - maxItems: 2
+            minItems: 2
+            prefixItems:
+            - type: number
+            - type: number
+            type: array
+          - type: 'null'
+          title: Window
+      required:
+      - series
+      - image_meta
+      - spacing_mm
+      - window
+      - value_range
+      - color
+      - affine_lps
+      - frame_dtype
+      - rescale_slope
+      - rescale_intercept
+      - default_max_dim
+      - max_dim_cap
+      title: SeriesMetaOut
+      type: object
+    SeriesOut:
+      additionalProperties: false
+      properties:
+        body_part:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body Part
+        columns:
+          title: Columns
+          type: integer
+        content_sha256:
+          title: Content Sha256
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        human_overrides:
+          additionalProperties: true
+          title: Human Overrides
+          type: object
+        id:
+          title: Id
+          type: string
+        kind:
+          enum:
+          - projection
+          - volume
+          - cine
+          title: Kind
+          type: string
+        laterality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Laterality
+        modality:
+          title: Modality
+          type: string
+        n_frames:
+          title: N Frames
+          type: integer
+        n_instances:
+          title: N Instances
+          type: integer
+        position:
+          title: Position
+          type: integer
+        rows:
+          title: Rows
+          type: integer
+        series_uid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Series Uid
+        source_format:
+          title: Source Format
+          type: string
+        view_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: View Position
+      required:
+      - id
+      - position
+      - series_uid
+      - modality
+      - source_format
+      - kind
+      - description
+      - body_part
+      - view_position
+      - laterality
+      - rows
+      - columns
+      - n_frames
+      - n_instances
+      - content_sha256
+      - human_overrides
+      title: SeriesOut
+      type: object
+    SignIn:
+      additionalProperties: false
+      properties:
+        password:
+          description: Reautenticação do signatário.
+          maxLength: 1024
+          minLength: 1
+          title: Password
+          type: string
+        report_sha256:
+          pattern: ^[0-9a-f]{64}$
+          title: Report Sha256
+          type: string
+        result_sha256:
+          pattern: ^[0-9a-f]{64}$
+          title: Result Sha256
+          type: string
+      required:
+      - report_sha256
+      - result_sha256
+      - password
+      title: SignIn
+      type: object
+    StatusOut:
+      additionalProperties: false
+      properties:
+        clinically_validated:
+          const: false
+          title: Clinically Validated
+          type: boolean
+        disclaimer:
+          title: Disclaimer
+          type: string
+        modalities:
+          items:
+            additionalProperties: true
+            type: object
+          title: Modalities
+          type: array
+        regulatory_status:
+          title: Regulatory Status
+          type: string
+        shadow_mode:
+          default: false
+          description: 'Modo silencioso (REQ-195): saída de IA oculta de quem não tem ''shadow:view''.'
+          title: Shadow Mode
+          type: boolean
+        version:
+          title: Version
+          type: string
+      required:
+      - version
+      - modalities
+      - clinically_validated
+      - regulatory_status
+      - disclaimer
+      title: StatusOut
+      type: object
+    StudyListItem:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        exam_type:
+          $ref: '#/components/schemas/ExamType'
+        exam_type_source:
+          enum:
+          - metadata
+          - human
+          title: Exam Type Source
+          type: string
+        id:
+          title: Id
+          type: string
+        latest_analysis:
+          anyOf:
+          - $ref: '#/components/schemas/AnalysisSummary'
+          - type: 'null'
+        modalities:
+          items:
+            type: string
+          title: Modalities
+          type: array
+        n_series:
+          title: N Series
+          type: integer
+        review_status:
+          enum:
+          - no_analysis
+          - pending_review
+          - in_review
+          - signed
+          title: Review Status
+          type: string
+      required:
+      - id
+      - modalities
+      - description
+      - exam_type
+      - exam_type_source
+      - created_at
+      - n_series
+      - latest_analysis
+      - review_status
+      title: StudyListItem
+      type: object
+    StudyListOut:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StudyListItem'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: StudyListOut
+      type: object
+    StudyOut:
+      additionalProperties: false
+      properties:
+        analyses:
+          items:
+            $ref: '#/components/schemas/AnalysisSummary'
+          title: Analyses
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        exam_type:
+          $ref: '#/components/schemas/ExamType'
+        exam_type_set_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Exam Type Set At
+        exam_type_source:
+          enum:
+          - metadata
+          - human
+          title: Exam Type Source
+          type: string
+        id:
+          title: Id
+          type: string
+        modalities:
+          items:
+            type: string
+          title: Modalities
+          type: array
+        patient_pseudo_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Pseudo Id
+        series:
+          items:
+            $ref: '#/components/schemas/SeriesOut'
+          title: Series
+          type: array
+        source:
+          enum:
+          - upload
+          - dicomweb
+          title: Source
+          type: string
+        study_uid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Study Uid
+        warnings:
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - id
+      - study_uid
+      - patient_pseudo_id
+      - modalities
+      - description
+      - exam_type
+      - exam_type_source
+      - exam_type_set_at
+      - source
+      - created_at
+      - warnings
+      - series
+      - analyses
+      title: StudyOut
+      type: object
+    UncataloguedLabelOut:
+      additionalProperties: false
+      properties:
+        condition_id:
+          title: Condition Id
+          type: string
+        label:
+          title: Label
+          type: string
+        level:
+          const: D
+          default: D
+          title: Level
+          type: string
+        model_id:
+          title: Model Id
+          type: string
+        visibility:
+          const: research
+          default: research
+          title: Visibility
+          type: string
+      required:
+      - model_id
+      - label
+      - condition_id
+      title: UncataloguedLabelOut
+      type: object
+    UserCreateIn:
+      additionalProperties: false
+      properties:
+        full_name:
+          maxLength: 200
+          minLength: 1
+          title: Full Name
+          type: string
+        password:
+          maxLength: 1024
+          minLength: 1
+          title: Password
+          type: string
+        professional_id:
+          anyOf:
+          - maxLength: 64
+            type: string
+          - type: 'null'
+          title: Professional Id
+        role:
+          enum:
+          - admin
+          - physician
+          - technician
+          - viewer
+          - researcher
+          title: Role
+          type: string
+        username:
+          maxLength: 64
+          minLength: 3
+          pattern: ^[A-Za-z0-9._@-]+$
+          title: Username
+          type: string
+      required:
+      - username
+      - full_name
+      - role
+      - password
+      title: UserCreateIn
+      type: object
+    UserOut:
+      additionalProperties: false
+      properties:
+        active:
+          title: Active
+          type: boolean
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        full_name:
+          title: Full Name
+          type: string
+        id:
+          title: Id
+          type: string
+        last_login_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Last Login At
+        permissions:
+          items:
+            type: string
+          title: Permissions
+          type: array
+        professional_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Professional Id
+        role:
+          enum:
+          - admin
+          - physician
+          - technician
+          - viewer
+          - researcher
+          title: Role
+          type: string
+        username:
+          title: Username
+          type: string
+      required:
+      - id
+      - username
+      - full_name
+      - role
+      - professional_id
+      - active
+      - created_at
+      - last_login_at
+      - permissions
+      title: UserOut
+      type: object
+    UserUpdateIn:
+      additionalProperties: false
+      properties:
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+        full_name:
+          anyOf:
+          - maxLength: 200
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Full Name
+        password:
+          anyOf:
+          - maxLength: 1024
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Password
+        professional_id:
+          anyOf:
+          - maxLength: 64
+            type: string
+          - type: 'null'
+          title: Professional Id
+        role:
+          anyOf:
+          - enum:
+            - admin
+            - physician
+            - technician
+            - viewer
+            - researcher
+            type: string
+          - type: 'null'
+          title: Role
+      title: UserUpdateIn
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    WeightOut:
+      additionalProperties: false
+      properties:
+        bytes:
+          title: Bytes
+          type: integer
+        filename:
+          title: Filename
+          type: string
+        key:
+          title: Key
+          type: string
+        sha256:
+          title: Sha256
+          type: string
+        state:
+          description: ok/mismatch só com verify_weights=true; 'unverified' = presente, hash não recalculado
+            nesta consulta (a carga do modelo sempre confere).
+          enum:
+          - ok
+          - missing
+          - mismatch
+          - unpinned
+          - unverified
+          title: State
+          type: string
+      required:
+      - key
+      - filename
+      - sha256
+      - bytes
+      - state
+      title: WeightOut
+      type: object
 info:
-  title: MedAI Radiologia API
-  description: |
-    Advanced AI-powered medical image analysis system providing comprehensive diagnostic capabilities
-    with clinical validation and explainability features.
-  version: 4.0.0
-  contact:
-    name: MedAI Support
-    email: support@medai-radiologia.com
-  license:
-    name: Proprietary
-    url: https://medai-radiologia.com/license
-
-servers:
-  - url: https://api.medai-radiologia.com/v1
-    description: Production server
-  - url: http://localhost:8000/api/v1
-    description: Development server
-
-security:
-  - BearerAuth: []
-
+  description: Software de pesquisa. NÃO é dispositivo médico. Nenhum modelo validado clinicamente. Toda
+    saída é rascunho e requer revisão e validação médica. O sistema não afirma normalidade.
+  title: RadiologyAI
+  version: 2.0.0.dev0
+openapi: 3.1.0
 paths:
-  /health:
+  /api/v1/analyses/{analysis_id}:
     get:
-      summary: Health Check
-      description: Check system health and availability
-      tags:
-        - System
-      security: []
-      responses:
-        '200':
-          description: System is healthy
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
+      description: 'Estado e, quando concluída, o resultado imutável (conferido contra ``result_sha256``).
 
-  /models:
-    get:
-      summary: List Available Models
-      description: Get information about available AI models
-      tags:
-        - Models
-      responses:
-        '200':
-          description: List of available models
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ModelsResponse'
 
-  /analyze:
-    post:
-      summary: Analyze Medical Image
-      description: |
-        Analyze a medical image using AI models. Supports DICOM, JPEG, and PNG formats.
-        Returns diagnostic predictions with clinical validation and explainability.
-      tags:
-        - Analysis
-      requestBody:
+        Por padrão achados exploratórios (nível D) são omitidos e contados em
+
+        ``hidden_research_findings``.
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: estado, entradas e tempos são
+
+        servidos; a saída de IA não (``shadow: true``, ``result: null``). Servir um
+
+        resultado concluído assim é auditado (``shadow.redacted``).'
+      operationId: get_analysis_api_v1_analyses__analysis_id__get
+      parameters:
+      - in: path
+        name: analysis_id
         required: true
+        schema:
+          title: Analysis Id
+          type: string
+      - description: Inclui achados de nível D (exige papel com modo pesquisa)
+        in: query
+        name: include_research
+        required: false
+        schema:
+          default: false
+          description: Inclui achados de nível D (exige papel com modo pesquisa)
+          title: Include Research
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Get Analysis
+      tags:
+      - analyses
+      x-permission: analyses:read
+  /api/v1/analyses/{analysis_id}/reports:
+    get:
+      operationId: list_for_analysis_api_v1_analyses__analysis_id__reports_get
+      parameters:
+      - in: path
+        name: analysis_id
+        required: true
+        schema:
+          title: Analysis Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ReportOut'
+                title: Response List For Analysis Api V1 Analyses  Analysis Id  Reports Get
+                type: array
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: List For Analysis
+      tags:
+      - reports
+      x-permission: reports:read
+    post:
+      description: 'Instantâneo do laudo a partir do resultado imutável e das revisões atuais.
+
+
+        Achados de nível D nunca entram. Mudou uma revisão? Crie um laudo novo.'
+      operationId: create_api_v1_analyses__analysis_id__reports_post
+      parameters:
+      - in: path
+        name: analysis_id
+        required: true
+        schema:
+          title: Analysis Id
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Create
+      tags:
+      - reports
+      x-permission: reports:create
+  /api/v1/analyses/{analysis_id}/reviews:
+    get:
+      description: Histórico completo de revisões (somente inserção).
+      operationId: list_reviews_api_v1_analyses__analysis_id__reviews_get
+      parameters:
+      - in: path
+        name: analysis_id
+        required: true
+        schema:
+          title: Analysis Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ReviewOut'
+                title: Response List Reviews Api V1 Analyses  Analysis Id  Reviews Get
+                type: array
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: List Reviews
+      tags:
+      - analyses
+      x-permission: analyses:read
+    post:
+      description: 'Aceita, rejeita ou emenda UM achado (índice no resultado completo).
+
+
+        A revisão carrega o ``result_sha256`` que o médico viu; divergente => 409.
+
+        Revisões são somente inserção: a mais recente vale; o histórico fica.'
+      operationId: create_review_api_v1_analyses__analysis_id__reviews_post
+      parameters:
+      - in: path
+        name: analysis_id
+        required: true
+        schema:
+          title: Analysis Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewIn'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Create Review
+      tags:
+      - analyses
+      x-permission: reviews:write
+  /api/v1/analyses/{analysis_id}/segmentations/{seg_index}/frames/{index}:
+    get:
+      description: 'Quadro do mapa de rótulos na MESMA grade de ``/series/{id}/frames/{index}``.
+
+
+        ``seg_index`` é o índice no resultado COMPLETO (``AnalysisOut.segmentation_indices``).
+
+        Valores inteiros (``uint8``/``uint16``): 0 é fundo; o significado de cada
+
+        índice está em ``result.segmentations[seg_index].labels``. Segmentação sem
+
+        achado A-C ligado (exploratória) só é servida com ``include_research=true``
+
+        a papel com modo pesquisa; caso contrário, 403.'
+      operationId: segmentation_frame_api_v1_analyses__analysis_id__segmentations__seg_index__frames__index__get
+      parameters:
+      - in: path
+        name: analysis_id
+        required: true
+        schema:
+          title: Analysis Id
+          type: string
+      - in: path
+        name: seg_index
+        required: true
+        schema:
+          title: Seg Index
+          type: integer
+      - in: path
+        name: index
+        required: true
+        schema:
+          title: Index
+          type: integer
+      - in: query
+        name: max_dim
+        required: false
+        schema:
+          anyOf:
+          - minimum: 16
+            type: integer
+          - type: 'null'
+          title: Max Dim
+      - description: Exigido para segmentação exploratória (papel com modo pesquisa)
+        in: query
+        name: include_research
+        required: false
+        schema:
+          default: false
+          description: Exigido para segmentação exploratória (papel com modo pesquisa)
+          title: Include Research
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/octet-stream: {}
+          description: 'Corpo binário little-endian, linha a linha. Cabeçalhos: X-Frame-Rows, X-Frame-Columns,
+            X-Frame-Channels (1 ou 3), X-Frame-Dtype (uint16|int16|uint8), X-Frame-Scale (fator inteiro
+            de redução: coordenada no quadro = coordenada de origem / escala), X-Frame-Index, X-Frame-Count,
+            X-Rescale-Slope, X-Rescale-Intercept (valor físico = armazenado * slope + intercept; HU em
+            TC). O cliente aplica janela/LUT.'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Segmentation Frame
+      tags:
+      - analyses
+      x-permission: analyses:read
+  /api/v1/analyze:
+    post:
+      deprecated: true
+      description: 'Analisa um exame DICOM.
+
+
+        Ordem obrigatória: ler cabeçalho, aplicar o gate de escopo da modalidade,
+
+        e só então processar pixels. Entrada fora do uso pretendido é recusada com
+
+        HTTP 422 — nunca recebe uma predição degradada (perigo H-03).
+
+
+        A resposta **não** contém métricas de validação clínica. O v1 devolvia
+
+        ``clinical_metrics`` calculadas a partir de um array inventado de um elemento.'
+      operationId: analyze_api_v1_analyze_post
+      requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AnalyzeRequest'
+              $ref: '#/components/schemas/Body_analyze_api_v1_analyze_post'
+        required: true
       responses:
         '200':
-          description: Analysis completed successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnalysisResponse'
-        '400':
-          description: Invalid request or image format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '413':
-          description: Image too large
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/LegacyAnalyzeOut'
+          description: Successful Response
         '422':
-          description: Image quality insufficient
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          description: Rate limit exceeded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /explain/{analysis_id}:
-    get:
-      summary: Get Analysis Explanation
-      description: Retrieve detailed explanation for a previous analysis
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Unprocessable Content
+      summary: Analyze
       tags:
-        - Explainability
+      - analyze (legado)
+      x-permission: legacy:analyze
+  /api/v1/artifacts/{sha256}:
+    get:
+      description: 'Artefato indexado (só os registrados no banco); hash conferido na leitura.
+
+
+        Modo silencioso (REQ-195): mapa de explicação e máscara (saída de IA) => 403
+
+        ``ShadowModeError`` para quem não tem ``shadow:view``.'
+      operationId: artifact_api_v1_artifacts__sha256__get
       parameters:
-        - name: analysis_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Unique analysis identifier
+      - in: path
+        name: sha256
+        required: true
+        schema:
+          pattern: ^[0-9a-f]{64}$
+          title: Sha256
+          type: string
       responses:
         '200':
-          description: Explanation retrieved successfully
+          content:
+            application/octet-stream: {}
+            application/x-npz: {}
+            image/png: {}
+          description: Bytes conferidos contra o sha256 antes do envio.
+        '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExplanationResponse'
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
         '404':
-          description: Analysis not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /metrics:
-    get:
-      summary: Performance Metrics
-      description: Get system performance and clinical validation metrics
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Artifact
       tags:
-        - Metrics
+      - artifacts
+      x-permission: analyses:read
+  /api/v1/audit:
+    get:
+      description: Eventos em ordem de sequência; reconstrói decisões por ``subject_id``.
+      operationId: events_api_v1_audit_get
+      parameters:
+      - in: query
+        name: event
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            type: string
+          - type: 'null'
+          title: Event
+      - in: query
+        name: subject_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            type: string
+          - type: 'null'
+          title: Subject Id
+      - in: query
+        name: after_seq
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: After Seq
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
       responses:
         '200':
-          description: Metrics retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MetricsResponse'
+                $ref: '#/components/schemas/AuditListOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Events
+      tags:
+      - audit
+      x-permission: audit:read
+  /api/v1/audit/verify:
+    get:
+      description: 'Recalcula a cadeia inteira; aponta o primeiro evento adulterado ou elo quebrado.
 
-components:
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
 
-  schemas:
-    HealthResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [healthy, degraded, unhealthy]
-        timestamp:
-          type: string
-          format: date-time
-        version:
-          type: string
-        components:
-          type: object
-          properties:
-            ai_models:
-              type: string
-            database:
-              type: string
-            storage:
-              type: string
-        uptime:
-          type: integer
-          description: Uptime in seconds
+        Compara também com o último checkpoint externo (fora do banco):
 
-    ModelsResponse:
-      type: object
-      properties:
-        models:
-          type: array
-          items:
-            $ref: '#/components/schemas/ModelInfo'
-        default_model:
-          type: string
+        eventos recentes apagados reprovam a verificação.'
+      operationId: verify_api_v1_audit_verify_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditVerifyOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Verify
+      tags:
+      - audit
+      x-permission: audit:read
+  /api/v1/auth/login:
+    post:
+      description: 'Troca usuário e senha por um token opaco de sessão (``Authorization: Bearer``).
 
-    ModelInfo:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        modalities:
-          type: array
-          items:
+
+        Falhas repetidas são limitadas por (usuário, cliente): quem erra de um IP
+
+        não tranca o usuário nos demais.'
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginIn'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Unprocessable Content
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Too Many Requests
+      summary: Login
+      tags:
+      - auth
+      x-permission: public
+  /api/v1/auth/logout:
+    post:
+      description: Revoga a sessão corrente (o token deixa de valer imediatamente).
+      operationId: logout_api_v1_auth_logout_post
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+      summary: Logout
+      tags:
+      - auth
+      x-permission: authenticated
+  /api/v1/auth/me:
+    get:
+      description: Usuário da sessão e suas permissões (o frontend esconde o que não pode fazer).
+      operationId: me_api_v1_auth_me_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+      summary: Me
+      tags:
+      - auth
+      x-permission: authenticated
+  /api/v1/catalog:
+    get:
+      description: 'Condições do catálogo com o nível calculado de cada modelo que as cobre.
+
+
+        Entrada cujo manifesto declara ``visibility_default: research`` aparece com
+
+        o nível medido, mas visibilidade ``research`` (``restricted_by_manifest``).
+
+
+        Rótulos de manifesto cuja condição não está no catálogo aparecem em
+
+        ``uncatalogued`` — sempre nível D (modo pesquisa).'
+      operationId: catalog_api_v1_catalog_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Catalog
+      tags:
+      - catalog
+      x-permission: catalog:read
+  /api/v1/dicomweb/import:
+    post:
+      description: 'WADO-RS do estudo -> ingestão (des-identificação na entrada).
+
+
+        Os mesmos limites do envio de arquivos valem aqui: no máximo
+
+        ``max_zip_members`` instâncias (conferido por QIDO antes de baixar) e
+
+        ``max_uncompressed_bytes`` no total; as instâncias são gravadas uma a uma
+
+        em disco, nunca o estudo inteiro na memória. Acima do limite: 413.'
+      operationId: import_study_api_v1_dicomweb_import_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DicomwebImportIn'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Import Study
+      tags:
+      - dicomweb
+      x-permission: dicomweb:import
+  /api/v1/dicomweb/studies:
+    get:
+      description: QIDO-RS no PACS configurado; devolve só atributos NÃO identificadores.
+      operationId: search_api_v1_dicomweb_studies_get
+      parameters:
+      - in: query
+        name: modality
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 8
             type: string
-        accuracy:
-          type: number
-          format: float
+          - type: 'null'
+          title: Modality
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
           minimum: 0
-          maximum: 1
-        version:
-          type: string
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DicomwebSearchOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Search
+      tags:
+      - dicomweb
+      x-permission: dicomweb:import
+  /api/v1/health:
+    get:
+      description: Estado do serviço e disponibilidade dos subsistemas opcionais.
+      operationId: health_api_v1_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOut'
+          description: Successful Response
+      summary: Health
+      tags:
+      - health
+      x-permission: public
+  /api/v1/healthz:
+    get:
+      description: Processo vivo. Não consulta dependências.
+      operationId: healthz_api_v1_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthzOut'
+          description: Successful Response
+      summary: Healthz
+      tags:
+      - health
+      x-permission: public
+  /api/v1/metrics:
+    get:
+      description: 'Métricas medidas, lidas de ``artifacts/eval/``.
 
-    AnalyzeRequest:
-      type: object
-      properties:
-        image:
+
+        Quando não há artefato, devolve ``measured: false`` — e não um número.
+
+        O ``/api/v1/metrics`` do v1 fabricava ``clinical_metrics`` a partir de
+
+        ``y_true = np.array([1])  # Mock ground truth`` a cada requisição.'
+      operationId: metrics_api_v1_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsOut'
+          description: Successful Response
+      summary: Metrics
+      tags:
+      - metrics
+      x-permission: public
+  /api/v1/metrics/runs:
+    get:
+      description: Todos os run_ids disponíveis.
+      operationId: runs_api_v1_metrics_runs_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Runs Api V1 Metrics Runs Get
+                type: array
+          description: Successful Response
+      summary: Runs
+      tags:
+      - metrics
+      x-permission: public
+  /api/v1/models:
+    get:
+      description: Todos os modelos do registro, inclusive os planejados (com o motivo).
+      operationId: models_api_v1_models_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ModelCardOut'
+                title: Response Models Api V1 Models Get
+                type: array
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Models
+      tags:
+      - models
+      x-permission: models:read
+  /api/v1/models/{model_id}:
+    get:
+      description: Cartão de um modelo; ``verify_weights`` confere os pesos agora.
+      operationId: model_api_v1_models__model_id__get
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          title: Model Id
           type: string
-          format: binary
-          description: Medical image file (DICOM, JPEG, PNG)
-        model:
-          type: string
-          default: ensemble
-          description: AI model to use for analysis
-        include_explanation:
+      - description: Recalcula o sha256 de cada peso (lento para pesos grandes)
+        in: query
+        name: verify_weights
+        required: false
+        schema:
+          default: false
+          description: Recalcula o sha256 de cada peso (lento para pesos grandes)
+          title: Verify Weights
           type: boolean
-          default: true
-          description: Include explainability analysis
-        clinical_validation:
-          type: boolean
-          default: true
-          description: Include clinical validation metrics
-      required:
-        - image
-
-    AnalysisResponse:
-      type: object
-      properties:
-        analysis:
-          $ref: '#/components/schemas/Analysis'
-        clinical_metrics:
-          $ref: '#/components/schemas/ClinicalMetrics'
-        explanation:
-          $ref: '#/components/schemas/Explanation'
-        metadata:
-          $ref: '#/components/schemas/AnalysisMetadata'
-
-    Analysis:
-      type: object
-      properties:
-        predicted_class:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCardOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Model
+      tags:
+      - models
+      x-permission: models:read
+  /api/v1/readyz:
+    get:
+      description: 'Pronto para servir: banco na revisão esperada, repositório gravável, worker vivo.'
+      operationId: readyz_api_v1_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyzOut'
+          description: Successful Response
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyzOut'
+          description: Service Unavailable
+      summary: Readyz
+      tags:
+      - health
+      x-permission: public
+  /api/v1/reports/{report_id}:
+    get:
+      description: Laudo com verificação de integridade recalculada a cada leitura.
+      operationId: get_api_v1_reports__report_id__get
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
           type: string
-          description: Primary diagnostic prediction
-        confidence:
-          type: number
-          format: float
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Get
+      tags:
+      - reports
+      x-permission: reports:read
+  /api/v1/reports/{report_id}/export:
+    post:
+      description: 'Envia o SR (e os SEGs do laudo) ao PACS por STOW-RS. Só laudos ASSINADOS saem.
+
+
+        Só vão os SEGs listados em ``content.segmentations`` (ligados a achado A-C
+
+        não rejeitado). ``stored_sop_instance_uids`` lista apenas o que o servidor
+
+        CONFIRMOU; SEG que não pôde ser gerado aparece em ``skipped``. Se o servidor
+
+        recusar ou não confirmar algum objeto, a exportação é auditada como parcial
+
+        e a resposta é 502 — nunca um sucesso.'
+      operationId: export_api_v1_reports__report_id__export_post
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Export
+      tags:
+      - reports
+      x-permission: dicomweb:export
+  /api/v1/reports/{report_id}/fhir:
+    get:
+      description: 'FHIR R4 ``DiagnosticReport`` com ``status: preliminary``.'
+      operationId: fhir_api_v1_reports__report_id__fhir_get
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/fhir+json: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Fhir
+      tags:
+      - reports
+      x-permission: reports:read
+  /api/v1/reports/{report_id}/pdf:
+    get:
+      description: PDF em português com cabeçalho de uso exclusivo em pesquisa e bloco de assinatura.
+      operationId: pdf_api_v1_reports__report_id__pdf_get
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/pdf: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Pdf
+      tags:
+      - reports
+      x-permission: reports:read
+  /api/v1/reports/{report_id}/seg/{seg_index}:
+    get:
+      description: DICOM SEG (LABELMAP) da segmentação ``seg_index`` do resultado.
+      operationId: seg_api_v1_reports__report_id__seg__seg_index__get
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      - in: path
+        name: seg_index
+        required: true
+        schema:
+          title: Seg Index
+          type: integer
+      responses:
+        '200':
+          content:
+            application/dicom: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Seg
+      tags:
+      - reports
+      x-permission: reports:read
+  /api/v1/reports/{report_id}/sign:
+    post:
+      description: 'Assina: exige a senha do médico e os dois hashes que ele viu (laudo e resultado).
+
+
+        A senha errada é auditada (``auth.reauth_failed``) e limitada como o login:
+
+        na quinta falha em 15 minutos as sessões do usuário são revogadas e novas
+
+        tentativas recebem 429.'
+      operationId: sign_api_v1_reports__report_id__sign_post
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignIn'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Sign
+      tags:
+      - reports
+      x-permission: reports:sign
+  /api/v1/reports/{report_id}/sr:
+    get:
+      description: DICOM SR TID 1500 (Comprehensive 3D SR). 409 se o estudo não é DICOM.
+      operationId: sr_api_v1_reports__report_id__sr_get
+      parameters:
+      - in: path
+        name: report_id
+        required: true
+        schema:
+          title: Report Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/dicom: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Sr
+      tags:
+      - reports
+      x-permission: reports:read
+  /api/v1/series/{series_id}:
+    get:
+      description: Metadados e geometria para o visualizador (sem decodificar pixels).
+      operationId: series_meta_api_v1_series__series_id__get
+      parameters:
+      - in: path
+        name: series_id
+        required: true
+        schema:
+          title: Series Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesMetaOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Series Meta
+      tags:
+      - studies
+      x-permission: studies:read
+  /api/v1/series/{series_id}/frames/{index}:
+    get:
+      description: Quadro decodificado no servidor (corte de volume, quadro de cine ou a projeção).
+      operationId: frame_api_v1_series__series_id__frames__index__get
+      parameters:
+      - in: path
+        name: series_id
+        required: true
+        schema:
+          title: Series Id
+          type: string
+      - in: path
+        name: index
+        required: true
+        schema:
+          title: Index
+          type: integer
+      - in: query
+        name: max_dim
+        required: false
+        schema:
+          anyOf:
+          - minimum: 16
+            type: integer
+          - type: 'null'
+          title: Max Dim
+      responses:
+        '200':
+          content:
+            application/octet-stream: {}
+          description: 'Corpo binário little-endian, linha a linha. Cabeçalhos: X-Frame-Rows, X-Frame-Columns,
+            X-Frame-Channels (1 ou 3), X-Frame-Dtype (uint16|int16|uint8), X-Frame-Scale (fator inteiro
+            de redução: coordenada no quadro = coordenada de origem / escala), X-Frame-Index, X-Frame-Count,
+            X-Rescale-Slope, X-Rescale-Intercept (valor físico = armazenado * slope + intercept; HU em
+            TC). O cliente aplica janela/LUT.'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Frame
+      tags:
+      - studies
+      x-permission: studies:read
+  /api/v1/shadow/export:
+    get:
+      description: 'CSV pseudonimizado (dado pessoal pela LGPD) do piloto, um achado por linha (REQ-195).
+
+
+        Sem identificador direto, texto livre ou pixel. Exige o modo silencioso ligado
+
+        (desligado => 409 ``ShadowModeOffError``). ``since``/``until`` recortam por
+
+        ``requested_at`` (``since`` inclusivo, ``until`` exclusivo; com fuso horário).
+
+        Colunas: ver ``COLUMNS`` (ids opacos/pseudonimizados, ``result_sha256``, modelo e
+
+        versão, ``condition_id``, nível de evidência, escore bruto, decisão — ``score_only``
+
+        com o motivo em ``decision_held`` quando a decisão do trio está suspensa (REQ-193) — e
+
+        tempos). A exportação, com o recorte, é registrada na cadeia de auditoria ANTES de ser
+
+        entregue.'
+      operationId: export_csv_api_v1_shadow_export_get
+      parameters:
+      - description: Início (inclusivo) do recorte em requested_at; ISO 8601 com fuso
+        in: query
+        name: since
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Início (inclusivo) do recorte em requested_at; ISO 8601 com fuso
+          title: Since
+      - description: Fim (exclusivo) do recorte em requested_at; ISO 8601 com fuso
+        in: query
+        name: until
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Fim (exclusivo) do recorte em requested_at; ISO 8601 com fuso
+          title: Until
+      responses:
+        '200':
+          content:
+            text/csv: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Export Csv
+      tags:
+      - shadow
+      x-permission: shadow:view
+  /api/v1/status:
+    get:
+      description: 'Estado detalhado, incluindo modalidades e sua maturidade.
+
+
+        ``shadow_mode`` diz se a implantação está no modo silencioso do piloto (REQ-195);
+
+        o frontend mostra a faixa permanente e esconde a saída de IA do cuidado.'
+      operationId: status_api_v1_status_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOut'
+          description: Successful Response
+      summary: Status
+      tags:
+      - health
+      x-permission: public
+  /api/v1/studies:
+    get:
+      description: 'Lista de trabalho: estudos com o estado da análise mais recente e da revisão.
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: o resumo da análise vem com
+
+        ``shadow: true`` e sem contagens de achados nem estado do resultado.'
+      operationId: worklist_api_v1_studies_get
+      parameters:
+      - description: Estado da análise mais recente
+        in: query
+        name: state
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - no_analysis
+            - queued
+            - running
+            - completed
+            - failed
+            type: string
+          - type: 'null'
+          description: Estado da análise mais recente
+          title: State
+      - in: query
+        name: exam_type
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ExamType'
+          - type: 'null'
+          title: Exam Type
+      - in: query
+        name: modality
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 8
+            type: string
+          - type: 'null'
+          title: Modality
+      - in: query
+        name: review_status
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - no_analysis
+            - pending_review
+            - in_review
+            - signed
+            type: string
+          - type: 'null'
+          title: Review Status
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
           minimum: 0
-          maximum: 1
-        findings:
-          type: array
-          items:
-            type: string
-          description: Clinical findings identified
-        recommendations:
-          type: array
-          items:
-            type: string
-          description: Clinical recommendations
-        severity:
-          type: string
-          enum: [mild, moderate, severe, critical]
-        urgency:
-          type: string
-          enum: [routine, urgent, emergent]
-
-    ClinicalMetrics:
-      type: object
-      properties:
-        sensitivity:
-          type: number
-          format: float
-        specificity:
-          type: number
-          format: float
-        clinical_confidence:
-          type: number
-          format: float
-        approved_for_clinical_use:
-          type: boolean
-        validation_notes:
-          type: string
-
-    Explanation:
-      type: object
-      properties:
-        method:
-          type: string
-          enum: [gradcam, integrated_gradients]
-        heatmap_url:
-          type: string
-          format: uri
-        key_regions:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyRegion'
-
-    KeyRegion:
-      type: object
-      properties:
-        region:
-          type: string
-        importance:
-          type: number
-          format: float
-        coordinates:
-          type: array
-          items:
-            type: integer
-          minItems: 4
-          maxItems: 4
-          description: Bounding box coordinates [x1, y1, x2, y2]
-
-    AnalysisMetadata:
-      type: object
-      properties:
-        model_used:
-          type: string
-        processing_time:
-          type: number
-          format: float
-          description: Processing time in seconds
-        image_info:
-          $ref: '#/components/schemas/ImageInfo'
-        timestamp:
-          type: string
-          format: date-time
-        request_id:
-          type: string
-
-    ImageInfo:
-      type: object
-      properties:
-        modality:
-          type: string
-        dimensions:
-          type: array
-          items:
-            type: integer
-          minItems: 2
-          maxItems: 2
-        file_size:
-          type: string
-
-    ExplanationResponse:
-      type: object
-      properties:
-        analysis_id:
-          type: string
-        explanation:
-          $ref: '#/components/schemas/DetailedExplanation'
-
-    DetailedExplanation:
-      type: object
-      properties:
-        method:
-          type: string
-        heatmap_url:
-          type: string
-          format: uri
-        integrated_gradients:
-          type: object
-          properties:
-            attribution_map_url:
-              type: string
-              format: uri
-            top_features:
-              type: array
-              items:
-                type: object
-                properties:
-                  feature:
-                    type: string
-                  importance:
-                    type: number
-                    format: float
-        clinical_interpretation:
-          type: string
-
-    MetricsResponse:
-      type: object
-      properties:
-        system_metrics:
-          $ref: '#/components/schemas/SystemMetrics'
-        clinical_metrics:
-          $ref: '#/components/schemas/GlobalClinicalMetrics'
-        model_performance:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ModelPerformance'
-
-    SystemMetrics:
-      type: object
-      properties:
-        total_analyses:
+          title: Offset
           type: integer
-        average_processing_time:
-          type: number
-          format: float
-        uptime_percentage:
-          type: number
-          format: float
-        error_rate:
-          type: number
-          format: float
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyListOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Worklist
+      tags:
+      - studies
+      x-permission: studies:read
+    post:
+      description: 'Envia UM estudo. DICOM é des-identificado na entrada (``MEDAI_DEIDENT_KEY``).
 
-    GlobalClinicalMetrics:
-      type: object
-      properties:
-        overall_accuracy:
-          type: number
-          format: float
-        sensitivity:
-          type: number
-          format: float
-        specificity:
-          type: number
-          format: float
-        positive_predictive_value:
-          type: number
-          format: float
-        negative_predictive_value:
-          type: number
-          format: float
 
-    ModelPerformance:
-      type: object
-      properties:
-        accuracy:
-          type: number
-          format: float
-        total_predictions:
-          type: integer
-        clinical_approval_rate:
-          type: number
-          format: float
+        Metadados de formulário são declarações humanas: preenchem campos ausentes
 
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            details:
-              type: string
-            timestamp:
-              type: string
-              format: date-time
-            request_id:
-              type: string
+        (ex.: ``ViewPosition`` vazio), nunca sobrescrevem o DICOM, e ficam registrados.
 
-tags:
-  - name: System
-    description: System health and status endpoints
-  - name: Models
-    description: AI model information and management
-  - name: Analysis
-    description: Medical image analysis endpoints
-  - name: Explainability
-    description: AI decision explanation endpoints
-  - name: Metrics
-    description: Performance and clinical metrics
+        ``exam_type=unknown`` (ou ausente e não inferível) exige escolha humana antes da análise.'
+      operationId: upload_study_api_v1_studies_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_study_api_v1_studies_post'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Upload Study
+      tags:
+      - studies
+      x-permission: studies:upload
+  /api/v1/studies/{study_id}:
+    get:
+      description: 'Estudo com séries e análises (resumos com ``shadow: true`` no modo silencioso).'
+      operationId: get_study_api_v1_studies__study_id__get
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Get Study
+      tags:
+      - studies
+      x-permission: studies:read
+  /api/v1/studies/{study_id}/analyses:
+    get:
+      description: 'Análises do estudo, mais recente primeiro (sem o resultado completo).
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: cada item vem com ``shadow: true``
+
+        e sem hash, estado do resultado nem revisões.'
+      operationId: list_analyses_api_v1_studies__study_id__analyses_get
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AnalysisOut'
+                title: Response List Analyses Api V1 Studies  Study Id  Analyses Get
+                type: array
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: List Analyses
+      tags:
+      - analyses
+      x-permission: analyses:read
+    post:
+      description: 'Enfileira uma análise (202). Cada pedido cria uma análise nova; nada é sobrescrito.
+
+
+        ``include_research`` exige papel com modo pesquisa; pedir explicitamente em
+
+        ``model_ids`` um modelo exploratório (ou que dependa de um) também exige, e
+
+        grava a análise como de modo pesquisa. ``prompts`` alimentam
+
+        modelos interativos (ex.: caixa para MedSAM) e são do usuário, nunca inventados.'
+      operationId: create_analysis_api_v1_studies__study_id__analyses_post
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/AnalysisCreateIn'
+              - type: 'null'
+              title: Body
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Create Analysis
+      tags:
+      - analyses
+      x-permission: analyses:create
+  /api/v1/studies/{study_id}/exam-type:
+    put:
+      description: Define o tipo de exame (decisão humana, auditada). ``unknown`` não é aceito.
+      operationId: set_exam_type_api_v1_studies__study_id__exam_type_put
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamTypeIn'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyOut'
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Set Exam Type
+      tags:
+      - studies
+      x-permission: studies:set_exam_type
+  /api/v1/users:
+    get:
+      description: Todos os usuários.
+      operationId: list_users_api_v1_users_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserOut'
+                title: Response List Users Api V1 Users Get
+                type: array
+          description: Successful Response
+      summary: List Users
+      tags:
+      - users
+      x-permission: users:manage
+    post:
+      description: Cria usuário (senha com política mínima; hash argon2id).
+      operationId: create_api_v1_users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateIn'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOut'
+          description: Successful Response
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+      summary: Create
+      tags:
+      - users
+      x-permission: users:manage
+  /api/v1/users/{user_id}:
+    patch:
+      description: 'Altera nome, papel, registro profissional, senha ou ativação.
+
+
+        Mudança de papel, senha ou desativação revoga as sessões do usuário.'
+      operationId: update_api_v1_users__user_id__patch
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateIn'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOut'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+      summary: Update
+      tags:
+      - users
+      x-permission: users:manage

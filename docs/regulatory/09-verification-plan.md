@@ -1,47 +1,106 @@
+---
 doc_id: REG-09
-title: Plano e Protocolos de Verificação de Software (IEC 62304 §5.5–5.7)
-status: RASCUNHO — v0.1
+title: Plano de Verificação de Software (IEC 62304 §5.5–5.7)
+status: RASCUNHO — v0.3
 date: 2026-11
 author: Dr. Guilherme Capel Pasqua (CRM-SP 175873)
-supersedes: —
-# Plano e Protocolos de Verificação de Software
+depends_on: [REG-05, REG-07]
+---
 
-> **Estado atual:** software em estágio de pesquisa — não é dispositivo médico. Este plano define a estratégia de verificação automatizada do núcleo v2 conforme **IEC 62304 §5.5–5.7**. Ver [`HONEST_STATUS.md`](../../HONEST_STATUS.md).
+# Plano de Verificação
 
-## 1. Objetivos da verificação
+> Verificação responde "construímos o software certo do jeito especificado?". A pergunta
+> "o software serve ao uso clínico?" é validação e está no
+> [plano de avaliação clínica](10-clinical-evaluation-plan.md). Software de pesquisa; não é
+> dispositivo médico.
 
-Demonstrar objetivamente, a cada alteração de código, que:
-1. Todos os requisitos de software em `docs/regulatory/06-requirements/` estão implementados e verificados por testes reproduzíveis.
-2. Nenhum defeito da classe histórica do protótipo v1 (métricas fabricadas, fallback silencioso, saliência simulada, hashes inválidos) pode ser reintroduzido.
-3. Os controles de risco implementados em código ([`04-risk-file.md`](04-risk-file.md)) mantêm eficácia verificável após cada mudança.
+Objetivos: demonstrar, a cada mudança, que (1) todo requisito de
+[`06-requirements/`](06-requirements/) está implementado e verificado por teste reprodutível; (2)
+nenhum defeito da classe histórica do v1 (métrica fabricada, *fallback* silencioso, saliência
+simulada, hash inválido) pode ser reintroduzido; (3) os controles de risco do
+[arquivo de risco](04-risk-file.md) continuam eficazes.
 
-## 2. Níveis de verificação e portões de CI
+## 1. Níveis de verificação
 
-| Nível | Escopo | Ferramenta / Comando | Critério de aprovação |
-|---|---|---|---|
-| **Análise estática** | Estilo, lint e tipagem estrita | `ruff check`, `ruff format --check`, `mypy --strict src/radiologyai` | Zero erros |
-| **Testes unitários** | Módulos em `src/radiologyai/` | `pytest tests/unit` | Todos os testes aprovados; nenhum diretório silenciado (`REQ-003`) |
-| **Testes de integração** | API FastAPI, gate de escopo sobre HTTP e contrato de resposta | `pytest tests/integration` | Todos os testes aprovados |
-| **Backend real e Colab** | Pesos reais `torchxrayvision`, SHA-256, cabeças não treinadas e Grad-CAM (py3.11 e py3.13) | Jobs `ml` e `colab` em `.github/workflows/ci.yml` | Todos os testes aprovados e SHA-256 conferido |
-| **Rastreabilidade** | Vínculo bidirecional `REQ <-> TEST <-> RISK` | `python scripts/trace.py --check` | Exit 0; [`13-traceability.md`](13-traceability.md) atualizada |
-| **Integridade SOUP** | Dependências declaradas vs inventário | `python scripts/soup.py --check` | Exit 0; [`08-soup-list.md`](08-soup-list.md) atualizada |
-| **Guardião de honestidade** | Proibição de alegações sem proveniência, `np.random` indevido, `except ImportError` e simulação | `python scripts/check_honesty.py` | Zero violações |
-| **Segurança e SBOM** | Segredos no histórico, SAST, CVEs em SOUP e SBOM CycloneDX | `.github/workflows/security.yml` | Zero segredos vazados e zero achados críticos |
+| Nível | Onde | Critério de aceitação |
+|---|---|---|
+| Unidade | `tests/unit/<área>/test_*.py` | asserções explícitas por unidade; cobertura de linhas ≥ 85% do pacote (`--cov-fail-under=85`) |
+| Integração | `tests/integration/` | API, pipeline e persistência exercitados juntos com entradas sintéticas ou públicas |
+| Sistema | executores de avaliação e testes ponta a ponta | resultados reproduzíveis com a mesma semente; nenhum resultado sem modelo real |
+| Requisito | testes com `@pytest.mark.requirement("REQ-NNN")` | todo requisito tem ao menos um teste verificador (`scripts/trace.py --check`) |
+| Estático | ruff, mypy `--strict`, `scripts/check_honesty.py`, bandit | zero violações |
+| Pesos reais | jobs `ml` (Python 3.11) e `colab` (Python 3.13, torch mais recente) de `.github/workflows/ci.yml` | testes do backend, do Grad-CAM e da linha de base aprovados; sha256 do card conferido |
+| Trava de regressão | `tests/evaluation/test_baseline_regression.py`; `radiologyai check-regression` | queda de AUROC macro acima da tolerância, menos rótulos avaliados ou dataset não externo ao treino ⇒ reprovação |
+| SOUP e segurança | `scripts/soup.py --check`; `.github/workflows/security.yml` (gitleaks, bandit, pip-audit/OSV, SBOM CycloneDX) | lista SOUP igual ao `uv.lock`; zero segredos; pip-audit ainda não bloqueia ([REG-11](11-cybersecurity-lgpd.md) §5) |
 
-## 3. Critérios de evidência e registros
+Todo teste de requisito usa `@pytest.mark.requirement("REQ-NNN")` sob `--strict-markers`; as
+execuções do GitHub Actions ficam vinculadas ao SHA do commit e à PR.
 
-- Todo teste de requisito utiliza `@pytest.mark.requirement("REQ-xxx")` sob `--strict-markers`.
-- Execuções em GitHub Actions produzem logs vinculados ao SHA do commit e ao Pull Request.
-- Avaliações quantitativas geram artefatos versionados em `artifacts/eval/<run_id>/` e relatórios `reports/EVALUATION_*.md` com `git_sha`, `weights_sha256`, `manifest_sha256` e `seed`.
+## 2. Verificações que são controles de risco
 
-## 4. Pendências planejadas de verificação (Fases 2–3)
+| Verificação | Comando ou teste | Perigo |
+|---|---|---|
+| Falha fechada com pesos ausentes ou hash divergente | testes de REQ-020, REQ-030 | RISK-004 |
+| Gate de escopo roda antes do modelo | testes de REQ-031, REQ-042 | RISK-003 |
+| MONOCHROME1 e Modality LUT | testes de REQ-005, REQ-006 com DICOM sintético | RISK-005 |
+| Grad-CAM nulo para gradiente nulo | teste de REQ-060 | RISK-008 |
+| Auditoria detecta linha adulterada | testes de REQ-070, REQ-071 | RISK-007 |
+| Disjunção por paciente entre manifests | teste de REQ-051 | RISK-007, RISK-015 |
+| Nível calculado, sem campo digitável | testes de REQ-090, REQ-093 | RISK-007, RISK-019 |
+| Nível D fora da visão principal | teste de REQ-091 | RISK-012 |
+| Sem aleatoriedade fora da avaliação | teste de REQ-002 e `check_honesty.py` R2 | RISK-007 |
+| Nenhum `except ImportError` em `src/` | teste de REQ-001 e `check_honesty.py` R4 | RISK-003 |
+| Nenhum número de desempenho sem proveniência em Markdown | `check_honesty.py` R1 | RISK-007 |
+| sha256 válido em YAML/JSON | `check_honesty.py` R3 | RISK-004 |
+| `import radiologyai` leve | passo do CI | — |
 
-- Teste de regressão dourada em CI (`tests/evaluation/test_baseline_regression.py`).
-- Verificação de paridade numérica PyTorch ↔ ONNX (diferença máxima inferior a `1e-4`) após exportação na Fase 3.
-- Verificação formal de preservação de lateralidade (`REQ-043` / `RISK-006`).
+## 3. Testes com pesos reais
+
+Testes que precisam de pesos ou dados baixados pulam de forma limpa no CI sem eles
+(`pytest.mark.skipif` por `importlib.util.find_spec` ou existência do arquivo). Eles **são
+executados** no ambiente de desenvolvimento onde os pesos existem, e o job `ml` do CI executa os
+testes do backend TorchXRayVision com pesos reais. Um teste que só pula nunca conta como
+verificação de um requisito: o relatório de verificação registra onde cada teste de pesos rodou.
+
+## 4. Reprodutibilidade das avaliações
+
+- Toda avaliação grava `artifacts/eval/<run_id>/metrics.json` com git sha, sha256 dos pesos,
+  hash do manifesto do dataset, semente, versões de biblioteca, `not_evaluated` e limitações.
+- Duas execuções com a mesma semente e o mesmo manifesto devem produzir as mesmas métricas
+  (exceto carimbo de tempo).
+- Relatórios `reports/EVALUATION_*.md` são gerados por `scripts/report.py` a partir do artefato,
+  nunca escritos à mão.
+- `.github/workflows/eval.yml` executa `radiologyai evaluate` sob demanda (`workflow_dispatch`)
+  com card, manifest, número de reamostragens e semente explícitos, e publica `artifacts/eval/`
+  como artefato do Actions. Um número só entra em documento depois que o `metrics.json`
+  correspondente estiver commitado em `artifacts/eval/` (ou como registro em `evidence/`).
+- Relatos de avaliação em `docs/evaluation/` sem artefato commitado **não** são verificação:
+  ver [`HONEST_STATUS.md`](../../HONEST_STATUS.md).
+
+## 5. Protocolos e relatórios de verificação
+
+- **Protocolo antes, relatório depois.** O protocolo de verificação de uma liberação é o conjunto
+  de testes e portões do commit etiquetado; o relatório é a saída do CI daquele commit.
+- Pendente: gravar o relatório de verificação por commit em `artifacts/verification/<git_sha>/`
+  (saída do pytest em JUnit XML, cobertura, resultado de cada portão) e anexá-lo à liberação.
+
+## 6. Verificações planejadas por portão
+
+| Portão | Verificação adicional |
+|---|---|
+| G0 | `git log --all -- medai_security.db` vazio; gitleaks limpo no histórico completo |
+| G1 | todo registro A reproduz de checkout limpo; `levels.json` regenerado é idêntico |
+| G1 | lateralidade propagada do DICOM (RISK-006) — coberta em RX (REQ-043, `TestXRLaterality`) e mamografia (REQ-141); requisito e teste a criar para TC, US e eco; verificação de REQ-043 em pipeline de RX com dado real |
+| G1 | biomarcador abstém sem pré-condição (RISK-011) — REQ-133, REQ-135, REQ-136, REQ-138 escritos; a verificação deles é exigida antes do fechamento de G1 para TC |
+| G2 | paridade torch ↔ ONNX para o modelo próprio (diferença absoluta máxima < `1e-4`, amostra de 100 exames); conjunto de teste sequestrado com hash registrado antes da avaliação; trava de regressão contra a linha de base `artifacts/eval/xrv-densenet121-pc__20260912T202549Z/metrics.json` |
+| Plataforma | assinatura invalidada por mudança de conteúdo (RISK-018; REQ-156); RBAC por papel (RISK-020; REQ-151); testes ponta a ponta no navegador (pendentes) |
+
+---
 
 ## Histórico de revisões
 
 | Versão | Data | Alteração |
 |---|---|---|
-| v0.1 | 2026-11 | Criação do Plano e Protocolos de Verificação (Fase 2, IEC 62304 §5.5–5.7) |
+| v0.1 | 2026-11 | Criação |
+| v0.2 | 2026-11-25 | Verificações de G1 e da plataforma ligadas aos requisitos REQ-1xx escritos |
+| v0.3 | 2026-11-27 | Consolidação com a v0.1 de `main` (`f45beff`): objetivos, jobs `ml`/`colab`, trava de regressão, segurança/SBOM, `eval.yml`, paridade ONNX, REQ-043 |

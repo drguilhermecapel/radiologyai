@@ -1,0 +1,322 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "padchest"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "xrv-densenet121-res224-pc@openi-frontal#fibrosis",
+    "predictions_file": "xrv-densenet121-res224-pc/openi-frontal/evidence.parquet",
+    "predictions_sha256": "2ecaaf991b2084d34e1d3a68b37d60317d714a3485c24e579839bd357db73382",
+    "score_column": "y_score__fibrosis"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/openi/xrv-densenet121-res224-pc/fibrosis.json#report",
+      "name": "fibrosis:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de openi",
+      "threshold": -12.802377700805664
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/openi/xrv-densenet121-res224-pc/fibrosis.json#report",
+      "name": "fibrosis:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de openi",
+      "threshold": -6.100255012512207
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (1280 pacientes) e métricas reportadas na metade de teste (1281 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de substring, como no Openi_Dataset do torchxrayvision; não é o MeSH 'major' de curadores nem leitura adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos os rótulos.",
+      "Correspondência por substring: 'Edema' inclui edemas não pulmonares; 'Lung Lesion' casa só 'lesion' (poucos positivos).",
+      "O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.",
+      "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição no Open-i; não houve comparação entre modelos no Open-i.",
+      "138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json); o portão não é aplicado nesta medição.",
+      "Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança funcional entre eles); o checkout limpo vale para o cálculo das métricas.",
+      "Registro NÃO ELEGÍVEL (casos abaixo dos mínimos do protocolo): não aprova nem refuta a condição."
+    ],
+    "condition_id": "cxr.pulmonary_fibrosis",
+    "dataset": "openi",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "não elegível: pacientes positivos 7 < min_positive 30",
+      "AUROC 0.7439 < auroc_min 0.8",
+      "limite inferior do IC da AUROC 0.5746 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:openi:xrv-densenet121-res224-pc:fibrosis:discrimination",
+    "kind": "measured_external",
+    "label": "fibrosis",
+    "leakage": "none",
+    "leakage_note": "nenhuma linhagem comum entre avaliação e treino (padchest)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.4396756905281364,
+        "ci_low": 0.005570240917422928,
+        "value": 0.1508704064931198
+      },
+      "auroc": {
+        "ci_high": 0.8928006338317296,
+        "ci_low": 0.5746378348846894,
+        "value": 0.743861883534989
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.00504578863141734,
+        "ci_low": 0.0018642658548316717,
+        "value": 0.0028850290654022356
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.002543208236563366,
+        "ci_low": 0.0021706117584511034,
+        "value": 0.0023581004280630786
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.7142857142857143,
+        "ci_low": 0.0,
+        "value": 0.2857142857142857
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.9196607831650647,
+        "ci_low": 0.8932983123889212,
+        "value": 0.9068845963348192
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "value": 1.0
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.2128190345759106,
+        "ci_low": 0.17884868964138925,
+        "value": 0.19514611193660228
+      }
+    },
+    "model_id": "xrv-densenet121-res224-pc",
+    "n_positive": 7,
+    "n_total": 2026,
+    "passes_protocol": null,
+    "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-pc@openi-frontal#fibrosis",
+      "created_at": "2026-11-28T00:32:26.302189Z",
+      "dataset_id": "openi",
+      "dataset_sha256": "6bc1a355e70ccb9588ff5be10599d0b3a399a15d5543a2cf606657915df4cb8b",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt": "a9148ef62ae4e7a31a9bed8cef22811f39681cd61e4390398936efc6280af521"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "other",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "none"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.4396756905281364,
+      "ci_low": 0.005570240917422928,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.1508704064931198
+    },
+    "auroc": {
+      "ci_high": 0.8928006338317296,
+      "ci_low": 0.5746378348846894,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.743861883534989
+    },
+    "calibration": {
+      "n_fit_samples": 1988,
+      "nll_after": 0.028995371966418944,
+      "nll_before": 0.0351587710419812,
+      "temperature": 1.4891353913889156
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 2026,
+      "n_neg": 2019,
+      "n_neg_patients": 1274,
+      "n_patients": 1281,
+      "n_pos": 7,
+      "n_pos_patients": 7
+    },
+    "ece_after": {
+      "ci_high": 0.00504578863141734,
+      "ci_low": 0.0018642658548316717,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.0028850290654022356
+    },
+    "ece_before": {
+      "ci_high": 0.002543208236563366,
+      "ci_low": 0.0021706117584511034,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.0023581004280630786
+    },
+    "label": "fibrosis",
+    "operating_point_errors": [],
+    "prevalence": 0.0034550839091806516,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.25,
+      "calibration_specificity": 0.9,
+      "npv": {
+        "ci_high": 0.9988741563469824,
+        "ci_low": 0.9961580153122704,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9972766884531591
+      },
+      "ppv": {
+        "ci_high": 0.02427480464125028,
+        "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.010526315789473684
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.7142857142857143,
+        "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.2857142857142857
+      },
+      "specificity": {
+        "ci_high": 0.9196607831650647,
+        "ci_low": 0.8932983123889212,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9068845963348192
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": -6.100255012512207
+    },
+    "rule_out": {
+      "calibration_sensitivity": 1.0,
+      "calibration_specificity": 0.2106060606060606,
+      "npv": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "ppv": {
+        "ci_high": 0.004421983575489577,
+        "ci_low": 0.004169086261663689,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.00428921568627451
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "specificity": {
+        "ci_high": 0.2128190345759106,
+        "ci_low": 0.17884868964138925,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.19514611193660228
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -12.802377700805664
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 1988,
+        "n_neg": 1980,
+        "n_neg_patients": 1274,
+        "n_patients": 1280,
+        "n_pos": 8,
+        "n_pos_patients": 6
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 2026,
+        "n_neg": 2019,
+        "n_neg_patients": 1274,
+        "n_patients": 1281,
+        "n_pos": 7,
+        "n_pos_patients": 7
+      }
+    },
+    "subgroups": [
+      {
+        "attribute": "view",
+        "auroc": null,
+        "counts": {
+          "n_images": 215,
+          "n_neg": 215,
+          "n_neg_patients": 204,
+          "n_patients": 204,
+          "n_pos": 0,
+          "n_pos_patients": 0
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "AP"
+      },
+      {
+        "attribute": "view",
+        "auroc": null,
+        "counts": {
+          "n_images": 1811,
+          "n_neg": 1804,
+          "n_neg_patients": 1146,
+          "n_patients": 1153,
+          "n_pos": 7,
+          "n_pos_patients": 7
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "PA"
+      }
+    ],
+    "subgroups_unavailable": [
+      "sex: subgrupo não avaliável: metadado ausente",
+      "age_band: subgrupo não avaliável: metadado ausente"
+    ]
+  }
+}

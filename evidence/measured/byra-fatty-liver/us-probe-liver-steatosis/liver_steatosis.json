@@ -1,0 +1,284 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": true,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "byra-fatty-liver",
+      "pmc-15m"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "us-probe-liver-steatosis@byra-fatty-liver",
+    "predictions_file": "us-probe-liver-steatosis/byra/liver_steatosis.parquet",
+    "predictions_sha256": "b68c72906322524ff7b5794c9d315fd2ee6cd84accf18a31dfd9900a7316030e",
+    "score_column": "y_score"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/byra-fatty-liver/us-probe-liver-steatosis/liver_steatosis.json#report",
+      "name": "liver_steatosis:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de byra-fatty-liver",
+      "threshold": -4.704438086907532
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/byra-fatty-liver/us-probe-liver-steatosis/liver_steatosis.json#report",
+      "name": "liver_steatosis:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de byra-fatty-liver",
+      "threshold": 6.674369333850379
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (27 pacientes) e métricas reportadas na metade de teste (28 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Réplicas de bootstrap com estatística indefinida (contadas, fora do percentil; abaixo de 95% definidas o IC fica indefinido): rule_out.npv 660/2000, IC indefinido; rule_in.ppv 235/2000, IC indefinido.",
+      "CV aninhada 5 dobras agrupada por paciente; escore = média dos logits dos 10 quadros.",
+      "Referência: biópsia, gordura >= 5% (campo class do dataset).",
+      "Registro NÃO ELEGÍVEL (casos abaixo dos mínimos do protocolo): não aprova nem refuta a condição."
+    ],
+    "condition_id": "us.hepatic_steatosis",
+    "dataset": "byra-fatty-liver",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "não elegível: pacientes positivos 19 < min_positive 30",
+      "não elegível: pacientes negativos 9 < min_negative 30",
+      "AUROC 0.7310 < auroc_min 0.8",
+      "limite inferior do IC da AUROC 0.5088 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:byra-fatty-liver:us-probe-liver-steatosis:liver_steatosis:discrimination",
+    "kind": "measured_internal",
+    "label": "liver_steatosis",
+    "leakage": "known",
+    "leakage_note": "dataset de avaliação compartilha linhagem com o treino: byra-fatty-liver (linhagem comum: byra-fatty-liver)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.9574651207668641,
+        "ci_low": 0.7441002171931806,
+        "value": 0.8620141849819466
+      },
+      "auroc": {
+        "ci_high": 0.9064327485380117,
+        "ci_low": 0.5087719298245614,
+        "value": 0.7309941520467836
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.26392865865527554,
+        "ci_low": 0.10056524505676333,
+        "value": 0.13893451677724275
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.38198635541325804,
+        "ci_low": 0.16280740064770502,
+        "value": 0.2550972967165903
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.2631578947368421,
+        "ci_low": 0.0,
+        "value": 0.10526315789473684
+      },
+      "rule_in_specificity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "value": 1.0
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "value": 1.0
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.3333333333333333,
+        "ci_low": 0.0,
+        "value": 0.1111111111111111
+      }
+    },
+    "model_id": "us-probe-liver-steatosis",
+    "n_positive": 19,
+    "n_total": 28,
+    "passes_protocol": null,
+    "population": "Byra et al. 2018, 55 pacientes obesos graves (pré-bariátrica), um centro",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job us-probe-liver-steatosis@byra-fatty-liver",
+      "created_at": "2026-11-28T00:23:13.702957Z",
+      "dataset_id": "byra-fatty-liver",
+      "dataset_sha256": "36b325fab3a7920a1653ab61187df6059a24f1f6e7e965be360de72355c79860",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "open_clip_pytorch_model.bin": "52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be",
+        "probe.safetensors": "1653fa4b680823f448243ebf402c9e2206ae66df416f700e10da386759bc9d0b"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "histopathology",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "known"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.9574651207668641,
+      "ci_low": 0.7441002171931806,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.8620141849819466
+    },
+    "auroc": {
+      "ci_high": 0.9064327485380117,
+      "ci_low": 0.5087719298245614,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.7309941520467836
+    },
+    "calibration": {
+      "n_fit_samples": 27,
+      "nll_after": 0.6317882767973522,
+      "nll_before": 1.2188944015412293,
+      "temperature": 6.804370100953996
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 28,
+      "n_neg": 9,
+      "n_neg_patients": 9,
+      "n_patients": 28,
+      "n_pos": 19,
+      "n_pos_patients": 19
+    },
+    "ece_after": {
+      "ci_high": 0.26392865865527554,
+      "ci_low": 0.10056524505676333,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.13893451677724275
+    },
+    "ece_before": {
+      "ci_high": 0.38198635541325804,
+      "ci_low": 0.16280740064770502,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.2550972967165903
+    },
+    "label": "liver_steatosis",
+    "operating_point_errors": [],
+    "prevalence": 0.6785714285714286,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.21052631578947367,
+      "calibration_specificity": 1.0,
+      "npv": {
+        "ci_high": 0.391304347826087,
+        "ci_low": 0.32142857142857145,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.34615384615384615
+      },
+      "ppv": {
+        "ci_high": null,
+        "ci_low": null,
+        "n_defined_replicates": 1765,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.2631578947368421,
+        "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.10526315789473684
+      },
+      "specificity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": 6.674369333850379
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9473684210526315,
+      "calibration_specificity": 0.0,
+      "npv": {
+        "ci_high": null,
+        "ci_low": null,
+        "n_defined_replicates": 1340,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "ppv": {
+        "ci_high": 0.76,
+        "ci_low": 0.6785714285714286,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.7037037037037037
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "specificity": {
+        "ci_high": 0.3333333333333333,
+        "ci_low": 0.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.1111111111111111
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -4.704438086907532
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 27,
+        "n_neg": 8,
+        "n_neg_patients": 8,
+        "n_patients": 27,
+        "n_pos": 19,
+        "n_pos_patients": 19
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 28,
+        "n_neg": 9,
+        "n_neg_patients": 9,
+        "n_patients": 28,
+        "n_pos": 19,
+        "n_pos_patients": 19
+      }
+    },
+    "subgroups": [],
+    "subgroups_unavailable": [
+      "sex: subgrupo não avaliável: metadado ausente",
+      "age_band: subgrupo não avaliável: metadado ausente",
+      "view: subgrupo não avaliável: metadado ausente"
+    ]
+  }
+}

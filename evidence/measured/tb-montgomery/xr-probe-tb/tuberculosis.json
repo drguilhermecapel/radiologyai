@@ -1,0 +1,502 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [
+      "tb-shenzhen",
+      "tb-montgomery",
+      "fracatlas",
+      "grazpedwri-dx-sample"
+    ],
+    "training_data": [
+      "tb-shenzhen",
+      "mimic-cxr",
+      "chexpert",
+      "nih-cxr14",
+      "padchest",
+      "brax"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "xr-probe-tb@tb-montgomery",
+    "predictions_file": "xr-probe-tb/tb-montgomery/tuberculosis.parquet",
+    "predictions_sha256": "9c273ccb038fca205048c7fe3d24c2fda148fc1c4a7f80ed4c7d10fedfbe9896",
+    "score_column": "y_score"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/tb-montgomery/xr-probe-tb/tuberculosis.json#report",
+      "name": "tuberculosis:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de tb-montgomery",
+      "threshold": -1.168708755913893
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/tb-montgomery/xr-probe-tb/tuberculosis.json#report",
+      "name": "tuberculosis:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de tb-montgomery",
+      "threshold": -0.2086342365111119
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (69 pacientes) e métricas reportadas na metade de teste (69 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Rótulo do dataset: normal x manifestação de TB (sufixo do arquivo); padrão de referência não conferido além do readme da NLM.",
+      "Sem id de paciente no dataset: cada caso tratado como um paciente.",
+      "Registro NÃO ELEGÍVEL (casos abaixo dos mínimos do protocolo): não aprova nem refuta a condição.",
+      "Dataset de avaliação reutilizado na SELEÇÃO do modelo/codificador (tb-montgomery): estimativa otimista; não é validação externa."
+    ],
+    "condition_id": "cxr.tuberculosis",
+    "dataset": "tb-montgomery",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "não elegível: pacientes positivos 29 < min_positive 30"
+    ],
+    "id": "measured:tb-montgomery:xr-probe-tb:tuberculosis:discrimination",
+    "kind": "measured_external",
+    "label": "tuberculosis",
+    "leakage": "known",
+    "leakage_note": "dataset de avaliação reutilizado na seleção do modelo/codificador (tb-montgomery): a estimativa é otimista e não é validação externa; treino: nenhuma linhagem comum entre avaliação e treino (tb-shenzhen, mimic-cxr, chexpert, nih-cxr14, padchest, brax)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.9929094945548572,
+        "ci_low": 0.9221331653391823,
+        "value": 0.9634280008872552
+      },
+      "auroc": {
+        "ci_high": 0.9939655172413793,
+        "ci_low": 0.9310344827586207,
+        "value": 0.9698275862068966
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.17609905136157405,
+        "ci_low": 0.07448243975855948,
+        "value": 0.11225723366234518
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.18551984987233777,
+        "ci_low": 0.09514384565087768,
+        "value": 0.12479600037640294
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 0.7586206896551724,
+        "value": 0.896551724137931
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.925,
+        "ci_low": 0.7,
+        "value": 0.825
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "value": 1.0
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.85,
+        "ci_low": 0.575,
+        "value": 0.725
+      }
+    },
+    "model_id": "xr-probe-tb",
+    "n_positive": 29,
+    "n_total": 69,
+    "passes_protocol": null,
+    "population": "NLM Montgomery County (Maryland, EUA), programa de controle de TB; conjunto inteiro (138 radiografias PA, uma por caso)",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-tb@tb-montgomery",
+      "created_at": "2026-11-28T00:22:41.190284Z",
+      "dataset_id": "tb-montgomery",
+      "dataset_sha256": "bf73b7253c3ae629a37b9ef4cd86d03372c03ef01aa9f5f740d79691c0cb7c8a",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "config.json": "89daf9751d9576d586dedf9543c1083211611fa3a36908db7a799b3ce7c68ede",
+        "model.safetensors": "dbfb9f54459c38773505de64a6ab7807bdcb392610fe1e697166342e43fb91ae",
+        "probe.safetensors": "a4f1bae2ee5d0cbed78746f0d0b69e8dd4f94b895c1b687a22b8c087b65b4dfa"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "other",
+    "selection_overlap": [
+      "tb-montgomery"
+    ],
+    "source": null,
+    "training_leakage": "none"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.9929094945548572,
+      "ci_low": 0.9221331653391823,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.9634280008872552
+    },
+    "auroc": {
+      "ci_high": 0.9939655172413793,
+      "ci_low": 0.9310344827586207,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.9698275862068966
+    },
+    "calibration": {
+      "n_fit_samples": 69,
+      "nll_after": 0.24203015402796246,
+      "nll_before": 0.260881663607588,
+      "temperature": 0.6707975923380881
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 69,
+      "n_neg": 40,
+      "n_neg_patients": 40,
+      "n_patients": 69,
+      "n_pos": 29,
+      "n_pos_patients": 29
+    },
+    "ece_after": {
+      "ci_high": 0.17609905136157405,
+      "ci_low": 0.07448243975855948,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.11225723366234518
+    },
+    "ece_before": {
+      "ci_high": 0.18551984987233777,
+      "ci_low": 0.09514384565087768,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.12479600037640294
+    },
+    "label": "tuberculosis",
+    "operating_point_errors": [],
+    "prevalence": 0.42028985507246375,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.8620689655172413,
+      "calibration_specificity": 0.9,
+      "npv": {
+        "ci_high": 1.0,
+        "ci_low": 0.8292682926829268,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9166666666666666
+      },
+      "ppv": {
+        "ci_high": 0.9032258064516129,
+        "ci_low": 0.6756756756756757,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.7878787878787878
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 0.7586206896551724,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.896551724137931
+      },
+      "specificity": {
+        "ci_high": 0.925,
+        "ci_low": 0.7,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.825
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": -0.2086342365111119
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9310344827586207,
+      "calibration_specificity": 0.825,
+      "npv": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "ppv": {
+        "ci_high": 0.8285714285714286,
+        "ci_low": 0.6304347826086957,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.725
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 1.0
+      },
+      "specificity": {
+        "ci_high": 0.85,
+        "ci_low": 0.575,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.725
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -1.168708755913893
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 69,
+        "n_neg": 40,
+        "n_neg_patients": 40,
+        "n_patients": 69,
+        "n_pos": 29,
+        "n_pos_patients": 29
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 69,
+        "n_neg": 40,
+        "n_neg_patients": 40,
+        "n_patients": 69,
+        "n_pos": 29,
+        "n_pos_patients": 29
+      }
+    },
+    "subgroups": [
+      {
+        "attribute": "sex",
+        "auroc": null,
+        "counts": {
+          "n_images": 39,
+          "n_neg": 31,
+          "n_neg_patients": 31,
+          "n_patients": 39,
+          "n_pos": 8,
+          "n_pos_patients": 8
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "F"
+      },
+      {
+        "attribute": "sex",
+        "auroc": null,
+        "counts": {
+          "n_images": 30,
+          "n_neg": 9,
+          "n_neg_patients": 9,
+          "n_patients": 30,
+          "n_pos": 21,
+          "n_pos_patients": 21
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "M"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": null,
+        "counts": {
+          "n_images": 9,
+          "n_neg": 7,
+          "n_neg_patients": 7,
+          "n_patients": 9,
+          "n_pos": 2,
+          "n_pos_patients": 2
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "<18"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": null,
+        "counts": {
+          "n_images": 23,
+          "n_neg": 15,
+          "n_neg_patients": 15,
+          "n_patients": 23,
+          "n_pos": 8,
+          "n_pos_patients": 8
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "18-39"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": {
+          "ci_high": 1.0,
+          "ci_low": 0.8768716577540109,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9625668449197861
+        },
+        "counts": {
+          "n_images": 28,
+          "n_neg": 17,
+          "n_neg_patients": 17,
+          "n_patients": 28,
+          "n_pos": 11,
+          "n_pos_patients": 11
+        },
+        "eligible": false,
+        "note": "abaixo do mínimo do protocolo: reportado sem julgamento",
+        "rule_in_sensitivity": {
+          "ci_high": 1.0,
+          "ci_low": 0.7272727272727273,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9090909090909091
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9411764705882353,
+          "ci_low": 0.47058823529411764,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7058823529411765
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 1.0
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.7647058823529411,
+          "ci_low": 0.29411764705882354,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.5294117647058824
+        },
+        "value": "40-59"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": null,
+        "counts": {
+          "n_images": 5,
+          "n_neg": 1,
+          "n_neg_patients": 1,
+          "n_patients": 5,
+          "n_pos": 4,
+          "n_pos_patients": 4
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "60-74"
+      },
+      {
+        "attribute": "age_band",
+        "auroc": null,
+        "counts": {
+          "n_images": 4,
+          "n_neg": 0,
+          "n_neg_patients": 0,
+          "n_patients": 4,
+          "n_pos": 4,
+          "n_pos_patients": 4
+        },
+        "eligible": false,
+        "note": "menos de 10 imagens positivas ou negativas: apenas contagens",
+        "rule_in_sensitivity": null,
+        "rule_in_specificity": null,
+        "rule_out_sensitivity": null,
+        "rule_out_specificity": null,
+        "value": "75+"
+      },
+      {
+        "attribute": "view",
+        "auroc": {
+          "ci_high": 0.9939655172413793,
+          "ci_low": 0.9310344827586207,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9698275862068966
+        },
+        "counts": {
+          "n_images": 69,
+          "n_neg": 40,
+          "n_neg_patients": 40,
+          "n_patients": 69,
+          "n_pos": 29,
+          "n_pos_patients": 29
+        },
+        "eligible": false,
+        "note": "abaixo do mínimo do protocolo: reportado sem julgamento",
+        "rule_in_sensitivity": {
+          "ci_high": 1.0,
+          "ci_low": 0.7586206896551724,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.896551724137931
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.925,
+          "ci_low": 0.7,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.825
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 1.0
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.85,
+          "ci_low": 0.575,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.725
+        },
+        "value": "PA"
+      }
+    ],
+    "subgroups_unavailable": []
+  }
+}

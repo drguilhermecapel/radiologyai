@@ -1,0 +1,361 @@
+id: xrv-densenet121-res224-mimic_ch
+version: 1.5.7-densenet121-res224-mimic_ch
+name: TorchXRayVision densenet121-res224-mimic_ch
+status: available
+adapter: radiologyai.analysis.adapters.xr_xrv:XrvClassifierAdapter
+task: classification
+capabilities:
+- classify
+- explain
+summary: Classificador multirrótulo de RX de tórax (densenet121-res224-mimic_ch); devolve logits brutos
+  das cabeças treinadas. Achado sugerido para confirmação médica.
+intended_use: research_use_only
+visibility_default: main
+route: research
+source:
+  library: torchxrayvision
+  library_version: 1.5.7
+  library_weights: densenet121-res224-mimic_ch
+  repository: https://github.com/mlmed/torchxrayvision
+  paper: arXiv:2111.00595 (Cohen et al., MIDL 2022)
+weights:
+- key: model
+  url: https://github.com/mlmed/torchxrayvision/releases/download/v1/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+  filename: mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+  sha256: 23b13a04459684ffa41247d068207a7657b4e1b4dec2b02431f5026bd75b1189
+  bytes: 28382012
+  extract: none
+  unsafe_pickle: true
+  note: módulo PyTorch serializado (pickle completo); só é desserializado após conferência do sha256
+license:
+  code: Apache-2.0
+  weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
+  training_data_terms: MIMIC-CXR (PhysioNet Credentialed Health Data License; rótulos CheXpert); tratado como não comercial, como o chexzero (mesmo dado de treino)
+  commercial_use: 'no'
+  evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0); os pesos são distribuídos
+    como assets de release do mesmo repositório sem licença própria declarada
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001
+- xrv-view-xinario
+- xrv-ae-ood
+training_data:
+- mimic-cxr
+labels:
+- key: atelectasis
+  source_label: Atelectasis
+  condition_id: cxr.atelectasis
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.atelectasis
+    meaning: atelectasis
+- key: consolidation
+  source_label: Consolidation
+  condition_id: cxr.consolidation
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.consolidation
+    meaning: consolidation
+- key: pneumothorax
+  source_label: Pneumothorax
+  condition_id: cxr.pneumothorax
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: SCT
+    value: '36118008'
+    meaning: Pneumothorax
+- key: pulmonary_edema
+  source_label: Edema
+  condition_id: cxr.pulmonary_edema
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: SCT
+    value: '19242006'
+    meaning: Pulmonary edema
+- key: pleural_effusion
+  source_label: Effusion
+  condition_id: cxr.pleural_effusion
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: SCT
+    value: '60046008'
+    meaning: Pleural effusion
+- key: pneumonia
+  source_label: Pneumonia
+  condition_id: cxr.pneumonia
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.pneumonia
+    meaning: pneumonia
+- key: cardiomegaly
+  source_label: Cardiomegaly
+  condition_id: cxr.cardiomegaly
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.cardiomegaly
+    meaning: cardiomegaly
+- key: lung_lesion
+  source_label: Lung Lesion
+  condition_id: cxr.lung_lesion
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.lung_lesion
+    meaning: lung lesion
+- key: fracture
+  source_label: Fracture
+  condition_id: cxr.fracture
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.fracture
+    meaning: fracture
+- key: lung_opacity
+  source_label: Lung Opacity
+  condition_id: cxr.lung_opacity
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.lung_opacity
+    meaning: lung opacity
+- key: enlarged_cardiomediastinum
+  source_label: Enlarged Cardiomediastinum
+  condition_id: cxr.enlarged_cardiomediastinum
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.enlarged_cardiomediastinum
+    meaning: enlarged cardiomediastinum
+operating_points:
+- label: atelectasis
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.09121389
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: atelectasis
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -2.29890258
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: consolidation
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.01057379
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: consolidation
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -4.53874727
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: pneumothorax
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.00502301
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: pneumothorax
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -5.28869066
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: pulmonary_edema
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.00369826
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: pulmonary_edema
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -5.59618854
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: pleural_effusion
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.08001232
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: pleural_effusion
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -2.44217966
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: pneumonia
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.03724225
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: pneumonia
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -3.2523579
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: cardiomegaly
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.05006329
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: cardiomegaly
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -2.94310736
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: lung_lesion
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.01986697
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: lung_lesion
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -3.8986297
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: fracture
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.03823637
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: fracture
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -3.22498156
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: lung_opacity
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.11303808
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: lung_opacity
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -2.0600773
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+- label: enlarged_cardiomediastinum
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.00691471
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7)
+- label: enlarged_cardiomediastinum
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -4.9671659
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-mimic_ch, v1.5.7); mesmo limiar convertido
+      para a escala logit
+limitations:
+- Os op_threshs da biblioteca foram escolhidos no hold-out dos próprios dados de treino; não são calibrados
+  para população externa.
+- Pré-processamento pela faixa representável (BitsStored); a janela VOI do DICOM não é aplicada. Imagens
+  de 12-16 bits com conteúdo em faixa estreita podem ficar com contraste reduzido em relação aos PNG de
+  treino.
+- 'Recorte central quadrado: estruturas fora do quadrado central não são vistas.'
+- Rótulos de treino extraídos de laudo (NLP), não releitura de imagem.
+references:
+- title: 'TorchXRayVision: A library of chest X-ray datasets and models'
+  identifier: arXiv:2111.00595
+  url: https://arxiv.org/abs/2111.00595
+config:
+  library_weights: densenet121-res224-mimic_ch
+  arch: densenet
+  gates: *id001

@@ -1,4 +1,4 @@
-"""Modalidade US — declarada, ainda não implementada (ROADMAP §5)."""
+"""Modalidade US: ultrassom modo B e ecocardiografia 2D, quadros estáticos e cine."""
 
 from __future__ import annotations
 

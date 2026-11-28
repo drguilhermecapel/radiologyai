@@ -1,0 +1,105 @@
+id: us-probe-breast-malignancy
+version: probe-20261124-biomedclip-9f341de
+name: Sonda linear (breast_lesion_malignant) sobre BiomedCLIP congelado
+status: available
+adapter: radiologyai.analysis.adapters.us_probe:USProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de malignidade de lesão mamária na região de uma caixa do usuário em US de mama: sonda
+  linear sobre BiomedCLIP (treino BUSI). Achado sugerido para confirmação médica.'
+visibility_default: research
+route: interactive
+source:
+  encoder: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224@9f341de24bfb00180f1b847274256e9b65a3a32e
+  encoder_repository: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  fit_script: scripts/probe_fit_us_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/open_clip_pytorch_model.bin
+  filename: open_clip_pytorch_model.bin
+  note: checkpoint open_clip completo; só as chaves visual.* são usadas (torch.load weights_only=True,
+    strict=True)
+  sha256: 52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be
+  bytes: 783705670
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/us-probe-breast-malignancy/probe.safetensors
+  filename: probe.safetensors
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: ba535eb0180c3a47d34cbc4a3b1f363d1fce3149076b8dedd331ef606c6b660c
+  bytes: 12624
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/us-probe-breast-malignancy/probe.json
+  filename: probe.json
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: 847eb0b1aadb16a0acdb5c49a9e9fc6703429f2c003b685107dcfd32214db911
+  bytes: 1300
+license:
+  code: MIT (BiomedCLIP/open_clip) + Apache-2.0 (este projeto)
+  weights: 'BiomedCLIP: MIT (LICENSE.md do repositório); cartão restringe a pesquisa; sonda: este projeto'
+  training_data_terms: busi (CC BY 4.0 segundo o espelho MedOtter/BUSI)
+  commercial_use: 'no'
+  evidence: LICENSE.md e README.md de microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224 (revisão
+    9f341de24bfb00180f1b847274256e9b65a3a32e); DATASET.json dos dados
+applicability:
+  exam_types:
+  - us_breast
+  modalities:
+  - US
+  image_kinds:
+  - projection
+  min_pixels: 64
+  adult_only: false
+inputs:
+  mode: single
+  prompts: required
+training_data:
+- busi
+labels:
+- key: breast_lesion_malignant
+  source_label: breast_lesion_malignant
+  condition_id: us.breast_lesion_malignancy
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: us.breast_lesion_malignancy
+    meaning: breast lesion malignancy (suggested)
+operating_points:
+- label: breast_lesion_malignant
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: -0.32489696706039195
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra BUSI deduplicado (us-probe-breast-malignancy); sensibilidade-alvo 0.9
+      nas predições fora-da-dobra do treino
+- label: breast_lesion_malignant
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: 0.2421235372749945
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra BUSI deduplicado (us-probe-breast-malignancy); especificidade-alvo 0.9
+      nas predições fora-da-dobra do treino
+limitations:
+- 'Treino só no BUSI (Egito, um centro); sem id de paciente: quase-duplicatas agrupadas por dHash, vazamento
+  intrapaciente ainda possível na CV interna.'
+- BUSI contém marcas de medida gravadas na imagem; a região recortada pode incluí-las.
+- Região de treino = caixa da máscara de referência + 25%; na prática a caixa é do usuário.
+- Pontos de operação das predições fora-da-dobra do treino; não calibrados para outra prevalência. Não
+  substitui BI-RADS nem biópsia.
+references:
+- title: 'BiomedCLIP: a multimodal biomedical foundation model pretrained from fifteen million scientific
+    image-text pairs'
+  identifier: arXiv:2303.00915
+  url: https://arxiv.org/abs/2303.00915
+config:
+  roi: box
+  margin: 0.25
+  max_frames: 10

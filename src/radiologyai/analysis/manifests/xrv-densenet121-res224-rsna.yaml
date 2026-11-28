@@ -1,0 +1,128 @@
+id: xrv-densenet121-res224-rsna
+version: 1.5.7-densenet121-res224-rsna
+name: TorchXRayVision densenet121-res224-rsna
+status: available
+adapter: radiologyai.analysis.adapters.xr_xrv:XrvClassifierAdapter
+task: classification
+capabilities:
+- classify
+- explain
+summary: Classificador multirrótulo de RX de tórax (densenet121-res224-rsna); devolve logits brutos das
+  cabeças treinadas. Achado sugerido para confirmação médica.
+intended_use: research_use_only
+visibility_default: main
+route: research
+source:
+  library: torchxrayvision
+  library_version: 1.5.7
+  library_weights: densenet121-res224-rsna
+  repository: https://github.com/mlmed/torchxrayvision
+  paper: arXiv:2111.00595 (Cohen et al., MIDL 2022)
+weights:
+- key: model
+  url: https://github.com/mlmed/torchxrayvision/releases/download/v1/kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+  filename: kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
+  sha256: 906a59f48cf09638b745d66848a6c6f9d741368c66244717a81207329d140268
+  bytes: 28381974
+  extract: none
+  unsafe_pickle: true
+  note: módulo PyTorch serializado (pickle completo); só é desserializado após conferência do sha256
+license:
+  code: Apache-2.0
+  weights: sem licença própria declarada (asset de release do repositório Apache-2.0)
+  training_data_terms: RSNA Pneumonia Detection Challenge (anotações sobre imagens do NIH)
+  commercial_use: unclear
+  evidence: LICENSE do repositório mlmed/torchxrayvision (Apache License 2.0); os pesos são distribuídos
+    como assets de release do mesmo repositório sem licença própria declarada
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001
+- xrv-view-xinario
+- xrv-ae-ood
+training_data:
+- rsna-pneumonia
+- nih-cxr14
+labels:
+- key: pneumonia
+  source_label: Pneumonia
+  condition_id: cxr.pneumonia
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.pneumonia
+    meaning: pneumonia
+- key: lung_opacity
+  source_label: Lung Opacity
+  condition_id: cxr.lung_opacity
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.lung_opacity
+    meaning: lung opacity
+operating_points:
+- label: pneumonia
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.13486601
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-rsna, v1.5.7)
+- label: pneumonia
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -1.85860263
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-rsna, v1.5.7); mesmo limiar convertido para
+      a escala logit
+- label: lung_opacity
+  point:
+    name: xrv_op_thresh
+    role: balanced
+    threshold: 0.13511065
+    'on': sigmoid
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-rsna, v1.5.7)
+- label: lung_opacity
+  point:
+    name: xrv_op_thresh_logit
+    role: balanced
+    threshold: -1.85650751
+    'on': logit
+    direction: ge
+    source: torchxrayvision op_threshs (densenet121-res224-rsna, v1.5.7); mesmo limiar convertido para
+      a escala logit
+limitations:
+- Os op_threshs da biblioteca foram escolhidos no hold-out dos próprios dados de treino; não são calibrados
+  para população externa.
+- Pré-processamento pela faixa representável (BitsStored); a janela VOI do DICOM não é aplicada. Imagens
+  de 12-16 bits com conteúdo em faixa estreita podem ficar com contraste reduzido em relação aos PNG de
+  treino.
+- 'Recorte central quadrado: estruturas fora do quadrado central não são vistas.'
+- Rótulos de treino extraídos de laudo (NLP), não releitura de imagem.
+references:
+- title: 'TorchXRayVision: A library of chest X-ray datasets and models'
+  identifier: arXiv:2111.00595
+  url: https://arxiv.org/abs/2111.00595
+config:
+  library_weights: densenet121-res224-rsna
+  arch: densenet
+  gates: *id001

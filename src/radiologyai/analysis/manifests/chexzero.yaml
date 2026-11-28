@@ -1,0 +1,239 @@
+id: chexzero
+version: 2022-best64-ensemble2
+name: CheXzero (zero-shot)
+status: available
+adapter: radiologyai.analysis.adapters.xr_chexzero:ChexzeroAdapter
+task: zero_shot
+capabilities:
+- classify
+summary: Classificação zero-shot de RX de tórax por pares de prompts (CheXzero); exploratória, só no modo
+  pesquisa.
+visibility_default: research
+route: research
+source:
+  repository: https://github.com/rajpurkarlab/CheXzero
+  paper: doi:10.1038/s41551-022-00936-9
+  architecture: CLIP ViT-B/32 (open_clip)
+  checkpoints_folder: https://drive.google.com/drive/folders/1makFLiEMbSleYltaRxw81aBhEDMpVwno
+weights:
+- key: ckpt_35000
+  url: https://drive.google.com/uc?export=download&id=1IEdILq06WgbVMBIz2DSyu8oDSJEGlSvh
+  filename: best_64_0.0001_original_35000_0.864.pt
+  sha256: 40ad37ea1933b6ae021a570d1a228e1b21ce1f7f4741348050766c365de214e9
+  bytes: 353548709
+  extract: none
+  unsafe_pickle: false
+  note: state_dict fp16 do CLIP; 2 dos checkpoints publicados (o artigo usa o ensemble dos 10 melhores)
+- key: ckpt_22000
+  url: https://drive.google.com/uc?export=download&id=1P3D5qukxg3oX88LrAJwRb_03h59O9jdk
+  filename: best_64_5e-05_original_22000_0.864.pt
+  sha256: 567a2efbabc6a02370de6e18178afd22ee72d7e6f29a789db1535e5c798d6ae8
+  bytes: 353548709
+  extract: none
+  unsafe_pickle: false
+  note: state_dict fp16 do CLIP; 2 dos checkpoints publicados (o artigo usa o ensemble dos 10 melhores)
+license:
+  code: MIT
+  weights: sem licença própria declarada para os checkpoints
+  training_data_terms: MIMIC-CXR (PhysioNet Credentialed Health Data License)
+  commercial_use: 'no'
+  evidence: LICENSE (MIT) e NOTICE.md do repositório rajpurkarlab/CheXzero; pesos treinados em MIMIC-CXR
+    (artigo, Methods)
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001
+- xrv-view-xinario
+- xrv-ae-ood
+training_data:
+- mimic-cxr
+labels:
+- key: atelectasis
+  source_label: Atelectasis
+  condition_id: cxr.atelectasis
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.atelectasis
+    meaning: atelectasis
+- key: cardiomegaly
+  source_label: Cardiomegaly
+  condition_id: cxr.cardiomegaly
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.cardiomegaly
+    meaning: cardiomegaly
+- key: consolidation
+  source_label: Consolidation
+  condition_id: cxr.consolidation
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.consolidation
+    meaning: consolidation
+- key: pulmonary_edema
+  source_label: Edema
+  condition_id: cxr.pulmonary_edema
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '19242006'
+    meaning: Pulmonary edema
+- key: enlarged_cardiomediastinum
+  source_label: Enlarged Cardiomediastinum
+  condition_id: cxr.enlarged_cardiomediastinum
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.enlarged_cardiomediastinum
+    meaning: enlarged cardiomediastinum
+- key: fracture
+  source_label: Fracture
+  condition_id: cxr.fracture
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.fracture
+    meaning: fracture
+- key: lung_lesion
+  source_label: Lung Lesion
+  condition_id: cxr.lung_lesion
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.lung_lesion
+    meaning: lung lesion
+- key: lung_opacity
+  source_label: Lung Opacity
+  condition_id: cxr.lung_opacity
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.lung_opacity
+    meaning: lung opacity
+- key: pleural_effusion
+  source_label: Pleural Effusion
+  condition_id: cxr.pleural_effusion
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '60046008'
+    meaning: Pleural effusion
+- key: pneumonia
+  source_label: Pneumonia
+  condition_id: cxr.pneumonia
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.pneumonia
+    meaning: pneumonia
+- key: pneumothorax
+  source_label: Pneumothorax
+  condition_id: cxr.pneumothorax
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '36118008'
+    meaning: Pneumothorax
+- key: emphysema
+  source_label: Emphysema
+  condition_id: cxr.emphysema
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.emphysema
+    meaning: emphysema
+- key: fibrosis
+  source_label: Fibrosis
+  condition_id: cxr.pulmonary_fibrosis
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '112674009'
+    meaning: Fibrosis
+- key: hernia
+  source_label: Hernia
+  condition_id: cxr.hernia
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.hernia
+    meaning: hernia
+- key: mass
+  source_label: Mass
+  condition_id: cxr.lung_mass
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '4147007'
+    meaning: Mass
+- key: nodule
+  source_label: Nodule
+  condition_id: cxr.lung_nodule
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: SCT
+    value: '27925004'
+    meaning: Nodule
+- key: pleural_thickening
+  source_label: Pleural Thickening
+  condition_id: cxr.pleural_thickening
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.pleural_thickening
+    meaning: pleural thickening
+- key: tuberculosis
+  source_label: Tuberculosis
+  condition_id: cxr.tuberculosis
+  kind: binary
+  score_kind: softmax
+  code:
+    scheme: 99MEDAI
+    value: cxr.tuberculosis
+    meaning: tuberculosis
+limitations:
+- 'Zero-shot: sem ponto de operação; escore não é probabilidade de doença.'
+- Somente 2 dos 10 checkpoints do ensemble do artigo estão fixados aqui.
+- 'Rótulos fora dos 14 do CheXpert (ex.: tuberculose) são sondas exploratórias.'
+references:
+- title: Expert-level detection of pathologies from unannotated chest X-ray images via self-supervised
+    learning
+  identifier: doi:10.1038/s41551-022-00936-9
+  url: https://doi.org/10.1038/s41551-022-00936-9
+config:
+  templates:
+  - '{}'
+  - no {}
+  gates: *id001

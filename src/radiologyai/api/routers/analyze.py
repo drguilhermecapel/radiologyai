@@ -1,4 +1,15 @@
-"""Análise de exame — gate de escopo primeiro, falha fechada sempre."""
+"""Análise legada de UM DICOM por UM model card — gate de escopo primeiro, falha fechada.
+
+Obsoleta: o fluxo da plataforma é ``POST /studies`` + ``POST /studies/{id}/analyses``
+(pipeline multimodelo com níveis de evidência). Mantida, autenticada, porque
+cobre o gate de escopo por HTTP (REQ-031) e os limiares vindos de artefato
+medido (REQ-062).
+
+Esta rota NÃO aplica o catálogo de níveis: seus rótulos não têm nível A-C e
+são, portanto, exploratórios (nível D). Escores e faixas só são devolvidos a
+papel com modo pesquisa; os demais recebem a contagem do que foi omitido.
+Toda chamada é auditada na cadeia do banco (``legacy.analyze``).
+"""
 
 from __future__ import annotations
 
@@ -7,28 +18,62 @@ import tempfile
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from pydantic import BaseModel, ConfigDict
 
 from radiologyai import __version__
 from radiologyai.api.app import DISCLAIMER
+from radiologyai.api.deps import Principal, get_platform, perm, require
 from radiologyai.errors import (
     BackendUnavailableError,
     IngestionError,
     ModelNotFoundError,
     OutOfScopeError,
 )
+from radiologyai.persistence.security import Permission
+from radiologyai.worker.runtime import Platform
 
-router = APIRouter(tags=["analyze"])
+router = APIRouter(tags=["analyze (legado)"])
 
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 
 
-@router.post("/analyze")
+class LegacyAnalyzeOut(BaseModel):
+    """Resposta do endpoint legado. Sem ``clinical_metrics`` — o v1 as fabricava."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", protected_namespaces=())
+
+    input_sha256: str
+    code_version: str
+    card_id: str
+    weights_sha256: str
+    modality: str
+    metadata: dict[str, Any]
+    findings: list[dict[str, Any]]
+    research_view: bool = False
+    hidden_research_findings: int = 0
+    evidence_note: str = (
+        "rota legada sem catálogo de níveis: todo rótulo é exploratório (nível D) e só "
+        "aparece no modo pesquisa"
+    )
+    normality_asserted: bool
+    requires_physician_review: bool
+    disclaimer: str
+
+
+@router.post(
+    "/analyze",
+    response_model=LegacyAnalyzeOut,
+    deprecated=True,
+    openapi_extra=perm(Permission.LEGACY_ANALYZE),
+)
 async def analyze(
+    principal: Annotated[Principal, Depends(require(Permission.LEGACY_ANALYZE))],
+    platform: Annotated[Platform, Depends(get_platform)],
     request: Request,
     file: Annotated[UploadFile, File(description="Arquivo DICOM")],
     card_id: Annotated[str, Form()] = "xrv-densenet121-pc",
-) -> dict[str, Any]:
+) -> LegacyAnalyzeOut:
     """Analisa um exame DICOM.
 
     Ordem obrigatória: ler cabeçalho, aplicar o gate de escopo da modalidade,
@@ -38,11 +83,13 @@ async def analyze(
     A resposta **não** contém métricas de validação clínica. O v1 devolvia
     ``clinical_metrics`` calculadas a partir de um array inventado de um elemento.
     """
+    from radiologyai.api.shadow import block_ai
     from radiologyai.io.metadata import extract_metadata
     from radiologyai.io.reader import read_dicom
     from radiologyai.modalities import resolve
     from radiologyai.models import get_card
 
+    block_ai(platform, principal, action="legacy.analyze")
     payload = await file.read()
     if len(payload) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="arquivo excede 200 MB")
@@ -97,6 +144,29 @@ async def analyze(
                     "note": "Nenhuma predição é fabricada quando o modelo não pode rodar.",
                 },
             ) from exc
+    from radiologyai.persistence.audit import append_event
+
+    research_view = principal.can(Permission.RESEARCH_MODE)
+    findings = [{**f, "evidence_level": "D", "visibility": "research"} for f in findings]
+    abstained = any(f.get("band") in {"inconclusivo", "nao_avaliavel"} for f in findings)
+    append_event(
+        platform.db,
+        "legacy.analyze",
+        actor_id=principal.user_id,
+        actor_username=principal.username,
+        subject_type="input",
+        subject_id=input_sha256,
+        payload={
+            "input_sha256": input_sha256,
+            "card_id": card.card_id,
+            "weights_sha256": card.weights_sha256,
+            "code_version": __version__,
+            "modality": plugin.code,
+            "n_findings": len(findings),
+            "abstained": abstained,
+            "research_view": research_view,
+        },
+    )
     audit_trail = getattr(request.app.state, "audit_trail", None)
     if audit_trail is not None:
         audit_trail.record(
@@ -106,23 +176,26 @@ async def analyze(
             weights_sha256=card.weights_sha256,
             code_version=__version__,
             modality=plugin.code,
-            user_id=request.headers.get("x-user-id", "anonymous"),
+            user_id=principal.username,
             findings=findings,
-            abstained=any(f.get("band") in {"inconclusivo", "nao_avaliavel"} for f in findings),
+            abstained=abstained,
         )
 
-    return {
-        "input_sha256": input_sha256,
-        "code_version": __version__,
-        "card_id": card.card_id,
-        "weights_sha256": card.weights_sha256,
-        "modality": plugin.code,
-        "metadata": metadata.model_dump(),
-        "findings": findings,
-        "normality_asserted": False,
-        "requires_physician_review": True,
-        "disclaimer": DISCLAIMER,
-    }
+    shown = findings if research_view else []
+    return LegacyAnalyzeOut(
+        input_sha256=input_sha256,
+        code_version=__version__,
+        card_id=card.card_id,
+        weights_sha256=card.weights_sha256,
+        modality=plugin.code,
+        metadata=metadata.model_dump(),
+        findings=shown,
+        research_view=research_view,
+        hidden_research_findings=len(findings) - len(shown),
+        normality_asserted=False,
+        requires_physician_review=True,
+        disclaimer=DISCLAIMER,
+    )
 
 
 def _run_inference(

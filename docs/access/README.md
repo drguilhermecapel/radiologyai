@@ -1,8 +1,8 @@
 # Acesso a datasets — o que exige credencial e o que não exige
 
 Dois caminhos para **rótulos adjudicados por radiologista**, que é o que separa
-"modelo fraco" de "rótulo ruidoso". A primeira linha de base mediu AUROC 0,664
-contra rótulos minerados por NLP; fibrose saiu em 0,448 com IC95 excluindo 0,5,
+"modelo fraco" de "rótulo ruidoso". A primeira linha de base mediu AUROC 0,664 (`artifacts/eval/xrv-densenet121-pc__20260912T215742Z/metrics.json`)
+contra rótulos minerados por NLP; fibrose saiu em 0,448 com IC95 excluindo 0,5 (mesmo `artifacts/eval/`),
 o que sugere fortemente discordância de definição entre datasets, não erro do
 modelo. Só um conjunto adjudicado resolve essa ambiguidade.
 

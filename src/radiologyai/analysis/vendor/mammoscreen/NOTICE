@@ -1,0 +1,19 @@
+Vendorizado (reimplementação revisada) de:
+
+  ianpan/mammoscreen  — https://huggingface.co/ianpan/mammoscreen
+    arquivos: modeling.py, configuration.py, config.json (revisão 56b2890)
+  ianpan/mammo-crop   — https://huggingface.co/ianpan/mammo-crop
+    arquivos: modeling.py, configuration.py, config.json (revisão bec2e30)
+
+Autor original: Ian Pan.
+Licença: Apache License, Version 2.0 (front-matter "license: apache-2.0" dos
+cartões de modelo). Texto da licença: https://www.apache.org/licenses/LICENSE-2.0
+
+Modificações (exigidas pela seção 4(b) da Apache-2.0):
+  * Removidas as dependências transformers (PreTrainedModel/AutoModel com
+    trust_remote_code) e albumentations; as arquiteturas são as mesmas (timm),
+    carregadas com load_state_dict(strict=True) a partir do safetensors
+    conferido por sha256.
+  * Resize/Pad do albumentations 2.0.8 reproduzidos com cv2.resize
+    (INTER_LINEAR) e numpy.pad constante 0, que é o que a biblioteca executa.
+  * Tipagem estática, docstrings em português, sem execução de código remoto.

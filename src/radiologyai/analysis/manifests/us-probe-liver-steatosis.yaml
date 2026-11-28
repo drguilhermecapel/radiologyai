@@ -1,0 +1,104 @@
+id: us-probe-liver-steatosis
+version: probe-20261124-biomedclip-9f341de
+name: Sonda linear (liver_steatosis) sobre BiomedCLIP congelado
+status: available
+adapter: radiologyai.analysis.adapters.us_probe:USProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de esteatose hepática (gordura >= 5% na biópsia) na imagem inteira de US do fígado: sonda
+  linear sobre BiomedCLIP (treino Byra). Só modo pesquisa.'
+visibility_default: research
+route: research
+source:
+  encoder: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224@9f341de24bfb00180f1b847274256e9b65a3a32e
+  encoder_repository: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+  fit_script: scripts/probe_fit_us_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/open_clip_pytorch_model.bin
+  filename: open_clip_pytorch_model.bin
+  note: checkpoint open_clip completo; só as chaves visual.* são usadas (torch.load weights_only=True,
+    strict=True)
+  sha256: 52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be
+  bytes: 783705670
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/us-probe-liver-steatosis/probe.safetensors
+  filename: probe.safetensors
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: 1653fa4b680823f448243ebf402c9e2206ae66df416f700e10da386759bc9d0b
+  bytes: 12624
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/us-probe-liver-steatosis/probe.json
+  filename: probe.json
+  note: 'produzido localmente por scripts/probe_fit_us_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+  sha256: 428ab22a951487b436ee54e90afdf9b8b277346661ac1f66dd348ad63ed7de75
+  bytes: 1287
+license:
+  code: MIT (BiomedCLIP/open_clip) + Apache-2.0 (este projeto)
+  weights: 'BiomedCLIP: MIT (LICENSE.md do repositório); cartão restringe a pesquisa; sonda: este projeto'
+  training_data_terms: byra-fatty-liver (CC BY 4.0, Zenodo 1009146)
+  commercial_use: 'no'
+  evidence: LICENSE.md e README.md de microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224 (revisão
+    9f341de24bfb00180f1b847274256e9b65a3a32e); DATASET.json dos dados
+applicability:
+  exam_types:
+  - us_abdomen
+  modalities:
+  - US
+  image_kinds:
+  - projection
+  - cine
+  min_pixels: 128
+  adult_only: false
+inputs:
+  mode: single
+  prompts: none
+training_data:
+- byra-fatty-liver
+labels:
+- key: liver_steatosis
+  source_label: liver_steatosis
+  condition_id: us.hepatic_steatosis
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: us.hepatic_steatosis
+    meaning: hepatic steatosis (suggested)
+operating_points:
+- label: liver_steatosis
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: -0.3510364860836648
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Byra 55 pacientes (us-probe-liver-steatosis); sensibilidade-alvo 0.9
+      nas predições fora-da-dobra do treino
+- label: liver_steatosis
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: 2.622991231532444
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Byra 55 pacientes (us-probe-liver-steatosis); especificidade-alvo 0.9
+      nas predições fora-da-dobra do treino
+limitations:
+- '55 pacientes (obesos graves pré-bariátrica), um centro, transdutor setorial: espectro muito diferente
+  do US abdominal de rotina.'
+- Avaliação só interna (CV aninhada por paciente); sem teste externo.
+- 'Imagem inteira, sem região: anotações gravadas podem influenciar o escore.'
+references:
+- title: 'BiomedCLIP: a multimodal biomedical foundation model pretrained from fifteen million scientific
+    image-text pairs'
+  identifier: arXiv:2303.00915
+  url: https://arxiv.org/abs/2303.00915
+config:
+  roi: full
+  margin: 0.0
+  max_frames: 10

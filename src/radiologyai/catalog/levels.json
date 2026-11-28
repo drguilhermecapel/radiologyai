@@ -1,0 +1,1491 @@
+{
+  "entries": [
+    {
+      "basis": [],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": null,
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:atelectasis:discrimination",
+        "measured:openi:xrv-densenet121-res224-chex:atelectasis:discrimination"
+      ],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5604 < auroc_min 0.8; limite inferior do IC da AUROC 0.5339 < auroc_ci_low_min 0.75",
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:atelectasis:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_ch:atelectasis:discrimination"
+      ],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6044 < auroc_min 0.8; limite inferior do IC da AUROC 0.5823 < auroc_ci_low_min 0.75",
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:atelectasis:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_nb:atelectasis:discrimination"
+      ],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5810 < auroc_min 0.8; limite inferior do IC da AUROC 0.5554 < auroc_ci_low_min 0.75",
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-nih:atelectasis:discrimination"
+      ],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.7253 < auroc_min 0.8; limite inferior do IC da AUROC 0.6865 < auroc_ci_low_min 0.75",
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:atelectasis:discrimination",
+        "measured:openi:xrv-densenet121-res224-pc:atelectasis:discrimination"
+      ],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6449 < auroc_min 0.8; limite inferior do IC da AUROC 0.6239 < auroc_ci_low_min 0.75",
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.atelectasis",
+      "distributed": true,
+      "headline": null,
+      "label": "atelectasis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-all:cardiomegaly:discrimination",
+        "measured:openi:xrv-densenet121-res224-all:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "C: auroc 0.861 [0.835, 0.883] · nih-cxr14 · n=12176",
+      "label": "cardiomegaly",
+      "level": "C",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:cardiomegaly:discrimination",
+        "measured:openi:xrv-densenet121-res224-chex:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6640 < auroc_min 0.8; limite inferior do IC da AUROC 0.6141 < auroc_ci_low_min 0.75",
+      "label": "cardiomegaly",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:cardiomegaly:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_ch:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6363 < auroc_min 0.8; limite inferior do IC da AUROC 0.5934 < auroc_ci_low_min 0.75",
+      "label": "cardiomegaly",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:cardiomegaly:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_nb:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6686 < auroc_min 0.8; limite inferior do IC da AUROC 0.6221 < auroc_ci_low_min 0.75",
+      "label": "cardiomegaly",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-nih:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "A: auroc 0.825 [0.786, 0.862] · openi · n=2027",
+      "label": "cardiomegaly",
+      "level": "A",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:cardiomegaly:discrimination",
+        "measured:openi:xrv-densenet121-res224-pc:cardiomegaly:discrimination"
+      ],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": "A: auroc 0.813 [0.783, 0.839] · nih-cxr14 · n=12176",
+      "label": "cardiomegaly",
+      "level": "A",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.cardiomegaly",
+      "distributed": true,
+      "headline": null,
+      "label": "cardiomegaly",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": null,
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:consolidation:discrimination"
+      ],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6706 < auroc_min 0.8; limite inferior do IC da AUROC 0.6497 < auroc_ci_low_min 0.75",
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:consolidation:discrimination"
+      ],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6318 < auroc_min 0.8; limite inferior do IC da AUROC 0.6079 < auroc_ci_low_min 0.75",
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:consolidation:discrimination"
+      ],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6066 < auroc_min 0.8; limite inferior do IC da AUROC 0.5762 < auroc_ci_low_min 0.75",
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": null,
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:consolidation:discrimination"
+      ],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6688 < auroc_min 0.8; limite inferior do IC da AUROC 0.6483 < auroc_ci_low_min 0.75",
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.consolidation",
+      "distributed": true,
+      "headline": null,
+      "label": "consolidation",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.emphysema",
+      "distributed": true,
+      "headline": null,
+      "label": "emphysema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-nih:emphysema:discrimination"
+      ],
+      "condition_id": "cxr.emphysema",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.6362 < auroc_min 0.8; limite inferior do IC da AUROC 0.5728 < auroc_ci_low_min 0.75",
+      "label": "emphysema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:emphysema:discrimination",
+        "measured:openi:xrv-densenet121-res224-pc:emphysema:discrimination"
+      ],
+      "condition_id": "cxr.emphysema",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6048 < auroc_min 0.8; limite inferior do IC da AUROC 0.5607 < auroc_ci_low_min 0.75",
+      "label": "emphysema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.emphysema",
+      "distributed": true,
+      "headline": null,
+      "label": "emphysema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.enlarged_cardiomediastinum",
+      "distributed": true,
+      "headline": null,
+      "label": "enlarged_cardiomediastinum",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": null,
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-chex:fracture:discrimination"
+      ],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.5332 < auroc_min 0.8; limite inferior do IC da AUROC 0.4639 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-mimic_ch:fracture:discrimination"
+      ],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.5028 < auroc_min 0.8; limite inferior do IC da AUROC 0.4209 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-mimic_nb:fracture:discrimination"
+      ],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.5830 < auroc_min 0.8; limite inferior do IC da AUROC 0.5093 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-pc:fracture:discrimination"
+      ],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.6554 < auroc_min 0.8; limite inferior do IC da AUROC 0.5753 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.fracture",
+      "distributed": true,
+      "headline": null,
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "distributed": true,
+      "headline": null,
+      "label": "hernia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "distributed": true,
+      "headline": null,
+      "label": "hernia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "distributed": true,
+      "headline": null,
+      "label": "hernia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.hernia",
+      "distributed": true,
+      "headline": null,
+      "label": "hernia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.infiltration",
+      "distributed": true,
+      "headline": null,
+      "label": "infiltration",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-nih:infiltration:discrimination"
+      ],
+      "condition_id": "cxr.infiltration",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.5626 < auroc_min 0.8; limite inferior do IC da AUROC 0.4953 < auroc_ci_low_min 0.75",
+      "label": "infiltration",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:infiltration:discrimination",
+        "measured:openi:xrv-densenet121-res224-pc:infiltration:discrimination"
+      ],
+      "condition_id": "cxr.infiltration",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6599 < auroc_min 0.8; limite inferior do IC da AUROC 0.6443 < auroc_ci_low_min 0.75",
+      "label": "infiltration",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.infiltration",
+      "distributed": true,
+      "headline": null,
+      "label": "infiltration",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_lesion",
+      "distributed": true,
+      "headline": null,
+      "label": "lung_lesion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-chex:lung_lesion:discrimination"
+      ],
+      "condition_id": "cxr.lung_lesion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.5634 < auroc_min 0.8; limite inferior do IC da AUROC 0.5067 < auroc_ci_low_min 0.75",
+      "label": "lung_lesion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_ch:lung_lesion:discrimination"
+      ],
+      "condition_id": "cxr.lung_lesion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.5594 < auroc_min 0.8; limite inferior do IC da AUROC 0.5047 < auroc_ci_low_min 0.75",
+      "label": "lung_lesion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_nb:lung_lesion:discrimination"
+      ],
+      "condition_id": "cxr.lung_lesion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.5611 < auroc_min 0.8; limite inferior do IC da AUROC 0.5060 < auroc_ci_low_min 0.75",
+      "label": "lung_lesion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_mass",
+      "distributed": true,
+      "headline": null,
+      "label": "mass",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_mass",
+      "distributed": true,
+      "headline": null,
+      "label": "mass",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:mass:discrimination"
+      ],
+      "condition_id": "cxr.lung_mass",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6187 < auroc_min 0.8; limite inferior do IC da AUROC 0.5795 < auroc_ci_low_min 0.75",
+      "label": "mass",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_mass",
+      "distributed": true,
+      "headline": null,
+      "label": "mass",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_nodule",
+      "distributed": true,
+      "headline": null,
+      "label": "nodule",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_nodule",
+      "distributed": true,
+      "headline": null,
+      "label": "nodule",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:nodule:discrimination"
+      ],
+      "condition_id": "cxr.lung_nodule",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6018 < auroc_min 0.8; limite inferior do IC da AUROC 0.5588 < auroc_ci_low_min 0.75",
+      "label": "nodule",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_nodule",
+      "distributed": true,
+      "headline": null,
+      "label": "nodule",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-all:lung_opacity:discrimination"
+      ],
+      "condition_id": "cxr.lung_opacity",
+      "distributed": true,
+      "headline": "C: auroc 0.925 [0.906, 0.941] · nih-cxr14-google · n=949",
+      "label": "lung_opacity",
+      "level": "C",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-chex:lung_opacity:discrimination"
+      ],
+      "condition_id": "cxr.lung_opacity",
+      "distributed": true,
+      "headline": "A: auroc 0.872 [0.848, 0.894] · nih-cxr14-google · n=949",
+      "label": "lung_opacity",
+      "level": "A",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_ch:lung_opacity:discrimination"
+      ],
+      "condition_id": "cxr.lung_opacity",
+      "distributed": true,
+      "headline": "A: auroc 0.856 [0.830, 0.882] · nih-cxr14-google · n=949",
+      "label": "lung_opacity",
+      "level": "A",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_nb:lung_opacity:discrimination"
+      ],
+      "condition_id": "cxr.lung_opacity",
+      "distributed": true,
+      "headline": "A: auroc 0.848 [0.819, 0.875] · nih-cxr14-google · n=949",
+      "label": "lung_opacity",
+      "level": "A",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.lung_opacity",
+      "distributed": true,
+      "headline": null,
+      "label": "lung_opacity",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-all:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "C: auroc 0.829 [0.782, 0.876] · openi · n=2027",
+      "label": "pleural_effusion",
+      "level": "C",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:pleural_effusion:discrimination",
+        "measured:openi:xrv-densenet121-res224-chex:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6665 < auroc_min 0.8; limite inferior do IC da AUROC 0.6415 < auroc_ci_low_min 0.75",
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:pleural_effusion:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_ch:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6960 < auroc_min 0.8; limite inferior do IC da AUROC 0.6752 < auroc_ci_low_min 0.75",
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:pleural_effusion:discrimination",
+        "measured:openi:xrv-densenet121-res224-mimic_nb:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6898 < auroc_min 0.8; limite inferior do IC da AUROC 0.6670 < auroc_ci_low_min 0.75",
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:openi:xrv-densenet121-res224-nih:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "refutado por medição própria em openi: AUROC 0.7750 < auroc_min 0.8; limite inferior do IC da AUROC 0.7166 < auroc_ci_low_min 0.75",
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:pleural_effusion:discrimination",
+        "measured:openi:xrv-densenet121-res224-pc:pleural_effusion:discrimination"
+      ],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.7496 < auroc_min 0.8; limite inferior do IC da AUROC 0.7300 < auroc_ci_low_min 0.75",
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_effusion",
+      "distributed": true,
+      "headline": null,
+      "label": "pleural_effusion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_thickening",
+      "distributed": true,
+      "headline": null,
+      "label": "pleural_thickening",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_thickening",
+      "distributed": true,
+      "headline": null,
+      "label": "pleural_thickening",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:pleural_thickening:discrimination"
+      ],
+      "condition_id": "cxr.pleural_thickening",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5407 < auroc_min 0.8; limite inferior do IC da AUROC 0.5031 < auroc_ci_low_min 0.75",
+      "label": "pleural_thickening",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pleural_thickening",
+      "distributed": true,
+      "headline": null,
+      "label": "pleural_thickening",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:pneumonia:discrimination"
+      ],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5627 < auroc_min 0.8; limite inferior do IC da AUROC 0.5245 < auroc_ci_low_min 0.75",
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:pneumonia:discrimination"
+      ],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5547 < auroc_min 0.8; limite inferior do IC da AUROC 0.5179 < auroc_ci_low_min 0.75",
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:pneumonia:discrimination"
+      ],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.5409 < auroc_min 0.8; limite inferior do IC da AUROC 0.5036 < auroc_ci_low_min 0.75",
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:pneumonia:discrimination"
+      ],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6423 < auroc_min 0.8; limite inferior do IC da AUROC 0.6074 < auroc_ci_low_min 0.75",
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumonia",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumonia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-chex:pneumothorax:discrimination",
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:pneumothorax:discrimination"
+      ],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.6941 < auroc_min 0.8; limite inferior do IC da AUROC 0.6301 < auroc_ci_low_min 0.75",
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_ch:pneumothorax:discrimination",
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:pneumothorax:discrimination"
+      ],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.6643 < auroc_min 0.8; limite inferior do IC da AUROC 0.6004 < auroc_ci_low_min 0.75",
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-mimic_nb:pneumothorax:discrimination",
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:pneumothorax:discrimination"
+      ],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.7133 < auroc_min 0.8; limite inferior do IC da AUROC 0.6490 < auroc_ci_low_min 0.75",
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14-google:xrv-densenet121-res224-pc:pneumothorax:discrimination",
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:pneumothorax:discrimination"
+      ],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14-google: AUROC 0.7480 < auroc_min 0.8; limite inferior do IC da AUROC 0.6947 < auroc_ci_low_min 0.75",
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pneumothorax",
+      "distributed": true,
+      "headline": null,
+      "label": "pneumothorax",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": null,
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-chex:pulmonary_edema:discrimination"
+      ],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.7047 < auroc_min 0.8; limite inferior do IC da AUROC 0.6680 < auroc_ci_low_min 0.75",
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-chex",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_ch:pulmonary_edema:discrimination"
+      ],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.6965 < auroc_min 0.8; limite inferior do IC da AUROC 0.6659 < auroc_ci_low_min 0.75",
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_ch",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-mimic_nb:pulmonary_edema:discrimination"
+      ],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.7377 < auroc_min 0.8; limite inferior do IC da AUROC 0.7077 < auroc_ci_low_min 0.75",
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-mimic_nb",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": null,
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:pulmonary_edema:discrimination"
+      ],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.7514 < auroc_min 0.8; limite inferior do IC da AUROC 0.7196 < auroc_ci_low_min 0.75",
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_edema",
+      "distributed": true,
+      "headline": null,
+      "label": "pulmonary_edema",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "distributed": true,
+      "headline": null,
+      "label": "fibrosis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "distributed": true,
+      "headline": null,
+      "label": "fibrosis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-nih",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:nih-cxr14:xrv-densenet121-res224-pc:fibrosis:discrimination"
+      ],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "distributed": true,
+      "headline": "refutado por medição própria em nih-cxr14: AUROC 0.4421 < auroc_min 0.8; limite inferior do IC da AUROC 0.3793 < auroc_ci_low_min 0.75",
+      "label": "fibrosis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-densenet121-res224-pc",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "cxr.pulmonary_fibrosis",
+      "distributed": true,
+      "headline": null,
+      "label": "fibrosis",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xrv-resnet50-res512-all",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:tb-shenzhen:xr-probe-tb:tuberculosis:discrimination"
+      ],
+      "condition_id": "cxr.tuberculosis",
+      "distributed": true,
+      "headline": "C: auroc 0.982 [0.969, 0.992] · tb-shenzhen · n=331",
+      "label": "tuberculosis",
+      "level": "C",
+      "limited_by": [],
+      "model_id": "xr-probe-tb",
+      "refuted_by_measurement": false,
+      "visibility": "main"
+    },
+    {
+      "basis": [
+        "measured:tb-shenzhen:xr-probe-tb.trained-montgomery:tuberculosis:discrimination"
+      ],
+      "condition_id": "cxr.tuberculosis",
+      "distributed": false,
+      "headline": "limitado a D (a medição sustentaria C) · C: auroc 0.944 [0.919, 0.966] · tb-shenzhen · n=331",
+      "label": "tuberculosis",
+      "level": "D",
+      "limited_by": [
+        "modelo 'xr-probe-tb.trained-montgomery' sem manifesto no registro de modelos: não é artefato distribuído; nível limitado a D e fora de qualquer contagem"
+      ],
+      "model_id": "xr-probe-tb.trained-montgomery",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:camus:medsam2-echo-lv:lv_ef:agreement"
+      ],
+      "condition_id": "echo.reduced_lvef",
+      "distributed": true,
+      "headline": "limitado a D (a medição sustentaria C) · C: icc 0.861 [0.769, 0.913] · camus · n=100",
+      "label": "lv_ef",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'medsam2-echo-lv' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D",
+        "measured:camus:medsam2-echo-lv:lv_ef:agreement: entrada derivada do padrão de referência (caixa do VE = caixa da máscara de referência + 5 px; quadros ED/ES e corte anotados no CAMUS); nível A vedado"
+      ],
+      "model_id": "medsam2-echo-lv",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "echo.reduced_lvef",
+      "distributed": true,
+      "headline": null,
+      "label": "lv_ef.prompt_free",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'medsam2-echo-lv' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D"
+      ],
+      "model_id": "medsam2-echo-lv",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mg.breast_cancer",
+      "distributed": true,
+      "headline": null,
+      "label": "cancer",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "mammoscreen",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:cmmd:mammoscreen:malignancy:discrimination"
+      ],
+      "condition_id": "mg.breast_cancer",
+      "distributed": true,
+      "headline": "refutado por medição própria em cmmd: AUROC 0.7896 < auroc_min 0.8; limite inferior do IC da AUROC 0.7154 < auroc_ci_low_min 0.75",
+      "label": "malignancy",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "mammoscreen",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mg.breast_density",
+      "distributed": true,
+      "headline": null,
+      "label": "density",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'monai-breast-density' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D"
+      ],
+      "model_id": "monai-breast-density",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "distributed": true,
+      "headline": null,
+      "label": "ET",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "distributed": true,
+      "headline": null,
+      "label": "TC",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.glioma_segmentation",
+      "distributed": true,
+      "headline": null,
+      "label": "WT",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "monai-brats",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "mr.white_matter_lesions",
+      "distributed": true,
+      "headline": null,
+      "label": "lesion",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "lst-ai",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.cast",
+      "distributed": true,
+      "headline": null,
+      "label": "cast",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xr-probe-grazpedwri-cast",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:grazpedwri-dx-sample:xr-probe-fracture:fracture:discrimination"
+      ],
+      "condition_id": "msk_xr.fracture",
+      "distributed": true,
+      "headline": "refutado por medição própria em grazpedwri-dx-sample: AUROC 0.6898 < auroc_min 0.8; limite inferior do IC da AUROC 0.6327 < auroc_ci_low_min 0.75",
+      "label": "fracture",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xr-probe-fracture",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.metal",
+      "distributed": true,
+      "headline": null,
+      "label": "metal",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xr-probe-grazpedwri-metal",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "msk_xr.osteopenia",
+      "distributed": true,
+      "headline": null,
+      "label": "osteopenia",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "xr-probe-grazpedwri-osteopenia",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [
+        "measured:bus-bra:us-probe-breast-malignancy:breast_lesion_malignant:discrimination",
+        "measured:busi:us-probe-breast-malignancy:breast_lesion_malignant:discrimination"
+      ],
+      "condition_id": "us.breast_lesion_malignancy",
+      "distributed": true,
+      "headline": "limitado a D (a medição sustentaria C) · C: auroc 0.860 [0.830, 0.888] · bus-bra · n=934",
+      "label": "breast_lesion_malignant",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'us-probe-breast-malignancy' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D",
+        "measured:bus-bra:us-probe-breast-malignancy:breast_lesion_malignant:discrimination: entrada derivada do padrão de referência (região = caixa da máscara de referência + 25%); nível A vedado",
+        "measured:busi:us-probe-breast-malignancy:breast_lesion_malignant:discrimination: entrada derivada do padrão de referência (região = caixa da máscara de referência + 25%); nível A vedado"
+      ],
+      "model_id": "us-probe-breast-malignancy",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "us.hepatic_steatosis",
+      "distributed": true,
+      "headline": null,
+      "label": "liver_steatosis",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'us-probe-liver-steatosis' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D"
+      ],
+      "model_id": "us-probe-liver-steatosis",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    },
+    {
+      "basis": [],
+      "condition_id": "us.liver_lesion_malignancy",
+      "distributed": true,
+      "headline": null,
+      "label": "liver_lesion_malignant",
+      "level": "D",
+      "limited_by": [
+        "manifesto 'us-probe-liver-lesion-malignancy' declara visibility_default: research (termo de uso ou dados de treino restringem o modelo ao modo pesquisa); nível limitado a D"
+      ],
+      "model_id": "us-probe-liver-lesion-malignancy",
+      "refuted_by_measurement": false,
+      "visibility": "research"
+    }
+  ],
+  "evidence_digest": "90c37b4d4c8faaf3e9907f75d7521026e748de477891d1d9c58a7169b45c7ff1",
+  "protocol_id": "2026-11-v1"
+}

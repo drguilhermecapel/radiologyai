@@ -190,6 +190,263 @@ def evaluate(
     typer.secho(f"\nArtefato: {result.run_dir}", fg=typer.colors.GREEN)
 
 
+# --------------------------------------------------------------------------- #
+# Plataforma: servidor, usuários, análise local
+# --------------------------------------------------------------------------- #
+users_app = typer.Typer(
+    help="Usuários da plataforma. Não há credencial padrão: o primeiro admin nasce aqui.",
+    no_args_is_help=True,
+)
+app.add_typer(users_app, name="users")
+
+
+def _platform_db() -> Any:
+    from radiologyai.persistence.config import get_platform_settings
+    from radiologyai.persistence.db import Database
+
+    settings = get_platform_settings()
+    db = Database(settings.database_url)
+    db.migrate()
+    return db, settings
+
+
+def _read_password(password_stdin: bool) -> str:
+    if password_stdin:
+        return sys.stdin.readline().rstrip("\n")
+    value: str = typer.prompt("Senha", hide_input=True, confirmation_prompt=True)
+    return value
+
+
+@app.command()
+def migrate() -> None:
+    """Aplica as migrações Alembic pendentes ao banco de MEDAI_DATABASE_URL."""
+    from radiologyai.errors import RadiologyAIError
+
+    try:
+        db, _ = _platform_db()
+    except RadiologyAIError as exc:
+        typer.secho(f"ERRO: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(f"banco na revisão {db.revision()}")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Interface de escuta")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Porta")] = 8000,
+    worker: Annotated[bool, typer.Option(help="Sobe o worker de análises em processo")] = True,
+) -> None:
+    """Sobe a API (uvicorn) com o worker em processo. Configuração por MEDAI_*."""
+    import uvicorn
+
+    from radiologyai.api import create_app
+
+    typer.echo(
+        "AVISO: software de pesquisa, não é dispositivo médico. "
+        "Toda saída é achado sugerido para confirmação médica."
+    )
+    uvicorn.run(create_app(start_worker=worker), host=host, port=port, log_level="info")
+
+
+@users_app.command("create")
+def users_create(
+    username: Annotated[str, typer.Option(help="Nome de usuário")],
+    full_name: Annotated[str, typer.Option("--full-name", help="Nome completo")],
+    role: Annotated[str, typer.Option(help="admin, physician, technician, viewer ou researcher")],
+    professional_id: Annotated[
+        str | None, typer.Option("--professional-id", help="Registro profissional (ex.: CRM)")
+    ] = None,
+    password_stdin: Annotated[
+        bool, typer.Option("--password-stdin", help="Lê a senha da entrada padrão")
+    ] = False,
+) -> None:
+    """Cria usuário (senha argon2id; nunca aceita senha por argumento de linha de comando)."""
+    from radiologyai.errors import RadiologyAIError
+    from radiologyai.persistence.users import create_user
+
+    db, settings = _platform_db()
+    password = _read_password(password_stdin)
+    try:
+        user = create_user(
+            db,
+            username=username,
+            full_name=full_name,
+            role=role,
+            password=password,
+            professional_id=professional_id,
+            min_length=settings.password_min_length,
+            actor_username="cli",
+        )
+    except (RadiologyAIError, ValueError) as exc:
+        typer.secho(f"ERRO: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+    typer.secho(f"usuário {user.username} ({user.role}) criado: {user.id}", fg=typer.colors.GREEN)
+
+
+@users_app.command("list")
+def users_list() -> None:
+    """Lista usuários (sem hashes)."""
+    from sqlalchemy import select
+
+    from radiologyai.persistence.models import User
+
+    db, _ = _platform_db()
+    with db.session() as session:
+        for u in session.execute(select(User).order_by(User.username)).scalars():
+            state = "ativo" if u.active else "inativo"
+            typer.echo(f"{u.username:<24} {u.role:<11} {state:<8} {u.full_name}")
+
+
+@users_app.command("set-password")
+def users_set_password(
+    username: Annotated[str, typer.Argument(help="Usuário")],
+    password_stdin: Annotated[bool, typer.Option("--password-stdin")] = False,
+) -> None:
+    """Troca a senha e revoga as sessões abertas do usuário."""
+    from sqlalchemy import select
+
+    from radiologyai.errors import RadiologyAIError
+    from radiologyai.persistence.audit import append_event
+    from radiologyai.persistence.models import User, utcnow
+    from radiologyai.persistence.security import check_password_policy, hash_password
+    from radiologyai.persistence.users import revoke_user_sessions
+
+    db, settings = _platform_db()
+    password = _read_password(password_stdin)
+    try:
+        check_password_policy(password, settings.password_min_length)
+    except RadiologyAIError as exc:
+        typer.secho(f"ERRO: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+    with db.session() as session:
+        user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
+        if user is None:
+            typer.secho("ERRO: usuário inexistente", fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1)
+        user.password_hash = hash_password(password)
+        user.updated_at = utcnow()
+        user_id = user.id
+        session.flush()
+        revoked = revoke_user_sessions(None, user_id, session=session)
+        append_event(
+            None,
+            "user.password_reset",
+            actor_username="cli",
+            subject_type="user",
+            subject_id=user_id,
+            payload={"revoked_sessions": revoked},
+            session=session,
+        )
+    typer.echo(f"senha alterada; {revoked} sessão(ões) revogada(s)")
+
+
+@app.command("analyze")
+def analyze_cmd(
+    paths: Annotated[list[Path], typer.Argument(help="Arquivos DICOM/NIfTI/PNG ou diretório")],
+    exam_type: Annotated[
+        str | None, typer.Option("--exam-type", help="cxr, ct_chest, mg ... (padrão: inferido)")
+    ] = None,
+    model: Annotated[
+        list[str] | None, typer.Option("--model", help="Modelo explícito (repetível)")
+    ] = None,
+    include_research: Annotated[
+        bool, typer.Option("--include-research", help="Roda modelos exploratórios (nível D)")
+    ] = False,
+    modality: Annotated[str | None, typer.Option(help="Modalidade (NIfTI/PNG)")] = None,
+    view_position: Annotated[
+        str | None, typer.Option("--view-position", help="Preenche ViewPosition ausente")
+    ] = None,
+    age: Annotated[float | None, typer.Option(help="Preenche a idade ausente (anos)")] = None,
+    body_part: Annotated[str | None, typer.Option("--body-part")] = None,
+    store_dir: Annotated[Path, typer.Option("--store-dir", help="Repositório de artefatos")] = Path(
+        "artifacts/store"
+    ),
+    out: Annotated[Path | None, typer.Option(help="Grava o AnalysisResult em JSON")] = None,
+) -> None:
+    """Analisa um exame LOCALMENTE com o pipeline (sem banco, sem servidor).
+
+    Imprime o que rodou, o que se absteve e por quê, e os achados por nível.
+    Nível D só aparece com --include-research.
+    """
+    import hashlib
+
+    from radiologyai.analysis import imaging
+    from radiologyai.analysis.artifacts import ArtifactStore
+    from radiologyai.analysis.pipeline import analyze
+    from radiologyai.analysis.registry import Registry
+    from radiologyai.analysis.routing import infer_exam_type
+    from radiologyai.analysis.types import ExamInputs, Modality
+    from radiologyai.catalog.catalog import Catalog
+    from radiologyai.catalog.schema import ExamType
+    from radiologyai.errors import RadiologyAIError
+    from radiologyai.interop.ingest import apply_overrides
+
+    overrides: dict[str, Any] = {}
+    if view_position:
+        overrides["view_position"] = view_position
+    if age is not None:
+        overrides["patient_age_years"] = age
+    if body_part:
+        overrides["body_part"] = body_part
+    try:
+        images = []
+        for p in paths:
+            kwargs: dict[str, Any] = {}
+            if modality and p.name.lower().endswith((".nii", ".nii.gz", ".png", ".jpg", ".jpeg")):
+                kwargs["modality"] = Modality(modality)
+            images.append(apply_overrides(imaging.load_path(p, **kwargs), overrides))
+        chosen = ExamType(exam_type) if exam_type else infer_exam_type(images)
+        typer.echo(f"tipo de exame: {chosen.value} ({'declarado' if exam_type else 'inferido'})")
+        result = analyze(
+            ExamInputs(images=tuple(images), exam_type=chosen),
+            registry=Registry(),
+            catalog=Catalog.load(),
+            store=ArtifactStore(store_dir),
+            model_ids=model or None,
+            include_research=include_research,
+        )
+    except RadiologyAIError as exc:
+        typer.secho(f"ERRO: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from exc
+    payload = result.model_dump_json()
+    typer.echo(
+        f"status: {result.status} · result_sha256 {hashlib.sha256(payload.encode()).hexdigest()}"
+    )
+    for run in result.runs:
+        reasons = ",".join(r.value for r in run.qa.reasons) if run.qa and run.qa.reasons else ""
+        detail = run.error or reasons
+        secs = f"{run.seconds:.1f}s" if run.seconds is not None else "-"
+        typer.echo(f"  {run.model_id:<36} {run.status:<11} {secs:>7} {detail}")
+    shown = result.findings if include_research else tuple(result.main_findings())
+    hidden = len(result.findings) - len(shown)
+    typer.echo(f"achados exibidos: {len(shown)} · nível D omitidos: {hidden}")
+    for f in shown:
+        score = "—" if f.raw_score is None else f"{f.raw_score:.4g}"
+        typer.echo(
+            f"  [{f.evidence_level.value}] {f.condition_id:<36} {f.decision:<13} "
+            f"{f.score_kind}={score}"
+        )
+    typer.echo(
+        "Achados sugeridos para confirmação médica. Software de pesquisa; não é diagnóstico."
+    )
+    if out is not None:
+        out.write_text(payload, encoding="utf-8")
+        typer.secho(f"resultado gravado em {out}", fg=typer.colors.GREEN)
+
+
+@app.command("openapi")
+def openapi_cmd(
+    out: Annotated[Path, typer.Option(help="Arquivo YAML de saída")] = Path(
+        "docs/OPENAPI_SPEC.yaml"
+    ),
+) -> None:
+    """Gera o contrato OpenAPI a partir da aplicação (nunca escrito à mão)."""
+    from radiologyai.api.openapi import build_spec_app, export_openapi
+
+    out.write_text(export_openapi(build_spec_app()), encoding="utf-8")
+    typer.secho(f"OpenAPI gravado em {out}", fg=typer.colors.GREEN)
+
+
 @app.command("check-regression")
 def check_regression(
     current: Annotated[Path, typer.Option("--current", help="Métricas atuais.")],

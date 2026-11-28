@@ -1,0 +1,263 @@
+# GERADO por scripts/evidence_ingest_published.py - não edite à mão.
+# Regere com: python scripts/evidence_ingest_published.py
+# Registros publicados anexados a modelos que rodamos com os mesmos pesos.
+generator: scripts/evidence_ingest_published.py
+input:
+  file: evidence-ct-mr.verified.md
+  sha256: be6928b60f9d06971067cde429e46b28bcac61b9402f9117f99497de2c2bc145
+protocol_id: 2026-11-v1
+records:
+- caveats:
+  - Valores de desenvolvedor no split de validação usado para seleção de modelo (README do bundle no Hugging
+    Face).
+  - 'tipo de validação na fonte: internal'
+  - 'padrão de referência (fonte): BraTS 2018 expert annotations'
+  - 'origem: evidence-ct-mr.verified.md#brats_bundle_dice_et'
+  condition_id: mr.glioma_segmentation
+  dataset: BraTS 2018 (split do desenvolvedor)
+  endpoint: segmentation
+  failure_reasons:
+  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
+    revisada por pares ou diretriz
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - Dice 0.790 < barra de 0.85
+  - IC 95% de Dice não publicado
+  id: pub.brats_bundle_dice_et
+  kind: published
+  label: ET
+  leakage: possible
+  leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
+    em relação aos pesos distribuídos não verificável por nós'
+  metrics:
+    dice:
+      ci_high: null
+      ci_low: null
+      value: 0.7905
+  model_id: monai-brats
+  n_positive: null
+  n_total: 42
+  passes_protocol: false
+  population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
+    not peer-reviewed)'
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
+    peer_reviewed: false
+    quote: '- Enhancing tumor (ET): 0.7905'
+    title: MONAI brats_mri_segmentation bundle (BraTS 2018) - Glioma enhancing tumour (ET) segmentation
+      (MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md))
+    url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
+    verified_at_source: true
+  training_leakage: null
+- caveats:
+  - Valores de desenvolvedor no split de validação usado para seleção de modelo (README do bundle no Hugging
+    Face).
+  - 'tipo de validação na fonte: internal'
+  - 'padrão de referência (fonte): BraTS 2018 expert annotations'
+  - 'origem: evidence-ct-mr.verified.md#brats_bundle_dice_tc'
+  condition_id: mr.glioma_segmentation
+  dataset: BraTS 2018 (split do desenvolvedor)
+  endpoint: segmentation
+  failure_reasons:
+  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
+    revisada por pares ou diretriz
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - IC 95% de Dice não publicado
+  id: pub.brats_bundle_dice_tc
+  kind: published
+  label: TC
+  leakage: possible
+  leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
+    em relação aos pesos distribuídos não verificável por nós'
+  metrics:
+    dice:
+      ci_high: null
+      ci_low: null
+      value: 0.8559
+  model_id: monai-brats
+  n_positive: null
+  n_total: 42
+  passes_protocol: false
+  population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
+    not peer-reviewed)'
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
+    peer_reviewed: false
+    quote: '- Tumor core (TC): 0.8559'
+    title: MONAI brats_mri_segmentation bundle (BraTS 2018) - Glioma tumour core (TC) segmentation (MONAI
+      Model Zoo bundle brats_mri_segmentation (docs/README.md))
+    url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
+    verified_at_source: true
+  training_leakage: null
+- caveats:
+  - Valores de desenvolvedor no split de validação usado para seleção de modelo (README do bundle no Hugging
+    Face).
+  - 'tipo de validação na fonte: internal'
+  - 'padrão de referência (fonte): BraTS 2018 expert annotations'
+  - 'origem: evidence-ct-mr.verified.md#brats_bundle_dice_wt'
+  condition_id: mr.glioma_segmentation
+  dataset: BraTS 2018 (split do desenvolvedor)
+  endpoint: segmentation
+  failure_reasons:
+  - fonte não revisada por pares (repositório, cartão de modelo ou preprint); a barra exige publicação
+    revisada por pares ou diretriz
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - IC 95% de Dice não publicado
+  id: pub.brats_bundle_dice_wt
+  kind: published
+  label: WT
+  leakage: possible
+  leakage_note: 'validação interna: teste da mesma fonte/instituição do treino; independência do split
+    em relação aos pesos distribuídos não verificável por nós'
+  metrics:
+    dice:
+      ci_high: null
+      ci_low: null
+      value: 0.9026
+  model_id: monai-brats
+  n_positive: null
+  n_total: 42
+  passes_protocol: false
+  population: 'BraTS 2018 training data, bundle authors'' own split: 42 validation studies (developer-reported,
+    not peer-reviewed)'
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: MONAI Model Zoo bundle brats_mri_segmentation (docs/README.md)
+    peer_reviewed: false
+    quote: '- Whole tumor (WT): 0.9026'
+    title: MONAI brats_mri_segmentation bundle (BraTS 2018) - Glioma whole tumour (WT) segmentation (MONAI
+      Model Zoo bundle brats_mri_segmentation (docs/README.md))
+    url: https://huggingface.co/MONAI/brats_mri_segmentation/raw/main/docs/README.md
+    verified_at_source: true
+  training_leakage: null
+- caveats:
+  - 'sensitivity: a fonte publica apenas um limite (''>75%'')'
+  - 'tipo de validação na fonte: external'
+  - 'padrão de referência (fonte): expert lesion masks'
+  - 'origem: evidence-ct-mr.verified.md#lstai_detection_rate'
+  condition_id: mr.white_matter_lesions
+  dataset: LST-AI test (103 casos públicos)
+  endpoint: detection
+  failure_reasons:
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - sensibilidade 0.750 < barra de 0.80
+  - IC 95% de sensibilidade não publicado
+  - especificidade não publicado(a) neste registro
+  id: pub.lstai_detection_rate
+  kind: published
+  label: lesion
+  leakage: none
+  leakage_note: null
+  metrics:
+    sensitivity:
+      ci_high: null
+      ci_low: null
+      value: 0.75
+  model_id: lst-ai
+  n_positive: null
+  n_total: 103
+  passes_protocol: false
+  population: 103 test cases from publicly available datasets
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
+    peer_reviewed: true
+    quote: With increasing lesion volume, the lesion detection rate rapidly increased with a detection
+      rate of >75% for lesions with a volume between 10 mm3 and 100 mm3.
+    title: LST-AI (T1w + FLAIR) - MS lesion detection rate for lesions of 10-100 mm3 (DOI 10.1016/j.nicl.2024.103611
+      (PMID 38703470))
+    url: https://pubmed.ncbi.nlm.nih.gov/38703470/
+    verified_at_source: true
+  training_leakage: null
+- caveats:
+  - 'tipo de validação na fonte: external'
+  - 'padrão de referência (fonte): expert consensus lesion masks'
+  - 'origem: evidence-ct-mr.verified.md#lstai_dice_msseg1'
+  condition_id: mr.white_matter_lesions
+  dataset: MSSEG-1
+  endpoint: segmentation
+  failure_reasons:
+  - n do conjunto de teste não publicado
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - Dice 0.650 < barra de 0.85
+  - IC 95% de Dice não publicado
+  id: pub.lstai_dice_msseg1
+  kind: published
+  label: lesion
+  leakage: none
+  leakage_note: null
+  metrics:
+    dice:
+      ci_high: null
+      ci_low: null
+      value: 0.65
+  model_id: lst-ai
+  n_positive: null
+  n_total: null
+  passes_protocol: false
+  population: MSSEG-1 challenge dataset (public)
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
+    peer_reviewed: true
+    quote: with a Dice score of 0.65 and an F1 score of 0.63
+    title: LST-AI (ensemble of three 3D U-Nets; T1w + FLAIR) - MS white-matter lesion segmentation (DOI
+      10.1016/j.nicl.2024.103611 (PMID 38703470))
+    url: https://pubmed.ncbi.nlm.nih.gov/38703470/
+    verified_at_source: true
+  training_leakage: null
+- caveats:
+  - 'tipo de validação na fonte: external'
+  - 'padrão de referência (fonte): expert lesion masks'
+  - 'origem: evidence-ct-mr.verified.md#lstai_dice_overall'
+  condition_id: mr.white_matter_lesions
+  dataset: LST-AI test (103 casos públicos)
+  endpoint: segmentation
+  failure_reasons:
+  - número de positivos não publicado; a barra exige >= 30 positivos
+  - Dice 0.620 < barra de 0.85
+  - IC 95% de Dice não publicado
+  id: pub.lstai_dice_overall
+  kind: published
+  label: lesion
+  leakage: none
+  leakage_note: null
+  metrics:
+    dice:
+      ci_high: null
+      ci_low: null
+      value: 0.62
+  model_id: lst-ai
+  n_positive: null
+  n_total: 103
+  passes_protocol: false
+  population: 103 test cases from publicly available datasets
+  provenance: null
+  reference_derived_input: null
+  reference_standard: expert_segmentation
+  selection_overlap: []
+  source:
+    identifier: DOI 10.1016/j.nicl.2024.103611 (PMID 38703470)
+    peer_reviewed: true
+    quote: Its Dice and F1 scores exceeded 0.62
+    title: LST-AI (T1w + FLAIR) - MS white-matter lesion segmentation (DOI 10.1016/j.nicl.2024.103611
+      (PMID 38703470))
+    url: https://pubmed.ncbi.nlm.nih.gov/38703470/
+    verified_at_source: true
+  training_leakage: null

@@ -1,0 +1,49 @@
+id: echoprime
+version: echoprime-v1.0.0
+name: EchoPrime (codificador de vídeo + recuperação sobre 1,23 milhão de laudos)
+status: planned
+task: classification
+capabilities:
+- classify
+- measure
+summary: 'Interpretação de estudo ecocardiográfico completo por recuperação (kNN) sobre laudos de outros
+  pacientes; sem cabeça de FE. Planejado: licença acadêmica intransferível e desempenho inadequado no CAMUS.'
+route: none
+source:
+  repository: https://github.com/echonet/EchoPrime
+  release: https://github.com/echonet/EchoPrime/releases/tag/v1.0.0
+license:
+  code: Cedars-Sinai Academic Software License (só pesquisadores acadêmicos/sem fins lucrativos)
+  weights: mesma licença do repositório (nenhuma licença separada declarada)
+  training_data_terms: corpus de recuperação com 1.230.676 laudos estruturados derivados de pacientes do
+    Cedars-Sinai, necessário à inferência
+  commercial_use: 'no'
+  evidence: 'LICENSE de raw.githubusercontent.com/echonet/EchoPrime/main/ ("Academic or nonprofit researchers
+    are permitted to use this Software"; "you are prohibited from further transferring the Software --
+    including any derivatives you make thereof -- to any person or entity"), lido no spike de eco em 2026-11-24'
+applicability:
+  exam_types:
+  - echo
+  modalities:
+  - US
+  image_kinds:
+  - cine
+  adult_only: true
+inputs:
+  mode: single
+training_data:
+- cedars-sinai-echo
+limitations:
+- Saídas numéricas são médias de laudos de outros pacientes recuperados (k = 50), não regressão.
+- Exige estudo multicorte completo; com 2 cortes apicais (CAMUS) a FE ficou presa perto da média do corpus.
+references:
+- title: 'EchoPrime: a multi-video view-informed vision-language model for comprehensive echocardiography
+    interpretation'
+  identifier: doi:10.1038/s41586-025-09850-x
+  url: https://www.nature.com/articles/s41586-025-09850-x
+planned_reason: 'Rodou no spike de eco, mas não entra no produto: (1) a licença restringe a pesquisadores
+  acadêmicos e proíbe transferir o software ou derivados, o que impede distribuí-lo; (2) a inferência exige
+  redistribuir o corpus de recuperação (cerca de 3,2 GB de laudos derivados de pacientes) e ~9,7 GB de RAM;
+  (3) não há cabeça de FE: a FE é a média dos laudos recuperados e, em 8 pacientes do CAMUS com 2 cortes,
+  ficou concentrada perto da média do corpus e não acompanhou as FE reduzidas (sanity check, não validação).
+  Fica citável como evidência publicada no catálogo, não executável.'

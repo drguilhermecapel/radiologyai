@@ -1,0 +1,46 @@
+id: lst-ai
+version: 2.0.0rc1
+name: LST-AI (lesões de substância branca em EM)
+status: planned
+task: segmentation
+capabilities:
+- segment
+- measure
+summary: 'Carga de lesões hiperintensas em FLAIR de substância branca a partir de T1w + FLAIR. Planejado:
+  não roda de verdade neste ambiente.'
+route: none
+source:
+  repository: https://github.com/CompImg/LST-AI
+  package: lst-ai
+license:
+  code: MIT (LST-AI); greedy, HD-BET e FastSurfer Apache-2.0
+  weights: distribuídos com o pacote (licença MIT do repositório)
+  commercial_use: unclear
+  evidence: 'raw.githubusercontent.com/CompImg/LST-AI/main/LICENSE (MIT) e README (dependências greedy,
+    HD-BET, FastSurfer), lidos em 2026-11-24; LICENSE do greedy: Apache License 2.0'
+applicability:
+  exam_types:
+  - mr_brain
+  modalities:
+  - MR
+  image_kinds:
+  - volume
+  adult_only: true
+inputs:
+  mode: multi
+  roles:
+  - t1
+  - flair
+training_data:
+- lst-ai-inhouse-491
+limitations:
+- Saída é 'carga de lesão de substância branca', nunca 'esclerose múltipla' (treinado e testado só em
+  coortes de EM; evidence-ct-mr §7.2).
+references:
+- title: 'LST-AI (Wiltgen et al., NeuroImage: Clinical 2024)'
+  identifier: doi:10.1016/j.nicl.2024.103611
+  url: https://doi.org/10.1016/j.nicl.2024.103611
+planned_reason: 'Não roda de verdade aqui: o pacote lst-ai (2.0.0rc1, PyTorch + greedy + HD-BET + FastSurfer)
+  não está no ambiente travado (instalação só pelo responsável pelos contratos; pedido registrado), e
+  não há par T1w + FLAIR de EM com licença aberta no cache para verificar uma execução real. Licença não
+  bloqueia (MIT/Apache-2.0).'

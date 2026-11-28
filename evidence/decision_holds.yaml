@@ -1,0 +1,48 @@
+# Suspensões de decisão (REQ-193). Cada item retira a decisão (positivo/negativo) de um trio
+# (condição, modelo, rótulo): o achado mostra só o escore, com o motivo. Nunca altera o nível
+# do catálogo nem promove nada. Remover uma suspensão é decisão do responsável, registrada em
+# commit, com a nova evidência que a justifica.
+#
+# Histórico:
+# - 2026-11-27: suspensa a decisão de cxr.cardiomegaly / xrv-densenet121-res224-pc (A limítrofe
+#   no NIH: 0,813 na metade de teste, 0,796 no teste oficial completo).
+# - 2026-11-27: suspensão retirada pelo responsável após a segunda validação externa, no Open-i
+#   (evidence/measured/openi/xrv-densenet121-res224-pc/cardiomegaly.json, AUROC 0,874
+#   [0,840; 0,905]).
+# - 2026-11-28: suspensa a decisão de cxr.lung_opacity em xrv-densenet121-res224-{chex,mimic_ch,
+#   mimic_nb,all}: A (ou C para all) pelo subconjunto do NIH adjudicado por radiologistas, mas
+#   reprovados no Open-i (AUROC 0,60–0,64); decisão do responsável até uma medição que desempate.
+format: radiologyai.evidence/decision-holds-v1
+holds:
+  - condition_id: cxr.lung_opacity
+    model_id: xrv-densenet121-res224-chex
+    label: lung_opacity
+    reason: >-
+      sinal contraditório: aprovado no subconjunto do NIH adjudicado por radiologistas (AUROC 0,848–0,872), reprovado no Open-i (AUROC 0,60–0,64; rótulo por MeSH automático)
+    decided_on: 2026-11-28
+    decided_by: responsável do projeto
+    evidence_ref: HONEST_STATUS.md (RX de tórax no Open-i)
+  - condition_id: cxr.lung_opacity
+    model_id: xrv-densenet121-res224-mimic_ch
+    label: lung_opacity
+    reason: >-
+      sinal contraditório: aprovado no subconjunto do NIH adjudicado por radiologistas (AUROC 0,848–0,872), reprovado no Open-i (AUROC 0,60–0,64; rótulo por MeSH automático)
+    decided_on: 2026-11-28
+    decided_by: responsável do projeto
+    evidence_ref: HONEST_STATUS.md (RX de tórax no Open-i)
+  - condition_id: cxr.lung_opacity
+    model_id: xrv-densenet121-res224-mimic_nb
+    label: lung_opacity
+    reason: >-
+      sinal contraditório: aprovado no subconjunto do NIH adjudicado por radiologistas (AUROC 0,848–0,872), reprovado no Open-i (AUROC 0,60–0,64; rótulo por MeSH automático)
+    decided_on: 2026-11-28
+    decided_by: responsável do projeto
+    evidence_ref: HONEST_STATUS.md (RX de tórax no Open-i)
+  - condition_id: cxr.lung_opacity
+    model_id: xrv-densenet121-res224-all
+    label: lung_opacity
+    reason: >-
+      sinal contraditório: aprovado no subconjunto do NIH adjudicado por radiologistas (AUROC 0,848–0,872), reprovado no Open-i (AUROC 0,60–0,64; rótulo por MeSH automático)
+    decided_on: 2026-11-28
+    decided_by: responsável do projeto
+    evidence_ref: HONEST_STATUS.md (RX de tórax no Open-i)

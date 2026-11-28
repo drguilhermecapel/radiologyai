@@ -1,0 +1,10 @@
+# Roteamento de modelos por tipo de exame.
+#
+# derive_from_manifests: cada manifesto disponível em analysis/manifests/ é
+# roteado pelos seus `applicability.exam_types` e `route` (main | research |
+# interactive | dependency | none). Modelos planejados nunca são roteados.
+# include: acrescenta modelos a um tipo de exame (chave = ExamType).
+# exclude: ids que nunca são roteados automaticamente.
+derive_from_manifests: true
+include: {}
+exclude: []

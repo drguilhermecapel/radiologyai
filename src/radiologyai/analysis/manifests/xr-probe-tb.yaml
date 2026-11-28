@@ -1,0 +1,113 @@
+id: xr-probe-tb
+version: probe-20261124-rad-dino-110cbc18
+name: Sonda linear (tuberculosis) sobre RAD-DINO congelado
+status: available
+adapter: radiologyai.analysis.adapters.xr_raddino:RadDinoLinearProbeAdapter
+task: classification
+capabilities:
+- classify
+summary: 'Escore de tuberculose pulmonar em RX de tórax: sonda linear sobre embeddings da RAD-DINO (treino
+  Shenzhen). Achado sugerido para confirmação médica.'
+route: main
+source:
+  encoder: microsoft/rad-dino@110cbc18d5133582e320b43d53bf5c44e410c936
+  encoder_repository: https://huggingface.co/microsoft/rad-dino
+  fit_script: scripts/probe_fit_xr_probes.py
+  recipe: radiologyai.analysis.probes.fit.fit_probe
+  encoder_selection: scripts/probe_fit_xr_compare_encoders.py
+weights:
+- key: encoder_weights
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/model.safetensors
+  filename: model.safetensors
+  sha256: dbfb9f54459c38773505de64a6ab7807bdcb392610fe1e697166342e43fb91ae
+  bytes: 346345912
+  note: RAD-DINO (Dinov2Model) congelado
+- key: encoder_config
+  url: https://huggingface.co/microsoft/rad-dino/resolve/110cbc18d5133582e320b43d53bf5c44e410c936/config.json
+  filename: config.json
+  sha256: 89daf9751d9576d586dedf9543c1083211611fa3a36908db7a799b3ce7c68ede
+  bytes: 879
+- key: probe_tensors
+  url: https://artifacts.invalid/radiologyai/xr-probe-tb/probe.safetensors
+  filename: probe.safetensors
+  sha256: a4f1bae2ee5d0cbed78746f0d0b69e8dd4f94b895c1b687a22b8c087b65b4dfa
+  bytes: 18768
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+- key: probe_meta
+  url: https://artifacts.invalid/radiologyai/xr-probe-tb/probe.json
+  filename: probe.json
+  sha256: 8ee807adc4a642a55917a310a2d3d3d989eda128b2c31d58717cbec014a614f3
+  bytes: 1130
+  note: 'produzido localmente por scripts/probe_fit_xr_probes.py; sem URL pública (domínio .invalid):
+    pull não baixa, só confere o arquivo local'
+license:
+  code: MIT (RAD-DINO) + Apache-2.0 (este projeto)
+  weights: 'RAD-DINO: MIT; cartão: ''shared for research purposes only ... not meant to be used for clinical
+    practice''; sonda: este projeto'
+  training_data_terms: NLM Shenzhen Hospital CXR Set (termos da NLM)
+  commercial_use: 'no'
+  evidence: cartão e LICENSE de microsoft/rad-dino no Hugging Face (revisão 110cbc18d5133582e320b43d53bf5c44e410c936);
+    DATASET.json dos dados de treino
+applicability:
+  exam_types:
+  - cxr
+  modalities:
+  - CR
+  - DX
+  image_kinds:
+  - projection
+  views:
+  - PA
+  - AP
+  min_pixels: 224
+  adult_only: true
+inputs:
+  mode: single
+  prompts: none
+depends_on: &id001
+- xrv-view-xinario
+- xrv-ae-ood
+training_data:
+- tb-shenzhen
+labels:
+- key: tuberculosis
+  source_label: tuberculosis
+  condition_id: cxr.tuberculosis
+  kind: binary
+  score_kind: logit
+  code:
+    scheme: 99MEDAI
+    value: cxr.tuberculosis
+    meaning: pulmonary tuberculosis (suggested)
+operating_points:
+- label: tuberculosis
+  point:
+    name: probe_rule_out
+    role: rule_out
+    threshold: 0.0023994356019186314
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Shenzhen (xr-probe-tb); sensibilidade-alvo 0.9 nas predições fora-da-dobra
+      do treino
+- label: tuberculosis
+  point:
+    name: probe_rule_in
+    role: rule_in
+    threshold: -0.7070020355036193
+    'on': logit
+    direction: ge
+    source: pontos fora-da-dobra Shenzhen (xr-probe-tb); especificidade-alvo 0.9 nas predições fora-da-dobra
+      do treino
+limitations:
+- Treinada num único centro (Shenzhen, China); rótulo normal x manifestação de TB.
+- Não substitui baciloscopia/TRM-TB; não é ferramenta de triagem validada (WHO TPP).
+- Pontos de operação das predições fora-da-dobra do treino; não calibrados para outra prevalência.
+references:
+- title: Exploring scalable medical image encoders beyond text supervision (RAD-DINO)
+  identifier: doi:10.1038/s42256-024-00965-w
+  url: https://doi.org/10.1038/s42256-024-00965-w
+config:
+  square: crop
+  gates: *id001
+  exam: cxr

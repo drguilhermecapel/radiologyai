@@ -1,0 +1,90 @@
+id: totalseg-vertebrae-body
+version: 2.18.0-vertebrae_body-default
+name: TotalSegmentator vertebrae_body
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: segmentation
+capabilities:
+- segment
+summary: Corpos vertebrais (sem arco) e discos intervertebrais em TC.
+route: none
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: vertebrae_body
+  mode: default
+weights:
+- key: d305_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset305_vertebrae_discs_1559subj.zip
+  filename: Dataset305_vertebrae_discs_1559subj__checkpoint_final.pth
+  sha256: dfa728d147ef64c531be3eea21ef06c8bd1bedeba8d33146ac3bd7a03c73d968
+  bytes: 250105965
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset305_vertebrae_discs_1559subj/nnUNetTrainer_DASegOrd0__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 b0c936e317a9be1eccaf52bf7043ff28af6c40a3e200cbc6cbc1fbdc0c234920,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d305_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset305_vertebrae_discs_1559subj.zip
+  filename: Dataset305_vertebrae_discs_1559subj__plans.json
+  sha256: d43bba201ce6602a084bf1a54c24d8b5b8d2134ceebb34119a556d8f5ecb745d
+  bytes: 11168
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset305_vertebrae_discs_1559subj/nnUNetTrainer_DASegOrd0__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 b0c936e317a9be1eccaf52bf7043ff28af6c40a3e200cbc6cbc1fbdc0c234920,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d305_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.5.0-weights/Dataset305_vertebrae_discs_1559subj.zip
+  filename: Dataset305_vertebrae_discs_1559subj__dataset.json
+  sha256: 46e1d8e6ee452b9155884c5e55c580c358115c0b5fd242f9a1f3b3771654526e
+  bytes: 414
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset305_vertebrae_discs_1559subj/nnUNetTrainer_DASegOrd0__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 b0c936e317a9be1eccaf52bf7043ff28af6c40a3e200cbc6cbc1fbdc0c234920,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_chest
+  - ct_abdomen
+  - ct_other
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on: []
+training_data:
+- totalsegmentator-ct-v2
+labels: []
+operating_points: []
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+- Sem identidade de nível vertebral; alturas de Genant não implementadas.
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+config:
+  task: vertebrae_body
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset305_vertebrae_discs_1559subj
+    trainer_dir: nnUNetTrainer_DASegOrd0__nnUNetPlans__3d_fullres
+    checkpoint: d305_checkpoint
+    plans: d305_plans
+    dataset: d305_dataset
+  timeout_s: 3600

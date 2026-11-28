@@ -17,6 +17,8 @@ from radiologyai.explain.gradcam import GradCAM, overlay_heatmap
 
 HAS_TORCH = importlib.util.find_spec("torch") is not None
 torch_only = pytest.mark.skipif(not HAS_TORCH, reason="requer torch (extra [ml])")
+HAS_XRV = HAS_TORCH and importlib.util.find_spec("torchxrayvision") is not None
+xrv_only = pytest.mark.skipif(not HAS_XRV, reason="requer torchxrayvision (extra [ml])")
 
 
 @pytest.fixture
@@ -157,7 +159,7 @@ class TestOverlay:
             overlay_heatmap(np.zeros((3, 8, 8), np.float32), np.zeros((4, 4), np.float32))
 
 
-@torch_only
+@xrv_only
 class TestBackendIntegration:
     def test_real_model_gradcam(self):
         from radiologyai.models.backends.xrv import TorchXRayVisionBackend

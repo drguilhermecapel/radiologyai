@@ -1,0 +1,380 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "mimic-cxr"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "xrv-densenet121-res224-mimic_ch@openi-frontal#lung_opacity",
+    "predictions_file": "xrv-densenet121-res224-mimic_ch/openi-frontal/evidence.parquet",
+    "predictions_sha256": "b8789c470efb8e88e5a40093d8527fd3e59a0b4f6cb67257d0e0b87f8e747a20",
+    "score_column": "y_score__lung_opacity"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/openi/xrv-densenet121-res224-mimic_ch/lung_opacity.json#report",
+      "name": "lung_opacity:rule_out",
+      "on": "logit",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de openi",
+      "threshold": -2.2397403717041016
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/openi/xrv-densenet121-res224-mimic_ch/lung_opacity.json#report",
+      "name": "lung_opacity:rule_in",
+      "on": "logit",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de openi",
+      "threshold": 0.06207084655761719
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (1281 pacientes) e métricas reportadas na metade de teste (1280 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de substring, como no Openi_Dataset do torchxrayvision; não é o MeSH 'major' de curadores nem leitura adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos os rótulos.",
+      "Correspondência por substring: 'Edema' inclui edemas não pulmonares; 'Lung Lesion' casa só 'lesion' (poucos positivos).",
+      "O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.",
+      "Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição no Open-i; não houve comparação entre modelos no Open-i.",
+      "138 frontais do Open-i entraram na calibração do limiar do portão OOD (eval-preds/_gates/summary.json); o portão não é aplicado nesta medição.",
+      "Inferência feita em fragmentos ao longo de vários commits (código de inferência e adaptador sem mudança funcional entre eles); o checkout limpo vale para o cálculo das métricas."
+    ],
+    "condition_id": "cxr.lung_opacity",
+    "dataset": "openi",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "AUROC 0.6346 < auroc_min 0.8",
+      "limite inferior do IC da AUROC 0.5944 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:openi:xrv-densenet121-res224-mimic_ch:lung_opacity:discrimination",
+    "kind": "measured_external",
+    "label": "lung_opacity",
+    "leakage": "none",
+    "leakage_note": "nenhuma linhagem comum entre avaliação e treino (mimic-cxr)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.19273448926919406,
+        "ci_low": 0.13757964708053189,
+        "value": 0.16020191468207787
+      },
+      "auroc": {
+        "ci_high": 0.6739698489542881,
+        "ci_low": 0.5944155317033099,
+        "value": 0.6346331480829391
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.1596316610334335,
+        "ci_low": 0.13030820387173256,
+        "value": 0.14499082767494198
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.17868186248402707,
+        "ci_low": 0.1564229367060636,
+        "value": 0.16606706410465033
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.2757009345794392,
+        "ci_low": 0.16666666666666666,
+        "value": 0.22119815668202766
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.9007846524415465,
+        "ci_low": 0.8702486879707162,
+        "value": 0.8853820598006644
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 0.9377777777777778,
+        "ci_low": 0.8584894891014043,
+        "value": 0.8986175115207373
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.2376190696532274,
+        "ci_low": 0.19932762886484826,
+        "value": 0.21816168327796234
+      }
+    },
+    "model_id": "xrv-densenet121-res224-mimic_ch",
+    "n_positive": 217,
+    "n_total": 2023,
+    "passes_protocol": false,
+    "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_ch@openi-frontal#lung_opacity",
+      "created_at": "2026-11-28T00:33:12.330634Z",
+      "dataset_id": "openi",
+      "dataset_sha256": "036056bbdc865d2eb86555f26282bee9e3b129ab9305b85cb1c443baaca5599b",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt": "23b13a04459684ffa41247d068207a7657b4e1b4dec2b02431f5026bd75b1189"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "other",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "none"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.19273448926919406,
+      "ci_low": 0.13757964708053189,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.16020191468207787
+    },
+    "auroc": {
+      "ci_high": 0.6739698489542881,
+      "ci_low": 0.5944155317033099,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.6346331480829391
+    },
+    "calibration": {
+      "n_fit_samples": 1991,
+      "nll_after": 0.43933421610469026,
+      "nll_before": 0.4491279348580239,
+      "temperature": 0.7342521714970943
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 2023,
+      "n_neg": 1806,
+      "n_neg_patients": 1137,
+      "n_patients": 1280,
+      "n_pos": 217,
+      "n_pos_patients": 143
+    },
+    "ece_after": {
+      "ci_high": 0.1596316610334335,
+      "ci_low": 0.13030820387173256,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.14499082767494198
+    },
+    "ece_before": {
+      "ci_high": 0.17868186248402707,
+      "ci_low": 0.1564229367060636,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.16606706410465033
+    },
+    "label": "lung_opacity",
+    "operating_point_errors": [],
+    "prevalence": 0.10726643598615918,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.2345132743362832,
+      "calibration_specificity": 0.9002832861189801,
+      "npv": {
+        "ci_high": 0.9125500740321323,
+        "ci_low": 0.8955981250851565,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9044117647058824
+      },
+      "ppv": {
+        "ci_high": 0.23293172690763053,
+        "ci_low": 0.14342629482071714,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.18823529411764706
+      },
+      "role": "rule_in",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.2757009345794392,
+        "ci_low": 0.16666666666666666,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.22119815668202766
+      },
+      "specificity": {
+        "ci_high": 0.9007846524415465,
+        "ci_low": 0.8702486879707162,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.8853820598006644
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": 0.06207084655761719
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9026548672566371,
+      "calibration_specificity": 0.21359773371104815,
+      "npv": {
+        "ci_high": 0.9662650602409638,
+        "ci_low": 0.9280369078756175,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9471153846153846
+      },
+      "ppv": {
+        "ci_high": 0.13247106679068016,
+        "ci_low": 0.1108308074281194,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.12134411947728686
+      },
+      "role": "rule_out",
+      "score_scale": "logit",
+      "sensitivity": {
+        "ci_high": 0.9377777777777778,
+        "ci_low": 0.8584894891014043,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.8986175115207373
+      },
+      "specificity": {
+        "ci_high": 0.2376190696532274,
+        "ci_low": 0.19932762886484826,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.21816168327796234
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": -2.2397403717041016
+    },
+    "score_scale": "logit",
+    "split": {
+      "calibration": {
+        "n_images": 1991,
+        "n_neg": 1765,
+        "n_neg_patients": 1137,
+        "n_patients": 1281,
+        "n_pos": 226,
+        "n_pos_patients": 144
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 2023,
+        "n_neg": 1806,
+        "n_neg_patients": 1137,
+        "n_patients": 1280,
+        "n_pos": 217,
+        "n_pos_patients": 143
+      }
+    },
+    "subgroups": [
+      {
+        "attribute": "view",
+        "auroc": {
+          "ci_high": 0.7907510143570536,
+          "ci_low": 0.5806412301327629,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.690714182239606
+        },
+        "counts": {
+          "n_images": 216,
+          "n_neg": 177,
+          "n_neg_patients": 169,
+          "n_patients": 205,
+          "n_pos": 39,
+          "n_pos_patients": 36
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.46153846153846156,
+          "ci_low": 0.15789473684210525,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.3076923076923077
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9341154485049832,
+          "ci_low": 0.84,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8926553672316384
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9743589743589743,
+          "ci_low": 0.75,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8717948717948718
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.22600196647626175,
+          "ci_low": 0.11602209944751381,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.1694915254237288
+        },
+        "value": "AP"
+      },
+      {
+        "attribute": "view",
+        "auroc": {
+          "ci_high": 0.6627163969705047,
+          "ci_low": 0.581245724037576,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.62345410777964
+        },
+        "counts": {
+          "n_images": 1807,
+          "n_neg": 1629,
+          "n_neg_patients": 1033,
+          "n_patients": 1151,
+          "n_pos": 178,
+          "n_pos_patients": 118
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.25862068965517243,
+          "ci_low": 0.14619554504238122,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.20224719101123595
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.8999409361580838,
+          "ci_low": 0.8682581355562027,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.8845917740945365
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9431818181818182,
+          "ci_low": 0.8604618682603612,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9044943820224719
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.24397776405188387,
+          "ci_low": 0.20497991803462556,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.2234499693063229
+        },
+        "value": "PA"
+      }
+    ],
+    "subgroups_unavailable": [
+      "sex: subgrupo não avaliável: metadado ausente",
+      "age_band: subgrupo não avaliável: metadado ausente"
+    ]
+  }
+}

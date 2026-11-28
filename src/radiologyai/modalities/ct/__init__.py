@@ -1,4 +1,4 @@
-"""Modalidade CT — declarada, ainda não implementada (ROADMAP §5)."""
+"""Modalidade TC — séries de cortes em HU (plugin implementado; ver plugin.py)."""
 
 from __future__ import annotations
 

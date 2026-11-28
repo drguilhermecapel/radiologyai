@@ -1,0 +1,164 @@
+id: totalseg-liver-vessels
+version: 2.18.0-liver_vessels-default
+name: TotalSegmentator liver_vessels (MSD Task08)
+status: available
+adapter: radiologyai.analysis.adapters.ct_totalseg:TotalSegmentatorAdapter
+task: measurement
+capabilities:
+- segment
+- measure
+summary: Vasos hepáticos e tumor hepático (rótulos do MSD Task08) em TC com contraste.
+route: research
+source:
+  library: TotalSegmentator
+  library_version: 2.18.0
+  repository: https://github.com/wasserth/TotalSegmentator
+  task: liver_vessels
+  mode: default
+weights:
+- key: d008_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.4.0-weights/Dataset008_HepaticVessel.zip
+  filename: Dataset008_HepaticVessel__checkpoint_final.pth
+  sha256: 5ee0c719698fc66835f6cafa85f50dafb1a0813afe4ce9beaa78fff8b705a32f
+  bytes: 246833979
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset008_HepaticVessel/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 942b997c6382457ad538321f7d1eb1268d62b99a7ef3a07da674bd97856d18ef,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d008_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.4.0-weights/Dataset008_HepaticVessel.zip
+  filename: Dataset008_HepaticVessel__plans.json
+  sha256: 6dcc720c6ed67fa55cebb2a8d2d27758d14343b89f8180376fe0955a12ca7997
+  bytes: 11440
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset008_HepaticVessel/nnUNetTrainer__nnUNetPlans__3d_fullres/plans.json do zip de release
+    (zip com sha256 942b997c6382457ad538321f7d1eb1268d62b99a7ef3a07da674bd97856d18ef, baixado e extraído
+    em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d008_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.4.0-weights/Dataset008_HepaticVessel.zip
+  filename: Dataset008_HepaticVessel__dataset.json
+  sha256: b428bb08eb7b1742a3961ec40994c4e351aedc38f2600be000ef10e6c003ed22
+  bytes: 403
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset008_HepaticVessel/nnUNetTrainer__nnUNetPlans__3d_fullres/dataset.json do zip de
+    release (zip com sha256 942b997c6382457ad538321f7d1eb1268d62b99a7ef3a07da674bd97856d18ef, baixado
+    e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_checkpoint
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__checkpoint_final.pth
+  sha256: 3489323a4b759506ab46b489eb78b72142f2143aea6e6d828604d754bd7a9270
+  bytes: 164951587
+  extract: none
+  unsafe_pickle: true
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/fold_0/checkpoint_final.pth
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_plans
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__plans.json
+  sha256: bfd9ab6cfc0e094ced3aff7d7ad23e00e4d50376110b9fdfce0fbca5564c8ca8
+  bytes: 6898
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/plans.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+- key: d298_dataset
+  url: https://github.com/wasserth/TotalSegmentator/releases/download/v2.0.0-weights/Dataset298_TotalSegmentator_total_6mm_1559subj.zip
+  filename: Dataset298_TotalSegmentator_total_6mm_1559subj__dataset.json
+  sha256: e804e08ad8912e3a6f541741c8c78799d75acbd3f4f3f18ff5f211bbd3da961a
+  bytes: 3796
+  extract: none
+  unsafe_pickle: false
+  note: membro Dataset298_TotalSegmentator_total_6mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres/dataset.json
+    do zip de release (zip com sha256 b1832acde46c0f76cc9aba599e49e986c21c94e522ade4d920602b227e9d6c63,
+    baixado e extraído em 2026-11-24); o pull direto deste arquivo NÃO é suportado (ver limitação)
+license:
+  code: Apache-2.0
+  weights: Apache-2.0 (tarefa listada como aberta no README do TotalSegmentator)
+  commercial_use: 'yes'
+  evidence: 'README do TotalSegmentator (master, lido em 2026-11-24): ''Openly available for any usage
+    (Apache-2.0 license)''; cópia em /root/medai-cache/spikes/totalseg/evidence/README_master_fetched.md'
+applicability:
+  exam_types:
+  - ct_abdomen
+  modalities:
+  - CT
+  image_kinds:
+  - volume
+inputs:
+  mode: single
+  prompts: none
+depends_on:
+- totalseg-total-3mm
+training_data:
+- msd-task08-hepaticvessel
+labels:
+- key: liver_tumor
+  source_label: liver_tumor
+  condition_id: ct.focal_liver_lesion
+  kind: derived
+  score_kind: measurement
+  code:
+    scheme: 99MEDAI
+    value: ct.focal_liver_lesion
+    meaning: liver tumour (segmented volume)
+  measurement: liver_tumor_volume_ml
+operating_points:
+- label: liver_tumor
+  point:
+    name: any_volume_ge_0_1ml
+    role: balanced
+    threshold: 0.1
+    'on': measurement
+    direction: ge
+    source: 'regra de detecção PRÉ-ESPECIFICADA do projeto (manifesto, 2026-11-24; protocolo 2026-11-v1,
+      ''detection endpoints judged at a fixed, pre-specified threshold''): positivo quando o volume segmentado
+      total é >= 0,1 mL; limiar de engenharia para ignorar voxels isolados, NÃO ajustado a dados e SEM
+      validação publicada'
+limitations:
+- 'O próprio repositório declara: ''This is not a medical device and is not intended for clinical usage.'''
+- 'pull direto não suportado: os pesos são membros de um zip de release; o registro só verifica os arquivos
+  já extraídos (sha256 fixado dos bytes reais).'
+- 'Tarefa marcada com ''*'' no README: ''not trained on the full totalsegmentator dataset but on some
+  small other datasets. Therefore, expect them to work less robustly.'''
+- Sem validação publicada deste modelo; rota 'research' para não duplicar o achado de lesão hepática de
+  totalseg-liver-lesions.
+references:
+- title: 'TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images'
+  identifier: doi:10.1148/ryai.230024
+  url: https://doi.org/10.1148/ryai.230024
+- title: The Medical Segmentation Decathlon (dados, não validação do modelo)
+  identifier: arXiv:1902.09063
+  url: https://arxiv.org/abs/1902.09063
+config:
+  task: liver_vessels
+  mode: default
+  library_version: 2.18.0
+  datasets:
+  - folder: Dataset008_HepaticVessel
+    trainer_dir: nnUNetTrainer__nnUNetPlans__3d_fullres
+    checkpoint: d008_checkpoint
+    plans: d008_plans
+    dataset: d008_dataset
+  - folder: Dataset298_TotalSegmentator_total_6mm_1559subj
+    trainer_dir: nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres
+    checkpoint: d298_checkpoint
+    plans: d298_plans
+    dataset: d298_dataset
+  timeout_s: 3600
+  volumes:
+  - key: liver_tumor_volume_ml
+    labels:
+    - liver_tumor
+  - key: liver_vessels_volume_ml
+    labels:
+    - liver_vessels
+  upstream_gate:
+    model: totalseg-total-3mm
+    any_of:
+    - liver
+    min_ml: 100.0

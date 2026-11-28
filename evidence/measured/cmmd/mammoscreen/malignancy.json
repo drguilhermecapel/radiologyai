@@ -1,0 +1,330 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "cbis-ddsm",
+      "rsna-screening-mammo"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "n_missing_label_excluded": 0,
+    "plan_job": "mammoscreen@cmmd",
+    "predictions_file": "mammoscreen/cmmd/evidence.parquet",
+    "predictions_sha256": "d91c1ee2ec54fbc16cb06daad0121685085d57b3ebdd5f7e974d46436dfdb148",
+    "score_column": "y_score"
+  },
+  "operating_points": [
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/cmmd/mammoscreen/malignancy.json#report",
+      "name": "malignancy:rule_out",
+      "on": "sigmoid",
+      "role": "rule_out",
+      "source": "protocolo 2026-11-v1: sensibilidade alvo 0.9 ajustado na metade de calibração de cmmd",
+      "threshold": 0.001833575195632875
+    },
+    {
+      "direction": "ge",
+      "evidence_ref": "evidence/measured/cmmd/mammoscreen/malignancy.json#report",
+      "name": "malignancy:rule_in",
+      "on": "sigmoid",
+      "role": "rule_in",
+      "source": "protocolo 2026-11-v1: especificidade alvo 0.9 ajustado na metade de calibração de cmmd",
+      "threshold": 0.02909526787698269
+    }
+  ],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Limiares e temperatura ajustados na metade de calibração (150 pacientes) e métricas reportadas na metade de teste (150 pacientes), split determinístico por paciente.",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "CMMD só tem mamas biopsiadas: mede benigno x maligno entre lesões suspeitas, não rastreamento.",
+      "Prevalência da amostra (~48% maligno) fixada pelo desenho; VPP/VPN não generalizam.",
+      "Unidade = mama (CC + MLO); mama contralateral sem biópsia excluída.",
+      "Recorte prévio por mammo-crop (sha256 57bd1f259c2b1588d96953195665bca3972e0954194d8eaeaf2bd12af47591d2, conferido no manifesto mammo-crop)."
+    ],
+    "condition_id": "mg.breast_cancer",
+    "dataset": "cmmd",
+    "endpoint": "discrimination",
+    "failure_reasons": [
+      "AUROC 0.7896 < auroc_min 0.8",
+      "limite inferior do IC da AUROC 0.7154 < auroc_ci_low_min 0.75"
+    ],
+    "id": "measured:cmmd:mammoscreen:malignancy:discrimination",
+    "kind": "measured_external",
+    "label": "malignancy",
+    "leakage": "none",
+    "leakage_note": "nenhuma linhagem comum entre avaliação e treino (cbis-ddsm, rsna-screening-mammo)",
+    "metrics": {
+      "auprc": {
+        "ci_high": 0.8700357379102179,
+        "ci_low": 0.7177717005162315,
+        "value": 0.7975385588695904
+      },
+      "auroc": {
+        "ci_high": 0.8587773089545241,
+        "ci_low": 0.7154418826602371,
+        "value": 0.7896296296296297
+      },
+      "ece_after_calibration": {
+        "ci_high": 0.23424046375089097,
+        "ci_low": 0.09736081693674337,
+        "value": 0.16591348241990214
+      },
+      "ece_before_calibration": {
+        "ci_high": 0.44355894251351435,
+        "ci_low": 0.3990983607816746,
+        "value": 0.4218967418782995
+      },
+      "rule_in_sensitivity": {
+        "ci_high": 0.5733333333333334,
+        "ci_low": 0.36,
+        "value": 0.4666666666666667
+      },
+      "rule_in_specificity": {
+        "ci_high": 0.9753086419753086,
+        "ci_low": 0.8674294739935352,
+        "value": 0.9259259259259259
+      },
+      "rule_out_sensitivity": {
+        "ci_high": 0.9733333333333334,
+        "ci_low": 0.8533333333333334,
+        "value": 0.92
+      },
+      "rule_out_specificity": {
+        "ci_high": 0.44740215924426435,
+        "ci_low": 0.24096385542168675,
+        "value": 0.345679012345679
+      }
+    },
+    "model_id": "mammoscreen",
+    "n_positive": 75,
+    "n_total": 156,
+    "passes_protocol": false,
+    "population": "CMMD (TCIA, CC BY 4.0; mamografia digital chinesa, pacientes biopsiadas); amostra pré-definida de 300 pacientes (150 benignas, 150 malignas; spikes/mammo/meta/cmmd_sample300.txt), 315 mamas rotuladas por biópsia",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job mammoscreen@cmmd",
+      "created_at": "2026-11-28T00:33:56.893234Z",
+      "dataset_id": "cmmd",
+      "dataset_sha256": "efca2ab3f81d3ff8217c38c38a65521fd34b5e35f5231ffac72c6aa2f27bb9fa",
+      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "model.safetensors": "8ace0998e2d534b08eaa673fad37df16eaffef6dca3f3b5ac2196857a2949596"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "histopathology",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "none"
+  },
+  "report": {
+    "auprc": {
+      "ci_high": 0.8700357379102179,
+      "ci_low": 0.7177717005162315,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.7975385588695904
+    },
+    "auroc": {
+      "ci_high": 0.8587773089545241,
+      "ci_low": 0.7154418826602371,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.7896296296296297
+    },
+    "calibration": {
+      "n_fit_samples": 159,
+      "nll_after": 0.6676642190342357,
+      "nll_before": 1.8574754135746436,
+      "temperature": 11.119625667601392
+    },
+    "calibration_error": null,
+    "ci_level": 0.95,
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 156,
+      "n_neg": 81,
+      "n_neg_patients": 75,
+      "n_patients": 150,
+      "n_pos": 75,
+      "n_pos_patients": 75
+    },
+    "ece_after": {
+      "ci_high": 0.23424046375089097,
+      "ci_low": 0.09736081693674337,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.16591348241990214
+    },
+    "ece_before": {
+      "ci_high": 0.44355894251351435,
+      "ci_low": 0.3990983607816746,
+      "n_defined_replicates": 2000,
+      "n_replicates": 2000,
+      "value": 0.4218967418782995
+    },
+    "label": "malignancy",
+    "operating_point_errors": [],
+    "prevalence": 0.4807692307692308,
+    "protocol_id": "2026-11-v1",
+    "rule_in": {
+      "calibration_sensitivity": 0.48,
+      "calibration_specificity": 0.9047619047619048,
+      "npv": {
+        "ci_high": 0.7037037037037037,
+        "ci_low": 0.6062733112308331,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.6521739130434783
+      },
+      "ppv": {
+        "ci_high": 0.9487499999999998,
+        "ci_low": 0.75,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.8536585365853658
+      },
+      "role": "rule_in",
+      "score_scale": "probability",
+      "sensitivity": {
+        "ci_high": 0.5733333333333334,
+        "ci_low": 0.36,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.4666666666666667
+      },
+      "specificity": {
+        "ci_high": 0.9753086419753086,
+        "ci_low": 0.8674294739935352,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.9259259259259259
+      },
+      "target": 0.9,
+      "target_metric": "specificity",
+      "threshold": 0.02909526787698269
+    },
+    "rule_out": {
+      "calibration_sensitivity": 0.9066666666666666,
+      "calibration_specificity": 0.34523809523809523,
+      "npv": {
+        "ci_high": 0.9375,
+        "ci_low": 0.7,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.8235294117647058
+      },
+      "ppv": {
+        "ci_high": 0.6126334317510786,
+        "ci_low": 0.522344887134575,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.5655737704918032
+      },
+      "role": "rule_out",
+      "score_scale": "probability",
+      "sensitivity": {
+        "ci_high": 0.9733333333333334,
+        "ci_low": 0.8533333333333334,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.92
+      },
+      "specificity": {
+        "ci_high": 0.44740215924426435,
+        "ci_low": 0.24096385542168675,
+        "n_defined_replicates": 2000,
+        "n_replicates": 2000,
+        "value": 0.345679012345679
+      },
+      "target": 0.9,
+      "target_metric": "sensitivity",
+      "threshold": 0.001833575195632875
+    },
+    "score_scale": "probability",
+    "split": {
+      "calibration": {
+        "n_images": 159,
+        "n_neg": 84,
+        "n_neg_patients": 75,
+        "n_patients": 150,
+        "n_pos": 75,
+        "n_pos_patients": 75
+      },
+      "calibration_fraction": 0.5,
+      "method": "sha256(seed:patient_id), estratificado por paciente com positivo",
+      "seed": 20261124,
+      "test": {
+        "n_images": 156,
+        "n_neg": 81,
+        "n_neg_patients": 75,
+        "n_patients": 150,
+        "n_pos": 75,
+        "n_pos_patients": 75
+      }
+    },
+    "subgroups": [
+      {
+        "attribute": "sex",
+        "auroc": {
+          "ci_high": 0.8587773089545241,
+          "ci_low": 0.7154418826602371,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.7896296296296297
+        },
+        "counts": {
+          "n_images": 156,
+          "n_neg": 81,
+          "n_neg_patients": 75,
+          "n_patients": 150,
+          "n_pos": 75,
+          "n_pos_patients": 75
+        },
+        "eligible": true,
+        "note": null,
+        "rule_in_sensitivity": {
+          "ci_high": 0.5733333333333334,
+          "ci_low": 0.36,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.4666666666666667
+        },
+        "rule_in_specificity": {
+          "ci_high": 0.9753086419753086,
+          "ci_low": 0.8674294739935352,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.9259259259259259
+        },
+        "rule_out_sensitivity": {
+          "ci_high": 0.9733333333333334,
+          "ci_low": 0.8533333333333334,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.92
+        },
+        "rule_out_specificity": {
+          "ci_high": 0.44740215924426435,
+          "ci_low": 0.24096385542168675,
+          "n_defined_replicates": 2000,
+          "n_replicates": 2000,
+          "value": 0.345679012345679
+        },
+        "value": "F"
+      }
+    ],
+    "subgroups_unavailable": [
+      "age_band: subgrupo não avaliável: metadado ausente",
+      "view: subgrupo não avaliável: metadado ausente"
+    ]
+  }
+}

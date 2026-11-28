@@ -33,6 +33,7 @@ def _valid_metrics(
     }
 
 
+@pytest.mark.requirement("REQ-094")
 def test_passes_within_tolerance() -> None:
     reference = _valid_metrics(macro_auroc=0.85)
     current = _valid_metrics(macro_auroc=0.835)
@@ -46,6 +47,7 @@ def test_passes_within_tolerance() -> None:
     assert result.delta_macro_auroc == pytest.approx(-0.015)
 
 
+@pytest.mark.requirement("REQ-094")
 def test_rejects_auroc_drop_above_threshold() -> None:
     reference = _valid_metrics(macro_auroc=0.85)
     current = _valid_metrics(macro_auroc=0.82)
@@ -57,6 +59,7 @@ def test_rejects_auroc_drop_above_threshold() -> None:
     assert any("macro_auroc dropped" in reason for reason in result.reasons)
 
 
+@pytest.mark.requirement("REQ-094")
 @pytest.mark.parametrize(
     "bad_value",
     [None, "0.85", True, math.nan, math.inf, -math.inf],
@@ -76,6 +79,7 @@ def test_rejects_missing_nan_or_inf_macro_auroc(bad_value: Any) -> None:
     assert len(result.reasons) >= 1
 
 
+@pytest.mark.requirement("REQ-094")
 def test_label_drop_behavior() -> None:
     reference = _valid_metrics(n_labels_evaluated=14)
     current = _valid_metrics(n_labels_evaluated=12)
@@ -104,6 +108,7 @@ def test_label_drop_behavior() -> None:
     assert zero_result.passed is False
 
 
+@pytest.mark.requirement("REQ-094")
 @pytest.mark.parametrize("leakage_status", ["leakage", "overlap", "failed"])
 def test_rejects_leakage_status(leakage_status: str) -> None:
     reference = _valid_metrics()
@@ -115,6 +120,7 @@ def test_rejects_leakage_status(leakage_status: str) -> None:
     assert any("leakage_status" in reason for reason in result.reasons)
 
 
+@pytest.mark.requirement("REQ-094")
 def test_rejects_internal_dataset_when_required() -> None:
     reference = _valid_metrics()
     current = _valid_metrics(external_to_training_data=False)
@@ -135,6 +141,7 @@ def test_rejects_internal_dataset_when_required() -> None:
     assert unblocked.passed is True
 
 
+@pytest.mark.requirement("REQ-094")
 def test_compare_metric_files_with_tmp_path(tmp_path: Path) -> None:
     reference_file = tmp_path / "reference.json"
     current_file = tmp_path / "current.json"
@@ -153,6 +160,7 @@ def test_compare_metric_files_with_tmp_path(tmp_path: Path) -> None:
     assert result.delta_macro_auroc == pytest.approx(-0.01)
 
 
+@pytest.mark.requirement("REQ-094")
 def test_load_metrics_rejects_non_dict_json(tmp_path: Path) -> None:
     bad_file = tmp_path / "list.json"
     bad_file.write_text(json.dumps([1, 2, 3]), encoding="utf-8")
@@ -161,6 +169,7 @@ def test_load_metrics_rejects_non_dict_json(tmp_path: Path) -> None:
         load_metrics(bad_file)
 
 
+@pytest.mark.requirement("REQ-094")
 def test_rejects_negative_max_auroc_drop() -> None:
     reference = _valid_metrics()
     current = _valid_metrics()
@@ -169,6 +178,7 @@ def test_rejects_negative_max_auroc_drop() -> None:
         check_baseline_regression(current, reference, max_auroc_drop=-0.01)
 
 
+@pytest.mark.requirement("REQ-094")
 def test_cli_check_regression_passes(tmp_path: Path) -> None:
     reference_file = tmp_path / "reference.json"
     current_file = tmp_path / "current.json"
@@ -198,6 +208,7 @@ def test_cli_check_regression_passes(tmp_path: Path) -> None:
     assert payload["passed"] is True
 
 
+@pytest.mark.requirement("REQ-094")
 def test_cli_check_regression_fails(tmp_path: Path) -> None:
     reference_file = tmp_path / "reference.json"
     current_file = tmp_path / "current.json"

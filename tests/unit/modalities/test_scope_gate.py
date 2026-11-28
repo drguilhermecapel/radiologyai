@@ -61,7 +61,7 @@ class TestXRScopeGate:
 class TestRegistry:
     def test_all_four_modalities_registered(self):
         codes = {p.code for p in available_modalities().values()}
-        assert codes == {"XR", "CT", "MR", "US"}
+        assert codes == {"XR", "CT", "MR", "US", "MG"}
 
     def test_resolve_by_dicom_modality(self):
         assert resolve("CR").code == "XR"
@@ -75,11 +75,10 @@ class TestRegistry:
         with pytest.raises(OutOfScopeError, match="não suportada"):
             resolve("XA")
 
-    def test_only_xr_is_implemented(self):
-        by_code = {p.code: p for p in available_modalities().values()}
-        assert by_code["XR"].implemented is True
-        for code in ("CT", "MR", "US"):
-            assert by_code[code].implemented is False
+    def test_every_registered_modality_is_implemented(self):
+        """Plugin registrado sem implementação real não pode existir (regra de ouro)."""
+        for plugin in available_modalities().values():
+            assert plugin.implemented is True, plugin.code
 
     def test_3d_modalities_declare_dimensionality(self):
         """O caminho 3D existe no sistema de tipos desde a Fase 1."""
@@ -90,17 +89,10 @@ class TestRegistry:
         assert by_code["XR"].dimensionality == "2d"
 
 
-class TestUnimplementedModalities:
-    def test_unimplemented_never_accepts(self, ct_dataset):
+class TestImplementedCT:
+    def test_ct_validate_does_not_report_unimplemented(self, ct_dataset):
         report = resolve("CT").validate(extract_metadata(ct_dataset))
-        assert not report.accepted
-        assert any("não implementada" in r for r in report.reasons)
-
-    def test_unimplemented_preprocess_raises(self, ct_dataset):
-        import numpy as np
-
-        with pytest.raises(NotImplementedError, match="não implementado"):
-            resolve("CT").preprocess(np.zeros((4, 4)), extract_metadata(ct_dataset))
+        assert not any("não implementada" in r for r in report.reasons)
 
 
 @pytest.mark.requirement("REQ-043")
