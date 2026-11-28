@@ -144,6 +144,10 @@ a {
   gap: 0 12px;
   border-bottom: 3px solid #6fb3e0;
 }
+.shadow-unknown {
+  background: #3b3f45;
+  border-bottom-color: #a0a6ad;
+}
 .shadow-empty {
   border-left: 4px solid #6fb3e0;
 }

@@ -14,6 +14,11 @@ Regras:
 * A decisão do médico (aceite, rejeição, emenda) é o valor primário do achado;
   a sugestão do modelo aparece separada. Nenhuma frase ou código afirma que a
   condição foi excluída: escore abaixo do limiar "não exclui a condição".
+* Suspensões de decisão (``evidence/decision_holds.yaml``, REQ-193) são
+  reaplicadas no momento do laudo: achado de trio suspenso — mesmo de análise
+  gravada ANTES da suspensão — sai como ``score_only``, sem ponto de operação e
+  com o motivo; nenhuma sugestão positiva/abaixo do limiar é emitida (PDF, SR,
+  FHIR e envio ao PACS herdam o conteúdo).
 * Segmentações só entram (SEG, exportação) quando ligadas a um achado do laudo
   que o médico não rejeitou (:mod:`radiologyai.reporting.exposure`).
 * Laudo só existe para análise em que ao menos um modelo concluiu; o
@@ -39,6 +44,7 @@ from radiologyai.catalog.schema import LEVEL_MEANING_PT as _CATALOG_LEVEL_MEANIN
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from radiologyai.analysis.evidence_policy import HoldLookup
     from radiologyai.analysis.types import AnalysisResult, Finding
     from radiologyai.catalog.catalog import Catalog
     from radiologyai.catalog.schema import EvidenceLevel
@@ -210,6 +216,8 @@ class ReportContent(_Frozen):
     completed_models: int | None = None
     runs_statement: str | None = None
     demoted_findings: int = 0
+    # Achados cuja decisão gravada foi retirada por suspensão vigente (REQ-193).
+    held_findings: int = 0
     segmentations: tuple[ReportSegmentation, ...] = ()
 
 
@@ -320,18 +328,22 @@ def build_report_content(
     catalog: Catalog | None,
     study_warnings: tuple[str, ...] = (),
     current_level: CurrentLevel | None = None,
+    held: HoldLookup | None = None,
 ) -> ReportContent:
     """Monta o conteúdo do laudo. ``reviews`` mapeia índice do achado -> última revisão.
 
     ``current_level`` dá o nível efetivo AGORA (catálogo corrente + restrição do
-    manifesto); sem ele, vale o gravado na análise.
+    manifesto); sem ele, vale o gravado na análise. ``held`` dá a suspensão de
+    decisão vigente do trio (REQ-193); achado suspenso vira ``score_only`` com o motivo.
     """
+    from radiologyai.analysis.evidence_policy import apply_hold
     from radiologyai.reporting.exposure import exposed_artifacts
 
     measurements = {(m.provenance_idx, m.name): m for m in result.measurements}
     findings: list[ReportFinding] = []
     excluded = 0
     demoted = 0
+    n_held = 0
     extra_warnings: list[str] = []
     for idx, finding in enumerate(result.findings):
         if finding.visibility != "main" or finding.evidence_level.value == "D":
@@ -356,6 +368,14 @@ def build_report_content(
             extra_warnings.append(
                 f"achado {idx} ({finding.condition_id}) era nível {stored} na análise; "
                 f"nível corrente {effective} (vale o mais restritivo)"
+            )
+        hold = held(finding.condition_id, prov.model_id, finding.label) if held else None
+        if hold is not None and finding.decision not in ("score_only", "abstained"):
+            finding = apply_hold(finding, hold)
+            n_held += 1
+            extra_warnings.append(
+                f"achado {idx} ({finding.condition_id}, {prov.model_id}:{finding.label}): "
+                f"{finding.decision_note}"
             )
         name = finding.code.meaning
         if catalog is not None and catalog.has(finding.condition_id):
@@ -481,6 +501,7 @@ def build_report_content(
         completed_models=completed,
         runs_statement=runs_statement,
         demoted_findings=demoted,
+        held_findings=n_held,
         segmentations=segmentations,
     )
 

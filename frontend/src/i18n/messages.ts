@@ -41,6 +41,9 @@ export const pt = {
   "shadow.empty":
     "Este serviço participa de um piloto silencioso: a saída da IA não é mostrada a quem presta o cuidado. Isto não indica exame normal nem ausência de achados; conduza o caso como de costume.",
   "shadow.review": "—",
+  "shadow.unknown": "Estado do modo silencioso desconhecido",
+  "shadow.unknown.detail":
+    "Não foi possível ler o estado do servidor. Se houver piloto silencioso, a saída de IA continua retida pelo servidor.",
 
   "research.toggle": "Modo pesquisa",
   "research.toggle.help":
@@ -426,6 +429,9 @@ export const en: Messages = {
   "shadow.empty":
     "This service takes part in a silent pilot: the AI output is not shown to care providers. This does not mean a normal study or the absence of findings; manage the case as usual.",
   "shadow.review": "—",
+  "shadow.unknown": "Silent mode status unknown",
+  "shadow.unknown.detail":
+    "The server status could not be read. If a silent pilot is running, the server still withholds the AI output.",
 
   "research.toggle": "Research mode",
   "research.toggle.help":

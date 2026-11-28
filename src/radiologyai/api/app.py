@@ -131,7 +131,7 @@ async def _send_413(send: Send, limit: int) -> None:
 
 def _error_status() -> list[tuple[type[Exception], int]]:
     """Mapeamento exceção de domínio -> HTTP (mais específica primeiro)."""
-    from radiologyai.api.shadow import ShadowModeError
+    from radiologyai.api.shadow import ShadowModeError, ShadowModeOffError
     from radiologyai.errors import (
         ConfigurationError,
         ExamTypeUnknownError,
@@ -158,6 +158,7 @@ def _error_status() -> list[tuple[type[Exception], int]]:
 
     return [
         (ShadowModeError, 403),
+        (ShadowModeOffError, 409),
         (NotFoundError, 404),
         (FrameRangeError, 404),
         (LoginThrottledError, 429),

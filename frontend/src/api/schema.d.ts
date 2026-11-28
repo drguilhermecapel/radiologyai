@@ -678,12 +678,16 @@ export interface paths {
         };
         /**
          * Export Csv
-         * @description CSV sem PHI de toda análise concluída, um achado por linha (REQ-195), auditado.
+         * @description CSV pseudonimizado (dado pessoal pela LGPD) do piloto, um achado por linha (REQ-195).
          *
-         *     Funciona com o modo silencioso ligado ou não. Colunas: ver ``COLUMNS``
-         *     (ids opacos/pseudonimizados, ``result_sha256``, modelo e versão,
-         *     ``condition_id``, nível de evidência, escore bruto, decisão e tempos). A
-         *     exportação é registrada na cadeia de auditoria ANTES de ser entregue.
+         *     Sem identificador direto, texto livre ou pixel. Exige o modo silencioso ligado
+         *     (desligado => 409 ``ShadowModeOffError``). ``since``/``until`` recortam por
+         *     ``requested_at`` (``since`` inclusivo, ``until`` exclusivo; com fuso horário).
+         *     Colunas: ver ``COLUMNS`` (ids opacos/pseudonimizados, ``result_sha256``, modelo e
+         *     versão, ``condition_id``, nível de evidência, escore bruto, decisão — ``score_only``
+         *     com o motivo em ``decision_held`` quando a decisão do trio está suspensa (REQ-193) — e
+         *     tempos). A exportação, com o recorte, é registrada na cadeia de auditoria ANTES de ser
+         *     entregue.
          */
         get: operations["export_csv_api_v1_shadow_export_get"];
         put?: never;
@@ -1895,6 +1899,11 @@ export interface components {
              * @default Uso exclusivo em pesquisa — não é laudo diagnóstico
              */
             header: string;
+            /**
+             * Held Findings
+             * @default 0
+             */
+            held_findings: number;
             /** Input Sha256 */
             input_sha256: string[];
             /**
@@ -4728,7 +4737,12 @@ export interface operations {
     };
     export_csv_api_v1_shadow_export_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Início (inclusivo) do recorte em requested_at; ISO 8601 com fuso */
+                since?: string | null;
+                /** @description Fim (exclusivo) do recorte em requested_at; ISO 8601 com fuso */
+                until?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;

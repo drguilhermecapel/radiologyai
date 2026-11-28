@@ -7,6 +7,9 @@
   (``report_sha256`` e ``result_sha256``) e a própria senha; todos os achados
   do laudo precisam estar revisados. A assinatura é um hash sobre esses dois
   valores + signatário + horário; qualquer divergência posterior a invalida.
+* Suspensão de decisão (REQ-193) criada DEPOIS do laudo: o laudo que ainda traz a
+  decisão do trio suspenso não é assinado nem emitido (``stale_holds``); cria-se um
+  laudo novo, que sai só com o escore.
 * Documentos (PDF, SR, SEG, FHIR) são renderizações do conteúdo hasheado e da
   assinatura; são guardados como artefatos endereçados por conteúdo.
 """
@@ -32,6 +35,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import Session
 
+    from radiologyai.analysis.evidence_policy import HoldLookup
     from radiologyai.analysis.types import AnalysisResult
     from radiologyai.catalog.schema import EvidenceLevel
     from radiologyai.persistence.models import Analysis, Report
@@ -43,6 +47,7 @@ __all__ = [
     "ReportStateError",
     "create_report",
     "current_level_fn",
+    "held_fn",
     "integrity",
     "latest_reviews",
     "load_result",
@@ -50,6 +55,7 @@ __all__ = [
     "sign_off",
     "sign_report",
     "signing_key",
+    "stale_holds",
 ]
 
 
@@ -128,6 +134,32 @@ def current_level_fn(platform: Platform) -> Callable[[str, str, str], EvidenceLe
     return level
 
 
+def held_fn(platform: Platform) -> HoldLookup:
+    """Suspensão de decisão vigente do trio (REQ-193), das mesmas fontes do motor."""
+    from radiologyai.analysis.evidence_policy import hold_lookup
+
+    return hold_lookup(platform.engine.policy)
+
+
+def stale_holds(content: ReportContent, held: HoldLookup) -> list[int]:
+    """Índices dos achados do laudo com decisão do modelo para trio suspenso DEPOIS do laudo."""
+    return [
+        f.idx
+        for f in content.findings
+        if f.decision not in ("score_only", "abstained")
+        and held(f.condition_id, f.model_id, f.label) is not None
+    ]
+
+
+def _refuse_stale(platform: Platform, content: ReportContent, what: str) -> None:
+    stale = stale_holds(content, held_fn(platform))
+    if stale:
+        raise ReportStateError(
+            f"achado(s) {stale} deste laudo têm decisão do modelo hoje suspensa (REQ-193); "
+            f"o laudo não pode ser {what} — crie um novo laudo, que sai só com o escore"
+        )
+
+
 def create_report(platform: Platform, analysis_id: str, *, user_id: str, username: str) -> str:
     """Cria o instantâneo do laudo; devolve o id.
 
@@ -168,6 +200,7 @@ def create_report(platform: Platform, analysis_id: str, *, user_id: str, usernam
             catalog=catalog,
             study_warnings=tuple(study.warnings or ()),
             current_level=current_level_fn(platform),
+            held=held_fn(platform),
         )
         content_bytes = canonical_bytes(content.model_dump(mode="json"))
         report = Report(
@@ -301,6 +334,7 @@ def sign_report(
         if not (check.content_matches_hash and check.result_matches_hash):
             raise ReportStateError("integridade reprovada: conteúdo ou resultado alterado")
         content = ReportContent.model_validate_json(report.content_json)
+        _refuse_stale(platform, content, "assinado")
         if content.unreviewed_findings:
             raise ReportStateError(
                 f"{content.unreviewed_findings} achado(s) sem revisão; "
@@ -419,6 +453,7 @@ def render_document(
         if check.signature_valid is False:
             raise ReportStateError("assinatura inválida: o laudo não pode ser emitido")
         content = ReportContent.model_validate_json(report.content_json)
+        _refuse_stale(platform, content, "emitido")
         sign = sign_off(session, report)
         if kind == "pdf":
             data, media, name = (

@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 
 import { api, getToken, onTokenChange, setToken, unwrap, type UserOut } from "./api/client";
+import { shadowStateFrom, type ShadowState } from "./shadowState";
 
 export type Permission =
   | "users:manage"
@@ -37,6 +38,11 @@ interface SessionValue {
   setResearch: (on: boolean) => void;
   /** Servidor no modo silencioso do piloto (``/status.shadow_mode``, REQ-195). */
   shadow: boolean;
+  /**
+   * ``"unknown"`` quando ``/status`` não pôde ser lido: a faixa fica (neutra), falha
+   * fechada. A API continua aplicando a redação.
+   */
+  shadowState: ShadowState;
   /** Saída de IA retida para este usuário (modo silencioso sem ``shadow:view``). */
   aiHidden: boolean;
 }
@@ -47,17 +53,20 @@ export function SessionProvider({ children }: { children: ReactNode }): ReactNod
   const [user, setUser] = useState<UserOut | null>(null);
   const [loading, setLoading] = useState<boolean>(getToken() !== null);
   const [research, setResearchState] = useState(false);
-  const [shadow, setShadow] = useState(false);
+  const [shadowState, setShadowState] = useState<ShadowState>("unknown");
 
   // Público: a faixa do modo silencioso aparece em todas as telas, inclusive no login.
+  // Falha fechada (REQ-195): erro ou resposta ilegível => "unknown", nunca "off".
   useEffect(() => {
     let alive = true;
     void api
       .GET("/api/v1/status")
       .then(({ data }) => {
-        if (alive && data) setShadow(data.shadow_mode === true);
+        if (alive) setShadowState(shadowStateFrom(data ?? null));
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (alive) setShadowState("unknown");
+      });
     return () => {
       alive = false;
     };
@@ -118,10 +127,11 @@ export function SessionProvider({ children }: { children: ReactNode }): ReactNod
       logout,
       research: research && can("research:view"),
       setResearch,
-      shadow,
-      aiHidden: shadow && !can("shadow:view"),
+      shadow: shadowState === "on",
+      shadowState,
+      aiHidden: shadowState === "on" && !can("shadow:view"),
     }),
-    [user, loading, can, login, logout, research, setResearch, shadow],
+    [user, loading, can, login, logout, research, setResearch, shadowState],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

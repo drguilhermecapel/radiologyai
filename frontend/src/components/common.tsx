@@ -87,6 +87,17 @@ export function ShadowModeBanner(): ReactNode {
   );
 }
 
+/** Falha fechada: ``/status`` ilegível não some com a faixa (REQ-195); a API segue redigindo. */
+export function ShadowUnknownBanner(): ReactNode {
+  const { t } = useI18n();
+  return (
+    <div className="shadow-banner shadow-unknown" role="note" data-testid="shadow-unknown-banner">
+      <strong>{t("shadow.unknown")}</strong>
+      <span className="ruo-detail">{t("shadow.unknown.detail")}</span>
+    </div>
+  );
+}
+
 /** Estado vazio NEUTRO no lugar dos achados: nunca sugere "normal" nem "sem achados". */
 export function ShadowEmptyState(): ReactNode {
   const { t } = useI18n();

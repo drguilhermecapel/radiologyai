@@ -1815,6 +1815,10 @@ components:
           default: Uso exclusivo em pesquisa — não é laudo diagnóstico
           title: Header
           type: string
+        held_findings:
+          default: 0
+          title: Held Findings
+          type: integer
         input_sha256:
           items:
             type: string
@@ -4896,17 +4900,48 @@ paths:
       x-permission: studies:read
   /api/v1/shadow/export:
     get:
-      description: 'CSV sem PHI de toda análise concluída, um achado por linha (REQ-195), auditado.
+      description: 'CSV pseudonimizado (dado pessoal pela LGPD) do piloto, um achado por linha (REQ-195).
 
 
-        Funciona com o modo silencioso ligado ou não. Colunas: ver ``COLUMNS``
+        Sem identificador direto, texto livre ou pixel. Exige o modo silencioso ligado
 
-        (ids opacos/pseudonimizados, ``result_sha256``, modelo e versão,
+        (desligado => 409 ``ShadowModeOffError``). ``since``/``until`` recortam por
 
-        ``condition_id``, nível de evidência, escore bruto, decisão e tempos). A
+        ``requested_at`` (``since`` inclusivo, ``until`` exclusivo; com fuso horário).
 
-        exportação é registrada na cadeia de auditoria ANTES de ser entregue.'
+        Colunas: ver ``COLUMNS`` (ids opacos/pseudonimizados, ``result_sha256``, modelo e
+
+        versão, ``condition_id``, nível de evidência, escore bruto, decisão — ``score_only``
+
+        com o motivo em ``decision_held`` quando a decisão do trio está suspensa (REQ-193) — e
+
+        tempos). A exportação, com o recorte, é registrada na cadeia de auditoria ANTES de ser
+
+        entregue.'
       operationId: export_csv_api_v1_shadow_export_get
+      parameters:
+      - description: Início (inclusivo) do recorte em requested_at; ISO 8601 com fuso
+        in: query
+        name: since
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Início (inclusivo) do recorte em requested_at; ISO 8601 com fuso
+          title: Since
+      - description: Fim (exclusivo) do recorte em requested_at; ISO 8601 com fuso
+        in: query
+        name: until
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Fim (exclusivo) do recorte em requested_at; ISO 8601 com fuso
+          title: Until
       responses:
         '200':
           content:

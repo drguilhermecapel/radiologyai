@@ -342,7 +342,10 @@ class TestCsvExport:
         assert response.headers["x-content-sha256"] == digest
         (event,) = _events(api, team, "shadow.exported")
         assert event["payload"]["csv_sha256"] == digest
-        assert event["payload"]["rows"] == len(rows)
+        # O administrador não tem shadow:view: a contagem (uma linha por achado) vem redigida
+        # na leitura (REQ-195); o evento gravado mantém o valor e a cadeia verifica.
+        assert event["payload"]["rows"] is None
+        assert event["payload"]["shadow_redacted"] == ["rows"]
         assert event["actor_username"] == "pesquisa"
         assert api.get("/api/v1/audit/verify", headers=team["admin"]).json()["ok"] is True
 

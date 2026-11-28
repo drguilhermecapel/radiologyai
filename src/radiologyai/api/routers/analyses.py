@@ -123,7 +123,7 @@ def get_analysis(
     servidos; a saída de IA não (``shadow: true``, ``result: null``). Servir um
     resultado concluído assim é auditado (``shadow.redacted``).
     """
-    from radiologyai.reporting.service import load_result
+    from radiologyai.reporting.service import held_fn, load_result
 
     if include_research and not principal.can(Permission.RESEARCH_MODE):
         raise HTTPException(status_code=403, detail="modo pesquisa não permitido para o seu papel")
@@ -136,7 +136,13 @@ def get_analysis(
             completed = row.result_json is not None
         else:
             result = load_result(row) if row.result_json is not None else None
-            return analysis_out(session, row, research_view=include_research, result=result)
+            return analysis_out(
+                session,
+                row,
+                research_view=include_research,
+                result=result,
+                held=held_fn(platform),
+            )
     if completed:
         audit_redaction(platform, principal, analysis_id=analysis_id)
     return out

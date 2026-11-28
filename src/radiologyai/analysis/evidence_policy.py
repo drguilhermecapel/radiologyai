@@ -38,8 +38,9 @@ data, quem decidiu e a referência que a justifica.
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -50,10 +51,22 @@ from radiologyai.analysis.types import ScoreKind
 from radiologyai.catalog.schema import EvidenceLevel, compute_level
 
 if TYPE_CHECKING:
+    from radiologyai.analysis.types import Finding
     from radiologyai.catalog.catalog import Catalog
     from radiologyai.evidence.store import LoadedEvidence
 
-__all__ = ["HOLDS_FILE", "DecisionHold", "EvidencePolicy", "load_holds", "select_basis"]
+__all__ = [
+    "HOLDS_FILE",
+    "DecisionHold",
+    "EvidencePolicy",
+    "HoldLookup",
+    "apply_hold",
+    "default_holds",
+    "hold_lookup",
+    "hold_note",
+    "load_holds",
+    "select_basis",
+]
 
 HOLDS_FILE = "decision_holds.yaml"
 
@@ -104,6 +117,72 @@ def load_holds(root: Path) -> dict[tuple[str, str, str], DecisionHold]:
             raise EvidenceError(f"{path}: trio repetido {key}")
         out[key] = hold
     return out
+
+
+#: (condition_id, model_id, label) -> suspensão vigente ou ``None``.
+HoldLookup = Callable[[str, str, str], DecisionHold | None]
+
+
+def hold_note(hold: DecisionHold, level: EvidenceLevel | str) -> str:
+    """Texto único da suspensão (aviso da análise e ``Finding.decision_note``)."""
+    value = level.value if isinstance(level, EvidenceLevel) else level
+    return (
+        f"nível {value}: decisão suspensa em {hold.decided_on} "
+        f"({hold.decided_by}): {hold.reason} [{hold.evidence_ref}]; somente "
+        "escore, sem decisão"
+    )
+
+
+@lru_cache(maxsize=8)
+def _cached_holds(root: Path) -> Mapping[tuple[str, str, str], DecisionHold]:
+    return load_holds(root)
+
+
+def default_holds(root: Path | None = None) -> Mapping[tuple[str, str, str], DecisionHold]:
+    """Suspensões de ``root`` (padrão: ``evidence/`` do repositório), lidas uma vez por processo.
+
+    Mesma política de cache do catálogo: mudar o arquivo exige reiniciar o processo.
+
+    Raises:
+        EvidenceError: arquivo de suspensões inválido.
+    """
+    from radiologyai.evidence.store import EVIDENCE_ROOT
+
+    return _cached_holds((root or EVIDENCE_ROOT).resolve())
+
+
+def hold_lookup(policy: object | None) -> HoldLookup:
+    """Consulta de suspensões para quem RE-EMITE decisões gravadas (laudo, CSV, API).
+
+    Usa as suspensões da :class:`EvidencePolicy` do motor (carregadas com o catálogo); com
+    outra política (ou nenhuma), as de ``evidence/`` do repositório: a suspensão vale em
+    qualquer motor (padrão conservador).
+    """
+    holds = policy.holds if isinstance(policy, EvidencePolicy) else default_holds()
+
+    def held(condition_id: str, model_id: str, label: str) -> DecisionHold | None:
+        return holds.get((condition_id, model_id, label))
+
+    return held
+
+
+def apply_hold(finding: Finding, hold: DecisionHold) -> Finding:
+    """O achado gravado sem decisão: ``score_only``, sem pontos de operação, com o motivo.
+
+    Abstenção e ``score_only`` ficam como estão (não há decisão a retirar; a nota gravada é
+    mantida). Escore bruto e nível são mantidos.
+    """
+    if finding.decision in ("score_only", "abstained"):
+        return finding
+    return type(finding).model_validate(
+        {
+            **finding.model_dump(),
+            "decision": "score_only",
+            "operating_points": (),
+            "op_normalized": None,
+            "decision_note": hold_note(hold, finding.evidence_level),
+        }
+    )
 
 
 _LEVEL_RANK: dict[EvidenceLevel, int] = {
@@ -190,13 +269,7 @@ class EvidencePolicy:
     def resolve_points(self, request: PointsRequest) -> PointsResolution:
         hold = self.holds.get((request.condition_id, request.model_id, request.label))
         if hold is not None:
-            return PointsResolution(
-                warnings=(
-                    f"nível {request.level.value}: decisão suspensa em {hold.decided_on} "
-                    f"({hold.decided_by}): {hold.reason} [{hold.evidence_ref}]; somente "
-                    "escore, sem decisão",
-                )
-            )
+            return PointsResolution(warnings=(hold_note(hold, request.level),))
         if request.level is EvidenceLevel.D:
             # Comportamento anterior: exploratório, só no modo pesquisa, fora do laudo.
             return PointsResolution(points=request.manifest_points)

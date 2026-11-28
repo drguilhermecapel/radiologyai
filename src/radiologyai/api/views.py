@@ -16,12 +16,14 @@ from radiologyai.api.schemas import (
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+    from radiologyai.analysis.evidence_policy import HoldLookup
     from radiologyai.analysis.types import AnalysisResult
     from radiologyai.persistence.models import Analysis, Review, Series, Study
 
 __all__ = [
     "analysis_out",
     "analysis_summary",
+    "apply_holds",
     "filter_research",
     "review_out",
     "series_out",
@@ -155,9 +157,45 @@ def filter_research(result: AnalysisResult) -> tuple[AnalysisResult, int]:
     return Result.model_validate(data), hidden
 
 
+def apply_holds(result: AnalysisResult, held: HoldLookup) -> AnalysisResult:
+    """Reaplica as suspensões de decisão vigentes (REQ-193) a um resultado GRAVADO.
+
+    Achado de trio suspenso — inclusive de análise anterior à suspensão — é servido como
+    ``score_only``, sem ponto de operação, com o motivo em ``decision_note`` e um aviso no
+    resultado. A ordem e os índices dos achados não mudam (a revisão usa o índice).
+    """
+    from radiologyai.analysis.evidence_policy import apply_hold
+
+    findings = list(result.findings)
+    warnings: list[str] = []
+    for idx, finding in enumerate(findings):
+        if finding.decision in ("score_only", "abstained"):
+            continue
+        model_id = result.provenance[finding.provenance_idx].model_id
+        hold = held(finding.condition_id, model_id, finding.label)
+        if hold is None:
+            continue
+        findings[idx] = apply_hold(finding, hold)
+        warnings.append(
+            f"achado {idx} ({finding.condition_id}, {model_id}:{finding.label}): decisão "
+            f"gravada ({finding.decision}) retirada — {findings[idx].decision_note}"
+        )
+    if not warnings:
+        return result
+    return result.model_copy(
+        update={"findings": tuple(findings), "warnings": (*result.warnings, *warnings)}
+    )
+
+
 def analysis_out(
-    session: Session, a: Analysis, *, research_view: bool, result: AnalysisResult | None
+    session: Session,
+    a: Analysis,
+    *,
+    research_view: bool,
+    result: AnalysisResult | None,
+    held: HoldLookup | None = None,
 ) -> AnalysisOut:
+    """Análise para a API; ``held`` reaplica as suspensões de decisão vigentes (REQ-193)."""
     from sqlalchemy import select
 
     from radiologyai.persistence.models import Review, User
@@ -170,6 +208,8 @@ def analysis_out(
     seg_indices: tuple[int, ...] | None = None
     research_segs: tuple[int, ...] = ()
     research_measures: tuple[str, ...] = ()
+    if result is not None and held is not None:
+        result = shown = apply_holds(result, held)
     if result is not None:
         exposure = main_exposure(result)
         indices = tuple(

@@ -33,7 +33,9 @@ if TYPE_CHECKING:
 
 __all__ = [
     "SHADOW_ERROR",
+    "SHADOW_OFF_ERROR",
     "ShadowModeError",
+    "ShadowModeOffError",
     "ai_visible",
     "audit_redaction",
     "block_ai",
@@ -50,8 +52,16 @@ SHADOW_ERROR = "ShadowModeError"
 AI_ARTIFACT_KINDS = frozenset({"labelmap", "explanation"})
 
 
+#: Código estável do erro da exportação do piloto com o modo silencioso desligado.
+SHADOW_OFF_ERROR = "ShadowModeOffError"
+
+
 class ShadowModeError(RadiologyAIError):
     """Saída de IA retida pelo modo silencioso (HTTP 403, ``error: ShadowModeError``)."""
+
+
+class ShadowModeOffError(RadiologyAIError):
+    """Operação do piloto com o modo silencioso desligado (HTTP 409, ``ShadowModeOffError``)."""
 
 
 def shadow_on(platform: Platform) -> bool:
@@ -155,6 +165,8 @@ def redact_analysis(out: AnalysisOut) -> AnalysisOut:
             "result": None,
             "result_sha256": None,
             "result_status": None,
+            # A mensagem de erro do pipeline pode citar abstenção ou saída de modelo.
+            "error": None,
             "research_view": False,
             "hidden_research_findings": 0,
             "finding_indices": None,
