@@ -35,9 +35,11 @@ Arquivos com sha256 (`SHA256SUMS`): `NLMCXR_png.tgz` `baf3abfe…44bdf2` (apagad
 under the terms of the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
 License" e "We request not to share the datasets outside of your research group/organization".
 
-- **Rótulos:** casamento de substring em termos MeSH (`major` atribuído por curadores a partir do
-  laudo; `automatic` extraído por máquina), via torchxrayvision; não é leitura adjudicada da imagem
-  (`reference_standard: other` no plano).
+- **Rótulos usados na medição:** casamento de substring **só** em `labels_automatic` (MeSH
+  extraído por máquina do laudo), como no `Openi_Dataset` do torchxrayvision; as colunas `lab_*`
+  do índice concordam 100% com essa regra. O MeSH `major` (curadores) **não** é usado. 1957 das
+  4014 frontais não têm termo automático e contam como negativas. Não é leitura adjudicada da
+  imagem (`reference_standard: other` no plano).
 - **Modelos treinados nele:** `xrv-densenet121-res224-all` (`training_data` inclui `openi`):
   vazamento `known` para esse peso.
 - **Uso:** 70 itens `*@openi-frontal#<rótulo>` em `plan.yaml`, todos `status: pending`

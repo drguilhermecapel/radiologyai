@@ -140,8 +140,12 @@ DATASETS: dict[str, dict[str, Any]] = {
             "com PNG do índice local: 4014 imagens de 2561 laudos"
         ),
         "caveats": [
-            "Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via "
-            "torchxrayvision); não é leitura adjudicada da imagem.",
+            "Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) "
+            "por busca de substring, como no Openi_Dataset do torchxrayvision; não é o MeSH "
+            "'major' de curadores nem leitura adjudicada da imagem. 1957 das 4014 frontais não "
+            "têm termo automático e contam como negativas em todos os rótulos.",
+            "Correspondência por substring: 'Edema' inclui edemas não pulmonares; 'Lung Lesion' "
+            "casa só 'lesion' (poucos positivos).",
             "O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e "
             "bootstrap) é por laudo (uid); um paciente com mais de um laudo pode cair nas duas "
             "metades, o que tende a otimizar a estimativa.",

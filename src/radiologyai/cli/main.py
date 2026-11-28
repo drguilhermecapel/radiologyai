@@ -252,7 +252,7 @@ def serve(
 def users_create(
     username: Annotated[str, typer.Option(help="Nome de usuário")],
     full_name: Annotated[str, typer.Option("--full-name", help="Nome completo")],
-    role: Annotated[str, typer.Option(help="admin, physician, technician ou viewer")],
+    role: Annotated[str, typer.Option(help="admin, physician, technician, viewer ou researcher")],
     professional_id: Annotated[
         str | None, typer.Option("--professional-id", help="Registro profissional (ex.: CRM)")
     ] = None,

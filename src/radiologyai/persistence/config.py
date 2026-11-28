@@ -68,6 +68,12 @@ class PlatformSettings(BaseSettings):
     artifacts_eval_dir: Path = Field(
         default=Path("artifacts/eval"), description="Medições servidas por /metrics."
     )
+    shadow_mode: bool = Field(
+        default=False,
+        description="Modo silencioso do piloto prospectivo (MEDAI_SHADOW_MODE, REQ-195): as "
+        "análises rodam e são gravadas e auditadas, mas a saída de IA só é servida a quem tem "
+        "'shadow:view' (equipe de pesquisa) e nada sai para o PACS.",
+    )
 
 
 def server_key(settings: PlatformSettings) -> bytes | None:

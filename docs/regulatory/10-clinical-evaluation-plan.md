@@ -169,7 +169,8 @@ desvio exploratório em `reports/`.
 
 Todo estudo com dado de paciente brasileiro exige protocolo aprovado no sistema CEP/Conep
 (Lei 14.874/2024; Decreto 12.651/2025); dispensa de TCLE solicitada com justificativa (Res. CNS
-466/2012, item IV.8); bancos de dados conforme Res. CNS 738/2024. Datasets públicos são usados
+466/2012, item IV.8 — vigente pelo Art. 39 do Decreto 12.651/2025 enquanto não conflitar com a
+Lei 14.874/2024, que não prevê dispensa expressa; confirmar com o CEP); bancos de dados conforme Res. CNS 738/2024. Datasets públicos são usados
 sob os termos de cada um; a necessidade de apreciação por CEP para dado público anonimizado será
 confirmada com o CEP da instituição parceira.
 

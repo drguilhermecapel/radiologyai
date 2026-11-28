@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 
-import { Loading, ResearchModeBanner, ResearchUseBanner } from "./components/common";
+import { Loading, ResearchModeBanner, ResearchUseBanner, ShadowModeBanner } from "./components/common";
 import { useI18n } from "./i18n/i18n";
 import type { MessageKey } from "./i18n/messages";
 import { navigate, routeHref, useRoute, type Route } from "./lib/route";
@@ -86,7 +86,7 @@ function Page({ route }: { route: Route }): ReactNode {
 export function App(): ReactNode {
   const { t } = useI18n();
   const route = useRoute();
-  const { user, loading, research } = useSession();
+  const { user, loading, research, shadow } = useSession();
 
   useEffect(() => {
     if (loading) return;
@@ -100,6 +100,7 @@ export function App(): ReactNode {
         {t("app.skip")}
       </a>
       <ResearchUseBanner />
+      {shadow ? <ShadowModeBanner /> : null}
       <Header route={route} />
       {research ? <ResearchModeBanner /> : null}
       <main id="main" tabIndex={-1}>

@@ -83,11 +83,13 @@ async def analyze(
     A resposta **não** contém métricas de validação clínica. O v1 devolvia
     ``clinical_metrics`` calculadas a partir de um array inventado de um elemento.
     """
+    from radiologyai.api.shadow import block_ai
     from radiologyai.io.metadata import extract_metadata
     from radiologyai.io.reader import read_dicom
     from radiologyai.modalities import resolve
     from radiologyai.models import get_card
 
+    block_ai(platform, principal, action="legacy.analyze")
     payload = await file.read()
     if len(payload) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="arquivo excede 200 MB")

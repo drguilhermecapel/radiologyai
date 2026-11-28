@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 import { api, unwrap, type Schemas } from "../api/client";
-import { ErrorBox, Hash, Loading, Pill } from "../components/common";
+import { ErrorBox, Hash, Loading, Pill, ShadowEmptyState } from "../components/common";
 import { FindingsPanel } from "../components/FindingsPanel";
 import { ReportPanel } from "../components/ReportPanel";
 import { useI18n } from "../i18n/i18n";
@@ -31,7 +31,7 @@ function isActive(a: { state: string } | null | undefined): boolean {
 
 export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId: string | null }): ReactNode {
   const { t, dt } = useI18n();
-  const { can, research } = useSession();
+  const { can, research, aiHidden } = useSession();
   const study = useAsync(
     async () => unwrap(await api.GET("/api/v1/studies/{study_id}", { params: { path: { study_id: studyId } } })),
     [studyId],
@@ -298,7 +298,8 @@ export function StudyPage({ studyId, analysisId }: { studyId: string; analysisId
             ) : null}
           </section>
 
-          {a && a.state === "completed" && a.result ? (
+          {a && a.state === "completed" && (a.shadow || aiHidden) ? <ShadowEmptyState /> : null}
+          {a && a.state === "completed" && a.result && !a.shadow && !aiHidden ? (
             <>
               <FindingsPanel
                 analysis={a}

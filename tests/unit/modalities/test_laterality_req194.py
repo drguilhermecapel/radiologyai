@@ -260,3 +260,32 @@ def test_image_meta_never_picks_a_side_when_tags_conflict() -> None:
     assert meta(ImageLaterality="L", Laterality="R") is None
     assert meta(ImageLaterality="L") == "L"
     assert meta() is None
+
+
+@pytest.mark.requirement("REQ-194")
+@pytest.mark.requirement("REQ-141")
+class TestMGLaterality:
+    """Mamografia: conflito entre tags nunca vira lado (achado de mama no lado errado = H-06)."""
+
+    def test_parse_laterality_conflict_gives_no_side(self) -> None:
+        from radiologyai.modalities.mg.views import parse_laterality
+
+        assert parse_laterality("L", "R", ["P", "L"]) == (None, "conflito")
+        assert parse_laterality("L", "B") == (None, "conflito")
+        assert parse_laterality("L", "L") == ("L", "ImageLaterality")
+        assert parse_laterality(None, "R") == ("R", "Laterality")
+        # PatientOrientation só sem nenhuma tag de lado
+        assert parse_laterality(None, None, ["A", "R"]) == ("L", "PatientOrientation")
+        assert parse_laterality("R", None, ["A", "R"]) == ("R", "ImageLaterality")
+
+    def test_mg_gate_rejects_conflicting_tags(self) -> None:
+        from radiologyai.io.metadata import extract_metadata
+        from radiologyai.modalities.mg.plugin import MGPlugin
+
+        ds = Dataset()
+        ds.Modality = "MG"
+        ds.ImageLaterality = "L"
+        ds.Laterality = "R"
+        report = MGPlugin().validate(extract_metadata(ds))
+        assert not report.accepted
+        assert any("lateralidade" in r for r in report.reasons)

@@ -100,6 +100,10 @@ class StatusOut(_Out):
     clinically_validated: Literal[False]
     regulatory_status: str
     disclaimer: str
+    shadow_mode: bool = Field(
+        default=False,
+        description="Modo silencioso (REQ-195): saída de IA oculta de quem não tem 'shadow:view'.",
+    )
 
 
 class MetricsOut(_Out):
@@ -123,7 +127,7 @@ class MetricsOut(_Out):
 # --------------------------------------------------------------------------- #
 # Autenticação e usuários
 # --------------------------------------------------------------------------- #
-Role = Literal["admin", "physician", "technician", "viewer"]
+Role = Literal["admin", "physician", "technician", "viewer", "researcher"]
 
 
 class LoginIn(_In):
@@ -212,8 +216,14 @@ class AnalysisSummary(_Out):
     requested_at: datetime
     finished_at: datetime | None
     include_research: bool
-    n_main_findings: int
-    n_research_findings: int
+    n_main_findings: int | None = Field(
+        description="None no modo silencioso para quem não vê a saída de IA (REQ-195)."
+    )
+    n_research_findings: int | None
+    shadow: bool = Field(
+        default=False,
+        description="True quando a saída de IA foi omitida pelo modo silencioso (REQ-195).",
+    )
 
 
 class StudyOut(_Out):
@@ -347,6 +357,11 @@ class AnalysisOut(_Out):
     )
     result: AnalysisResult | None
     reviews: tuple[ReviewOut, ...]
+    shadow: bool = Field(
+        default=False,
+        description="True quando o modo silencioso omitiu a saída de IA (REQ-195): result, "
+        "result_sha256, result_status, índices e revisões vêm vazios; NÃO significa exame normal.",
+    )
 
 
 # --------------------------------------------------------------------------- #

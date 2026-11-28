@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, Query, status
 from radiologyai.api.deps import Principal, get_platform, perm, require
 from radiologyai.api.routers.studies import _ERRORS
 from radiologyai.api.schemas import DicomwebImportIn, DicomwebSearchOut, StudyOut
+from radiologyai.api.shadow import ai_visible
 from radiologyai.api.views import study_out
 from radiologyai.persistence.models import Study
 from radiologyai.persistence.security import Permission
@@ -106,4 +107,4 @@ def import_study(
     with platform.db.session() as session:
         study = session.get(Study, result.study_id)
         assert study is not None
-        return study_out(session, study)
+        return study_out(session, study, redact=not ai_visible(platform, principal))

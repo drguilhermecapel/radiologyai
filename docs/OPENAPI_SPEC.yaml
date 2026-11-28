@@ -169,6 +169,12 @@ components:
           description: Para cada segmentação exibida em result.segmentations, o índice no resultado completo
             (use-o em /analyses/{id}/segmentations/{seg_index}/frames/{index}).
           title: Segmentation Indices
+        shadow:
+          default: false
+          description: 'True quando o modo silencioso omitiu a saída de IA (REQ-195): result, result_sha256,
+            result_status, índices e revisões vêm vazios; NÃO significa exame normal.'
+          title: Shadow
+          type: boolean
         started_at:
           anyOf:
           - format: date-time
@@ -321,11 +327,16 @@ components:
           title: Include Research
           type: boolean
         n_main_findings:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: None no modo silencioso para quem não vê a saída de IA (REQ-195).
           title: N Main Findings
-          type: integer
         n_research_findings:
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: N Research Findings
-          type: integer
         requested_at:
           format: date-time
           title: Requested At
@@ -335,6 +346,11 @@ components:
           - type: string
           - type: 'null'
           title: Result Status
+        shadow:
+          default: false
+          description: True quando a saída de IA foi omitida pelo modo silencioso (REQ-195).
+          title: Shadow
+          type: boolean
         state:
           enum:
           - queued
@@ -2595,6 +2611,11 @@ components:
         regulatory_status:
           title: Regulatory Status
           type: string
+        shadow_mode:
+          default: false
+          description: 'Modo silencioso (REQ-195): saída de IA oculta de quem não tem ''shadow:view''.'
+          title: Shadow Mode
+          type: boolean
         version:
           title: Version
           type: string
@@ -2819,6 +2840,7 @@ components:
           - physician
           - technician
           - viewer
+          - researcher
           title: Role
           type: string
         username:
@@ -2872,6 +2894,7 @@ components:
           - physician
           - technician
           - viewer
+          - researcher
           title: Role
           type: string
         username:
@@ -2924,6 +2947,7 @@ components:
             - physician
             - technician
             - viewer
+            - researcher
             type: string
           - type: 'null'
           title: Role
@@ -3003,7 +3027,14 @@ paths:
 
         Por padrão achados exploratórios (nível D) são omitidos e contados em
 
-        ``hidden_research_findings``.'
+        ``hidden_research_findings``.
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: estado, entradas e tempos são
+
+        servidos; a saída de IA não (``shadow: true``, ``result: null``). Servir um
+
+        resultado concluído assim é auditado (``shadow.redacted``).'
       operationId: get_analysis_api_v1_analyses__analysis_id__get
       parameters:
       - in: path
@@ -3496,7 +3527,12 @@ paths:
       x-permission: legacy:analyze
   /api/v1/artifacts/{sha256}:
     get:
-      description: Artefato indexado (só os registrados no banco); hash conferido na leitura.
+      description: 'Artefato indexado (só os registrados no banco); hash conferido na leitura.
+
+
+        Modo silencioso (REQ-195): mapa de explicação e máscara (saída de IA) => 403
+
+        ``ShadowModeError`` para quem não tem ``shadow:view``.'
       operationId: artifact_api_v1_artifacts__sha256__get
       parameters:
       - in: path
@@ -4858,9 +4894,78 @@ paths:
       tags:
       - studies
       x-permission: studies:read
+  /api/v1/shadow/export:
+    get:
+      description: 'CSV sem PHI de toda análise concluída, um achado por linha (REQ-195), auditado.
+
+
+        Funciona com o modo silencioso ligado ou não. Colunas: ver ``COLUMNS``
+
+        (ids opacos/pseudonimizados, ``result_sha256``, modelo e versão,
+
+        ``condition_id``, nível de evidência, escore bruto, decisão e tempos). A
+
+        exportação é registrada na cadeia de auditoria ANTES de ser entregue.'
+      operationId: export_csv_api_v1_shadow_export_get
+      responses:
+        '200':
+          content:
+            text/csv: {}
+          description: Successful Response
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Conflict
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Content Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Unprocessable Content
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorOut'
+          description: Service Unavailable
+      summary: Export Csv
+      tags:
+      - shadow
+      x-permission: shadow:view
   /api/v1/status:
     get:
-      description: Estado detalhado, incluindo modalidades e sua maturidade.
+      description: 'Estado detalhado, incluindo modalidades e sua maturidade.
+
+
+        ``shadow_mode`` diz se a implantação está no modo silencioso do piloto (REQ-195);
+
+        o frontend mostra a faixa permanente e esconde a saída de IA do cuidado.'
       operationId: status_api_v1_status_get
       responses:
         '200':
@@ -4875,7 +4980,12 @@ paths:
       x-permission: public
   /api/v1/studies:
     get:
-      description: 'Lista de trabalho: estudos com o estado da análise mais recente e da revisão.'
+      description: 'Lista de trabalho: estudos com o estado da análise mais recente e da revisão.
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: o resumo da análise vem com
+
+        ``shadow: true`` e sem contagens de achados nem estado do resultado.'
       operationId: worklist_api_v1_studies_get
       parameters:
       - description: Estado da análise mais recente
@@ -5065,7 +5175,7 @@ paths:
       x-permission: studies:upload
   /api/v1/studies/{study_id}:
     get:
-      description: Estudo com séries e análises.
+      description: 'Estudo com séries e análises (resumos com ``shadow: true`` no modo silencioso).'
       operationId: get_study_api_v1_studies__study_id__get
       parameters:
       - in: path
@@ -5129,7 +5239,12 @@ paths:
       x-permission: studies:read
   /api/v1/studies/{study_id}/analyses:
     get:
-      description: Análises do estudo, mais recente primeiro (sem o resultado completo).
+      description: 'Análises do estudo, mais recente primeiro (sem o resultado completo).
+
+
+        Modo silencioso (REQ-195) sem ``shadow:view``: cada item vem com ``shadow: true``
+
+        e sem hash, estado do resultado nem revisões.'
       operationId: list_analyses_api_v1_studies__study_id__analyses_get
       parameters:
       - in: path

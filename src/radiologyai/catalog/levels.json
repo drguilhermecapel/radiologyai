@@ -13,32 +13,6 @@
       "visibility": "research"
     },
     {
-      "basis": [
-        "pub.pericard_eff_detection"
-      ],
-      "condition_id": "ct.pericardial_effusion",
-      "distributed": true,
-      "headline": "B: sensitivity 0.970 [0.915, 0.994] · Univ. Hospital Basel (interno) · n=200",
-      "label": "pericardial_effusion",
-      "level": "B",
-      "limited_by": [],
-      "model_id": "totalseg-pleural-pericard-effusion",
-      "refuted_by_measurement": false,
-      "visibility": "main"
-    },
-    {
-      "basis": [],
-      "condition_id": "ct.pleural_effusion",
-      "distributed": true,
-      "headline": null,
-      "label": "pleural_effusion",
-      "level": "D",
-      "limited_by": [],
-      "model_id": "totalseg-pleural-pericard-effusion",
-      "refuted_by_measurement": false,
-      "visibility": "research"
-    },
-    {
       "basis": [],
       "condition_id": "cxr.atelectasis",
       "distributed": true,
@@ -1524,6 +1498,6 @@
       "visibility": "research"
     }
   ],
-  "evidence_digest": "b14b4fdaf1b75a46700ce4c4a4e4229f11311df811e732b2c0d033e7b0b97586",
+  "evidence_digest": "bc5b5e6b348ebbcb01fdd5b9e313802fccb1812f3a9ec04763e665c6eb6921e3",
   "protocol_id": "2026-11-v1"
 }

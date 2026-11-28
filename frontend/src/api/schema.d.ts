@@ -17,6 +17,10 @@ export interface paths {
          *
          *     Por padrão achados exploratórios (nível D) são omitidos e contados em
          *     ``hidden_research_findings``.
+         *
+         *     Modo silencioso (REQ-195) sem ``shadow:view``: estado, entradas e tempos são
+         *     servidos; a saída de IA não (``shadow: true``, ``result: null``). Servir um
+         *     resultado concluído assim é auditado (``shadow.redacted``).
          */
         get: operations["get_analysis_api_v1_analyses__analysis_id__get"];
         put?: never;
@@ -141,6 +145,9 @@ export interface paths {
         /**
          * Artifact
          * @description Artefato indexado (só os registrados no banco); hash conferido na leitura.
+         *
+         *     Modo silencioso (REQ-195): mapa de explicação e máscara (saída de IA) => 403
+         *     ``ShadowModeError`` para quem não tem ``shadow:view``.
          */
         get: operations["artifact_api_v1_artifacts__sha256__get"];
         put?: never;
@@ -662,6 +669,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/shadow/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Csv
+         * @description CSV sem PHI de toda análise concluída, um achado por linha (REQ-195), auditado.
+         *
+         *     Funciona com o modo silencioso ligado ou não. Colunas: ver ``COLUMNS``
+         *     (ids opacos/pseudonimizados, ``result_sha256``, modelo e versão,
+         *     ``condition_id``, nível de evidência, escore bruto, decisão e tempos). A
+         *     exportação é registrada na cadeia de auditoria ANTES de ser entregue.
+         */
+        get: operations["export_csv_api_v1_shadow_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status": {
         parameters: {
             query?: never;
@@ -672,6 +704,9 @@ export interface paths {
         /**
          * Status
          * @description Estado detalhado, incluindo modalidades e sua maturidade.
+         *
+         *     ``shadow_mode`` diz se a implantação está no modo silencioso do piloto (REQ-195);
+         *     o frontend mostra a faixa permanente e esconde a saída de IA do cuidado.
          */
         get: operations["status_api_v1_status_get"];
         put?: never;
@@ -692,6 +727,9 @@ export interface paths {
         /**
          * Worklist
          * @description Lista de trabalho: estudos com o estado da análise mais recente e da revisão.
+         *
+         *     Modo silencioso (REQ-195) sem ``shadow:view``: o resumo da análise vem com
+         *     ``shadow: true`` e sem contagens de achados nem estado do resultado.
          */
         get: operations["worklist_api_v1_studies_get"];
         put?: never;
@@ -719,7 +757,7 @@ export interface paths {
         };
         /**
          * Get Study
-         * @description Estudo com séries e análises.
+         * @description Estudo com séries e análises (resumos com ``shadow: true`` no modo silencioso).
          */
         get: operations["get_study_api_v1_studies__study_id__get"];
         put?: never;
@@ -740,6 +778,9 @@ export interface paths {
         /**
          * List Analyses
          * @description Análises do estudo, mais recente primeiro (sem o resultado completo).
+         *
+         *     Modo silencioso (REQ-195) sem ``shadow:view``: cada item vem com ``shadow: true``
+         *     e sem hash, estado do resultado nem revisões.
          */
         get: operations["list_analyses_api_v1_studies__study_id__analyses_get"];
         put?: never;
@@ -930,6 +971,12 @@ export interface components {
              * @description Para cada segmentação exibida em result.segmentations, o índice no resultado completo (use-o em /analyses/{id}/segmentations/{seg_index}/frames/{index}).
              */
             segmentation_indices?: number[] | null;
+            /**
+             * Shadow
+             * @description True quando o modo silencioso omitiu a saída de IA (REQ-195): result, result_sha256, result_status, índices e revisões vêm vazios; NÃO significa exame normal.
+             * @default false
+             */
+            shadow: boolean;
             /** Started At */
             started_at: string | null;
             /**
@@ -1030,10 +1077,13 @@ export interface components {
             id: string;
             /** Include Research */
             include_research: boolean;
-            /** N Main Findings */
-            n_main_findings: number;
+            /**
+             * N Main Findings
+             * @description None no modo silencioso para quem não vê a saída de IA (REQ-195).
+             */
+            n_main_findings: number | null;
             /** N Research Findings */
-            n_research_findings: number;
+            n_research_findings: number | null;
             /**
              * Requested At
              * Format: date-time
@@ -1041,6 +1091,12 @@ export interface components {
             requested_at: string;
             /** Result Status */
             result_status: string | null;
+            /**
+             * Shadow
+             * @description True quando a saída de IA foi omitida pelo modo silencioso (REQ-195).
+             * @default false
+             */
+            shadow: boolean;
             /**
              * State
              * @enum {string}
@@ -2238,6 +2294,12 @@ export interface components {
             }[];
             /** Regulatory Status */
             regulatory_status: string;
+            /**
+             * Shadow Mode
+             * @description Modo silencioso (REQ-195): saída de IA oculta de quem não tem 'shadow:view'.
+             * @default false
+             */
+            shadow_mode: boolean;
             /** Version */
             version: string;
         };
@@ -2350,7 +2412,7 @@ export interface components {
              * Role
              * @enum {string}
              */
-            role: "admin" | "physician" | "technician" | "viewer";
+            role: "admin" | "physician" | "technician" | "viewer" | "researcher";
             /** Username */
             username: string;
         };
@@ -2377,7 +2439,7 @@ export interface components {
              * Role
              * @enum {string}
              */
-            role: "admin" | "physician" | "technician" | "viewer";
+            role: "admin" | "physician" | "technician" | "viewer" | "researcher";
             /** Username */
             username: string;
         };
@@ -2392,7 +2454,7 @@ export interface components {
             /** Professional Id */
             professional_id?: string | null;
             /** Role */
-            role?: ("admin" | "physician" | "technician" | "viewer") | null;
+            role?: ("admin" | "physician" | "technician" | "viewer" | "researcher") | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -4597,6 +4659,89 @@ export interface operations {
                 };
                 content: {
                     "application/octet-stream": unknown;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Content Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    export_csv_api_v1_shadow_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
                 };
             };
             /** @description Unauthorized */

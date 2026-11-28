@@ -69,7 +69,9 @@ def test_mg_laterality_from_orientation(orientation: object, expected: str | Non
 
 @pytest.mark.requirement("REQ-141")
 def test_mg_parse_laterality_precedence() -> None:
-    assert parse_laterality("R", "L", ["A", "FR"]) == ("R", "ImageLaterality")
+    # tags em conflito não decidem o lado (REQ-194; antes a primeira tag vencia em silêncio)
+    assert parse_laterality("R", "L", ["A", "FR"]) == (None, "conflito")
+    assert parse_laterality("R", None, ["A", "FR"]) == ("R", "ImageLaterality")
     assert parse_laterality(None, "l", None) == ("L", "Laterality")
     assert parse_laterality("", None, ["P", "FL"]) == ("R", "PatientOrientation")
     assert parse_laterality("B", None, ["P", "FL"]) == (None, "ImageLaterality")

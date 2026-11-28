@@ -85,8 +85,13 @@ def health() -> HealthOut:
 
 
 @router.get("/status", response_model=StatusOut, openapi_extra=perm(PUBLIC))
-def status() -> StatusOut:
-    """Estado detalhado, incluindo modalidades e sua maturidade."""
+def status(platform: Annotated[Platform, Depends(get_platform)]) -> StatusOut:
+    """Estado detalhado, incluindo modalidades e sua maturidade.
+
+    ``shadow_mode`` diz se a implantação está no modo silencioso do piloto (REQ-195);
+    o frontend mostra a faixa permanente e esconde a saída de IA do cuidado.
+    """
+    from radiologyai.api.shadow import shadow_on
     from radiologyai.modalities import available_modalities
 
     seen = {p.code: p.describe() for p in available_modalities().values()}
@@ -96,4 +101,5 @@ def status() -> StatusOut:
         clinically_validated=False,
         regulatory_status="não registrado em nenhuma agência",
         disclaimer=DISCLAIMER,
+        shadow_mode=shadow_on(platform),
     )

@@ -24,7 +24,8 @@ export type Permission =
   | "audit:read"
   | "dicomweb:import"
   | "dicomweb:export"
-  | "legacy:analyze";
+  | "legacy:analyze"
+  | "shadow:view";
 
 interface SessionValue {
   user: UserOut | null;
@@ -34,6 +35,10 @@ interface SessionValue {
   logout: () => Promise<void>;
   research: boolean;
   setResearch: (on: boolean) => void;
+  /** Servidor no modo silencioso do piloto (``/status.shadow_mode``, REQ-195). */
+  shadow: boolean;
+  /** Saída de IA retida para este usuário (modo silencioso sem ``shadow:view``). */
+  aiHidden: boolean;
 }
 
 const SessionContext = createContext<SessionValue | null>(null);
@@ -42,6 +47,21 @@ export function SessionProvider({ children }: { children: ReactNode }): ReactNod
   const [user, setUser] = useState<UserOut | null>(null);
   const [loading, setLoading] = useState<boolean>(getToken() !== null);
   const [research, setResearchState] = useState(false);
+  const [shadow, setShadow] = useState(false);
+
+  // Público: a faixa do modo silencioso aparece em todas as telas, inclusive no login.
+  useEffect(() => {
+    let alive = true;
+    void api
+      .GET("/api/v1/status")
+      .then(({ data }) => {
+        if (alive && data) setShadow(data.shadow_mode === true);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   const refresh = useCallback(async () => {
     if (getToken() === null) {
@@ -90,8 +110,18 @@ export function SessionProvider({ children }: { children: ReactNode }): ReactNod
   );
 
   const value = useMemo<SessionValue>(
-    () => ({ user, loading, can, login, logout, research: research && can("research:view"), setResearch }),
-    [user, loading, can, login, logout, research, setResearch],
+    () => ({
+      user,
+      loading,
+      can,
+      login,
+      logout,
+      research: research && can("research:view"),
+      setResearch,
+      shadow,
+      aiHidden: shadow && !can("shadow:view"),
+    }),
+    [user, loading, can, login, logout, research, setResearch, shadow],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

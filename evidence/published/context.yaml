@@ -6926,6 +6926,75 @@ context:
   validation_type: method_validation
   value: 14.0 × (weight [kg]) + 979
 - ci95: null
+  condition_id: ct.pericardial_effusion
+  condition_text: Pericardial effusion segmentation
+  metric: dice
+  model_or_method: nnU-Net (Wilder-Smith et al.)
+  n: 200
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test set
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual 3D segmentation
+  source:
+    identifier: DOI 10.3390/diagnostics12051045 (PMID 35626201)
+    peer_reviewed: true
+    quote: 'The sensitivity and specificity for PEF detection was 97% (95% CI 91.48−99.38%) and 100.00%
+      (95% CI 96.38−100.00%) and 89.74% and 83.61% for diagnosing hemopericardium (AUC 0.944, 95% CI 0.904−0.984).
+      Model performance (Dice coefficient: 0.75 ± 0.01) was non-inferior to inter-reader (0.69 ± 0.02)'
+    url: https://pubmed.ncbi.nlm.nih.gov/35626201/
+    verified_at_source: true
+  source_entry: pericard_eff_dice
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.75'
+- ci95: 91.48-99.38
+  condition_id: ct.pericardial_effusion
+  condition_text: Pericardial effusion detection (>50 mL)
+  metric: sensitivity
+  model_or_method: nnU-Net (Wilder-Smith et al.; TotalSegmentator task pleural_pericard_effusion)
+  n: 200
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test set (contrast and non-enhanced)
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual 3D segmentation / report
+  source:
+    identifier: DOI 10.3390/diagnostics12051045 (PMID 35626201)
+    peer_reviewed: true
+    quote: 'The sensitivity and specificity for PEF detection was 97% (95% CI 91.48−99.38%) and 100.00%
+      (95% CI 96.38−100.00%) and 89.74% and 83.61% for diagnosing hemopericardium (AUC 0.944, 95% CI 0.904−0.984).
+      Model performance (Dice coefficient: 0.75 ± 0.01) was non-inferior to inter-reader (0.69 ± 0.02)'
+    url: https://pubmed.ncbi.nlm.nih.gov/35626201/
+    verified_at_source: true
+  source_entry: pericard_eff_sens
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: 97%
+- ci95: 96.38-100.00
+  condition_id: ct.pericardial_effusion
+  condition_text: Pericardial effusion detection (>50 mL)
+  metric: specificity
+  model_or_method: nnU-Net (Wilder-Smith et al.)
+  n: 200
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test set
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual 3D segmentation / report
+  source:
+    identifier: DOI 10.3390/diagnostics12051045 (PMID 35626201)
+    peer_reviewed: true
+    quote: 'The sensitivity and specificity for PEF detection was 97% (95% CI 91.48−99.38%) and 100.00%
+      (95% CI 96.38−100.00%) and 89.74% and 83.61% for diagnosing hemopericardium (AUC 0.944, 95% CI 0.904−0.984).
+      Model performance (Dice coefficient: 0.75 ± 0.01) was non-inferior to inter-reader (0.69 ± 0.02)'
+    url: https://pubmed.ncbi.nlm.nih.gov/35626201/
+    verified_at_source: true
+  source_entry: pericard_eff_spec
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: 100.00%
+- ci95: null
   condition_id: echo.pericardial_effusion
   condition_text: Pericardial effusion size grading (echocardiographic)
   metric: threshold
@@ -6950,6 +7019,161 @@ context:
   source_file: evidence-ct-mr.verified.md
   validation_type: guideline_threshold
   value: mild (<10 mm), moderate (10–20 mm) or large (>20 mm)
+- ci95: null
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion detection (per case)
+  metric: auroc
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 96
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test subset
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation / radiology report
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: Sensitivity and specificity for detection of effusion were excellent at 0.99 and 0.98, respectively
+      (n = 96; AUC, 0.996, test data).
+    url: https://pubmed.ncbi.nlm.nih.gov/35797580/
+    verified_at_source: true
+  source_entry: pleff_auc_internal
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.996'
+- ci95: null
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion segmentation
+  metric: dice
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 96
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT test subset, n = 96 CTs as stated for the test
+    dataset (median Dice; mean 0.84)
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: Inference on the test dataset showed a mean (SD) Dice coefficient of 0.84 (0.16) (95% CI, 0.80–0.88;
+      median, 0.89).
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
+    verified_at_source: true
+  source_entry: pleff_dice_internal
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.89'
+- ci95: null
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion segmentation
+  metric: dice
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 34
+  note: null
+  population_or_dataset: PleThora public dataset (NSCLC patients)
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: PleThora manual segmentations
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: On the external PleThora (n = 34; mean volume, 383 mL; 95% CI, 278–487 mL) dataset, the model
+      performed with a median Dice coefficient of 0.71
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
+    verified_at_source: true
+  source_entry: pleff_dice_plethora_external
+  source_file: evidence-ct-mr.verified.md
+  validation_type: external
+  value: '0.71'
+- ci95: null
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion detection (per case)
+  metric: sensitivity
+  model_or_method: nnU-Net (Sexauer et al.; TotalSegmentator task pleural_pericard_effusion)
+  n: 96
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test subset (effusion + negative cohort)
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation / radiology report
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: Sensitivity and specificity for detection of effusion were excellent at 0.99 and 0.98, respectively
+      (n = 96; AUC, 0.996, test data).
+    url: https://pubmed.ncbi.nlm.nih.gov/35797580/
+    verified_at_source: true
+  source_entry: pleff_sens_internal
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.99'
+- ci95: 0.94-1.00
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion detection
+  metric: sensitivity
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 2234
+  note: null
+  population_or_dataset: NLST public low-dose screening CT (2234 CTs, 1061 patients, soft-tissue kernel)
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: reader review
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: (2234 eligible CTs), the model performed with a sensitivity of 1.00 (95% CI, 0.94–1.00) and
+      a specificity of 0.99 (95% CI, 0.989–0.997).
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
+    verified_at_source: true
+  source_entry: pleff_sens_nlst_external
+  source_file: evidence-ct-mr.verified.md
+  validation_type: external
+  value: '1.00'
+- ci95: null
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion detection (per case)
+  metric: specificity
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 96
+  note: null
+  population_or_dataset: Univ. Hospital Basel chest CT, held-out test subset
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: manual segmentation / radiology report
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: Sensitivity and specificity for detection of effusion were excellent at 0.99 and 0.98, respectively
+      (n = 96; AUC, 0.996, test data).
+    url: https://pubmed.ncbi.nlm.nih.gov/35797580/
+    verified_at_source: true
+  source_entry: pleff_spec_internal
+  source_file: evidence-ct-mr.verified.md
+  validation_type: internal
+  value: '0.98'
+- ci95: 0.989-0.997
+  condition_id: ct.pleural_effusion
+  condition_text: Pleural effusion detection
+  metric: specificity
+  model_or_method: nnU-Net (Sexauer et al.)
+  n: 2234
+  note: null
+  population_or_dataset: NLST public low-dose screening CT
+  reason: pesos diferentes dos que rodamos; evidência não se transfere
+  reason_code: pesos_diferentes
+  reference_standard: reader review
+  source:
+    identifier: DOI 10.1097/RLI.0000000000000869 (PMID 35797580)
+    peer_reviewed: true
+    quote: (2234 eligible CTs), the model performed with a sensitivity of 1.00 (95% CI, 0.94–1.00) and
+      a specificity of 0.99 (95% CI, 0.989–0.997).
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9390225/
+    verified_at_source: true
+  source_entry: pleff_spec_nlst_external
+  source_file: evidence-ct-mr.verified.md
+  validation_type: external
+  value: '0.99'
 - ci95: null
   condition_id: ct.splenomegaly
   condition_text: 'Volume-defined splenomegaly: craniocaudal length 13 cm'

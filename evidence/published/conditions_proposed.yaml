@@ -249,34 +249,6 @@ conditions:
   name_pt: Lesão pulmonar
   system: pulmão
 - code:
-    meaning: Pleural effusion (CT)
-    scheme: 99MEDAI
-    value: ct.pleural_effusion
-  description_pt: Líquido pleural segmentado na TC de tórax. Achado sugerido para confirmação médica,
-    nunca diagnóstico.
-  exam_types:
-  - ct_chest
-  group: ct
-  icd10: J90
-  id: ct.pleural_effusion
-  name_en: Pleural effusion (CT)
-  name_pt: Derrame pleural (TC)
-  system: pleura
-- code:
-    meaning: Pericardial effusion (CT)
-    scheme: 99MEDAI
-    value: ct.pericardial_effusion
-  description_pt: Líquido pericárdico segmentado na TC de tórax. Achado sugerido para confirmação médica,
-    nunca diagnóstico.
-  exam_types:
-  - ct_chest
-  group: ct
-  icd10: I31.3
-  id: ct.pericardial_effusion
-  name_en: Pericardial effusion (CT)
-  name_pt: Derrame pericárdico (TC)
-  system: coração
-- code:
     meaning: Focal liver lesion (CT)
     scheme: 99MEDAI
     value: ct.focal_liver_lesion
@@ -356,6 +328,34 @@ conditions_context_only:
   name_en: Pulmonary tuberculosis (radiographic pattern)
   name_pt: Tuberculose pulmonar (padrão radiográfico)
   system: pulmão
+- code:
+    meaning: Pleural effusion (CT)
+    scheme: 99MEDAI
+    value: ct.pleural_effusion
+  description_pt: Líquido pleural segmentado na TC de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: J90
+  id: ct.pleural_effusion
+  name_en: Pleural effusion (CT)
+  name_pt: Derrame pleural (TC)
+  system: pleura
+- code:
+    meaning: Pericardial effusion (CT)
+    scheme: 99MEDAI
+    value: ct.pericardial_effusion
+  description_pt: Líquido pericárdico segmentado na TC de tórax. Achado sugerido para confirmação médica,
+    nunca diagnóstico.
+  exam_types:
+  - ct_chest
+  group: ct
+  icd10: I31.3
+  id: ct.pericardial_effusion
+  name_en: Pericardial effusion (CT)
+  name_pt: Derrame pericárdico (TC)
+  system: coração
 - code:
     meaning: Low L1 trabecular attenuation (probable osteoporosis)
     scheme: 99MEDAI

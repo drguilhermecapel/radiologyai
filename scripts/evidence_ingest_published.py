@@ -675,10 +675,15 @@ MODEL_RULES: tuple[ModelRule, ...] = (
         caveat="Rodamos só o modelo total_mr de 3 mm (Dataset852); o artigo avalia o "
         "modelo de resolução completa.",
     ),
+    # Os artigos (Sexauer 2022; Wilder-Smith 2022) avaliam nnU-Nets de um rótulo só (derrame
+    # pleural OU pericárdico; 1 mm; treino 224/316). Os pesos que distribuímos são o
+    # Dataset315_thoraxCT (3 rótulos: pulmão, derrame pleural, derrame pericárdico; 1,5 mm;
+    # numTraining 600; dataset.json conferido no cache). Modelos diferentes: a evidência
+    # publicada não se transfere (revisão adversarial de 2026-11-28).
     ModelRule(
         r"task pleural_pericard_effusion|^nnU-Net \((Sexauer|Wilder-Smith) et al\.\)$",
-        "totalseg-pleural-pericard-effusion",
-        caveat=_TS_TASK_CAVEAT,
+        None,
+        "pesos_diferentes",
     ),
     ModelRule(r"task liver_lesions_mr", None, "pesos_nao_disponiveis"),
     ModelRule(r"task liver_lesions\)$", "totalseg-liver-lesions", caveat=_TS_TASK_CAVEAT),
@@ -765,26 +770,7 @@ DERIVED: tuple[dict[str, Any], ...] = (
 # completo citado em ``url`` (XML do PMC via E-utilities, normalizado só em
 # espaços, traços e entidades); ``printed`` tem de aparecer literalmente em
 # ``quote``. Nenhuma contagem é somada, estimada ou inferida de IC.
-COUNT_SUPPLEMENTS: dict[str, dict[str, Any]] = {
-    "pub.pericard_eff_detection": {
-        "n_positive": 100,
-        "printed": "100",
-        "quote": (
-            "Hereon, the analyses are based on the positive test cohort only ( n = 100), "
-            "which are presented in Table 4."
-        ),
-        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9139725/",
-        "location": "Wilder-Smith et al., Diagnostics 2022, seção 3.3 'Model Performance'",
-        "caveat": (
-            "Fonte internamente inconsistente: a seção 3.4 define positivo como volume de "
-            "referência > 50 mL (89 derrames assim no teste, seção 3.1) e soma volumes < 50 mL "
-            "aos negativos; mas os IC publicados (91,48–99,38% e 96,38–100,00%) só se "
-            "reproduzem exatamente por Clopper-Pearson com 97/100 e 100/100. Gravado o "
-            "denominador literal da seção 3.3 (n = 100); com 89 a condição também ficaria "
-            "acima do mínimo de 30 positivos."
-        ),
-    },
-}
+COUNT_SUPPLEMENTS: dict[str, dict[str, Any]] = {}
 
 # Entradas fundidas num único registro (mesmo estudo, mesmo conjunto, mesma citação/URL).
 MERGES: dict[str, tuple[str, ...]] = {
@@ -1450,6 +1436,8 @@ def build(research_dir: Path, protocol: Protocol) -> tuple[dict[str, Built], dic
                 continue
             group = [by_id[m] for m in members]
             rule = match_model(group[0])
+            if rule.model_id is None:  # membros já foram para o contexto, um a um
+                continue
             records.append(_build_record(rec_id, group, rule, filename, protocol))
         for spec in DERIVED:
             if spec["from"] not in by_id:

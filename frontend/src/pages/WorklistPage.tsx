@@ -348,9 +348,13 @@ export function WorklistPage(): ReactNode {
                             <Pill tone={stateTone(st)}>{t(`state.${st}` as MessageKey)}</Pill>
                           </td>
                           <td>
-                            <Pill tone={s.review_status === "signed" ? "ok" : "neutral"}>
-                              {t(`review.${s.review_status}` as MessageKey)}
-                            </Pill>
+                            {s.latest_analysis?.shadow ? (
+                              <span className="muted">{t("shadow.review")}</span>
+                            ) : (
+                              <Pill tone={s.review_status === "signed" ? "ok" : "neutral"}>
+                                {t(`review.${s.review_status}` as MessageKey)}
+                              </Pill>
+                            )}
                           </td>
                           <td>
                             <a className="btn btn-small" href={routeHref({ name: "study", studyId: s.id, analysisId: null })}>

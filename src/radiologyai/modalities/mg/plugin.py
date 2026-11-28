@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from radiologyai.errors import UnsupportedInputError
+from radiologyai.io.metadata import resolve_laterality
 from radiologyai.modalities.base import Dimensionality, ModalityPlugin, ValidationReport
 
 if TYPE_CHECKING:
@@ -54,6 +55,9 @@ class MGPlugin(ModalityPlugin):
             reasons.append("tomossíntese mamária não é suportada (só mamografia 2D)")
         if metadata.is_multiframe:
             reasons.append("imagem multiframe não é suportada em mamografia 2D")
+        side = resolve_laterality(metadata)
+        if side.status in ("conflict", "invalid"):
+            reasons.append(f"lateralidade DICOM não confiável ({side.detail}); lado desconhecido")
         view = (metadata.view_position or "").strip().upper().replace(" ", "")
         if view and view not in SUPPORTED_VIEWS:
             reasons.append(f"incidência {view!r} fora do escopo (aceitas: CC, MLO)")

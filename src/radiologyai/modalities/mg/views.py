@@ -100,14 +100,24 @@ def laterality_from_orientation(orientation: Any) -> Laterality | None:
 def parse_laterality(
     image_laterality: Any, laterality: Any = None, patient_orientation: Any = None
 ) -> tuple[Laterality | None, str | None]:
-    """(lateralidade, tag de origem). ``B``/valores desconhecidos não servem por mama."""
+    """(lateralidade, tag de origem). ``B``/valores desconhecidos não servem por mama.
+
+    REQ-194/REQ-141: ``ImageLaterality`` e ``Laterality`` que se contradizem (ex.: ``L`` e
+    ``R``) não decidem o lado — devolve ``(None, "conflito")``, nunca uma tag escolhida em
+    silêncio. ``PatientOrientation`` só é usada quando nenhuma das duas tags existe.
+    """
+    found: list[tuple[str, str]] = []
     for value, source in ((image_laterality, "ImageLaterality"), (laterality, "Laterality")):
         text = str(value or "").strip().upper()
-        if text == "L":
-            return "L", source
-        if text == "R":
-            return "R", source
-        if text == "B":
-            return None, source  # ambas as mamas na imagem: não é incidência por mama
+        if text:
+            found.append((text, source))
+    if found:
+        sides = {text for text, _ in found}
+        if len(sides) > 1:
+            return None, "conflito"
+        text, source = found[0]
+        if text in ("L", "R"):
+            return ("L" if text == "L" else "R"), source
+        return None, source  # B (ambas as mamas) ou código desconhecido: não é por mama
     lat = laterality_from_orientation(patient_orientation)
     return (lat, "PatientOrientation") if lat else (None, None)

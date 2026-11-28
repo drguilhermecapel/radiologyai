@@ -2627,8 +2627,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2655,8 +2659,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2683,8 +2691,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2711,8 +2723,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2739,8 +2755,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2767,8 +2787,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2795,8 +2819,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2823,8 +2851,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2851,8 +2883,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2879,8 +2915,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2907,8 +2947,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2935,8 +2979,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2963,8 +3011,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -2991,8 +3043,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/pc-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-pc
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3019,8 +3075,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3047,8 +3107,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3075,8 +3139,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3103,8 +3171,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3131,8 +3203,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3159,8 +3235,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3187,8 +3267,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3215,8 +3299,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3243,8 +3331,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/chex-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-chex
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3271,8 +3363,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3299,8 +3395,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3327,8 +3427,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3355,8 +3459,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3383,8 +3491,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3411,8 +3523,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3439,8 +3555,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3467,8 +3587,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3495,8 +3619,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_nb-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_nb
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3523,8 +3651,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3551,8 +3683,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3579,8 +3715,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3607,8 +3747,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3635,8 +3779,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3663,8 +3811,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3691,8 +3843,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3719,8 +3875,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3747,8 +3907,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/mimic_ch-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-mimic_ch
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3781,8 +3945,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3815,8 +3983,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3849,8 +4021,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3883,8 +4059,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3917,8 +4097,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3951,8 +4135,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -3985,8 +4173,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4019,8 +4211,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4053,8 +4249,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4087,8 +4287,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4121,8 +4325,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4155,8 +4363,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4189,8 +4401,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4223,8 +4439,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4257,8 +4477,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4291,8 +4515,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-all
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4319,8 +4547,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4347,8 +4579,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4375,8 +4611,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4403,8 +4643,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4431,8 +4675,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4459,8 +4707,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4487,8 +4739,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4515,8 +4771,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4543,8 +4803,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4571,8 +4835,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4599,8 +4867,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4627,8 +4899,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição
@@ -4655,8 +4931,12 @@ jobs:
       model: /root/medai-cache/weights/xrv/nih-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt
     manifest: xrv-densenet121-res224-nih
     caveats:
-    - 'Rótulos: códigos MeSH atribuídos por curadores a partir do laudo (via torchxrayvision); não é leitura
-      adjudicada da imagem.'
+    - 'Rótulos: termos MeSH automáticos (labels_automatic, extraídos por máquina do laudo) por busca de
+      substring, como no Openi_Dataset do torchxrayvision; não é o MeSH ''major'' de curadores nem leitura
+      adjudicada da imagem. 1957 das 4014 frontais não têm termo automático e contam como negativas em todos
+      os rótulos.'
+    - 'Correspondência por substring: ''Edema'' inclui edemas não pulmonares; ''Lung Lesion'' casa só ''lesion''
+      (poucos positivos).'
     - 'O Open-i não publica id de paciente: o agrupamento (divisão calibração/teste e bootstrap) é por laudo
       (uid); um paciente com mais de um laudo pode cair nas duas metades, o que tende a otimizar a estimativa.'
     - Pesos pc escolhidos como modelo de validação externa em c80c22e (2026-09-09), antes de qualquer medição

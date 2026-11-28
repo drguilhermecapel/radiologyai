@@ -135,6 +135,18 @@ a {
     border-bottom-color: #1a0b29;
   }
 }
+.shadow-banner {
+  background: #12324a;
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  border-bottom: 3px solid #6fb3e0;
+}
+.shadow-empty {
+  border-left: 4px solid #6fb3e0;
+}
 .app.research-on main {
   box-shadow: inset 0 0 0 4px var(--research);
 }

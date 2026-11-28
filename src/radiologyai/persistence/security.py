@@ -38,6 +38,9 @@ class Role(StrEnum):
     PHYSICIAN = "physician"
     TECHNICIAN = "technician"
     VIEWER = "viewer"
+    #: Equipe do piloto silencioso (G4): lê a saída de IA para comparação posterior,
+    #: sem ato médico (não revisa, não cria nem assina laudo). REQ-195.
+    RESEARCHER = "researcher"
 
 
 class Permission(StrEnum):
@@ -58,29 +61,34 @@ class Permission(StrEnum):
     DICOMWEB_IMPORT = "dicomweb:import"
     DICOMWEB_EXPORT = "dicomweb:export"
     LEGACY_ANALYZE = "legacy:analyze"
+    #: Vê a saída de IA quando o modo silencioso está ligado (REQ-195). ``research:view``
+    #: não serve de portão: o médico assistente o tem.
+    SHADOW_VIEW = "shadow:view"
 
 
 _A, _P, _T, _V = Role.ADMIN, Role.PHYSICIAN, Role.TECHNICIAN, Role.VIEWER
+_R = Role.RESEARCHER
 
 #: Matriz RBAC. Assinar e revisar são atos médicos: o administrador NÃO assina.
 PERMISSIONS: dict[Permission, frozenset[Role]] = {
     Permission.USERS_MANAGE: frozenset({_A}),
-    Permission.STUDIES_READ: frozenset({_A, _P, _T, _V}),
+    Permission.STUDIES_READ: frozenset({_A, _P, _T, _V, _R}),
     Permission.STUDIES_UPLOAD: frozenset({_A, _P, _T}),
     Permission.STUDIES_SET_EXAM_TYPE: frozenset({_P, _T}),
-    Permission.ANALYSES_CREATE: frozenset({_P, _T}),
-    Permission.ANALYSES_READ: frozenset({_A, _P, _T, _V}),
-    Permission.RESEARCH_MODE: frozenset({_A, _P}),
+    Permission.ANALYSES_CREATE: frozenset({_P, _T, _R}),
+    Permission.ANALYSES_READ: frozenset({_A, _P, _T, _V, _R}),
+    Permission.RESEARCH_MODE: frozenset({_A, _P, _R}),
     Permission.REVIEWS_WRITE: frozenset({_P}),
     Permission.REPORTS_CREATE: frozenset({_P}),
-    Permission.REPORTS_READ: frozenset({_A, _P, _T, _V}),
+    Permission.REPORTS_READ: frozenset({_A, _P, _T, _V, _R}),
     Permission.REPORTS_SIGN: frozenset({_P}),
-    Permission.MODELS_READ: frozenset({_A, _P, _T, _V}),
-    Permission.CATALOG_READ: frozenset({_A, _P, _T, _V}),
+    Permission.MODELS_READ: frozenset({_A, _P, _T, _V, _R}),
+    Permission.CATALOG_READ: frozenset({_A, _P, _T, _V, _R}),
     Permission.AUDIT_READ: frozenset({_A}),
     Permission.DICOMWEB_IMPORT: frozenset({_A, _P, _T}),
     Permission.DICOMWEB_EXPORT: frozenset({_P}),
     Permission.LEGACY_ANALYZE: frozenset({_P, _T}),
+    Permission.SHADOW_VIEW: frozenset({_R}),
 }
 
 

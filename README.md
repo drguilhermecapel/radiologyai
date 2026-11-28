@@ -12,9 +12,10 @@ mostra a força da evidência que o sustenta.
 > sobre um paciente real.** Toda saída é um *achado sugerido para confirmação médica*, nunca um
 > diagnóstico.
 >
-> **Duas condições têm nível A** (cardiomegalia e opacidade pulmonar em RX de tórax, modelos
-> TorchXRayVision de terceiros, validação externa retrospectiva no NIH ChestX-ray14); **uma tem
-> nível B** (derrame pericárdico em TC, por validação publicada revisada por pares). Nível A aqui não é validação clínica. As medições são retrospectivas, em dados
+> **Duas condições têm nível A** (cardiomegalia, no NIH ChestX-ray14 e no Open-i, e opacidade
+> pulmonar, no subconjunto adjudicado do NIH e **reprovada** no Open-i; modelos TorchXRayVision de
+> terceiros, validação externa retrospectiva); **nenhuma tem nível B** (o B de derrame pericárdico
+> foi retratado: o artigo avalia outro modelo, não os pesos distribuídos). Nível A aqui não é validação clínica. As medições são retrospectivas, em dados
 > públicos, e estão listadas com o caminho de cada artefato em
 > **[HONEST_STATUS.md](HONEST_STATUS.md)**, inclusive as reprovações e o nível A retratado.
 > Versões anteriores deste README alegavam acurácia e "validação clínica" que eram **fabricadas
@@ -50,14 +51,14 @@ se divergir):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `ct` | 0 | 1 | 0 | 2 | 0 |
+| `ct` | 0 | 0 | 0 | 1 | 0 |
 | `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 1 | 2 | 29 | 17 |
+| **Todas** | 2 | 0 | 2 | 28 | 17 |
 <!-- kpi-levels:fim -->
 
 Os registros medidos foram gerados a partir de um commit, sem código sujo. Resultado: **A** para
@@ -71,8 +72,7 @@ fratura, câncer de mama em mamografia e 13 condições de tórax **refutadas** 
 medidos (a coluna "Refutadas" do KPI conta 14 em `cxr` porque inclui a cardiomegalia, A com `pc` e
 refutada com `chex` e `mimic_*`)
 (`evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json`,
-`evidence/measured/cmmd/mammoscreen/malignancy.json`). **B** para derrame pericárdico em TC (`totalseg-pleural-pericard-effusion`, Wilder-Smith et al.
-2022, `evidence/published/ct_mr.yaml`). Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
+`evidence/measured/cmmd/mammoscreen/malignancy.json`). Nenhuma condição em B (o B de derrame pericárdico foi retratado; ver HONEST_STATUS). Detalhe em [HONEST_STATUS.md](HONEST_STATUS.md).
 
 ## O que existe hoje
 

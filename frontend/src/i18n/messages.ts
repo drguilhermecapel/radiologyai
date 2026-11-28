@@ -32,6 +32,15 @@ export const pt = {
   "role.physician": "médico(a)",
   "role.technician": "técnico(a)",
   "role.viewer": "leitor(a)",
+  "role.researcher": "pesquisador(a)",
+
+  "shadow.banner": "Modo silencioso: resultados de IA ocultos do cuidado (piloto)",
+  "shadow.banner.detail":
+    "As análises rodam e são auditadas, mas só a equipe de pesquisa vê a saída. Nada é enviado ao PACS.",
+  "shadow.empty.title": "Resultados de IA não exibidos",
+  "shadow.empty":
+    "Este serviço participa de um piloto silencioso: a saída da IA não é mostrada a quem presta o cuidado. Isto não indica exame normal nem ausência de achados; conduza o caso como de costume.",
+  "shadow.review": "—",
 
   "research.toggle": "Modo pesquisa",
   "research.toggle.help":
@@ -408,6 +417,15 @@ export const en: Messages = {
   "role.physician": "physician",
   "role.technician": "technician",
   "role.viewer": "viewer",
+  "role.researcher": "researcher",
+
+  "shadow.banner": "Silent mode: AI results hidden from care (pilot)",
+  "shadow.banner.detail":
+    "Analyses run and are audited, but only the research team sees the output. Nothing is sent to the PACS.",
+  "shadow.empty.title": "AI results not shown",
+  "shadow.empty":
+    "This service takes part in a silent pilot: the AI output is not shown to care providers. This does not mean a normal study or the absence of findings; manage the case as usual.",
+  "shadow.review": "—",
 
   "research.toggle": "Research mode",
   "research.toggle.help":

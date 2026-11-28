@@ -17,6 +17,7 @@ from radiologyai.api.schemas import (
     ReportOut,
     SignIn,
 )
+from radiologyai.api.shadow import block_ai, block_care_export
 from radiologyai.persistence.models import Analysis, Report, User
 from radiologyai.persistence.security import Permission
 from radiologyai.reporting.content import ReportContent
@@ -85,6 +86,9 @@ def create(
     """
     from radiologyai.reporting.service import create_report
 
+    block_ai(
+        platform, principal, action="report.create", subject_type="analysis", subject_id=analysis_id
+    )
     report_id = create_report(
         platform, analysis_id, user_id=principal.user_id, username=principal.username
     )
@@ -102,7 +106,9 @@ def list_for_analysis(
     platform: Annotated[Platform, Depends(get_platform)],
     analysis_id: str,
 ) -> list[ReportOut]:
-    del principal
+    block_ai(
+        platform, principal, action="report.list", subject_type="analysis", subject_id=analysis_id
+    )
     with platform.db.session() as session:
         ids = list(
             session.execute(
@@ -126,7 +132,7 @@ def get(
     report_id: str,
 ) -> ReportOut:
     """Laudo com verificação de integridade recalculada a cada leitura."""
-    del principal
+    block_ai(platform, principal, action="report.read", subject_type="report", subject_id=report_id)
     return report_out(platform, report_id)
 
 
@@ -151,6 +157,7 @@ def sign(
     from radiologyai.persistence.users import reauthenticate
     from radiologyai.reporting.service import sign_report
 
+    block_ai(platform, principal, action="report.sign", subject_type="report", subject_id=report_id)
     if not reauthenticate(platform.db, principal.user_id, body.password):
         raise HTTPException(status_code=401, detail="reautenticação falhou: senha incorreta")
     sign_report(
@@ -189,7 +196,7 @@ def pdf(
     report_id: str,
 ) -> Response:
     """PDF em português com cabeçalho de uso exclusivo em pesquisa e bloco de assinatura."""
-    del principal
+    block_ai(platform, principal, action="report.pdf", subject_type="report", subject_id=report_id)
     return _download(platform, report_id, "pdf")
 
 
@@ -205,7 +212,7 @@ def sr(
     report_id: str,
 ) -> Response:
     """DICOM SR TID 1500 (Comprehensive 3D SR). 409 se o estudo não é DICOM."""
-    del principal
+    block_ai(platform, principal, action="report.sr", subject_type="report", subject_id=report_id)
     return _download(platform, report_id, "sr")
 
 
@@ -222,7 +229,7 @@ def seg(
     seg_index: int,
 ) -> Response:
     """DICOM SEG (LABELMAP) da segmentação ``seg_index`` do resultado."""
-    del principal
+    block_ai(platform, principal, action="report.seg", subject_type="report", subject_id=report_id)
     return _download(platform, report_id, "seg", seg_index)
 
 
@@ -238,7 +245,7 @@ def fhir(
     report_id: str,
 ) -> Response:
     """FHIR R4 ``DiagnosticReport`` com ``status: preliminary``."""
-    del principal
+    block_ai(platform, principal, action="report.fhir", subject_type="report", subject_id=report_id)
     return _download(platform, report_id, "fhir")
 
 
@@ -270,6 +277,10 @@ def export(
     from radiologyai.reporting.dicom_sr import ReportFormatError
     from radiologyai.reporting.service import render_document
 
+    # Modo silencioso: nada sai em direção ao cuidado, para nenhum papel (REQ-195).
+    block_care_export(
+        platform, principal, action="report.export", subject_type="report", subject_id=report_id
+    )
     with platform.db.session() as session:
         report = session.get(Report, report_id)
         if report is None:

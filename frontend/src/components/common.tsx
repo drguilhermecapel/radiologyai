@@ -76,6 +76,28 @@ export function ResearchUseBanner(): ReactNode {
   );
 }
 
+/** Persistente enquanto o servidor estiver no modo silencioso do piloto (REQ-195). */
+export function ShadowModeBanner(): ReactNode {
+  const { t } = useI18n();
+  return (
+    <div className="shadow-banner" role="note" data-testid="shadow-banner">
+      <strong>{t("shadow.banner")}</strong>
+      <span className="ruo-detail">{t("shadow.banner.detail")}</span>
+    </div>
+  );
+}
+
+/** Estado vazio NEUTRO no lugar dos achados: nunca sugere "normal" nem "sem achados". */
+export function ShadowEmptyState(): ReactNode {
+  const { t } = useI18n();
+  return (
+    <section className="card shadow-empty" aria-labelledby="shadow-empty-title" data-testid="shadow-empty">
+      <h2 id="shadow-empty-title">{t("shadow.empty.title")}</h2>
+      <p className="muted">{t("shadow.empty")}</p>
+    </section>
+  );
+}
+
 export function ResearchModeBanner(): ReactNode {
   const { t } = useI18n();
   return (

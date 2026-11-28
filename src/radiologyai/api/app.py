@@ -131,6 +131,7 @@ async def _send_413(send: Send, limit: int) -> None:
 
 def _error_status() -> list[tuple[type[Exception], int]]:
     """Mapeamento exceção de domínio -> HTTP (mais específica primeiro)."""
+    from radiologyai.api.shadow import ShadowModeError
     from radiologyai.errors import (
         ConfigurationError,
         ExamTypeUnknownError,
@@ -156,6 +157,7 @@ def _error_status() -> list[tuple[type[Exception], int]]:
     from radiologyai.worker.jobs import NotFoundError
 
     return [
+        (ShadowModeError, 403),
         (NotFoundError, 404),
         (FrameRangeError, 404),
         (LoginThrottledError, 429),
@@ -236,6 +238,7 @@ def create_app(
         metrics,
         models,
         reports,
+        shadow,
         studies,
         users,
     )
@@ -350,6 +353,7 @@ def create_app(
         catalog.router,
         audit.router,
         dicomweb.router,
+        shadow.router,
         analyze.router,
     ):
         app.include_router(router, prefix=API_PREFIX)

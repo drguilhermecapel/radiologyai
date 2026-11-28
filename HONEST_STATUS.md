@@ -24,8 +24,13 @@
   radiologistas, AUROC 0,872 [0,848; 0,894]). Nível A aqui significa só *validação externa
   retrospectiva de algoritmo isolado* em um conjunto público; não é validação clínica. O nível A
   de tuberculose que `levels.json` chegou a mostrar foi **retratado** (ver "Nível A retratado").
-  **Uma condição tem nível B:** derrame pericárdico em TC (`totalseg-pleural-pericard-effusion`), pela validação publicada revisada por pares de Wilder-Smith et al., Diagnostics 2022 (DOI 10.3390/diagnostics12051045): sensibilidade 97,00% [91,48; 99,38] e especificidade 100,00% [96,38; 100,00] na coorte de teste do estudo (n = 200).
-  Não foi medida por este projeto; o artigo é internamente inconsistente quanto ao número de positivos (ressalva no registro `evidence/published/ct_mr.yaml`). Sem pontos de operação medidos, o achado aparece só com escore.
+  **Nenhuma condição tem nível B.** O B de derrame pericárdico em TC anunciado em 2026-11-27 foi
+  **retratado** em 2026-11-28: o artigo (Wilder-Smith et al., Diagnostics 2022) avalia um nnU-Net
+  de um rótulo só (derrame pericárdico, 1 mm, treino 316), e os pesos que distribuímos
+  (`totalseg-pleural-pericard-effusion`) são o Dataset315_thoraxCT — 3 rótulos (pulmão, derrame
+  pleural, derrame pericárdico), 1,5 mm, 600 casos de treino (`dataset.json` conferido). Evidência
+  de outro modelo não se transfere; o mesmo vale para os registros de derrame pleural de Sexauer
+  et al. 2022. Os registros foram para o contexto com o motivo `pesos_diferentes`.
   A maior parte das condições de tórax medidas no NIH foi
   **reprovada** (detalhe abaixo).
 - **Não houve validação clínica.** Nenhuma. Nenhum dado clínico de parceiro brasileiro foi
@@ -270,8 +275,12 @@ Como ler:
 ### RX de tórax: TorchXRayVision no Open-i (70 registros)
 
 Seis modelos TorchXRayVision em **todas as frontais do Open-i** (Indiana University, NLMCXR):
-4.014 imagens de 2.561 laudos. Rótulos: códigos MeSH atribuídos por curadores a partir do laudo
-(não é leitura adjudicada da imagem). O Open-i não publica id de paciente: divisão e bootstrap
+4.014 imagens de 2.561 laudos. Rótulos: termos MeSH **automáticos** (extraídos por máquina do laudo) por
+busca de substring, como no torchxrayvision — não o MeSH de curadores, nem leitura adjudicada da
+imagem; 1957 frontais sem termo automático contam como negativas. Com o MeSH de curadores, a
+AUROC de cardiomegalia na metade de teste muda pouco (`pc` 0,867; `nih` 0,826; conferido pela
+revisão adversarial). A cardiomegalia é robusta à divisão no Open-i: `pc` 0,873 / 0,873 / 0,874 e
+`nih` 0,825 / 0,825 / 0,826 (amostra completa / calibração / teste). O Open-i não publica id de paciente: divisão e bootstrap
 são agrupados por laudo, e um paciente com mais de um laudo pode cair nas duas metades, o que
 tende a otimizar a estimativa. Itens pré-especificados (`scripts/xrv_nih_evidence.py plan
 --datasets openi-frontal`) e commitados antes da inferência.
@@ -283,6 +292,13 @@ Como ler:
   (0,813 na metade de teste; 0,796 na amostra completa). Com isso o responsável retirou a
   suspensão de decisão do trio `pc` (REQ-193). O trio `nih` passou a A **só** pelo Open-i, com
   uma única validação externa, e decide com os pontos desse registro.
+- **Opacidade pulmonar reprovada no Open-i, nos mesmos modelos que a sustentam em A:** `chex`
+  0,601 [0,557; 0,643], `mimic_ch` 0,635, `mimic_nb` 0,639 (217 positivos na metade de teste).
+  O A vem só do subconjunto do NIH adjudicado por radiologistas (0,848–0,872). Pela regra
+  pré-registrada basta uma aprovação externa limpa, então o nível não muda, mas o sinal é
+  **contraditório**: o rótulo do Open-i ("opacity" por substring no MeSH automático) é mais
+  ruidoso e de outra definição que "Airspace opacity" adjudicado, e a diferença também pode ser
+  de população. Não leia este A como robusto.
 - **`all` treinou no Open-i** (vazamento `known`): as aprovações de cardiomegalia (0,867) e de
   derrame pleural (0,829) põem esses trios em **C** pela regra pré-registrada, mas esse C **não**
   é hold-out limpo — parte destas imagens esteve no treino.
@@ -382,14 +398,14 @@ manifesto que cobre os pesos medidos):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
-| `ct` | 0 | 1 | 0 | 2 | 0 |
+| `ct` | 0 | 0 | 0 | 1 | 0 |
 | `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 1 | 2 | 29 | 17 |
+| **Todas** | 2 | 0 | 2 | 28 | 17 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada de modelo distribuído em `levels.json`. Os ids de
@@ -399,8 +415,7 @@ registro citar modelo sem manifesto.
 
 **Níveis vigentes** (registros gerados a partir de um commit, sem código sujo): **A** para
 cardiomegalia (`xrv-densenet121-res224-pc` no NIH e no Open-i; `xrv-densenet121-res224-nih` no
-Open-i) e opacidade pulmonar (`xrv-densenet121-res224-chex`, `mimic_ch`, `mimic_nb`, no NIH); **B** para derrame pericárdico em TC
-(`totalseg-pleural-pericard-effusion`, validação publicada revisada por pares); **C** para tuberculose / `xr-probe-tb` (hold-out interno) e
+Open-i) e opacidade pulmonar (`xrv-densenet121-res224-chex`, `mimic_ch`, `mimic_nb`, no NIH); nenhum **B** (o de derrame pericárdico foi retratado); **C** para tuberculose / `xr-probe-tb` (hold-out interno) e
 derrame pleural / `xrv-densenet121-res224-all` (aprovado no Open-i, onde o modelo treinou: não é
 hold-out limpo);
 fratura (osteoarticular e em RX de tórax), câncer de mama em mamografia e a maior parte das

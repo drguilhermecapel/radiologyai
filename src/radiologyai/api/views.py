@@ -78,9 +78,11 @@ def analysis_summary(session: Session, a: Analysis) -> AnalysisSummary:
     )
 
 
-def study_out(session: Session, study: Study) -> StudyOut:
+def study_out(session: Session, study: Study, *, redact: bool = False) -> StudyOut:
+    """Estudo com séries e resumos das análises; ``redact`` = modo silencioso (REQ-195)."""
     from sqlalchemy import select
 
+    from radiologyai.api.shadow import redact_summary
     from radiologyai.persistence.models import Analysis
 
     analyses = session.execute(
@@ -99,7 +101,10 @@ def study_out(session: Session, study: Study) -> StudyOut:
         created_at=study.created_at,
         warnings=tuple(study.warnings or ()),
         series=tuple(series_out(s) for s in study.series),
-        analyses=tuple(analysis_summary(session, a) for a in analyses),
+        analyses=tuple(
+            redact_summary(analysis_summary(session, a)) if redact else analysis_summary(session, a)
+            for a in analyses
+        ),
     )
 
 

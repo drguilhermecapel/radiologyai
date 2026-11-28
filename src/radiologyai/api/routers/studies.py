@@ -30,6 +30,7 @@ from radiologyai.api.schemas import (
     StudyListOut,
     StudyOut,
 )
+from radiologyai.api.shadow import ai_visible, redact_summary
 from radiologyai.api.views import analysis_summary, series_out, study_out
 from radiologyai.catalog.schema import ExamType
 from radiologyai.interop.images import FrameData
@@ -133,7 +134,7 @@ def upload_study(
     with platform.db.session() as session:
         study = session.get(Study, result.study_id)
         assert study is not None
-        return study_out(session, study)
+        return study_out(session, study, redact=not ai_visible(platform, principal))
 
 
 @router.get(
@@ -155,12 +156,16 @@ def worklist(
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> StudyListOut:
-    """Lista de trabalho: estudos com o estado da análise mais recente e da revisão."""
+    """Lista de trabalho: estudos com o estado da análise mais recente e da revisão.
+
+    Modo silencioso (REQ-195) sem ``shadow:view``: o resumo da análise vem com
+    ``shadow: true`` e sem contagens de achados nem estado do resultado.
+    """
     from sqlalchemy import func, select
 
     from radiologyai.persistence.models import Analysis, Report, Review, Series, Study
 
-    del principal
+    visible = ai_visible(platform, principal)
     latest_id = (
         select(Analysis.id)
         .where(Analysis.study_id == Study.id)
@@ -226,7 +231,13 @@ def worklist(
                     exam_type_source=study.exam_type_source,
                     created_at=study.created_at,
                     n_series=int(n_series),
-                    latest_analysis=analysis_summary(session, latest) if latest else None,
+                    latest_analysis=(
+                        None
+                        if latest is None
+                        else analysis_summary(session, latest)
+                        if visible
+                        else redact_summary(analysis_summary(session, latest))
+                    ),
                     review_status=review,
                 )
             )
@@ -244,10 +255,11 @@ def get_study(
     platform: Annotated[Platform, Depends(get_platform)],
     study_id: str,
 ) -> StudyOut:
-    """Estudo com séries e análises."""
-    del principal
+    """Estudo com séries e análises (resumos com ``shadow: true`` no modo silencioso)."""
     with platform.db.session() as session:
-        return study_out(session, _get_study(session, study_id))
+        return study_out(
+            session, _get_study(session, study_id), redact=not ai_visible(platform, principal)
+        )
 
 
 @router.put(
@@ -287,7 +299,9 @@ def set_exam_type(
             session=session,
         )
     with platform.db.session() as session:
-        return study_out(session, _get_study(session, study_id))
+        return study_out(
+            session, _get_study(session, study_id), redact=not ai_visible(platform, principal)
+        )
 
 
 def _series(session: Session, series_id: str) -> Series:

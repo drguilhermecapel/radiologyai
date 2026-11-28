@@ -246,7 +246,7 @@ async function main() {
     // Achado "só escore" sem motivo no cartão é regressão (REQ-193): todo score_only explica.
     const scoreOnly = await page.locator('[data-testid^="finding-"]').filter({ hasText: "Só escore" }).count();
     if (scoreOnly > nNotes) {
-      log(`aviso: ${scoreOnly - nNotes} achado(s) só com escore sem nota de motivo`);
+      throw new Error(`${scoreOnly - nNotes} achado(s) só com escore sem nota de motivo (REQ-193)`);
     }
     if (/abstenção/.test(resultText)) {
       throw new Error("abstenção total: o fluxo não exercitou inferência real");

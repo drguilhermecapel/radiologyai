@@ -10,6 +10,7 @@ from sqlalchemy import select
 from radiologyai.api.deps import Principal, get_platform, perm, require
 from radiologyai.api.routers.studies import _ERRORS, FRAME_HEADERS, frame_headers
 from radiologyai.api.schemas import AnalysisCreateIn, AnalysisOut, ReviewIn, ReviewOut
+from radiologyai.api.shadow import ai_visible, audit_redaction, block_ai, redact_analysis
 from radiologyai.api.views import analysis_out, review_out
 from radiologyai.persistence.models import Analysis, Review, Study
 from radiologyai.persistence.security import Permission
@@ -66,7 +67,8 @@ def create_analysis(
     with platform.db.session() as session:
         analysis = session.get(Analysis, row.id)
         assert analysis is not None
-        return analysis_out(session, analysis, research_view=False, result=None)
+        out = analysis_out(session, analysis, research_view=False, result=None)
+    return out if ai_visible(platform, principal) else redact_analysis(out)
 
 
 @router.get(
@@ -80,8 +82,12 @@ def list_analyses(
     platform: Annotated[Platform, Depends(get_platform)],
     study_id: str,
 ) -> list[AnalysisOut]:
-    """Análises do estudo, mais recente primeiro (sem o resultado completo)."""
-    del principal
+    """Análises do estudo, mais recente primeiro (sem o resultado completo).
+
+    Modo silencioso (REQ-195) sem ``shadow:view``: cada item vem com ``shadow: true``
+    e sem hash, estado do resultado nem revisões.
+    """
+    visible = ai_visible(platform, principal)
     with platform.db.session() as session:
         if session.get(Study, study_id) is None:
             raise HTTPException(status_code=404, detail="estudo inexistente")
@@ -90,7 +96,8 @@ def list_analyses(
             .where(Analysis.study_id == study_id)
             .order_by(Analysis.requested_at.desc())
         ).scalars()
-        return [analysis_out(session, a, research_view=False, result=None) for a in rows]
+        outs = [analysis_out(session, a, research_view=False, result=None) for a in rows]
+    return outs if visible else [redact_analysis(o) for o in outs]
 
 
 @router.get(
@@ -111,6 +118,10 @@ def get_analysis(
 
     Por padrão achados exploratórios (nível D) são omitidos e contados em
     ``hidden_research_findings``.
+
+    Modo silencioso (REQ-195) sem ``shadow:view``: estado, entradas e tempos são
+    servidos; a saída de IA não (``shadow: true``, ``result: null``). Servir um
+    resultado concluído assim é auditado (``shadow.redacted``).
     """
     from radiologyai.reporting.service import load_result
 
@@ -120,8 +131,15 @@ def get_analysis(
         row = session.get(Analysis, analysis_id)
         if row is None:
             raise HTTPException(status_code=404, detail="análise inexistente")
-        result = load_result(row) if row.result_json is not None else None
-        return analysis_out(session, row, research_view=include_research, result=result)
+        if not ai_visible(platform, principal):
+            out = redact_analysis(analysis_out(session, row, research_view=False, result=None))
+            completed = row.result_json is not None
+        else:
+            result = load_result(row) if row.result_json is not None else None
+            return analysis_out(session, row, research_view=include_research, result=result)
+    if completed:
+        audit_redaction(platform, principal, analysis_id=analysis_id)
+    return out
 
 
 @router.post(
@@ -145,6 +163,9 @@ def create_review(
     from radiologyai.persistence.audit import append_event
     from radiologyai.reporting.service import load_result
 
+    block_ai(
+        platform, principal, action="review.create", subject_type="analysis", subject_id=analysis_id
+    )
     if body.action == "amend" and not (body.amended_decision or body.amended_text):
         raise HTTPException(status_code=422, detail="emenda exige amended_decision ou amended_text")
     with platform.db.session() as session:
@@ -210,7 +231,9 @@ def list_reviews(
     analysis_id: str,
 ) -> list[ReviewOut]:
     """Histórico completo de revisões (somente inserção)."""
-    del principal
+    block_ai(
+        platform, principal, action="review.list", subject_type="analysis", subject_id=analysis_id
+    )
     return list(get_analysis_reviews(platform, analysis_id))
 
 
@@ -255,6 +278,13 @@ def segmentation_frame(
     from radiologyai.reporting.exposure import main_exposure
     from radiologyai.reporting.service import load_result
 
+    block_ai(
+        platform,
+        principal,
+        action="segmentation.frame",
+        subject_type="analysis",
+        subject_id=analysis_id,
+    )
     with platform.db.session() as session:
         row = session.get(Analysis, analysis_id)
         if row is None or row.result_json is None:
