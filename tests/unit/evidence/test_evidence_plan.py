@@ -154,7 +154,8 @@ class TestPlanValidation:
     def test_repo_plan_is_valid_and_declares_every_status(self):
         plan = load_plan(REPO_PLAN)
         statuses = {j.status for j in plan.jobs}
-        assert statuses == {"measure", "pending", "excluded"}
+        # todo status do plano é válido; "pending" pode não existir quando nada falta medir
+        assert {"measure", "excluded"} <= statuses <= {"measure", "pending", "excluded"}
         assert plan.protocol_id == load_protocol().protocol_id
         for job in plan.jobs:
             if job.status == "measure":
