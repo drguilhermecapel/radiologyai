@@ -116,10 +116,10 @@
     "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-all@openi-frontal#emphysema",
-      "created_at": "2026-11-28T00:33:22.178289Z",
+      "created_at": "2026-11-28T12:26:06.384390Z",
       "dataset_id": "openi",
       "dataset_sha256": "a936fc86d774ce65a6c2454af8fe1789f2678ad5e595cadc72e5f68f75d22603",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

@@ -110,10 +110,10 @@
     "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_nb@openi-frontal#cardiomegaly",
-      "created_at": "2026-11-28T00:32:54.331052Z",
+      "created_at": "2026-11-28T12:25:49.564825Z",
       "dataset_id": "openi",
       "dataset_sha256": "42ba21e80c2d7a216d88085a32385989330a3bc0af71a1939787f42f79245cab",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

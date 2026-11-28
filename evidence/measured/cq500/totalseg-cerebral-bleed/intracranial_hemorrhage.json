@@ -1,0 +1,133 @@
+{
+  "declared": {
+    "git_dirty": false,
+    "internal_holdout": false,
+    "reference_derived_input": null,
+    "selection_data": [],
+    "training_data": [
+      "rusche-2023-ich-inhouse",
+      "totalsegmentator-ct"
+    ]
+  },
+  "format": "radiologyai.evidence/measured-v1",
+  "inputs": {
+    "detection_rule": "volume segmentado de hemorragia >= 0,1 mL (ponto de operação do manifesto)",
+    "n_missing_label_excluded": 0,
+    "plan_job": "totalseg-cerebral-bleed@cq500",
+    "predictions_file": "totalseg-cerebral_bleed/cq500/evidence.parquet",
+    "predictions_sha256": "be72481d9d94b8a4abf8907fa221638d19a5e8cfd34d045362f94b6e4d855cd3"
+  },
+  "operating_points": [],
+  "record": {
+    "caveats": [
+      "Medição retrospectiva de desempenho de algoritmo isolado; NÃO é validação clínica.",
+      "Achado sugerido para confirmação médica; nunca diagnóstico.",
+      "Regra pré-especificada: volume segmentado de hemorragia >= 0,1 mL (ponto de operação do manifesto)",
+      "IC: IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124.",
+      "O modelo segmenta hemorragia intracerebral (ICB); a referência do CQ500 é hemorragia intracraniana de qualquer tipo (inclui subdural, subaracnoide, epidural e intraventricular): espera-se perda de sensibilidade nesses subtipos.",
+      "Exames com 1 de 3 votos para HIC excluídos da seleção (referência ambígua); a especificidade é medida só contra negativos unânimes.",
+      "Exame sem volume (abstenção ou erro) conta como não detectado.",
+      "Prevalência da amostra (50%) fixada pelo desenho; VPP/VPN não generalizam."
+    ],
+    "condition_id": "ct.intracranial_hemorrhage",
+    "dataset": "cq500",
+    "endpoint": "detection",
+    "failure_reasons": [
+      "limite inferior do IC da sensibilidade 0.5500 < sens_spec_ci_low_min 0.8"
+    ],
+    "id": "measured:cq500:totalseg-cerebral-bleed:intracranial_hemorrhage:detection",
+    "kind": "measured_external",
+    "label": "intracranial_hemorrhage",
+    "leakage": "none",
+    "leakage_note": "nenhuma linhagem comum entre avaliação e treino (rusche-2023-ich-inhouse, totalsegmentator-ct)",
+    "metrics": {
+      "npv": {
+        "ci_high": 0.851063829787234,
+        "ci_low": 0.6842105263157895,
+        "value": 0.7647058823529411
+      },
+      "ppv": {
+        "ci_high": 1.0,
+        "ci_low": 0.8928571428571429,
+        "value": 0.9655172413793104
+      },
+      "sensitivity": {
+        "ci_high": 0.825,
+        "ci_low": 0.55,
+        "value": 0.7
+      },
+      "specificity": {
+        "ci_high": 1.0,
+        "ci_low": 0.925,
+        "value": 0.975
+      }
+    },
+    "model_id": "totalseg-cerebral-bleed",
+    "n_positive": 40,
+    "n_total": 80,
+    "passes_protocol": false,
+    "population": "CQ500 (qure.ai, Índia; CC BY-NC-SA 4.0), TC de crânio sem contraste; seleção pré-definida de 80 exames: 40 com HIC por maioria (>= 2 de 3 radiologistas) e 40 sem HIC por unanimidade (0 de 3); ordem sha256(\"medai-cq500-v1\" + nome)",
+    "provenance": {
+      "command": "evidence_run.py --plan evidence/measured/plan.yaml --job totalseg-cerebral-bleed@cq500",
+      "created_at": "2026-11-28T12:26:36.296969Z",
+      "dataset_id": "cq500",
+      "dataset_sha256": "001f18df3c87daa4074e42766e6d9c87a541ab7fb99e2b65339620681bd142e8",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
+      "protocol_id": "2026-11-v1",
+      "weights_sha256":
+{
+        "Dataset150_icb_v0__checkpoint_final.pth": "ec3631e060dd08e5602093531915e9095a09fe4783b9739603d183ec3ea71033",
+        "Dataset150_icb_v0__dataset.json": "21996c4158b757f97a446cbf681a3239a2cc21a4ca0e762a2582a902761164d8",
+        "Dataset150_icb_v0__plans.json": "a398431826ee81d8715f4ab380c26512615180e831b8e57d9d54ae590c95750a",
+        "Dataset298_TotalSegmentator_total_6mm_1559subj__checkpoint_final.pth": "3489323a4b759506ab46b489eb78b72142f2143aea6e6d828604d754bd7a9270",
+        "Dataset298_TotalSegmentator_total_6mm_1559subj__dataset.json": "e804e08ad8912e3a6f541741c8c78799d75acbd3f4f3f18ff5f211bbd3da961a",
+        "Dataset298_TotalSegmentator_total_6mm_1559subj__plans.json": "bfd9ab6cfc0e094ced3aff7d7ad23e00e4d50376110b9fdfce0fbca5564c8ca8"
+      }
+    },
+    "reference_derived_input": null,
+    "reference_standard": "radiologist_adjudicated",
+    "selection_overlap": [],
+    "source": null,
+    "training_leakage": "none"
+  },
+  "report": {
+    "ci_method": "IC95% bootstrap percentílico por paciente (cluster), estratificado por presença de positivo; B=2000, seed=20261124",
+    "counts": {
+      "n_images": 80,
+      "n_neg": 40,
+      "n_neg_patients": 40,
+      "n_patients": 80,
+      "n_pos": 40,
+      "n_pos_patients": 40
+    },
+    "npv": {
+      "ci_high": 0.851063829787234,
+      "ci_low": 0.6842105263157895,
+      "n_defined_replicates": null,
+      "n_replicates": null,
+      "value": 0.7647058823529411
+    },
+    "ppv": {
+      "ci_high": 1.0,
+      "ci_low": 0.8928571428571429,
+      "n_defined_replicates": null,
+      "n_replicates": null,
+      "value": 0.9655172413793104
+    },
+    "rule": "volume segmentado de hemorragia >= 0,1 mL (ponto de operação do manifesto)",
+    "sensitivity": {
+      "ci_high": 0.825,
+      "ci_low": 0.55,
+      "n_defined_replicates": null,
+      "n_replicates": null,
+      "value": 0.7
+    },
+    "specificity": {
+      "ci_high": 1.0,
+      "ci_low": 0.925,
+      "n_defined_replicates": null,
+      "n_replicates": null,
+      "value": 0.975
+    }
+  }
+}

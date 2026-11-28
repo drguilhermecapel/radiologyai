@@ -115,13 +115,14 @@ reportados na metade de teste, conforme o protocolo ([`docs/protocolo-evidencia.
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
+| `ct` | 0 | 0 | 0 | 1 | 1 |
 | `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 2 | 27 | 17 |
+| **Todas** | 2 | 0 | 2 | 28 | 18 |
 <!-- kpi-levels:fim -->
 
 A tabela é transcrita de `src/radiologyai/catalog/levels.json` contando **só entradas
@@ -157,7 +158,7 @@ Engenharia acontece em paralelo, em todos eles.
 | Portão | Pergunta que responde | Critério de saída (verificável) | Estado |
 |---|---|---|---|
 | **G0 — Integridade de engenharia** | O software pode mentir? | CI verde com ruff, mypy `--strict`, pytest, `scripts/check_honesty.py`, `scripts/trace.py --check`, `scripts/soup.py --check`; regra de ouro imposta; histórico sem segredos; `main` protegida | **parcial** — portões automatizados ativos; `main` protegida; expurgo de `medai_security.db` do histórico pendente |
-| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — 98 registros medidos de checkout limpo; 2 condições em A (NIH), A de TB retratado; câncer de mama refutado no CMMD; 13 condições de tórax refutadas em todos os modelos no NIH; CQ500 com inferência incompleta |
+| **G1 — Catálogo de evidência pública** | Quantas condições têm evidência, e de que força, usando só dados e literatura públicos? | Todo modelo que roda de verdade tem entradas no catálogo; `levels.json` gerado; KPI por modalidade publicado; todo registro A reproduzível de checkout limpo; todo registro B com citação conferida | **em andamento** — 98 registros medidos de checkout limpo; 2 condições em A (NIH), A de TB retratado; câncer de mama refutado no CMMD; 13 condições de tórax refutadas em todos os modelos no NIH; hemorragia intracraniana refutada no CQ500 (sensibilidade 0,700 [0,550; 0,825]); nenhuma medição pendente |
 | **G2 — Modelo próprio + validação externa retrospectiva brasileira** | Funciona em dado brasileiro de vários centros, que nunca vimos? | Protocolo por condição aprovado em CEP (Lei 14.874/2024; dispensa de TCLE pela Res. CNS 466/2012 item IV.8 quando justificável); dados de ≥ 2 centros brasileiros des-identificados pelo controlador; relatório STARD-AI/CLAIM; conjunto de teste sequestrado | não iniciado — depende de parceria institucional |
 | **G3 — Estudo de leitores MRMC** | O médico assistido erra menos? | Estudo multi-leitor multi-caso com padrão de referência e desenho pré-especificado (Obuchowski & Bullen 2022, DOI 10.1148/radiol.211593) | não iniciado — modelo de protocolo em [docs/clinical/protocolo-mrmc-G3.md](docs/clinical/protocolo-mrmc-G3.md) (não submetido a CEP); sem modo de leitura no software; depois de G2 |
 | **G4 — Piloto prospectivo silencioso** | Funciona no fluxo real, sem influenciar o cuidado? | Execução em paralelo ao fluxo, saídas **ocultas** do médico assistente, comparação posterior; relato DECIDE-AI (DOI 10.1038/s41591-022-01772-9); protocolo CEP | não iniciado — modelo de protocolo em [docs/clinical/protocolo-piloto-silencioso-G4.md](docs/clinical/protocolo-piloto-silencioso-G4.md) (não submetido a CEP); **habilitador no software implementado (REQ-195)**: `MEDAI_SHADOW_MODE` — análises rodam, são gravadas e auditadas; saída de IA oculta de todo papel sem `shadow:view` (papel `researcher`); nenhum envio ao PACS; exportação CSV pseudonimizada (dado pessoal pela LGPD; sem identificador direto, texto livre ou pixel), com escopo por período e auditada (`GET /api/v1/shadow/export`); pendentes protocolo no CEP, integração no hospital e relato DECIDE-AI; depois de G3 |
@@ -203,7 +204,7 @@ sem protocolo).
 |---|---|---|---|---|
 | Anatomia | TotalSegmentator `total` (Apache-2.0); "not a medical device" na própria documentação | 117 classes anatômicas | base para biomarcadores | viabilidade demonstrada em CPU |
 | Derrame pleural/pericárdico | TotalSegmentator `pleural_pericard_effusion` (Apache-2.0) | volume segmentado (REQ-131, REQ-132) | **D**: os artigos de Sexauer et al. 2022 (DOI 10.1097/RLI.0000000000000869) e Wilder-Smith et al. 2022 (DOI 10.3390/diagnostics12051045) avaliam nnU-Nets de um rótulo; os pesos distribuídos (Dataset315_thoraxCT, 3 rótulos, 600 casos) são outro modelo, então a evidência não se transfere (B retratado em 2026-11-28); classificador simples-vs-complexo **não** exposto | adaptador disponível |
-| Hemorragia intracerebral | TotalSegmentator `cerebral_bleed` (Apache-2.0) | volume segmentado | **D** — nenhuma acurácia de segmentação publicada para este modelo; caminho para A: medição externa no CQ500 (CC BY-NC-SA 4.0) | adaptador disponível; medição no CQ500 pendente (5 de 80 exames; `evidence/measured/ledger.yaml`) |
+| Hemorragia intracerebral | TotalSegmentator `cerebral_bleed` (Apache-2.0) | volume segmentado | **D, refutada** no CQ500 (80 exames, maioria de 3 radiologistas): sensibilidade 0,700 [0,550; 0,825], especificidade 0,975 [0,925; 1,000] na regra de 0,1 mL (`evidence/measured/cq500/totalseg-cerebral-bleed/intracranial_hemorrhage.json`) | adaptador disponível; **não** serve para excluir hemorragia |
 | Lesões hepáticas | TotalSegmentator `liver_lesions` (Apache-2.0) | lesões segmentadas | **D**: Nicoli et al. 2025 (DOI 10.1007/s10278-025-01716-y) relata o modelo conjunto MR+CT (750 estudos); os pesos distribuídos (Dataset591, só TC, 842 casos) são outro modelo, então a evidência não se transfere; **não** é ferramenta de exclusão | adaptador disponível |
 | Nódulo pulmonar | TotalSegmentator `lung_nodules` | nódulos segmentados | **D** — sem artigo; treinado em parte no LIDC-IDRI, logo **não há conjunto de teste limpo** disponível | adaptador disponível; sem caminho de nível no momento |
 | Cistos renais | TotalSegmentator `kidney_cysts` | cistos segmentados | **D** — sem artigo | adaptador disponível |
