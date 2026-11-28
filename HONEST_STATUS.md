@@ -123,6 +123,7 @@ validação clínica**.
 
 | Condição / modelo | Dataset (tipo, vazamento) | Resultado | Consequência |
 |---|---|---|---|
+| Hemorragia intracraniana / `totalseg-cerebral-bleed` (`totalseg-cerebral-bleed@cq500`) | CQ500 (Índia), externo, treino sem sobreposição; referência por maioria de 3 radiologistas | detecção na regra pré-especificada (volume ≥ 0,1 mL): sensibilidade 0,700 [0,550; 0,825], especificidade 0,975 [0,925; 1,000], 40 com e 40 sem HIC — `evidence/measured/cq500/totalseg-cerebral-bleed/intracranial_hemorrhage.json` | **refuta** `ct.intracranial_hemorrhage` (limite inferior da sensibilidade < 0,80). O modelo segmenta hemorragia intracerebral e a referência é HIC de qualquer subtipo, mas a perda não vem só daí: contagem descritiva (não pré-especificada) detectou 22 de 29 intraparenquimatosas, 6 de 10 subdurais, 12 de 14 subaracnoides e 5 de 5 intraventriculares; 1 exame sem volume contou como não detectado |
 | Fratura / `xr-probe-fracture` | GRAZPEDWRI-DX (punho pediátrico), externo, treino sem sobreposição, seleção `known` | AUROC 0,690 [0,633; 0,743], n=632 imagens — `evidence/measured/grazpedwri-dx-sample/xr-probe-fracture/fracture.json` | **refuta** a condição pela regra do protocolo (reprovação externa sem vazamento pelo treino; o reuso na seleção não anula uma reprovação) |
 | Lesão mamária maligna / `us-probe-breast-malignancy` | BrEaST-Lesions-USG (Polônia), externo, `possible` | AUROC 0,820 [0,740; 0,893], n=126 — `evidence/measured/breast-lesions-usg/us-probe-breast-malignancy/breast_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
 | Lesão hepática maligna / `us-probe-liver-lesion-malignancy` | Zenodo 7272660, interno, `known` | AUROC 0,811 [0,609; 0,848], n=362 — `evidence/measured/liver-lesion-us-7272660/us-probe-liver-lesion-malignancy/liver_lesion_malignant.json` | limite inferior do IC abaixo de 0,75 |
@@ -386,8 +387,7 @@ Como ler:
 | `cxr.pulmonary_fibrosis` | `nih` | none | 0,906 [0,851; 0,961] | 7/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-nih/fibrosis.json` |
 | `cxr.pulmonary_fibrosis` | `pc` | none | 0,744 [0,575; 0,893] | 7/2026 | não elegível | `evidence/measured/openi/xrv-densenet121-res224-pc/fibrosis.json` |
 
-**Pendentes (inferência incompleta; nenhuma métrica é extrapolada de conjunto incompleto):**
-`totalseg-cerebral-bleed@cq500` (5 de 80 exames; inferência em andamento). Itens
+**Pendentes:** nenhum item de medição pendente. Itens
 excluídos do plano (provas de caminho, calibração de portões, execuções de fumaça) e o motivo de
 cada um estão no ledger.
 
@@ -400,13 +400,14 @@ manifesto que cobre os pesos medidos):
 <!-- kpi-levels:inicio (gerado de src/radiologyai/catalog/levels.json) -->
 | Modalidade (prefixo) | A | B | C | D | Refutadas |
 |---|---:|---:|---:|---:|---:|
+| `ct` | 0 | 0 | 0 | 1 | 1 |
 | `cxr` | 2 | 0 | 2 | 15 | 15 |
 | `echo` | 0 | 0 | 0 | 1 | 0 |
 | `mg` | 0 | 0 | 0 | 2 | 1 |
 | `mr` | 0 | 0 | 0 | 2 | 0 |
 | `msk_xr` | 0 | 0 | 0 | 4 | 1 |
 | `us` | 0 | 0 | 0 | 3 | 0 |
-| **Todas** | 2 | 0 | 2 | 27 | 17 |
+| **Todas** | 2 | 0 | 2 | 28 | 18 |
 <!-- kpi-levels:fim -->
 
 O catálogo tem 63 condições; 34 têm entrada de modelo distribuído em `levels.json`. Os ids de

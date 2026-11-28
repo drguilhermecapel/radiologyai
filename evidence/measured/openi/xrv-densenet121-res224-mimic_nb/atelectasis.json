@@ -110,10 +110,10 @@
     "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_nb@openi-frontal#atelectasis",
-      "created_at": "2026-11-28T00:32:52.247378Z",
+      "created_at": "2026-11-28T12:25:48.639517Z",
       "dataset_id": "openi",
       "dataset_sha256": "f8856025ac3473743093fd35e6acbf9b044471b74c67d692b28ae05c97038245",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

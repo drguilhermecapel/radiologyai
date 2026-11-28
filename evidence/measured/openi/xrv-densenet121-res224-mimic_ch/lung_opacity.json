@@ -110,10 +110,10 @@
     "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-mimic_ch@openi-frontal#lung_opacity",
-      "created_at": "2026-11-28T00:33:12.330634Z",
+      "created_at": "2026-11-28T12:26:00.134401Z",
       "dataset_id": "openi",
       "dataset_sha256": "036056bbdc865d2eb86555f26282bee9e3b129ab9305b85cb1c443baaca5599b",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

@@ -2697,21 +2697,20 @@ entries:
   - AUROC 0.7896 < auroc_min 0.8
   - limite inferior do IC da AUROC 0.7154 < auroc_ci_low_min 0.75
 - job: totalseg-cerebral-bleed@cq500
-  outcome: pendente
+  outcome: reprovado
   model_id: totalseg-cerebral-bleed
   dataset_id: cq500
   label: intracranial_hemorrhage
   condition_id: ct.intracranial_hemorrhage
   endpoint: detection
   awaiting_condition: false
-  record: null
-  kind: null
-  leakage: null
-  n_total: null
-  n_positive: null
+  record: measured/cq500/totalseg-cerebral-bleed/intracranial_hemorrhage.json
+  kind: measured_external
+  leakage: none
+  n_total: 80
+  n_positive: 40
   reasons:
-  - 'medição pendente: inferência em andamento (10 de 80 exames da seleção pré-definida, 40 com e 40 sem
-    HIC, ordem sha256). Especificação abaixo fixada antes do resultado.'
+  - limite inferior do IC da sensibilidade 0.5500 < sens_spec_ci_low_min 0.8
 - job: xrv-densenet121-pc@nih-cxr14-sample300
   outcome: excluido
   model_id: xrv-densenet121-pc

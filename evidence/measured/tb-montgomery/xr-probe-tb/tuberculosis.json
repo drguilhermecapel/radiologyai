@@ -117,10 +117,10 @@
     "population": "NLM Montgomery County (Maryland, EUA), programa de controle de TB; conjunto inteiro (138 radiografias PA, uma por caso)",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-tb@tb-montgomery",
-      "created_at": "2026-11-28T00:22:41.190284Z",
+      "created_at": "2026-11-28T12:16:40.673417Z",
       "dataset_id": "tb-montgomery",
       "dataset_sha256": "bf73b7253c3ae629a37b9ef4cd86d03372c03ef01aa9f5f740d79691c0cb7c8a",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

@@ -110,10 +110,10 @@
     "population": "Indiana University / Open-i (NLMCXR, EUA); todas as radiografias frontais (PA/AP) com PNG do índice local: 4014 imagens de 2561 laudos",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xrv-densenet121-res224-chex@openi-frontal#fracture",
-      "created_at": "2026-11-28T00:32:42.479932Z",
+      "created_at": "2026-11-28T12:25:42.794059Z",
       "dataset_id": "openi",
       "dataset_sha256": "de9f44783d149e60f71cd1d0a89a6f5162246f13f3b7765aba166d893f9c320e",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

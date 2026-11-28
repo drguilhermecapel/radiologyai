@@ -114,10 +114,10 @@
     "population": "FracAtlas (Bangladesh), amostra do spike com todas as 719 imagens com fratura e 1260 sem fratura; mão, perna, quadril e ombro",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-fracture@fracatlas",
-      "created_at": "2026-11-28T00:22:43.693703Z",
+      "created_at": "2026-11-28T12:16:43.505890Z",
       "dataset_id": "fracatlas",
       "dataset_sha256": "410c1dca69800934732c11504e1d611d62ef99ddc82ec46da6c41893f8635046",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

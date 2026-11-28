@@ -117,10 +117,10 @@
     "population": "GRAZPEDWRI-DX (Graz, Áustria), trauma de punho PEDIÁTRICO; amostra de 400 pacientes sorteados com numpy default_rng(0), todas as suas imagens",
     "provenance": {
       "command": "evidence_run.py --plan evidence/measured/plan.yaml --job xr-probe-fracture@grazpedwri-dx-sample",
-      "created_at": "2026-11-28T00:22:44.698164Z",
+      "created_at": "2026-11-28T12:16:44.646241Z",
       "dataset_id": "grazpedwri-dx-sample",
       "dataset_sha256": "90782072a23c8e69b1a025651e914435be62f9f5f16245a302945d9b1de328cc",
-      "git_sha": "3e55654c6e2b718f30c16c35f178cd5184ab1aa9",
+      "git_sha": "bb306f87430ad5344f101990a57ceaf4d92c97d2",
       "protocol_id": "2026-11-v1",
       "weights_sha256":
 {

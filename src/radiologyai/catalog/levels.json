@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "basis": [
+        "measured:cq500:totalseg-cerebral-bleed:intracranial_hemorrhage:detection"
+      ],
+      "condition_id": "ct.intracranial_hemorrhage",
+      "distributed": true,
+      "headline": "refutado por medição própria em cq500: limite inferior do IC da sensibilidade 0.5500 < sens_spec_ci_low_min 0.8",
+      "label": "intracranial_hemorrhage",
+      "level": "D",
+      "limited_by": [],
+      "model_id": "totalseg-cerebral-bleed",
+      "refuted_by_measurement": true,
+      "visibility": "research"
+    },
+    {
       "basis": [],
       "condition_id": "cxr.atelectasis",
       "distributed": true,
@@ -1486,6 +1500,6 @@
       "visibility": "research"
     }
   ],
-  "evidence_digest": "90c37b4d4c8faaf3e9907f75d7521026e748de477891d1d9c58a7169b45c7ff1",
+  "evidence_digest": "cb01fa94cfaee2ece0dc8c77ee1d4500f4840213c2e785c1e6eea1c7d38db96a",
   "protocol_id": "2026-11-v1"
 }
